@@ -6,11 +6,13 @@ import {
   CheckCircle2,
   XCircle,
   Lock,
+  Palette,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
 import { SignOutButton } from "@/components/sign-out-button";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { initials } from "@/lib/utils";
@@ -63,6 +65,22 @@ export default async function SettingsPage() {
               </div>
               <SignOutButton />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Appearance */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Palette className="size-4 text-primary" /> Appearance
+            </CardTitle>
+            <CardDescription>
+              Pick an accent colour. It applies instantly across the app and is
+              remembered on this device.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ThemeSwitcher />
           </CardContent>
         </Card>
 

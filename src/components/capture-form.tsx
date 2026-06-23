@@ -80,15 +80,12 @@ export function CaptureForm({ userId }: { userId: string }) {
         .upload(path, f, { contentType: f.type || undefined });
       if (upErr) throw new Error(upErr.message);
 
-      // .txt files: read the text right here so extraction can run immediately.
+      // .txt files: read text here. Images & PDFs are read server-side
+      // (vision OCR for images, text layer for PDFs) during extraction.
       let extractedText = notes.trim() ? `Notes: ${notes.trim()}` : "";
-      let needsTextExtraction = false;
       if (ext === "txt") {
         const raw = await f.text();
         extractedText = [raw, extractedText].filter(Boolean).join("\n\n");
-      } else {
-        // PDF / image — OCR is a later milestone.
-        needsTextExtraction = true;
       }
 
       const res = await createInboxItem({
@@ -97,17 +94,11 @@ export function CaptureForm({ userId }: { userId: string }) {
         fileUrl: path,
         fileName: f.name,
         fileType: f.type || ext,
-        needsTextExtraction,
+        needsTextExtraction: false,
       });
       if (!res.ok) throw new Error(res.error);
 
-      toast({
-        variant: needsTextExtraction ? "info" : "success",
-        title: needsTextExtraction ? "Uploaded — needs text" : "Captured — review ready",
-        description: needsTextExtraction
-          ? "We saved your file. Add its text on the next screen to extract details."
-          : undefined,
-      });
+      toast({ variant: "success", title: "Captured — review ready" });
       router.push(`/inbox/${res.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -266,6 +257,9 @@ function FileDrop({
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         PDF, PNG, JPG or TXT · up to 10 MB
+      </p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        DailyOS reads the text from photos &amp; PDFs automatically.
       </p>
       <input
         ref={inputRef}

@@ -1,8 +1,25 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import { extractFromText } from "@/lib/ai/extract";
+import {
+  extractFromText,
+  extractFromImage,
+  extractPdfText,
+} from "@/lib/ai/extract";
 import type { ExtractionResult, InboxItem } from "@/lib/types";
+
+function looksLikeImage(item: InboxItem): boolean {
+  return (
+    (item.file_type ?? "").includes("image") ||
+    /\.(png|jpe?g|gif|webp)$/i.test(item.file_name ?? "")
+  );
+}
+function looksLikePdf(item: InboxItem): boolean {
+  return (
+    (item.file_type ?? "").includes("pdf") ||
+    /\.pdf$/i.test(item.file_name ?? "")
+  );
+}
 
 /**
  * Core extraction pipeline.
@@ -39,23 +56,46 @@ export async function processInboxItem(
     .update({ status: "processing" })
     .eq("id", itemId);
 
-  // 2. Resolve text content.
-  const text = (item.original_text ?? "").trim();
-
-  if (!text) {
-    // A file was uploaded but we couldn't read text from it yet.
-    const message =
-      "No machine-readable text yet. Open the item to add text or wait for OCR.";
-    await supabase
-      .from("inbox_items")
-      .update({ status: "review", needs_text_extraction: true })
-      .eq("id", itemId);
-    await logStatus(itemId, item.user_id, "review", message);
-    return { ok: true, status: "review", message };
-  }
-
   try {
-    const result: ExtractionResult = await extractFromText(item.title, text);
+    // 2. Resolve content. Prefer any pasted text; otherwise read the file:
+    //    images → vision OCR + extract; PDFs → text layer; else needs text.
+    let text = (item.original_text ?? "").trim();
+    let result: ExtractionResult | null = null;
+
+    if (!text && item.file_url) {
+      const { data: blob, error: dlErr } = await supabase.storage
+        .from("inbox-files")
+        .download(item.file_url);
+
+      if (dlErr || !blob) throw new Error("Could not read the uploaded file.");
+      const buffer = Buffer.from(await blob.arrayBuffer());
+
+      if (looksLikeImage(item)) {
+        const mime = item.file_type?.includes("/")
+          ? item.file_type
+          : "image/jpeg";
+        const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
+        result = await extractFromImage(item.title, dataUrl);
+      } else if (looksLikePdf(item)) {
+        text = await extractPdfText(buffer);
+      }
+    }
+
+    // Couldn't get anything readable (e.g. a scanned PDF with no text layer).
+    if (!result && !text) {
+      const message =
+        "We couldn't read any text from this file. Open the item to paste the key text.";
+      await supabase
+        .from("inbox_items")
+        .update({ status: "review", needs_text_extraction: true })
+        .eq("id", itemId);
+      await logStatus(itemId, item.user_id, "review", message);
+      return { ok: true, status: "review", message };
+    }
+
+    if (!result) {
+      result = await extractFromText(item.title, text);
+    }
 
     await supabase
       .from("inbox_items")
