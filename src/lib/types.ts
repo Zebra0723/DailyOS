@@ -1,0 +1,167 @@
+// ----------------------------------------------------------------------------
+// Shared domain types for DailyOS.
+// These mirror the Supabase schema in supabase/schema.sql.
+// ----------------------------------------------------------------------------
+
+export type InboxStatus =
+  | "pending"
+  | "processing"
+  | "review"
+  | "approved"
+  | "failed";
+
+export type InputType = "file" | "text";
+
+export type ItemType =
+  | "travel"
+  | "receipt"
+  | "warranty"
+  | "booking"
+  | "school"
+  | "finance"
+  | "health"
+  | "subscription"
+  | "event"
+  | "general";
+
+export type VaultCategory =
+  | "travel"
+  | "home"
+  | "school"
+  | "finance"
+  | "purchases"
+  | "health"
+  | "subscriptions"
+  | "general";
+
+export type Priority = "low" | "medium" | "high";
+export type TaskStatus = "pending" | "completed";
+
+export interface InboxItem {
+  id: string;
+  user_id: string;
+  title: string;
+  input_type: InputType;
+  original_text: string | null;
+  file_url: string | null;
+  file_name: string | null;
+  file_type: string | null;
+  status: InboxStatus;
+  item_type: ItemType | null;
+  summary: string | null;
+  raw_ai_json: ExtractionResult | null;
+  needs_text_extraction: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExtractedTask {
+  id: string;
+  user_id: string;
+  inbox_item_id: string | null;
+  title: string;
+  description: string | null;
+  due_date: string | null;
+  priority: Priority;
+  status: TaskStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CalendarEvent {
+  id: string;
+  user_id: string;
+  inbox_item_id: string | null;
+  title: string;
+  description: string | null;
+  start_time: string;
+  end_time: string | null;
+  location: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VaultItem {
+  id: string;
+  user_id: string;
+  inbox_item_id: string;
+  category: VaultCategory;
+  title: string;
+  summary: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProcessingLog {
+  id: string;
+  user_id: string;
+  inbox_item_id: string;
+  status: string;
+  message: string | null;
+  created_at: string;
+}
+
+// --- AI extraction shape ----------------------------------------------------
+
+export interface KeyDate {
+  date: string;
+  time: string | null;
+  description: string;
+}
+
+export interface SuggestedTask {
+  title: string;
+  description: string | null;
+  due_date: string | null;
+  priority: Priority;
+}
+
+export interface SuggestedEvent {
+  title: string;
+  description: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  location: string | null;
+}
+
+export interface Entities {
+  people: string[];
+  companies: string[];
+  places: string[];
+  prices: string[];
+  reference_numbers: string[];
+}
+
+export interface ExtractionResult {
+  item_type: ItemType;
+  summary: string;
+  key_dates: KeyDate[];
+  suggested_tasks: SuggestedTask[];
+  suggested_calendar_events: SuggestedEvent[];
+  entities: Entities;
+  vault_category: VaultCategory;
+}
+
+export const ITEM_TYPE_LABELS: Record<ItemType, string> = {
+  travel: "Travel",
+  receipt: "Receipt",
+  warranty: "Warranty",
+  booking: "Booking",
+  school: "School",
+  finance: "Finance",
+  health: "Health",
+  subscription: "Subscription",
+  event: "Event",
+  general: "General",
+};
+
+export const VAULT_CATEGORY_LABELS: Record<VaultCategory, string> = {
+  travel: "Travel",
+  home: "Home",
+  school: "School",
+  finance: "Finance",
+  purchases: "Purchases",
+  health: "Health",
+  subscriptions: "Subscriptions",
+  general: "General",
+};

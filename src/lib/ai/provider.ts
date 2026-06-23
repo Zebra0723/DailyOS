@@ -1,0 +1,97 @@
+// ----------------------------------------------------------------------------
+// Thin, swappable LLM provider layer.
+//
+// We target the OpenAI-compatible Chat Completions API so the same code works
+// with OpenAI, Groq, Together, OpenRouter, a local Ollama, etc. Swapping
+// providers is just changing AI_PROVIDER_BASE_URL / AI_MODEL / AI_PROVIDER_API_KEY.
+//
+// This module is server-only: it reads the API key from the environment and
+// must never be imported into a client component.
+// ----------------------------------------------------------------------------
+
+import "server-only";
+
+export interface ChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+export interface ChatOptions {
+  messages: ChatMessage[];
+  /** Encourage strict JSON output where the provider supports it. */
+  json?: boolean;
+  temperature?: number;
+}
+
+export interface AIProvider {
+  readonly name: string;
+  readonly model: string;
+  isConfigured(): boolean;
+  chat(opts: ChatOptions): Promise<string>;
+}
+
+class OpenAICompatibleProvider implements AIProvider {
+  readonly name = "openai-compatible";
+
+  constructor(
+    private readonly baseUrl: string,
+    private readonly apiKey: string,
+    readonly model: string,
+  ) {}
+
+  isConfigured(): boolean {
+    return Boolean(this.baseUrl && this.apiKey && this.model);
+  }
+
+  async chat({ messages, json, temperature = 0.2 }: ChatOptions): Promise<string> {
+    if (!this.isConfigured()) {
+      throw new Error(
+        "AI provider is not configured. Set AI_PROVIDER_BASE_URL, AI_PROVIDER_API_KEY and AI_MODEL.",
+      );
+    }
+
+    const res = await fetch(`${this.baseUrl.replace(/\/$/, "")}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        temperature,
+        messages,
+        ...(json ? { response_format: { type: "json_object" } } : {}),
+      }),
+      // Don't hang forever on a slow provider.
+      signal: AbortSignal.timeout(60_000),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(
+        `AI provider returned ${res.status}: ${text.slice(0, 500)}`,
+      );
+    }
+
+    const data = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error("AI provider returned an empty response.");
+    }
+    return content;
+  }
+}
+
+let cached: AIProvider | null = null;
+
+export function getAIProvider(): AIProvider {
+  if (cached) return cached;
+  cached = new OpenAICompatibleProvider(
+    process.env.AI_PROVIDER_BASE_URL ?? "https://api.openai.com/v1",
+    process.env.AI_PROVIDER_API_KEY ?? "",
+    process.env.AI_MODEL ?? "gpt-4o-mini",
+  );
+  return cached;
+}
