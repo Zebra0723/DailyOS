@@ -130,50 +130,53 @@ export async function approveInboxItem(id: string, payload: ApprovePayload) {
   await supabase.from("calendar_events").delete().eq("inbox_item_id", id);
   await supabase.from("vault_items").delete().eq("inbox_item_id", id);
 
-  if (payload.tasks.length) {
-    await supabase.from("extracted_tasks").insert(
-      payload.tasks.map((t) => ({
+  const cleanTasks = payload.tasks.filter((t) => t.title.trim());
+  if (cleanTasks.length) {
+    const { error } = await supabase.from("extracted_tasks").insert(
+      cleanTasks.map((t) => ({
         user_id: user.id,
         inbox_item_id: id,
-        title: t.title,
-        description: t.description,
-        due_date: t.due_date,
+        title: t.title.trim(),
+        description: t.description || null,
+        due_date: t.due_date || null,
         priority: t.priority,
         status: "pending" as const,
       })),
     );
+    if (error) return { ok: false as const, error: `Tasks: ${error.message}` };
   }
 
-  if (payload.events.length) {
-    await supabase.from("calendar_events").insert(
-      payload.events
-        .filter((e) => e.start_time)
-        .map((e) => ({
-          user_id: user.id,
-          inbox_item_id: id,
-          title: e.title,
-          description: e.description,
-          start_time: e.start_time,
-          end_time: e.end_time,
-          location: e.location,
-        })),
+  const cleanEvents = payload.events.filter((e) => e.title.trim() && e.start_time);
+  if (cleanEvents.length) {
+    const { error } = await supabase.from("calendar_events").insert(
+      cleanEvents.map((e) => ({
+        user_id: user.id,
+        inbox_item_id: id,
+        title: e.title.trim(),
+        description: e.description || null,
+        start_time: e.start_time,
+        end_time: e.end_time || null,
+        location: e.location || null,
+      })),
     );
+    if (error) return { ok: false as const, error: `Events: ${error.message}` };
   }
 
   // Always create / refresh the vault entry so the item is findable.
-  await supabase.from("vault_items").insert({
+  const { error: vaultErr } = await supabase.from("vault_items").insert({
     user_id: user.id,
     inbox_item_id: id,
     category: payload.vaultCategory,
     title: (await getTitle(supabase, id)) ?? "Untitled",
     summary: payload.summary,
   });
+  if (vaultErr) return { ok: false as const, error: `Vault: ${vaultErr.message}` };
 
   await supabase.from("processing_logs").insert({
     user_id: user.id,
     inbox_item_id: id,
     status: "approved",
-    message: `Approved with ${payload.tasks.length} task(s) and ${payload.events.length} event(s).`,
+    message: `Approved with ${cleanTasks.length} task(s) and ${cleanEvents.length} event(s).`,
   });
 
   revalidatePath("/inbox");

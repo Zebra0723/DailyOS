@@ -192,12 +192,25 @@ export function ItemReview({
   // --- Review / approved editor ---------------------------------------------
   async function onApprove() {
     setBusy(true);
+    // Normalise datetimes to proper ISO (browser tz) so stored times match
+    // what the user sees in the editor.
+    const toIso = (v: string | null) => {
+      if (!v) return null;
+      const d = new Date(v);
+      return Number.isNaN(d.getTime()) ? null : d.toISOString();
+    };
     const res = await approveInboxItem(item.id, {
       summary,
       itemType,
       vaultCategory: category,
       tasks: tasks.filter((t) => t.title.trim()),
-      events: events.filter((e) => e.title.trim()),
+      events: events
+        .filter((e) => e.title.trim() && e.start_time)
+        .map((e) => ({
+          ...e,
+          start_time: toIso(e.start_time),
+          end_time: toIso(e.end_time),
+        })),
     });
     setBusy(false);
     if (!res.ok) {
