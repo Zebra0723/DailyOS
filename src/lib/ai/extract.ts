@@ -17,10 +17,13 @@ Rules:
 - Dates must be ISO "YYYY-MM-DD". Times "HH:mm" (24h) or null.
 - Calendar start_time/end_time must be full ISO datetimes (YYYY-MM-DDTHH:mm:ss)
   or null if no clear time exists.
-- ALWAYS return a clear, non-empty summary (one or two friendly sentences).
-- ALWAYS include at least ONE genuinely useful suggested_task. Never return an
-  empty suggested_tasks array — if nothing obvious, suggest a sensible next
-  step (e.g. "Review and file this", "Set a reminder").
+- ALWAYS return a clear, SPECIFIC, non-empty summary. Name the concrete details
+  you found — who/what, the amount, the date, the place, the reference number —
+  e.g. "Currys receipt for £429.00 (Dyson V11), paid 3 Jun. Ref 9921-AB." Never
+  write a vague summary like "a receipt" or "a travel item".
+- ALWAYS include at least ONE genuinely useful, specific suggested_task. Never
+  return an empty suggested_tasks array. Phrase tasks as concrete actions
+  ("Check in for TP8842K by 11 Jul"), not generic ones.
 - If the item mentions any date/time, include a matching suggested_calendar_event.
 - Choose the single best item_type and vault_category.
 

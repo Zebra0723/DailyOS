@@ -1,12 +1,12 @@
 // ----------------------------------------------------------------------------
 // Local, no-API extraction.
 //
-// This runs when no AI provider is configured (or when an AI call fails), so
-// DailyOS works end-to-end with zero API keys and never leaves an item in a
-// "failed" state. It uses lightweight heuristics — keyword classification plus
-// date / price / reference regexes — to produce the same ExtractionResult shape
-// the LLM would return. If a real AI key is added later, the richer LLM path is
-// used automatically instead.
+// Runs when no AI provider is configured (or an AI call fails) so DailyOS works
+// end-to-end with zero keys and never leaves an item "failed". It composes a
+// SPECIFIC, professional result from the item's real content — leading with the
+// user's own first line and the concrete facts it can find (amounts, dates,
+// reference numbers) rather than generic filler. With a real AI key the richer
+// LLM path is used instead.
 // ----------------------------------------------------------------------------
 
 import type {
@@ -21,17 +21,17 @@ const TYPE_RULES: { type: ItemType; cat: VaultCategory; kw: RegExp }[] = [
   {
     type: "travel",
     cat: "travel",
-    kw: /\b(flight|airline|boarding|airport|departure|arrival|gate|hotel|booking|reservation|check[\s-]?in|itinerary|train|eurostar|ryanair|easyjet|british airways|tap|seat \d)\b/i,
+    kw: /\b(flight|airline|boarding|airport|departure|arrival|gate|terminal|hotel|reservation|check[\s-]?in|itinerary|train|eurostar|ryanair|easyjet|british airways|seat \d|pnr)\b/i,
   },
   {
     type: "receipt",
     cat: "purchases",
-    kw: /\b(receipt|order\s*#|order no|subtotal|total|paid|vat|qty|amount due|purchase)\b/i,
+    kw: /\b(receipt|order\s*#|order no|subtotal|total|paid|vat|qty|amount due|purchase|invoice no)\b/i,
   },
   {
     type: "warranty",
     cat: "home",
-    kw: /\b(warranty|guarantee|coverage|covered until|policy)\b/i,
+    kw: /\b(warranty|guarantee|coverage|covered until|expires?|policy)\b/i,
   },
   {
     type: "school",
@@ -41,22 +41,22 @@ const TYPE_RULES: { type: ItemType; cat: VaultCategory; kw: RegExp }[] = [
   {
     type: "finance",
     cat: "finance",
-    kw: /\b(bank|statement|tax|hmrc|salary|payment due|direct debit|balance|invoice|sort code)\b/i,
+    kw: /\b(bank|statement|tax|hmrc|salary|payment due|direct debit|balance|sort code|invoice)\b/i,
   },
   {
     type: "health",
     cat: "health",
-    kw: /\b(appointment|doctor|dentist|\bgp\b|nhs|clinic|prescription|vaccine|hospital|optician)\b/i,
+    kw: /\b(appointment|doctor|dentist|\bgp\b|nhs|clinic|prescription|vaccine|hospital|optician|surgery)\b/i,
   },
   {
     type: "subscription",
     cat: "subscriptions",
-    kw: /\b(subscription|renew(s|al)?|membership|auto[\s-]?renew|monthly plan|netflix|spotify|prime|disney)\b/i,
+    kw: /\b(subscription|renew(s|al)?|membership|auto[\s-]?renew|monthly plan|netflix|spotify|prime|disney\+?)\b/i,
   },
   {
     type: "event",
     cat: "general",
-    kw: /\b(event|party|meeting|invite|rsvp|concert|fixture|kick[\s-]?off|match|ticket)\b/i,
+    kw: /\b(event|party|meeting|invite|rsvp|concert|fixture|kick[\s-]?off|\bmatch\b|ticket|wedding)\b/i,
   },
 ];
 
@@ -74,41 +74,41 @@ function iso(y: number, m: number, d: number) {
 function valid(y: number, m: number, d: number) {
   return m >= 1 && m <= 12 && d >= 1 && d <= 31 && y >= 1970 && y <= 2100;
 }
+function niceDate(isoStr: string): string {
+  const d = new Date(`${isoStr}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return isoStr;
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
-/** Find up to a few dates (ISO) in free text, in several common formats. */
 function findDates(text: string): string[] {
   const out = new Set<string>();
-
-  // ISO  2026-07-12
   for (const m of text.matchAll(/\b(\d{4})-(\d{2})-(\d{2})\b/g)) {
-    const [y, mo, d] = [+m[1], +m[2], +m[3]];
-    if (valid(y, mo, d)) out.add(iso(y, mo, d));
+    if (valid(+m[1], +m[2], +m[3])) out.add(iso(+m[1], +m[2], +m[3]));
   }
-  // 12 July 2026  /  12th Jul 2026
   for (const m of text.matchAll(
     /\b(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]{3,9})\.?\s+(\d{4})\b/g,
   )) {
     const mo = MONTHS[m[2].slice(0, 3).toLowerCase()];
     if (mo && valid(+m[3], mo, +m[1])) out.add(iso(+m[3], mo, +m[1]));
   }
-  // July 12, 2026  /  Jul 12 2026
   for (const m of text.matchAll(
     /\b([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b/g,
   )) {
     const mo = MONTHS[m[1].slice(0, 3).toLowerCase()];
     if (mo && valid(+m[3], mo, +m[2])) out.add(iso(+m[3], mo, +m[2]));
   }
-  // 12/07/2026 or 12-07-26 (assume UK D/M/Y)
   for (const m of text.matchAll(/\b(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})\b/g)) {
     let y = +m[3];
     if (y < 100) y += 2000;
     if (valid(y, +m[2], +m[1])) out.add(iso(y, +m[2], +m[1]));
   }
-
-  return [...out].slice(0, 5);
+  return Array.from(out).slice(0, 5);
 }
 
-/** First time-of-day found, as "HH:mm" (24h), or null. */
 function findTime(text: string): string | null {
   const m = text.match(/\b(\d{1,2}):(\d{2})\s*(am|pm)?\b/i);
   if (!m) return null;
@@ -126,7 +126,7 @@ function findPrices(text: string): string[] {
   for (const m of text.matchAll(/[£$€]\s?\d[\d,]*(?:\.\d{1,2})?/g)) {
     out.add(m[0].replace(/\s/g, ""));
   }
-  return [...out].slice(0, 8);
+  return Array.from(out).slice(0, 8);
 }
 
 function findReferences(text: string): string[] {
@@ -136,36 +136,101 @@ function findReferences(text: string): string[] {
   )) {
     out.add(m[1].toUpperCase());
   }
-  return [...out].slice(0, 6);
+  return Array.from(out).slice(0, 6);
 }
 
-const TYPE_NOUN: Record<ItemType, string> = {
-  travel: "travel item",
-  receipt: "receipt",
-  warranty: "warranty",
-  booking: "booking",
-  school: "school item",
-  finance: "finance item",
-  health: "health item",
-  subscription: "subscription",
-  event: "event",
-  general: "item",
+const KNOWN_BRANDS =
+  /\b(amazon|currys|argos|tesco|sainsbury'?s|asda|aldi|lidl|john lewis|apple|samsung|dyson|ikea|netflix|spotify|disney\+?|amazon prime|ryanair|easyjet|british airways|tap|eurostar|airbnb|booking\.com|nhs|hmrc|vodafone|ee|o2|three|sky|bt|virgin)\b/i;
+
+function findCompanies(text: string): string[] {
+  const out = new Set<string>();
+  const brand = text.match(KNOWN_BRANDS);
+  if (brand) out.add(brand[0].replace(/\b\w/g, (c) => c.toUpperCase()));
+  for (const m of text.matchAll(
+    /\b([A-Z][A-Za-z&'.]+(?:\s+[A-Z][A-Za-z&'.]+)?)\s+(Ltd|Limited|Inc|PLC|LLP|Airlines|Airways|Bank|School|Hotel|Insurance|Dental|Clinic|Surgery)\b/g,
+  )) {
+    out.add(`${m[1]} ${m[2]}`);
+  }
+  return Array.from(out).slice(0, 5);
+}
+
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/** A specific, professional one-liner composed from the real content. */
+function buildSummary(
+  type: ItemType,
+  title: string,
+  text: string,
+  facts: { amount: string | null; dateLabel: string | null; time: string | null; ref: string | null; company: string | null },
+): string {
+  const { amount, dateLabel, time, ref, company } = facts;
+  const clean = text.replace(/\s+/g, " ").trim();
+
+  // When there's real text, lead with the user's own first line, then append
+  // any concrete facts that aren't already mentioned.
+  if (clean) {
+    const first = clean.split(/(?<=[.!?])\s/)[0];
+    let base =
+      first.length >= 18 && first.length <= 180 ? first : clean.slice(0, 150);
+    base = base.replace(/[\s.,;:–-]+$/, "");
+    const extras: string[] = [];
+    const has = (v: string | null) =>
+      v ? base.toLowerCase().includes(v.toLowerCase()) : true;
+    if (!has(amount)) extras.push(amount!);
+    if (!has(dateLabel)) extras.push(dateLabel!);
+    if (ref && !has(ref)) extras.push(`ref ${ref}`);
+    return extras.length ? `${base} — ${extras.join(", ")}.` : `${base}.`;
+  }
+
+  // No text (e.g. a photo with only a title and no AI). Build a typed line.
+  const who = company ? ` from ${company}` : "";
+  const when = dateLabel ? ` on ${dateLabel}${time ? ` at ${time}` : ""}` : "";
+  const cost = amount ? ` for ${amount}` : "";
+  const reference = ref ? ` (ref ${ref})` : "";
+  switch (type) {
+    case "receipt":
+      return `Receipt${who}${cost}${when ? `,${when.slice(3)}` : ""}${reference}.`;
+    case "travel":
+    case "booking":
+      return `${capitalize(type)}${who}${when}${reference}.`.replace(" .", ".");
+    case "subscription":
+      return `Subscription${who}${cost}${dateLabel ? ` renewing ${dateLabel}` : ""}.`;
+    case "warranty":
+      return `Warranty${who}${dateLabel ? ` — expires ${dateLabel}` : ""}${reference}.`;
+    case "finance":
+      return `Finance item${cost}${dateLabel ? ` due ${dateLabel}` : ""}${reference}.`;
+    case "health":
+      return `Appointment${who}${when}.`;
+    case "school":
+      return `School item${when}: “${title}”.`;
+    case "event":
+      return `Event${when}: “${title}”.`;
+    default:
+      return `“${title}”${when}${cost}${reference}.`;
+  }
+}
+
+const DEFAULT_TASK_BY_TYPE: Record<ItemType, string> = {
+  travel: "Prepare and check in for your trip",
+  receipt: "File this receipt for returns or warranty",
+  warranty: "Set a reminder before the warranty expires",
+  booking: "Confirm your booking details",
+  school: "Add this to the family calendar and reply if needed",
+  finance: "Review this and action any payment",
+  health: "Confirm your appointment",
+  subscription: "Decide whether to keep it before it renews",
+  event: "Reply / RSVP and add it to your calendar",
+  general: "Review this and decide your next step",
 };
 
-function makeSummary(type: ItemType, title: string, text: string): string {
-  const clean = text.replace(/\s+/g, " ").trim();
-  if (!clean) return `A ${TYPE_NOUN[type]}: “${title}”.`;
-  const firstSentence = clean.split(/(?<=[.!?])\s/)[0];
-  const base =
-    firstSentence.length > 12 && firstSentence.length < 180
-      ? firstSentence
-      : clean.slice(0, 160);
-  return base.length < clean.length && !/[.!?]$/.test(base)
-    ? `${base.trim()}…`
-    : base.trim();
+export function defaultTaskTitle(type: ItemType, title: string): string {
+  const base = DEFAULT_TASK_BY_TYPE[type] ?? DEFAULT_TASK_BY_TYPE.general;
+  return `${base}: ${title}`.slice(0, 90);
 }
 
-/** Heuristic extraction that mirrors the LLM's ExtractionResult shape. */
+/** Heuristic extraction mirroring the LLM's ExtractionResult shape. */
 export function localExtract(title: string, rawText: string): ExtractionResult {
   const text = (rawText ?? "").trim();
   const haystack = `${title}\n${text}`;
@@ -180,38 +245,55 @@ export function localExtract(title: string, rawText: string): ExtractionResult {
   const time = findTime(text);
   const prices = findPrices(text);
   const references = findReferences(text);
+  const companies = findCompanies(haystack);
+
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = dates.filter((d) => d >= today).sort();
+  const sorted = dates.slice().sort();
+  const headlineDate = upcoming[0] ?? sorted[0] ?? null;
+
+  const summary = buildSummary(rule.type, title, text, {
+    amount: prices[0] ?? null,
+    dateLabel: headlineDate ? niceDate(headlineDate) : null,
+    time,
+    ref: references[0] ?? null,
+    company: companies[0] ?? null,
+  });
 
   const key_dates = dates.map((d, i) => ({
     date: d,
     time: i === 0 ? time : null,
-    description: "Date found in this item",
+    description: `${capitalize(rule.type)} date`,
   }));
 
-  // Always suggest at least one sensible, type-aware task.
-  const today = new Date().toISOString().slice(0, 10);
-  const upcoming = dates.filter((d) => d >= today).sort();
   const renewish = /\b(renew|expire|expiry|due|check[\s-]?in|deadline|by)\b/i.test(
     haystack,
   );
-  const due = upcoming[0] ?? dates.sort()[0] ?? null;
   const priority: Priority = renewish || upcoming.length ? "high" : "medium";
+
+  const taskDetail = [
+    references[0] ? `Ref ${references[0]}` : null,
+    prices[0] ? prices[0] : null,
+    companies[0] ? companies[0] : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   const suggested_tasks: SuggestedTask[] = [
     {
       title: defaultTaskTitle(rule.type, title),
-      description: "Suggested by DailyOS — edit, keep or remove.",
-      due_date: due,
+      description: taskDetail || "Suggested by DailyOS — edit, keep or remove.",
+      due_date: upcoming[0] ?? null,
       priority,
     },
   ];
 
-  // Suggest a calendar event whenever there's any date (default 09:00).
   const suggested_calendar_events = dates.length
     ? [
         {
           title: title.slice(0, 80),
-          description: null,
-          start_time: `${upcoming[0] ?? dates.sort()[0]}T${time ?? "09:00"}:00`,
+          description: companies[0] ? `With ${companies[0]}` : null,
+          start_time: `${headlineDate}T${time ?? "09:00"}:00`,
           end_time: null,
           location: null,
         },
@@ -220,37 +302,19 @@ export function localExtract(title: string, rawText: string): ExtractionResult {
 
   return {
     item_type: rule.type,
-    summary: makeSummary(rule.type, title, text),
+    summary,
     key_dates,
     suggested_tasks,
     suggested_calendar_events,
     entities: {
       people: [],
-      companies: [],
+      companies,
       places: [],
       prices,
       reference_numbers: references,
     },
     vault_category: rule.cat,
   };
-}
-
-const DEFAULT_TASK_BY_TYPE: Record<ItemType, string> = {
-  travel: "Prepare for your trip",
-  receipt: "Keep this receipt for returns or warranty",
-  warranty: "Set a reminder before the warranty expires",
-  booking: "Confirm your booking details",
-  school: "Add this to the family calendar",
-  finance: "Review and action any payment",
-  health: "Confirm your appointment",
-  subscription: "Review this before it renews",
-  event: "Reply / RSVP and add it to your calendar",
-  general: "Review and decide your next step",
-};
-
-export function defaultTaskTitle(type: ItemType, title: string): string {
-  const base = DEFAULT_TASK_BY_TYPE[type] ?? DEFAULT_TASK_BY_TYPE.general;
-  return `${base}: ${title}`.slice(0, 80);
 }
 
 /**
@@ -265,7 +329,7 @@ export function ensureSuggestions(
   const r = { ...result };
 
   if (!r.summary || !r.summary.trim()) {
-    r.summary = `Saved “${title}”. Review the suggestions below.`;
+    r.summary = `“${title}” — review the suggestions below.`;
   }
 
   if (!r.suggested_tasks || r.suggested_tasks.length === 0) {

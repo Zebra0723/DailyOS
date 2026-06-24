@@ -28,6 +28,7 @@ export function CaptureForm({ userId }: { userId: string }) {
   const [notes, setNotes] = React.useState("");
   const [file, setFile] = React.useState<File | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
+  const [stage, setStage] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
 
   function onPickFile(f: File | null) {
@@ -60,6 +61,7 @@ export function CaptureForm({ userId }: { userId: string }) {
         .join("\n\n");
 
       if (tab === "text") {
+        setStage("Reading & extracting…");
         const res = await createInboxItem({
           title: title.trim() || text.slice(0, 60),
           text: combinedText,
@@ -75,6 +77,7 @@ export function CaptureForm({ userId }: { userId: string }) {
       const ext = f.name.split(".").pop()?.toLowerCase() ?? "";
       const path = `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
 
+      setStage("Uploading file…");
       const { error: upErr } = await supabase.storage
         .from("inbox-files")
         .upload(path, f, { contentType: f.type || undefined });
@@ -88,6 +91,11 @@ export function CaptureForm({ userId }: { userId: string }) {
         extractedText = [raw, extractedText].filter(Boolean).join("\n\n");
       }
 
+      setStage(
+        ext === "png" || ext === "jpg" || ext === "jpeg"
+          ? "Reading your photo…"
+          : "Reading & extracting…",
+      );
       const res = await createInboxItem({
         title: title.trim() || f.name,
         text: extractedText || undefined,
@@ -103,6 +111,7 @@ export function CaptureForm({ userId }: { userId: string }) {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setSubmitting(false);
+      setStage("");
     }
   }
 
@@ -165,7 +174,7 @@ export function CaptureForm({ userId }: { userId: string }) {
         </Button>
         <Button onClick={submit} disabled={submitting}>
           {submitting && <Loader2 className="size-4 animate-spin" />}
-          {submitting ? "Working…" : "Capture & review"}
+          {submitting ? stage || "Working…" : "Capture & review"}
         </Button>
       </div>
     </div>
