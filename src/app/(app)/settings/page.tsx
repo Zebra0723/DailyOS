@@ -4,7 +4,6 @@ import {
   ShieldAlert,
   Cpu,
   CheckCircle2,
-  XCircle,
   Lock,
   Palette,
 } from "lucide-react";
@@ -35,8 +34,10 @@ export default async function SettingsPage() {
     : "—";
 
   // Read-only view of AI config. Keys are NEVER sent to the client — we only
-  // report whether the server has them set.
-  const aiConfigured = Boolean(process.env.AI_PROVIDER_API_KEY);
+  // report whether the server has a valid key. AI is optional: without it,
+  // DailyOS uses built-in smart extraction.
+  const aiKey = process.env.AI_PROVIDER_API_KEY ?? "";
+  const aiConfigured = Boolean(aiKey) && !aiKey.startsWith("sb_");
   const aiModel = process.env.AI_MODEL ?? "gpt-4o-mini";
   const aiBase = process.env.AI_PROVIDER_BASE_URL ?? "https://api.openai.com/v1";
 
@@ -117,22 +118,23 @@ export default async function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Cpu className="size-4 text-primary" /> AI provider
-              <Badge variant="secondary">Development</Badge>
+              <Badge variant="secondary">Optional</Badge>
             </CardTitle>
             <CardDescription>
-              Configured server-side via environment variables. Keys are never
-              exposed to the browser.
+              DailyOS works out of the box with built-in smart extraction. Add an
+              OpenAI-compatible key for richer, more accurate results. Keys are
+              read server-side only and never exposed to the browser.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <Row label="Status">
+            <Row label="Mode">
               {aiConfigured ? (
                 <span className="inline-flex items-center gap-1.5 text-emerald-600">
-                  <CheckCircle2 className="size-4" /> Connected
+                  <CheckCircle2 className="size-4" /> AI extraction
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                  <XCircle className="size-4" /> Not configured
+                <span className="inline-flex items-center gap-1.5 text-primary">
+                  <CheckCircle2 className="size-4" /> Smart extraction (built-in)
                 </span>
               )}
             </Row>

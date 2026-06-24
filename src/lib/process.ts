@@ -6,6 +6,8 @@ import {
   extractFromImage,
   extractPdfText,
 } from "@/lib/ai/extract";
+import { localExtract } from "@/lib/ai/local";
+import { getAIProvider } from "@/lib/ai/provider";
 import type { ExtractionResult, InboxItem } from "@/lib/types";
 
 function looksLikeImage(item: InboxItem): boolean {
@@ -57,10 +59,14 @@ export async function processInboxItem(
     .eq("id", itemId);
 
   try {
-    // 2. Resolve content. Prefer any pasted text; otherwise read the file:
-    //    images → vision OCR + extract; PDFs → text layer; else needs text.
+    const provider = getAIProvider();
+    const aiOn = provider.isConfigured();
+
+    // 2. Resolve content. Prefer pasted text; otherwise read the uploaded file:
+    //    images → vision (if AI on); PDFs → embedded text layer.
     let text = (item.original_text ?? "").trim();
     let result: ExtractionResult | null = null;
+    let note = aiOn ? "AI extraction" : "Smart extraction (no AI key set)";
 
     if (!text && item.file_url) {
       const { data: blob, error: dlErr } = await supabase.storage
@@ -70,31 +76,43 @@ export async function processInboxItem(
       if (dlErr || !blob) throw new Error("Could not read the uploaded file.");
       const buffer = Buffer.from(await blob.arrayBuffer());
 
-      if (looksLikeImage(item)) {
-        const mime = item.file_type?.includes("/")
-          ? item.file_type
-          : "image/jpeg";
-        const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
-        result = await extractFromImage(item.title, dataUrl);
+      if (looksLikeImage(item) && aiOn) {
+        try {
+          const mime = item.file_type?.includes("/")
+            ? item.file_type
+            : "image/jpeg";
+          const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
+          result = await extractFromImage(item.title, dataUrl);
+        } catch {
+          // Vision unavailable — fall through to local extraction on the title.
+        }
       } else if (looksLikePdf(item)) {
         text = await extractPdfText(buffer);
       }
     }
 
-    // Couldn't get anything readable (e.g. a scanned PDF with no text layer).
-    if (!result && !text) {
-      const message =
-        "We couldn't read any text from this file. Open the item to paste the key text.";
-      await supabase
-        .from("inbox_items")
-        .update({ status: "review", needs_text_extraction: true })
-        .eq("id", itemId);
-      await logStatus(itemId, item.user_id, "review", message);
-      return { ok: true, status: "review", message };
-    }
-
+    // 3. Produce a result. Always succeed: use the LLM when available, but fall
+    //    back to local heuristics so an item never ends up "failed".
     if (!result) {
-      result = await extractFromText(item.title, text);
+      const seed = text || item.title;
+      if (aiOn) {
+        try {
+          result = await extractFromText(item.title, seed);
+        } catch (err) {
+          note = "Smart extraction (AI unavailable)";
+          await logStatus(
+            itemId,
+            item.user_id,
+            "info",
+            `AI call failed, used local extraction: ${
+              err instanceof Error ? err.message : "error"
+            }`,
+          );
+          result = localExtract(item.title, seed);
+        }
+      } else {
+        result = localExtract(item.title, seed);
+      }
     }
 
     await supabase
@@ -112,7 +130,7 @@ export async function processInboxItem(
       itemId,
       item.user_id,
       "review",
-      `Extracted ${result.suggested_tasks.length} task(s) and ${result.suggested_calendar_events.length} event(s).`,
+      `${note}: ${result.suggested_tasks.length} task(s), ${result.suggested_calendar_events.length} event(s).`,
     );
 
     return { ok: true, status: "review" };

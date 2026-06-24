@@ -12,7 +12,7 @@ export default function AuthLayout({
       <div className="flex flex-col">
         <div className="container flex h-16 items-center">
           <Link href="/">
-            <Logo />
+            <Logo tagline />
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center px-6 py-12">

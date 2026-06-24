@@ -44,7 +44,14 @@ class OpenAICompatibleProvider implements AIProvider {
   ) {}
 
   isConfigured(): boolean {
-    return Boolean(this.baseUrl && this.apiKey && this.model);
+    // A Supabase key (sb_...) pasted here by mistake is not a valid AI key, so
+    // treat the provider as unconfigured and let the local fallback handle it.
+    return Boolean(
+      this.baseUrl &&
+        this.apiKey &&
+        this.model &&
+        !this.apiKey.startsWith("sb_"),
+    );
   }
 
   async chat({ messages, json, temperature = 0.2 }: ChatOptions): Promise<string> {
