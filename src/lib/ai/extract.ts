@@ -17,8 +17,11 @@ Rules:
 - Dates must be ISO "YYYY-MM-DD". Times "HH:mm" (24h) or null.
 - Calendar start_time/end_time must be full ISO datetimes (YYYY-MM-DDTHH:mm:ss)
   or null if no clear time exists.
-- Only suggest tasks/events that are genuinely useful and actionable.
-- Keep the summary to one or two friendly sentences.
+- ALWAYS return a clear, non-empty summary (one or two friendly sentences).
+- ALWAYS include at least ONE genuinely useful suggested_task. Never return an
+  empty suggested_tasks array — if nothing obvious, suggest a sensible next
+  step (e.g. "Review and file this", "Set a reminder").
+- If the item mentions any date/time, include a matching suggested_calendar_event.
 - Choose the single best item_type and vault_category.
 
 Schema:

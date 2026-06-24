@@ -6,7 +6,7 @@ import {
   extractFromImage,
   extractPdfText,
 } from "@/lib/ai/extract";
-import { localExtract } from "@/lib/ai/local";
+import { localExtract, ensureSuggestions } from "@/lib/ai/local";
 import { getAIProvider } from "@/lib/ai/provider";
 import type { ExtractionResult, InboxItem } from "@/lib/types";
 
@@ -114,6 +114,9 @@ export async function processInboxItem(
         result = localExtract(item.title, seed);
       }
     }
+
+    // Guarantee a clear summary + at least one suggestion, whatever the source.
+    result = ensureSuggestions(result, item.title);
 
     await supabase
       .from("inbox_items")

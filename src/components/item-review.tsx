@@ -376,7 +376,9 @@ export function ItemReview({
         </CardHeader>
         <CardContent className="space-y-3">
           {events.length === 0 && (
-            <p className="text-sm text-muted-foreground">No events suggested.</p>
+            <p className="text-sm text-muted-foreground">
+              No date found in this item — add an event if you need one.
+            </p>
           )}
           {events.map((ev, i) => (
             <div key={i} className="space-y-2 rounded-lg border p-3">

@@ -13,6 +13,7 @@ import type {
   ExtractionResult,
   ItemType,
   Priority,
+  SuggestedTask,
   VaultCategory,
 } from "@/lib/types";
 
@@ -138,9 +139,22 @@ function findReferences(text: string): string[] {
   return [...out].slice(0, 6);
 }
 
-function makeSummary(title: string, text: string): string {
+const TYPE_NOUN: Record<ItemType, string> = {
+  travel: "travel item",
+  receipt: "receipt",
+  warranty: "warranty",
+  booking: "booking",
+  school: "school item",
+  finance: "finance item",
+  health: "health item",
+  subscription: "subscription",
+  event: "event",
+  general: "item",
+};
+
+function makeSummary(type: ItemType, title: string, text: string): string {
   const clean = text.replace(/\s+/g, " ").trim();
-  if (!clean) return `Saved “${title}”.`;
+  if (!clean) return `A ${TYPE_NOUN[type]}: “${title}”.`;
   const firstSentence = clean.split(/(?<=[.!?])\s/)[0];
   const base =
     firstSentence.length > 12 && firstSentence.length < 180
@@ -173,41 +187,40 @@ export function localExtract(title: string, rawText: string): ExtractionResult {
     description: "Date found in this item",
   }));
 
-  // Suggest a sensible reminder if there's an upcoming date.
+  // Always suggest at least one sensible, type-aware task.
   const today = new Date().toISOString().slice(0, 10);
   const upcoming = dates.filter((d) => d >= today).sort();
   const renewish = /\b(renew|expire|expiry|due|check[\s-]?in|deadline|by)\b/i.test(
     haystack,
   );
+  const due = upcoming[0] ?? dates.sort()[0] ?? null;
+  const priority: Priority = renewish || upcoming.length ? "high" : "medium";
 
-  const suggested_tasks =
-    upcoming.length || renewish
-      ? [
-          {
-            title: `Follow up: ${title}`.slice(0, 80),
-            description: "Auto-suggested from your item — edit or remove.",
-            due_date: upcoming[0] ?? null,
-            priority: (renewish ? "high" : "medium") as Priority,
-          },
-        ]
-      : [];
+  const suggested_tasks: SuggestedTask[] = [
+    {
+      title: defaultTaskTitle(rule.type, title),
+      description: "Suggested by DailyOS — edit, keep or remove.",
+      due_date: due,
+      priority,
+    },
+  ];
 
-  const suggested_calendar_events =
-    upcoming.length && time
-      ? [
-          {
-            title: title.slice(0, 80),
-            description: null,
-            start_time: `${upcoming[0]}T${time}:00`,
-            end_time: null,
-            location: null,
-          },
-        ]
-      : [];
+  // Suggest a calendar event whenever there's any date (default 09:00).
+  const suggested_calendar_events = dates.length
+    ? [
+        {
+          title: title.slice(0, 80),
+          description: null,
+          start_time: `${upcoming[0] ?? dates.sort()[0]}T${time ?? "09:00"}:00`,
+          end_time: null,
+          location: null,
+        },
+      ]
+    : [];
 
   return {
     item_type: rule.type,
-    summary: makeSummary(title, text),
+    summary: makeSummary(rule.type, title, text),
     key_dates,
     suggested_tasks,
     suggested_calendar_events,
@@ -220,4 +233,68 @@ export function localExtract(title: string, rawText: string): ExtractionResult {
     },
     vault_category: rule.cat,
   };
+}
+
+const DEFAULT_TASK_BY_TYPE: Record<ItemType, string> = {
+  travel: "Prepare for your trip",
+  receipt: "Keep this receipt for returns or warranty",
+  warranty: "Set a reminder before the warranty expires",
+  booking: "Confirm your booking details",
+  school: "Add this to the family calendar",
+  finance: "Review and action any payment",
+  health: "Confirm your appointment",
+  subscription: "Review this before it renews",
+  event: "Reply / RSVP and add it to your calendar",
+  general: "Review and decide your next step",
+};
+
+export function defaultTaskTitle(type: ItemType, title: string): string {
+  const base = DEFAULT_TASK_BY_TYPE[type] ?? DEFAULT_TASK_BY_TYPE.general;
+  return `${base}: ${title}`.slice(0, 80);
+}
+
+/**
+ * Guarantee a useful response: a non-empty summary, at least one suggested
+ * task, and an event when a date is known. Applied to BOTH the AI and local
+ * results so the review screen is never empty.
+ */
+export function ensureSuggestions(
+  result: ExtractionResult,
+  title: string,
+): ExtractionResult {
+  const r = { ...result };
+
+  if (!r.summary || !r.summary.trim()) {
+    r.summary = `Saved “${title}”. Review the suggestions below.`;
+  }
+
+  if (!r.suggested_tasks || r.suggested_tasks.length === 0) {
+    const firstDate = r.key_dates?.[0]?.date ?? null;
+    r.suggested_tasks = [
+      {
+        title: defaultTaskTitle(r.item_type, title),
+        description: "Suggested by DailyOS — edit, keep or remove.",
+        due_date: firstDate,
+        priority: "medium",
+      },
+    ];
+  }
+
+  if (
+    (!r.suggested_calendar_events || r.suggested_calendar_events.length === 0) &&
+    r.key_dates?.length
+  ) {
+    const kd = r.key_dates[0];
+    r.suggested_calendar_events = [
+      {
+        title: title.slice(0, 80),
+        description: null,
+        start_time: `${kd.date}T${kd.time ?? "09:00"}:00`,
+        end_time: null,
+        location: null,
+      },
+    ];
+  }
+
+  return r;
 }
