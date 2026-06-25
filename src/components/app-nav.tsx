@@ -42,15 +42,15 @@ export function Sidebar({ email }: { email: string }) {
   }
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r bg-card px-3 py-4 md:flex">
-      <div className="px-2 py-2">
+    <aside className="hidden w-64 shrink-0 flex-col border-r bg-card px-4 py-5 md:flex">
+      <div className="px-1 py-1">
         <Link href="/today">
           <Logo />
         </Link>
       </div>
 
-      <div className="mt-4 px-2">
-        <Button asChild className="w-full justify-start">
+      <div className="mt-6">
+        <Button asChild className="w-full justify-start shadow-elevated">
           <Link href="/inbox/new">
             <Plus className="size-4" />
             Add to Inbox
@@ -58,22 +58,36 @@ export function Sidebar({ email }: { email: string }) {
         </Button>
       </div>
 
-      <nav className="mt-6 flex flex-1 flex-col gap-1">
-        {links.map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              isActive(pathname, l.href)
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            <l.icon className="size-4" />
-            {l.label}
-          </Link>
-        ))}
+      <nav className="mt-7 flex flex-1 flex-col gap-0.5">
+        <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          Workspace
+        </p>
+        {links.map((l) => {
+          const active = isActive(pathname, l.href);
+          return (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={cn(
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                active
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {active && (
+                <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary" />
+              )}
+              <l.icon
+                className={cn(
+                  "size-[18px]",
+                  active ? "text-primary" : "text-muted-foreground",
+                )}
+              />
+              {l.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="mt-auto border-t pt-3">

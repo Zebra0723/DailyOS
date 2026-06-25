@@ -65,34 +65,50 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid opacity-60 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
-        <div className="container relative grid gap-12 py-20 md:py-28">
+        <div className="absolute inset-0 bg-grid opacity-50 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
+        <div
+          className="absolute inset-x-0 top-0 -z-10 h-[420px] opacity-60"
+          style={{
+            background:
+              "radial-gradient(60% 60% at 50% 0%, hsl(var(--accent)) 0%, transparent 70%)",
+          }}
+        />
+        <div className="container relative grid gap-12 py-24 md:py-32">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-sm text-muted-foreground shadow-sm">
+            <div className="mx-auto mb-7 inline-flex items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-sm font-medium text-muted-foreground shadow-card">
               <Sparkles className="size-4 text-primary" />
-              DailyOS turns life admin into handled.
+              Chaos into clarity — your personal chief of staff
             </div>
-            <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-6xl">
-              Your life admin, finally handled.
+            <h1 className="text-balance text-5xl font-extrabold leading-[1.05] tracking-tight sm:text-7xl">
+              Your life admin,
+              <br className="hidden sm:block" />{" "}
+              <span className="bg-gradient-to-r from-primary to-[#5BC2D4] bg-clip-text text-transparent">
+                finally handled.
+              </span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted-foreground">
+            <p className="mx-auto mt-7 max-w-2xl text-balance text-lg text-muted-foreground sm:text-xl">
               Drop in receipts, bookings, school letters, screenshots, PDFs and
-              reminders. DailyOS sorts them into tasks, calendar events and a
-              searchable vault.
+              reminders. DailyOS reads them and sorts everything into tasks,
+              calendar events and a searchable vault.
             </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button size="lg" asChild>
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button size="lg" asChild className="h-12 px-7 text-base shadow-elevated">
                 <Link href="/signup">
                   Start your Life Inbox
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/login">I already have an account</Link>
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="h-12 px-7 text-base"
+              >
+                <Link href="/login">Log in</Link>
               </Button>
             </div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Free to start · No card required
+            <p className="mt-5 text-sm text-muted-foreground">
+              Free to start · No card required · Private by design
             </p>
           </div>
         </div>

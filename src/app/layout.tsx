@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
 import { THEME_VARS_BY_KEY, DEFAULT_THEME_KEY } from "@/lib/themes";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const display = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["500", "600", "700", "800"],
+});
+const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "DailyOS — Your life admin, finally handled.",
@@ -31,7 +36,11 @@ export default function RootLayout({
   )};var v=m[k];if(v){var r=document.documentElement;for(var p in v){r.style.setProperty(p,v[p]);}}}catch(e){}})();`;
 
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${sans.variable} ${display.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
