@@ -16,7 +16,7 @@ export default async function AppLayout({
   if (!user) redirect("/login");
 
   return (
-    <div className="flex min-h-screen bg-muted/20">
+    <div className="flex min-h-screen bg-[hsl(240,8%,97%)]">
       <Sidebar email={user.email ?? "you@dailyos.app"} />
       <div className="flex min-w-0 flex-1 flex-col">
         <MobileHeader />

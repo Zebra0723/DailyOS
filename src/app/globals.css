@@ -33,7 +33,7 @@
     --input: 240 6% 90%;
     --ring: 243 75% 59%;
 
-    --radius: 0.7rem;
+    --radius: 0.85rem;
   }
 
   .dark {
@@ -86,16 +86,16 @@
 }
 
 @layer components {
-  /* Soft, layered shadow used for cards and floating surfaces. */
+  /* Soft, diffuse shadows for that calm, premium, floating-surface feel. */
   .shadow-card {
     box-shadow:
-      0 1px 2px 0 rgb(0 0 0 / 0.04),
-      0 1px 3px 0 rgb(0 0 0 / 0.06);
+      0 1px 2px 0 rgb(17 17 26 / 0.04),
+      0 4px 16px -6px rgb(17 17 26 / 0.06);
   }
   .shadow-elevated {
     box-shadow:
-      0 4px 12px -2px rgb(0 0 0 / 0.08),
-      0 2px 6px -2px rgb(0 0 0 / 0.05);
+      0 2px 8px -2px rgb(17 17 26 / 0.06),
+      0 12px 32px -8px rgb(17 17 26 / 0.12);
   }
 }
 
