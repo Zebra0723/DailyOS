@@ -15,6 +15,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { initials } from "@/lib/utils";
+import { APP_VERSION } from "@/lib/version";
 
 export const metadata = { title: "Settings · DailyOS" };
 
@@ -172,6 +173,10 @@ export default async function SettingsPage() {
             <SettingsDanger />
           </CardContent>
         </Card>
+
+        <p className="pt-2 text-center text-xs text-muted-foreground">
+          DailyOS · {APP_VERSION}
+        </p>
       </div>
     </div>
   );
