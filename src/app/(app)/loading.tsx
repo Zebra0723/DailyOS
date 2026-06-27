@@ -1,22 +1,14 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
+import { LogoMark } from "@/components/logo";
 
 export default function Loading() {
   return (
-    <div className="animate-fade-in">
-      <Skeleton className="h-8 w-48" />
-      <Skeleton className="mt-2 h-4 w-72" />
-      <div className="mt-6 grid gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 rounded-xl border bg-card p-4">
-            <Skeleton className="size-10 rounded-lg" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-1/3" />
-              <Skeleton className="h-3 w-2/3" />
-            </div>
-            <Skeleton className="h-6 w-20 rounded-full" />
-          </div>
-        ))}
-      </div>
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 text-center animate-fade-in">
+      <LogoMark className="size-14" />
+      <p className="text-xl font-semibold tracking-tight">
+        DailyOS, your future, organised.
+      </p>
+      <Loader2 className="size-5 animate-spin text-muted-foreground" />
     </div>
   );
 }

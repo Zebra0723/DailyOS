@@ -88,8 +88,8 @@ really effective uses don't count. Saying "thank you" doesn't count. Level 20
 - **Current level:** 2 (Stylist)
 - **To reach Level 3 (Wordsmith):** use your Level-2 aesthetic powers in 2–3
   effective, website-improving ways.
-- **Progress: 1 / 3** — ✅ the login-screen logo move/scale-up counted as one
-  effective use. Two more good ones and you're promoted.
+- **Progress: 2 / 3** — ✅ login logo move/scale-up; ✅ branded loading screen
+  ("DailyOS, your future, organised."). One more good one and you're promoted.
 
 ### Tester role
 - **Still gated (Arjun-only) until earned higher up:** functional/behaviour
