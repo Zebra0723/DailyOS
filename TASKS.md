@@ -73,6 +73,9 @@ really effective uses don't count. Saying "thank you" doesn't count. Level 20
   the hints (decoding the hard words is the whole point). If he leans on the
   hint wording instead of the hard terms, decline.
 - Keep challenges **fair, not too hard.**
+- **Difficulty cap (set by Arjun):** the Level-4 "Decode the Nerd" OCR message is
+  the HARDEST any challenge may be. All future challenges must be that hard or
+  easier.
 - **Leo has 1 challenge skip** — he may skip a single challenge level outright.
   Track whether it's been used in "Leo's progress".
 
@@ -80,8 +83,8 @@ really effective uses don't count. Saying "thank you" doesn't count. Level 20
 | --- | --- | --- |
 | 1 | Rookie | Content tasks: add items, look things up ✅ done |
 | 2 | Stylist ✅ | Full aesthetics control + Tester + "thank you" perk |
-| 3 | **Wordsmith (CURRENT)** | Own all user-facing copy/microcopy (labels, empty states, errors) |
-| 4 | 🧩 Decode the Nerd | Correctly explain a techie message Claude gives you |
+| 3 | Wordsmith ✅ | Own all user-facing copy/microcopy (labels, empty states, errors) |
+| 4 | 🧩 Decode the Nerd ✅ **(CURRENT)** | Challenge — free-passed by Arjun |
 | 5 | Layout Architect | Restructure page layouts / reorder sections |
 | 6 | Theme Smith | Add/edit accent themes & design tokens (colours, radius, shadows) |
 | 7 | 🧩 Read the Map | Explain the app's folder structure / how a page renders |
@@ -100,13 +103,12 @@ really effective uses don't count. Saying "thank you" doesn't count. Level 20
 | 20 | **Creator (Arjun status)** | Full powers, equal to Arjun (needs Arjun's OK) |
 
 ### Leo's progress
-- **Current level:** 3 (Wordsmith) 🎉 — promoted after 3 strong visual changes:
-  ✅ login logo move/scale-up; ✅ branded loading screen; ✅ "Recently added"
-  tagline on the home screen.
-- **To reach Level 4 (🧩 Decode the Nerd):** it's a CHALLENGE level — Leo must
-  correctly explain a techie message in his own words (≥75% his own), or use his
-  one skip.
-- **Challenge skips remaining: 1** (not yet used).
+- **Current level:** 4 (Decode the Nerd) — challenge **free-passed by Arjun**
+  (skip NOT used).
+- **To reach Level 5 (Layout Architect):** capability level → use his current
+  powers in **2–3 effective, website-improving ways**. Unlocks: rearranging
+  whole page layouts. **Progress: 0 / 3.**
+- **Challenge skips remaining: 1** (still unused).
 
 ### Tester role
 - **Still gated (Arjun-only) until earned higher up:** functional/behaviour
