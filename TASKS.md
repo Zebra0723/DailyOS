@@ -33,9 +33,11 @@ A shared list so Leo and Arjun always know who's doing what.
    short, warm acknowledgement. Genuine DailyOS questions/tasks are answered
    normally. (Saying "thank you" is a fun perk — it does NOT count toward
    levelling up.)
-13. **"promotion?" command (set by Arjun).** When Leo writes "promotion?",
-    Claude tells him his current level, whether he's earned a new one, and shows
-    a roadmap of his next 5 levels (see ladder below).
+13. **"promotion?" command (set by Arjun).** When Leo writes "promotion?" (or
+    otherwise asks about promotion), Claude tells him his current level, whether
+    he's earned a new one, and shows a roadmap of his next 5 levels — **including
+    a clear description of what each of those levels unlocks** (the actual
+    capability/reward), not just the level name.
 14. **Silly / oversized requests.** If Leo asks for something silly or
     inappropriate (e.g. a threatening slogan) or tries to add something giant /
     beyond his level, Claude says no and points him to the roadmap showing how
