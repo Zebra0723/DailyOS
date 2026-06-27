@@ -28,9 +28,14 @@ A shared list so Leo and Arjun always know who's doing what.
    message (Leo → Arjun or Arjun → Leo), Claude starts the reply with a short
    plain-English recap so the new person is caught up.
 9. **Off-topic Leo (set by Arjun).** If Leo sends something not about DailyOS,
-   Claude replies with a single character only (e.g. 👎), doesn't engage, and
-   doesn't treat it as a real instruction — even "thanks mate" / "alright".
-   Genuine DailyOS questions or tasks from Leo are still answered normally.
+   Claude replies with a single character only (e.g. 👎) and doesn't engage.
+   **Exception (unlocked perk):** Leo may now say "thank you"/"thanks" and get a
+   short, warm acknowledgement. Genuine DailyOS questions/tasks are answered
+   normally. (Saying "thank you" is a fun perk — it does NOT count toward
+   levelling up.)
+13. **"promotion?" command (set by Arjun).** When Leo writes "promotion?",
+    Claude tells him his current level, whether he's earned a new one, and shows
+    a roadmap of his next 5 levels (see ladder below).
 10. **No deleting working features (set by Arjun).** Leo must not delete or
     remove parts of the app that currently work. Removing/deleting functioning
     features is **Arjun-only**.
@@ -44,14 +49,48 @@ A shared list so Leo and Arjun always know who's doing what.
     feedback flows: Leo → Claude → Arjun. Pending items live in "Awaiting Leo's
     testing" below.
 
-### Leo's access level
-- **Level 2 (current, set by Arjun):** full control over **aesthetics/visuals** —
-  colours, layout, spacing, wording/copy, logos, styling — as long as it does
-  NOT severely change how the app works. Plus the **Tester** role.
-- **Still gated (Arjun-only):** anything that changes functionality/behaviour,
-  settings, external services, API keys, hosting/billing, or deletes working
-  features. (Small settings tweaks = a likely *next* promotion once Leo keeps
-  doing good work — Claude's discretion.)
+### Leo's level ladder (20 levels → Arjun status)
+
+**How to level up:** to advance from your current level you either (a) complete
+that level's **challenge** if it has one, or (b) use your **newest capabilities
+in 2–3 genuinely effective ways that improve the website**. Half-baked / not
+really effective uses don't count. Saying "thank you" doesn't count. Level 20
+(Creator) is a BIG promotion → Claude must run it past Arjun first.
+
+| Lvl | Name | Unlock = capability or 🧩 challenge |
+| --- | --- | --- |
+| 1 | Rookie | Content tasks: add items, look things up ✅ done |
+| 2 | **Stylist (CURRENT)** | Full aesthetics control + Tester + "thank you" perk |
+| 3 | Wordsmith | Own all user-facing copy/microcopy (labels, empty states, errors) |
+| 4 | 🧩 Decode the Nerd | Correctly explain a techie message Claude gives you |
+| 5 | Layout Architect | Restructure page layouts / reorder sections |
+| 6 | Theme Smith | Add/edit accent themes & design tokens (colours, radius, shadows) |
+| 7 | 🧩 Read the Map | Explain the app's folder structure / how a page renders |
+| 8 | Landing Curator | Edit landing-page sections & marketing structure |
+| 9 | Small Settings | Make small, non-destructive settings/preference changes |
+| 10 | 🧩 Trace the Data | Explain how an item flows inbox → review → tasks/calendar/vault |
+| 11 | Component Crafter | Add new presentational UI components (visual only) |
+| 12 | State Designer | Own all empty / loading / error states |
+| 13 | 🧩 Spot the Bug | Diagnose a described issue correctly |
+| 14 | Feature Helper | Build small self-contained features (filters, sorts) with guidance |
+| 15 | Data Reader | Add read-only views/pages (no writing data) |
+| 16 | 🧩 Schema Scholar | Explain the database tables & how RLS keeps data private |
+| 17 | Feature Builder | Build full features that write data (with review) |
+| 18 | Integrations Apprentice | Work on non-secret external config under guidance |
+| 19 | 🧩 The Final Exam | Explain the whole architecture end-to-end in your own words |
+| 20 | **Creator (Arjun status)** | Full powers, equal to Arjun (needs Arjun's OK) |
+
+### Leo's progress
+- **Current level:** 2 (Stylist)
+- **To reach Level 3 (Wordsmith):** use your Level-2 aesthetic powers in 2–3
+  effective, website-improving ways.
+- **Progress: 1 / 3** — ✅ the login-screen logo move/scale-up counted as one
+  effective use. Two more good ones and you're promoted.
+
+### Tester role
+- **Still gated (Arjun-only) until earned higher up:** functional/behaviour
+  changes, external services, API keys, hosting/billing, deleting working
+  features.
 
 ### Awaiting Leo's testing
 _(Claude adds big features here; prompts Leo to test them next time he messages.)_
