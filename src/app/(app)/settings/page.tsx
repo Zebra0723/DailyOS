@@ -3,8 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
 import { SignOutButton } from "@/components/sign-out-button";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { AppearanceControls } from "@/components/appearance-controls";
+import { ModeToggle } from "@/components/mode-toggle";
 import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -82,16 +81,11 @@ export default async function SettingsPage() {
               <Palette className="size-4 text-primary" /> Appearance
             </CardTitle>
             <CardDescription>
-              Make it yours — accent colour, background, and a scene. Applies
-              instantly and is remembered on this device.
+              Choose light, dark, or match your device. Remembered on this device.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Accent colour</p>
-              <ThemeSwitcher />
-            </div>
-            <AppearanceControls />
+          <CardContent>
+            <ModeToggle />
           </CardContent>
         </Card>
 

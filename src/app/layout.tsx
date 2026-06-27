@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
-import { THEME_VARS_BY_KEY, DEFAULT_THEME_KEY } from "@/lib/themes";
-import { BG_BY_KEY, DEFAULT_BG, BG_DARK, SCENE_DARK } from "@/lib/appearance";
 
 const display = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -31,16 +29,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Apply the saved accent theme before first paint to avoid a colour flash.
-  const themeScript = `(function(){try{var r=document.documentElement;var k=localStorage.getItem('dailyos-theme')||'${DEFAULT_THEME_KEY}';var m=${JSON.stringify(
-    THEME_VARS_BY_KEY,
-  )};var v=m[k];if(v){for(var p in v){r.style.setProperty(p,v[p]);}}var bg=${JSON.stringify(
-    BG_BY_KEY,
-  )};var bk=localStorage.getItem('dailyos-bg')||'${DEFAULT_BG}';var sc=localStorage.getItem('dailyos-scene')||'none';r.style.setProperty('--app-bg', sc!=='none' ? 'transparent' : (bg[bk]||bg['${DEFAULT_BG}']));var bd=${JSON.stringify(
-    BG_DARK,
-  )};var sd=${JSON.stringify(
-    SCENE_DARK,
-  )};var dark = sc!=='none' ? sd[sc] : bd[bk];if(dark){r.classList.add('dark');}else{r.classList.remove('dark');}}catch(e){}})();`;
+  // Apply light/dark before first paint to avoid a flash.
+  const themeScript = `(function(){try{var m=localStorage.getItem('dailyos-mode')||'system';var dark = m==='dark' || (m==='system' && window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark', dark);}catch(e){}})();`;
 
   return (
     <html

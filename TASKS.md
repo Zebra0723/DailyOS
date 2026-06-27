@@ -166,6 +166,6 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   calming wavy-blue completion wash — _Leo's idea, built_
 - ✅ Sidebar grouped into ultra-categories (Life Inbox · Wellbeing · Account)
 - ✅ Mindfulness "done" floods the whole screen with water + floating message — _Leo_
-- ✅ **Backgrounds & scenes:** 8 background colours + 4 scenic themes (rain,
-  desert, city London/Rome/NY, beach busy/empty) in Settings → Appearance —
-  _Leo's idea (Arjun accepted)_
+- ✅ ~~Backgrounds & scenes (8 colours + rain/desert/city/beach)~~ →
+  **simplified to Light / Dark / System mode only** at Arjun's request. Accent
+  colour picker, background colours and scenes all removed.
