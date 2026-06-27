@@ -4,10 +4,13 @@ A shared list so Leo and Arjun always know who's doing what.
 
 ## How we work
 1. **Sign your messages** to Claude with your name at the end (e.g. "— Leo").
+   No name = Claude reminds you in bold before doing anything.
 2. **One owner per task.** Whoever starts a task finishes it. Nobody else picks
    up someone else's half-done task.
 3. Claude updates this file as tasks start, move along, and finish, and names
    who did what in every recap.
+4. **Language style:** Leo = plain, simple English, no jargon (he's newer to the
+   techie stuff). Arjun = full technical detail is fine.
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
