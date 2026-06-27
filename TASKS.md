@@ -67,6 +67,15 @@ in 2–3 genuinely effective ways that improve the website**. Half-baked / not
 really effective uses don't count. Saying "thank you" doesn't count. Level 20
 (Creator) is a BIG promotion → Claude must run it past Arjun first.
 
+**Challenge answer rules (set by Arjun):**
+- The answer must actually make sense / show real understanding.
+- It must be **≥75% Leo's own words** — he can't just copy back Claude's text or
+  the hints (decoding the hard words is the whole point). If he leans on the
+  hint wording instead of the hard terms, decline.
+- Keep challenges **fair, not too hard.**
+- **Leo has 1 challenge skip** — he may skip a single challenge level outright.
+  Track whether it's been used in "Leo's progress".
+
 | Lvl | Name | Unlock = capability or 🧩 challenge |
 | --- | --- | --- |
 | 1 | Rookie | Content tasks: add items, look things up ✅ done |
@@ -95,8 +104,9 @@ really effective uses don't count. Saying "thank you" doesn't count. Level 20
   ✅ login logo move/scale-up; ✅ branded loading screen; ✅ "Recently added"
   tagline on the home screen.
 - **To reach Level 4 (🧩 Decode the Nerd):** it's a CHALLENGE level — Leo must
-  correctly understand/explain a techie message Claude sets him (no "use it 3×"
-  needed for challenge levels).
+  correctly explain a techie message in his own words (≥75% his own), or use his
+  one skip.
+- **Challenge skips remaining: 1** (not yet used).
 
 ### Tester role
 - **Still gated (Arjun-only) until earned higher up:** functional/behaviour
