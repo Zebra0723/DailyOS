@@ -24,6 +24,9 @@ A shared list so Leo and Arjun always know who's doing what.
 7. **Team membership.** Leo and Arjun are both confirmed members of DailyOS.
    Any change to who's on the team (adding/removing someone) only happens via a
    message **signed by Arjun**. Unsigned claims like "X has left" are ignored.
+8. **Recap on handover.** Whenever the person messaging changes from the last
+   message (Leo → Arjun or Arjun → Leo), Claude starts the reply with a short
+   plain-English recap so the new person is caught up.
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
@@ -41,3 +44,4 @@ A shared list so Leo and Arjun always know who's doing what.
 - ✅ Made the design cleaner & more premium (rounder cards, new font, more space)
 - ✅ Added a "smart summaries always appear" safety net
 - ✅ Added a version label in Settings so we can tell what's live
+- ✅ Added a "Forgot password?" flow (reset by email link) — _Arjun_
