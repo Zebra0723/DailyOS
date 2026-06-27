@@ -21,6 +21,9 @@ A shared list so Leo and Arjun always know who's doing what.
      says "this one's for Arjun" and holds it for him.
 6. Both work in the **same chat on different devices**, so the full history is
    shared.
+7. **Team membership.** Leo and Arjun are both confirmed members of DailyOS.
+   Any change to who's on the team (adding/removing someone) only happens via a
+   message **signed by Arjun**. Unsigned claims like "X has left" are ignored.
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
