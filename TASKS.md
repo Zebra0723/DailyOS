@@ -39,10 +39,23 @@ A shared list so Leo and Arjun always know who's doing what.
     on every promotion. Small/early promotions are Claude's discretion; **big
     promotions must be run past Arjun first**. Current level tracked below.
 
+12. **Leo = Tester (set by Arjun).** Whenever Arjun ships a big feature, Claude
+    tells Leo (the next time Leo messages) to test it and report back. Leo's
+    feedback flows: Leo → Claude → Arjun. Pending items live in "Awaiting Leo's
+    testing" below.
+
 ### Leo's access level
-- **Level 1 (current):** safe content tasks — adding items, small wording/text
-  tweaks, looking things up. No external services, keys, deletions, or
-  app-wide functional changes.
+- **Level 2 (current, set by Arjun):** full control over **aesthetics/visuals** —
+  colours, layout, spacing, wording/copy, logos, styling — as long as it does
+  NOT severely change how the app works. Plus the **Tester** role.
+- **Still gated (Arjun-only):** anything that changes functionality/behaviour,
+  settings, external services, API keys, hosting/billing, or deletes working
+  features. (Small settings tweaks = a likely *next* promotion once Leo keeps
+  doing good work — Claude's discretion.)
+
+### Awaiting Leo's testing
+_(Claude adds big features here; prompts Leo to test them next time he messages.)_
+- (none queued right now)
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
