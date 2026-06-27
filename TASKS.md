@@ -125,6 +125,12 @@ small copy tweaks for fun — they just don't move the promotion meter.
 _(Claude adds big features here; prompts Leo to test them next time he messages.)_
 - (none queued right now)
 
+### Proposed features (need Arjun's OK — beyond Leo's level)
+- 💡 **Daily mindfulness box** (Leo's idea): a box on the home page with a daily
+  prompt (e.g. "take 10 deep breaths"), a tick button that resets each day, and
+  when ticked the whole home screen turns into a calming wavy-blue pattern.
+  Functional (stored + daily reset + animation) → needs Arjun to greenlight.
+
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
 
