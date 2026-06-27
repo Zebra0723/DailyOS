@@ -4,7 +4,6 @@ import * as React from "react";
 import { Check, Wind, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 // A different gentle prompt each day. Picked by day-of-year so it's stable
 // for the whole day and rotates automatically.
@@ -62,63 +61,52 @@ export function MindfulnessBox() {
     return <Card className="h-44 animate-pulse" />;
   }
 
-  return (
-    <>
-      {/* When complete, wash the whole screen in a calming wavy blue. */}
-      {done && (
+  // Completed: flood the whole site with rising water + floating message.
+  if (done) {
+    return (
+      <>
         <div
-          className="pointer-events-none fixed inset-0 z-0 animate-fade-in opacity-60 wavy-bg"
+          className="pointer-events-none fixed inset-0 z-40 overflow-hidden animate-fade-in"
           aria-hidden
-        />
-      )}
-
-      <div className="relative z-10">
-        <Card
-          className={cn(
-            "overflow-hidden transition-colors",
-            done && "border-blue-200 bg-white/80 backdrop-blur",
-          )}
         >
-          <CardContent className="flex flex-col items-center gap-5 py-10 text-center">
-            <div
-              className={cn(
-                "grid size-14 place-items-center rounded-2xl transition-colors",
-                done
-                  ? "bg-blue-500 text-white"
-                  : "bg-accent text-accent-foreground",
-              )}
+          <div className="water-fill wavy-bg opacity-80" />
+        </div>
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center px-6">
+          <div className="animate-float text-center">
+            <p className="text-3xl font-bold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)] sm:text-5xl">
+              Well done, check back tomorrow!
+            </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={undo}
+              className="pointer-events-auto mt-8"
             >
-              {done ? <Check className="size-7" /> : <Wind className="size-7" />}
-            </div>
+              <RotateCcw className="size-4" /> Undo
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
-            {done ? (
-              <div className="space-y-1">
-                <p className="text-lg font-semibold">Lovely. That&apos;s your moment of calm. 🌊</p>
-                <p className="text-sm text-muted-foreground">
-                  Come back tomorrow for a fresh one.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Today&apos;s mindful moment
-                </p>
-                <p className="text-xl font-semibold">{prompt}</p>
-              </div>
-            )}
-
-            {done ? (
-              <Button variant="ghost" size="sm" onClick={undo}>
-                <RotateCcw className="size-4" /> Undo
-              </Button>
-            ) : (
-              <Button size="lg" onClick={complete} className="px-8">
-                <Check className="size-4" /> Mark done
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </>
+  // Not yet done: today's prompt.
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="flex flex-col items-center gap-5 py-10 text-center">
+        <div className="grid size-14 place-items-center rounded-2xl bg-accent text-accent-foreground">
+          <Wind className="size-7" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Today&apos;s mindful moment
+          </p>
+          <p className="text-xl font-semibold">{prompt}</p>
+        </div>
+        <Button size="lg" onClick={complete} className="px-8">
+          <Check className="size-4" /> Mark done
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
