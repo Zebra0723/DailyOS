@@ -22,7 +22,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [error, setError] = React.useState<string | null>(null);
   const [sentConfirmation, setSentConfirmation] = React.useState(false);
 
-  const redirect = params.get("redirect") || "/today";
+  // Fresh logins/sign-ups land on the welcome screen; a `redirect` param
+  // (e.g. from a protected page) takes priority.
+  const redirect = params.get("redirect") || "/welcome";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

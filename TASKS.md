@@ -93,8 +93,8 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 4 | 🧩 Decode the Nerd ✅ | Challenge — free-passed by Arjun |
 | 5 | Layout Architect ✅ | Restructure page layouts / reorder sections |
 | 6 | Theme Smith ✅ | Add/edit accent themes & design tokens (colours, radius, shadows) |
-| 7 | 🧩 Read the Map ✅ **(CURRENT)** | Challenge — **skipped by Leo** (skip used) |
-| 8 | Landing Curator | Edit landing-page sections & marketing structure |
+| 7 | 🧩 Read the Map ✅ | Challenge — **skipped by Leo** (skip used) |
+| 8 | **Landing Curator (CURRENT)** | Edit landing-page sections & marketing structure |
 | 9 | Small Settings | Make small, non-destructive settings/preference changes |
 | 10 | 🧩 Trace the Data | Explain how an item flows inbox → review → tasks/calendar/vault |
 | 11 | Component Crafter | Add new presentational UI components (visual only) |
@@ -109,11 +109,10 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 20 | **Creator (Arjun status)** | Full powers, equal to Arjun (needs Arjun's OK) |
 
 ### Leo's progress
-- **Current level:** 7 (Read the Map) — **challenge skipped** (skip used).
-  Note: L7 is a gate, so it grants no new power; same abilities as Theme Smith.
-- **To reach Level 8 (Landing Curator):** capability level → 2–3 effective
-  changes. Unlocks: editing the landing/marketing page. **Progress: 1 / 3**
-  (carried over Arjun's earlier problem-solving credit).
+- **Current level:** 8 (Landing Curator) 🎉 — Arjun put him through after
+  accepting the welcome-screen idea. Unlocks: editing the landing/marketing page.
+- **To reach Level 9 (Small Settings):** capability level → 2–3 effective
+  changes. Unlocks: small, safe settings changes. **Progress: 0 / 3.**
 - **Challenge skips remaining: 0** (used on Level 7).
 - Leo's mindfulness idea is now considered **within his level** going forward.
 
@@ -132,10 +131,7 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- 💡 **Welcome interstitial** (Leo's idea): after sign-up/log-in, show a ~10s
-  screen explaining what DailyOS is for, with a **Skip** button, then go to the
-  home page. Functional (post-auth flow + timer + redirect) → needs Arjun to
-  greenlight.
+- (none right now)
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
@@ -169,3 +165,5 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
 - ✅ ~~Backgrounds & scenes (8 colours + rain/desert/city/beach)~~ →
   **simplified to Light / Dark / System mode only** at Arjun's request. Accent
   colour picker, background colours and scenes all removed.
+- ✅ **Welcome screen** after sign-up/log-in: ~10s DailyOS intro with countdown
+  + Skip, then home — _Leo's idea (Arjun accepted)_
