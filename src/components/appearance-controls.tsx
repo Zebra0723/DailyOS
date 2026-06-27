@@ -11,7 +11,7 @@ import {
   SCENE_STORAGE_KEY,
   SCENE_VARIANT_STORAGE_KEY,
   APPEARANCE_EVENT,
-  applyBackground,
+  applyAppearance,
 } from "@/lib/appearance";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ export function AppearanceControls() {
     localStorage.setItem(BG_STORAGE_KEY, nextBg);
     localStorage.setItem(SCENE_STORAGE_KEY, nextScene);
     localStorage.setItem(SCENE_VARIANT_STORAGE_KEY, nextVariant);
-    applyBackground(nextBg, nextScene !== "none");
+    applyAppearance(nextBg, nextScene);
     window.dispatchEvent(new Event(APPEARANCE_EVENT));
   }
 

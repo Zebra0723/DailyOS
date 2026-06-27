@@ -66,7 +66,7 @@ export function Sidebar({ email }: { email: string }) {
   }
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r bg-card px-4 py-5 md:flex">
+    <aside className="hidden w-64 shrink-0 flex-col border-r bg-card/70 px-4 py-5 backdrop-blur-xl md:flex">
       <div className="px-1 py-1">
         <Link href="/today">
           <Logo />

@@ -3,7 +3,7 @@ import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
 import { THEME_VARS_BY_KEY, DEFAULT_THEME_KEY } from "@/lib/themes";
-import { BG_BY_KEY, DEFAULT_BG } from "@/lib/appearance";
+import { BG_BY_KEY, DEFAULT_BG, BG_DARK, SCENE_DARK } from "@/lib/appearance";
 
 const display = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -36,7 +36,11 @@ export default function RootLayout({
     THEME_VARS_BY_KEY,
   )};var v=m[k];if(v){for(var p in v){r.style.setProperty(p,v[p]);}}var bg=${JSON.stringify(
     BG_BY_KEY,
-  )};var bk=localStorage.getItem('dailyos-bg')||'${DEFAULT_BG}';var sc=localStorage.getItem('dailyos-scene')||'none';r.style.setProperty('--app-bg', sc!=='none' ? 'transparent' : (bg[bk]||bg['${DEFAULT_BG}']));}catch(e){}})();`;
+  )};var bk=localStorage.getItem('dailyos-bg')||'${DEFAULT_BG}';var sc=localStorage.getItem('dailyos-scene')||'none';r.style.setProperty('--app-bg', sc!=='none' ? 'transparent' : (bg[bk]||bg['${DEFAULT_BG}']));var bd=${JSON.stringify(
+    BG_DARK,
+  )};var sd=${JSON.stringify(
+    SCENE_DARK,
+  )};var dark = sc!=='none' ? sd[sc] : bd[bk];if(dark){r.classList.add('dark');}else{r.classList.remove('dark');}}catch(e){}})();`;
 
   return (
     <html

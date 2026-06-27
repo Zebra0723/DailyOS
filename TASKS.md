@@ -114,6 +114,9 @@ small copy tweaks for fun — they just don't move the promotion meter.
   (a Level-5 layout use). Unlocks: building/editing colour themes & styling.
 - **To reach Level 7 (🧩 Read the Map):** CHALLENGE level — explain how the app's
   pages are built (or use his skip). Capped at the agreed difficulty.
+- **Progress: 1 / 3** — Arjun credited good problem-solving (spotting the scenes
+  needed to be real photos + the readability issue). 3 such credits clear the
+  Level-7 gate, or he can take the challenge / use his skip.
 - **Challenge skips remaining: 1** (still unused).
 - Leo's mindfulness idea is now considered **within his level** going forward.
 

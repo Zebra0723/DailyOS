@@ -31,5 +31,9 @@ export function SceneBackground() {
   if (!opt || scene === "none") return null;
 
   const variantClass = variant ? `v-${variant}` : "";
-  return <div className={`scene ${opt.className} ${variantClass}`} aria-hidden />;
+  return (
+    <div className={`scene ${opt.className} ${variantClass}`} aria-hidden>
+      {scene === "rain" && <div className="lightning" />}
+    </div>
+  );
 }
