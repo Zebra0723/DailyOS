@@ -158,6 +158,113 @@
   .animate-float {
     animation: float-bob 4s ease-in-out infinite;
   }
+
+  /* ---- App canvas background colour ---- */
+  .app-canvas {
+    background-color: var(--app-bg, #f4f5f7);
+  }
+
+  /* ---- Scenic backdrops (fixed, behind app content) ---- */
+  .scene {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Rain */
+  .scene-rain {
+    background: linear-gradient(180deg, #1e293b, #334155 60%, #475569);
+  }
+  .scene-rain::after {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    background-image: repeating-linear-gradient(
+      105deg,
+      rgba(255, 255, 255, 0.18) 0 1px,
+      transparent 1px 9px
+    );
+    animation: rainmove 0.5s linear infinite;
+    opacity: 0.55;
+  }
+  @keyframes rainmove {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: -60px 220px;
+    }
+  }
+
+  /* Desert */
+  .scene-desert {
+    background: linear-gradient(180deg, #fcd9a0, #f6b66b 55%, #e3935a);
+  }
+  .scene-desert::after {
+    content: "";
+    position: absolute;
+    right: 14%;
+    top: 12%;
+    width: 130px;
+    height: 130px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, #fff7e0, #ffd98a 70%, transparent 72%);
+    animation: float-bob 7s ease-in-out infinite;
+  }
+
+  /* Beach */
+  .scene-beach {
+    background: linear-gradient(
+      180deg,
+      #8fd3ff 0%,
+      #bde8ff 44%,
+      #fce8c0 45%,
+      #f4d79a 100%
+    );
+  }
+  .scene-beach.v-busy::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 12% 0;
+    height: 60px;
+    background-image: radial-gradient(circle at 10% 100%, #ef4444 0 10px, transparent 11px),
+      radial-gradient(circle at 30% 100%, #f59e0b 0 10px, transparent 11px),
+      radial-gradient(circle at 52% 100%, #10b981 0 10px, transparent 11px),
+      radial-gradient(circle at 74% 100%, #3b82f6 0 10px, transparent 11px),
+      radial-gradient(circle at 90% 100%, #ec4899 0 10px, transparent 11px);
+    opacity: 0.85;
+  }
+
+  /* City + variants */
+  .scene-city {
+    background: linear-gradient(180deg, #2b2d52, #4b3b6b 50%, #caa3c9);
+  }
+  .scene-city.v-london {
+    background: linear-gradient(180deg, #243049, #3b4a63 55%, #9fb3c8);
+  }
+  .scene-city.v-rome {
+    background: linear-gradient(180deg, #3a2c1e, #7a5a32 55%, #e8c27a);
+  }
+  .scene-city.v-newyork {
+    background: linear-gradient(180deg, #2a1f3d, #52376b 55%, #d98cc0);
+  }
+  .scene-city::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 32%;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(8, 10, 20, 0.85) 0 28px,
+      rgba(8, 10, 20, 0.55) 28px 33px,
+      rgba(8, 10, 20, 0.85) 33px 64px,
+      rgba(8, 10, 20, 0.4) 64px 70px
+    );
+    -webkit-mask: linear-gradient(180deg, transparent, #000 35%);
+    mask: linear-gradient(180deg, transparent, #000 35%);
+  }
   /* subtle dotted grid for hero / empty states */
   .bg-grid {
     background-image: radial-gradient(

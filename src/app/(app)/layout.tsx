@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar, MobileNav, MobileHeader } from "@/components/app-nav";
+import { SceneBackground } from "@/components/scene-background";
 
 export default async function AppLayout({
   children,
@@ -16,13 +17,16 @@ export default async function AppLayout({
   if (!user) redirect("/login");
 
   return (
-    <div className="flex min-h-screen bg-[hsl(240,8%,97%)]">
-      <Sidebar email={user.email ?? "you@dailyos.app"} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <MobileHeader />
-        <main className="flex-1 pb-20 md:pb-0">
-          <div className="container max-w-5xl py-6 md:py-10">{children}</div>
-        </main>
+    <div className="app-canvas relative min-h-screen">
+      <SceneBackground />
+      <div className="relative z-10 flex min-h-screen">
+        <Sidebar email={user.email ?? "you@dailyos.app"} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <MobileHeader />
+          <main className="flex-1 pb-20 md:pb-0">
+            <div className="container max-w-5xl py-6 md:py-10">{children}</div>
+          </main>
+        </div>
       </div>
       <MobileNav />
     </div>

@@ -113,7 +113,9 @@ small copy tweaks for fun — they just don't move the promotion meter.
   having a **whole new section** (Mindfulness / Wellbeing) built from his idea.
   Unlocks: rearranging whole page layouts.
 - **To reach Level 6 (Theme Smith):** capability level → use his powers in **2–3
-  effective ways**. Unlocks: building colour themes & styling. **Progress: 0 / 3.**
+  effective ways**. Unlocks: building colour themes & styling. **Progress: 2 / 3**
+  (Arjun accepted his backgrounds + scenes idea and credited it as 2/3). One more
+  solid change and he's Level 6.
 - **Challenge skips remaining: 1** (still unused).
 - Leo's mindfulness idea is now considered **within his level** going forward.
 
@@ -132,10 +134,7 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- 💡 **Backgrounds & scenic themes** (Leo's idea): 8 selectable background
-  colours + 4 atmospheric "themes" — rain, desert, city (London/Rome/New York),
-  beach (busy/empty). This is **Level-6 (Theme Smith)** work; Leo is L5. Needs
-  Arjun to greenlight (and likely an auto-promotion, like Mindfulness).
+- (none right now)
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
@@ -165,3 +164,7 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
 - ✅ **Mindfulness / Wellbeing** section: daily prompt, tick w/ daily reset,
   calming wavy-blue completion wash — _Leo's idea, built_
 - ✅ Sidebar grouped into ultra-categories (Life Inbox · Wellbeing · Account)
+- ✅ Mindfulness "done" floods the whole screen with water + floating message — _Leo_
+- ✅ **Backgrounds & scenes:** 8 background colours + 4 scenic themes (rain,
+  desert, city London/Rome/NY, beach busy/empty) in Settings → Appearance —
+  _Leo's idea (Arjun accepted)_
