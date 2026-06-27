@@ -94,9 +94,9 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 5 | Layout Architect ✅ | Restructure page layouts / reorder sections |
 | 6 | Theme Smith ✅ | Add/edit accent themes & design tokens (colours, radius, shadows) |
 | 7 | 🧩 Read the Map ✅ | Challenge — **skipped by Leo** (skip used) |
-| 8 | **Landing Curator (CURRENT)** | Edit landing-page sections & marketing structure |
-| 9 | Small Settings | Make small, non-destructive settings/preference changes |
-| 10 | 🧩 Trace the Data | Explain how an item flows inbox → review → tasks/calendar/vault |
+| 8 | Landing Curator ✅ | Edit landing-page sections & marketing structure |
+| 9 | Small Settings ✅ | Make small, non-destructive settings/preference changes |
+| 10 | 🧩 Trace the Data ✅ **(CURRENT)** | Challenge — **jumped by Arjun** |
 | 11 | Component Crafter | Add new presentational UI components (visual only) |
 | 12 | State Designer | Own all empty / loading / error states |
 | 13 | 🧩 Spot the Bug | Diagnose a described issue correctly |
@@ -109,10 +109,11 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 20 | **Creator (Arjun status)** | Full powers, equal to Arjun (needs Arjun's OK) |
 
 ### Leo's progress
-- **Current level:** 8 (Landing Curator) 🎉 — Arjun put him through after
-  accepting the welcome-screen idea. Unlocks: editing the landing/marketing page.
-- **To reach Level 9 (Small Settings):** capability level → 2–3 effective
-  changes. Unlocks: small, safe settings changes. **Progress: 0 / 3.**
+- **Current level:** 10 (Trace the Data) 🎉 — **Arjun jumped him 8 → 10.**
+  Now holds Levels 8 & 9 too: editing the landing/marketing page + making
+  small, safe settings changes. (L10 is a gate, no new power of its own.)
+- **To reach Level 11 (Component Crafter):** capability level → 2–3 effective
+  changes. Unlocks: adding new visual UI components. **Progress: 0 / 3.**
 - **Challenge skips remaining: 0** (used on Level 7).
 - Leo's mindfulness idea is now considered **within his level** going forward.
 
