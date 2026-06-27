@@ -51,6 +51,7 @@ export interface InboxItem {
   summary: string | null;
   raw_ai_json: ExtractionResult | null;
   needs_text_extraction: boolean;
+  handled: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -109,11 +110,14 @@ export interface KeyDate {
   description: string;
 }
 
+export type Confidence = "low" | "medium" | "high";
+
 export interface SuggestedTask {
   title: string;
   description: string | null;
   due_date: string | null;
   priority: Priority;
+  reason?: string | null;
 }
 
 export interface SuggestedEvent {
@@ -130,15 +134,32 @@ export interface Entities {
   places: string[];
   prices: string[];
   reference_numbers: string[];
+  order_numbers: string[];
+  booking_numbers: string[];
+  deadlines: string[];
+}
+
+export interface WatchOut {
+  title: string;
+  detail: string;
+}
+
+export interface SourceSnippet {
+  label: string;
+  snippet: string;
 }
 
 export interface ExtractionResult {
   item_type: ItemType;
   summary: string;
+  confidence: Confidence;
+  main_date: string | null;
   key_dates: KeyDate[];
   suggested_tasks: SuggestedTask[];
   suggested_calendar_events: SuggestedEvent[];
   entities: Entities;
+  watch_outs: WatchOut[];
+  source_snippets: SourceSnippet[];
   vault_category: VaultCategory;
 }
 

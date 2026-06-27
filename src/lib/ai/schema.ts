@@ -51,6 +51,7 @@ export const suggestedTaskSchema = z.object({
   description: nullableString,
   due_date: nullableString,
   priority,
+  reason: nullableString,
 });
 
 export const suggestedEventSchema = z.object({
@@ -61,13 +62,18 @@ export const suggestedEventSchema = z.object({
   location: nullableString,
 });
 
+const stringArray = z.array(z.string()).default([]);
+
 export const entitiesSchema = z
   .object({
-    people: z.array(z.string()).default([]),
-    companies: z.array(z.string()).default([]),
-    places: z.array(z.string()).default([]),
-    prices: z.array(z.string()).default([]),
-    reference_numbers: z.array(z.string()).default([]),
+    people: stringArray,
+    companies: stringArray,
+    places: stringArray,
+    prices: stringArray,
+    reference_numbers: stringArray,
+    order_numbers: stringArray,
+    booking_numbers: stringArray,
+    deadlines: stringArray,
   })
   .default({
     people: [],
@@ -75,15 +81,32 @@ export const entitiesSchema = z
     places: [],
     prices: [],
     reference_numbers: [],
+    order_numbers: [],
+    booking_numbers: [],
+    deadlines: [],
   });
+
+export const watchOutSchema = z.object({
+  title: z.string().min(1),
+  detail: z.string().default(""),
+});
+
+export const sourceSnippetSchema = z.object({
+  label: z.string().default(""),
+  snippet: z.string().default(""),
+});
 
 export const extractionResultSchema = z.object({
   item_type: itemTypeSchema,
   summary: z.string().default(""),
+  confidence: z.enum(["low", "medium", "high"]).catch("medium"),
+  main_date: nullableString,
   key_dates: z.array(keyDateSchema).default([]),
   suggested_tasks: z.array(suggestedTaskSchema).default([]),
   suggested_calendar_events: z.array(suggestedEventSchema).default([]),
   entities: entitiesSchema,
+  watch_outs: z.array(watchOutSchema).default([]),
+  source_snippets: z.array(sourceSnippetSchema).default([]),
   vault_category: vaultCategorySchema,
 });
 

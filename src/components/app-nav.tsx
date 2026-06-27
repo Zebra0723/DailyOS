@@ -11,19 +11,43 @@ import {
   Settings,
   Plus,
   LogOut,
+  Flower2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn, initials } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 
-const links = [
+// "Ultra categories" — sidebar groups.
+const NAV_GROUPS = [
+  {
+    heading: "Life Inbox",
+    items: [
+      { href: "/today", label: "Today", icon: Sun },
+      { href: "/inbox", label: "Inbox", icon: Inbox },
+      { href: "/calendar", label: "Calendar", icon: Calendar },
+      { href: "/tasks", label: "Tasks", icon: CheckSquare },
+      { href: "/vault", label: "Vault", icon: Archive },
+    ],
+  },
+  {
+    heading: "Wellbeing",
+    items: [{ href: "/mindfulness", label: "Mindfulness", icon: Flower2 }],
+  },
+  {
+    heading: "Account",
+    items: [{ href: "/settings", label: "Settings", icon: Settings }],
+  },
+];
+
+// Bottom bar (mobile): the most-used destinations.
+const MOBILE_LINKS = [
   { href: "/today", label: "Today", icon: Sun },
   { href: "/inbox", label: "Inbox", icon: Inbox },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/vault", label: "Vault", icon: Archive },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/mindfulness", label: "Calm", icon: Flower2 },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -58,36 +82,40 @@ export function Sidebar({ email }: { email: string }) {
         </Button>
       </div>
 
-      <nav className="mt-7 flex flex-1 flex-col gap-0.5">
-        <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-          Workspace
-        </p>
-        {links.map((l) => {
-          const active = isActive(pathname, l.href);
-          return (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={cn(
-                "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                active
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-            >
-              {active && (
-                <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary" />
-              )}
-              <l.icon
-                className={cn(
-                  "size-[18px]",
-                  active ? "text-primary" : "text-muted-foreground",
-                )}
-              />
-              {l.label}
-            </Link>
-          );
-        })}
+      <nav className="mt-7 flex flex-1 flex-col gap-5">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.heading} className="flex flex-col gap-0.5">
+            <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+              {group.heading}
+            </p>
+            {group.items.map((l) => {
+              const active = isActive(pathname, l.href);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={cn(
+                    "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  {active && (
+                    <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary" />
+                  )}
+                  <l.icon
+                    className={cn(
+                      "size-[18px]",
+                      active ? "text-primary" : "text-muted-foreground",
+                    )}
+                  />
+                  {l.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       <div className="mt-auto border-t pt-3">
@@ -114,12 +142,10 @@ export function Sidebar({ email }: { email: string }) {
 
 export function MobileNav() {
   const pathname = usePathname();
-  // Mobile bottom bar: 5 most-used destinations.
-  const items = links.filter((l) => l.href !== "/settings");
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 backdrop-blur md:hidden">
-      {items.map((l) => (
+    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-card/95 backdrop-blur md:hidden">
+      {MOBILE_LINKS.map((l) => (
         <Link
           key={l.href}
           href={l.href}

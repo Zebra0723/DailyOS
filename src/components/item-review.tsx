@@ -20,8 +20,16 @@ import {
   approveInboxItem,
   deleteInboxItem,
   reprocessInboxItem,
+  setInboxHandled,
   updateInboxText,
 } from "@/app/(app)/inbox/actions";
+import {
+  ItemOverview,
+  ImportantDetails,
+  WatchOuts,
+  SourceProof,
+  ReminderSuggestions,
+} from "@/components/action-report";
 import {
   ITEM_TYPE_LABELS,
   VAULT_CATEGORY_LABELS,
@@ -47,6 +55,7 @@ interface TaskDraft {
   description: string | null;
   due_date: string | null;
   priority: Priority;
+  reason?: string | null;
 }
 interface EventDraft {
   title: string;
@@ -237,12 +246,22 @@ export function ItemReview({
         </div>
       )}
 
-      {/* Summary + classification */}
+      {item.handled && (
+        <div className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white">
+          <CheckCircle2 className="size-4" />
+          Handled — nothing left to do on this one. 🎉
+        </div>
+      )}
+
+      {/* Action report: at-a-glance overview */}
+      {ai && <ItemOverview ai={ai} />}
+
+      {/* Editable summary + classification */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Sparkles className="size-4 text-primary" />
-            AI summary
+            Summary &amp; filing
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -289,7 +308,7 @@ export function ItemReview({
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle className="flex items-center gap-2 text-base">
             <CheckSquare className="size-4 text-primary" />
-            Suggested tasks
+            Suggested actions
           </CardTitle>
           <Button
             variant="outline"
@@ -297,7 +316,7 @@ export function ItemReview({
             onClick={() =>
               setTasks((t) => [
                 ...t,
-                { title: "", description: null, due_date: null, priority: "medium" },
+                { title: "", description: null, due_date: null, priority: "medium", reason: null },
               ])
             }
           >
@@ -306,13 +325,13 @@ export function ItemReview({
         </CardHeader>
         <CardContent className="space-y-3">
           {tasks.length === 0 && (
-            <p className="text-sm text-muted-foreground">No tasks suggested.</p>
+            <p className="text-sm text-muted-foreground">No actions suggested.</p>
           )}
           {tasks.map((t, i) => (
             <div key={i} className="space-y-2 rounded-lg border p-3">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Task title"
+                  placeholder="Action title"
                   value={t.title}
                   onChange={(e) =>
                     setTasks((arr) =>
@@ -324,11 +343,17 @@ export function ItemReview({
                   variant="ghost"
                   size="icon"
                   onClick={() => setTasks((arr) => arr.filter((_, j) => j !== i))}
-                  aria-label="Remove task"
+                  aria-label="Ignore action"
+                  title="Ignore"
                 >
                   <Trash2 className="size-4 text-muted-foreground" />
                 </Button>
               </div>
+              {t.reason && (
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">Why:</span> {t.reason}
+                </p>
+              )}
               <div className="grid gap-2 sm:grid-cols-2">
                 <Input
                   type="date"
@@ -460,8 +485,17 @@ export function ItemReview({
         </CardContent>
       </Card>
 
-      {/* Entities */}
-      {ai && <Entities ai={ai} />}
+      {/* Important details */}
+      {ai && <ImportantDetails ai={ai} />}
+
+      {/* Watch-outs */}
+      {ai && <WatchOuts ai={ai} />}
+
+      {/* Reminder suggestions */}
+      {ai && <ReminderSuggestions item={item} ai={ai} />}
+
+      {/* Source proof */}
+      {ai && <SourceProof ai={ai} />}
 
       {/* Approve bar */}
       <div className="sticky bottom-20 z-10 flex items-center justify-between gap-3 rounded-xl border bg-card/95 p-3 shadow-lg backdrop-blur md:bottom-4">
@@ -489,6 +523,8 @@ export function ItemReview({
         </div>
       </div>
 
+      {approved && <MarkHandled item={item} />}
+
       <OriginalContent item={item} signedUrl={signedUrl} />
       <ProcessingTimeline logs={logs} />
       <DangerZone item={item} />
@@ -505,42 +541,53 @@ function Header({ item }: { item: InboxItem }) {
   );
 }
 
-function Entities({ ai }: { ai: NonNullable<InboxItem["raw_ai_json"]> }) {
-  const groups: { label: string; values: string[] }[] = [
-    { label: "People", values: ai.entities?.people ?? [] },
-    { label: "Companies", values: ai.entities?.companies ?? [] },
-    { label: "Places", values: ai.entities?.places ?? [] },
-    { label: "Prices", values: ai.entities?.prices ?? [] },
-    { label: "References", values: ai.entities?.reference_numbers ?? [] },
-  ].filter((g) => g.values.length);
+function MarkHandled({ item }: { item: InboxItem }) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [busy, setBusy] = React.useState(false);
 
-  if (!groups.length) return null;
+  async function toggle() {
+    setBusy(true);
+    const res = await setInboxHandled(item.id, !item.handled);
+    setBusy(false);
+    if (res.ok) {
+      toast({
+        variant: "success",
+        title: item.handled ? "Marked as not handled" : "Marked as handled 🎉",
+      });
+      router.refresh();
+    } else {
+      toast({ variant: "error", title: "Couldn't update", description: res.error });
+    }
+  }
+
+  if (item.handled) {
+    return (
+      <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/5">
+        <p className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+          <CheckCircle2 className="size-4" /> This item is handled.
+        </p>
+        <Button variant="ghost" size="sm" onClick={toggle} disabled={busy}>
+          {busy && <Loader2 className="size-4 animate-spin" />}
+          Reopen
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Key details</CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-4 sm:grid-cols-2">
-        {groups.map((g) => (
-          <div key={g.label}>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {g.label}
-            </p>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {g.values.map((v, i) => (
-                <span
-                  key={i}
-                  className="rounded-md bg-muted px-2 py-1 text-sm"
-                >
-                  {v}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+    <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-sm font-medium">All done with this one?</p>
+        <p className="text-sm text-muted-foreground">
+          Mark it handled once you&apos;ve added the actions, reminders and events.
+        </p>
+      </div>
+      <Button onClick={toggle} disabled={busy} className="shrink-0">
+        {busy ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
+        Mark as handled
+      </Button>
+    </div>
   );
 }
 

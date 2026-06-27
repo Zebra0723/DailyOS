@@ -103,6 +103,31 @@
   .text-balance {
     text-wrap: balance;
   }
+  /* Calming animated wavy-blue wash for the Mindfulness "done" state. */
+  @keyframes wavy {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  .wavy-bg {
+    background: linear-gradient(
+      120deg,
+      #eff6ff,
+      #bfdbfe,
+      #60a5fa,
+      #3b82f6,
+      #93c5fd,
+      #dbeafe
+    );
+    background-size: 300% 300%;
+    animation: wavy 9s ease-in-out infinite;
+  }
   /* subtle dotted grid for hero / empty states */
   .bg-grid {
     background-image: radial-gradient(

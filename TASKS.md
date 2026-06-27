@@ -90,8 +90,8 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 1 | Rookie | Content tasks: add items, look things up ✅ done |
 | 2 | Stylist ✅ | Full aesthetics control + Tester + "thank you" perk |
 | 3 | Wordsmith ✅ | Own all user-facing copy/microcopy (labels, empty states, errors) |
-| 4 | 🧩 Decode the Nerd ✅ **(CURRENT)** | Challenge — free-passed by Arjun |
-| 5 | Layout Architect | Restructure page layouts / reorder sections |
+| 4 | 🧩 Decode the Nerd ✅ | Challenge — free-passed by Arjun |
+| 5 | **Layout Architect (CURRENT)** | Restructure page layouts / reorder sections |
 | 6 | Theme Smith | Add/edit accent themes & design tokens (colours, radius, shadows) |
 | 7 | 🧩 Read the Map | Explain the app's folder structure / how a page renders |
 | 8 | Landing Curator | Edit landing-page sections & marketing structure |
@@ -109,12 +109,13 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 20 | **Creator (Arjun status)** | Full powers, equal to Arjun (needs Arjun's OK) |
 
 ### Leo's progress
-- **Current level:** 4 (Decode the Nerd) — challenge **free-passed by Arjun**
-  (skip NOT used).
-- **To reach Level 5 (Layout Architect):** capability level → use his current
-  powers in **2–3 effective, website-improving ways**. Unlocks: rearranging
-  whole page layouts. **Progress: 0 / 3.**
+- **Current level:** 5 (Layout Architect) 🎉 — **auto-promotion from Arjun** for
+  having a **whole new section** (Mindfulness / Wellbeing) built from his idea.
+  Unlocks: rearranging whole page layouts.
+- **To reach Level 6 (Theme Smith):** capability level → use his powers in **2–3
+  effective ways**. Unlocks: building colour themes & styling. **Progress: 0 / 3.**
 - **Challenge skips remaining: 1** (still unused).
+- Leo's mindfulness idea is now considered **within his level** going forward.
 
 ### Tester role
 - **Still gated (Arjun-only) until earned higher up:** functional/behaviour
@@ -126,10 +127,7 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
 - (none queued right now)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- 💡 **Daily mindfulness box** (Leo's idea): a box on the home page with a daily
-  prompt (e.g. "take 10 deep breaths"), a tick button that resets each day, and
-  when ticked the whole home screen turns into a calming wavy-blue pattern.
-  Functional (stored + daily reset + animation) → needs Arjun to greenlight.
+- (none right now)
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
@@ -152,3 +150,10 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
 - ✅ Added a "change username" section (Settings), greeting now uses it — _Arjun_
 - ✅ Read text from photos/screenshots via in-browser OCR (Tesseract), then
   Groq extracts — works with text-only AI models — _Arjun_
+- ✅ Live clock on the home header — _Leo_
+- ✅ **Action Report** inbox results: overview + confidence, important details,
+  suggested actions w/ reasons, reminder suggestions, watch-outs, source proof,
+  Mark-as-handled — _Arjun_
+- ✅ **Mindfulness / Wellbeing** section: daily prompt, tick w/ daily reset,
+  calming wavy-blue completion wash — _Leo's idea, built_
+- ✅ Sidebar grouped into ultra-categories (Life Inbox · Wellbeing · Account)

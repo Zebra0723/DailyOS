@@ -230,6 +230,47 @@ export function defaultTaskTitle(type: ItemType, title: string): string {
   return `${base}: ${title}`.slice(0, 90);
 }
 
+function findTagged(text: string, words: string): string[] {
+  const out = new Set<string>();
+  const re = new RegExp(
+    `\\b(?:${words})\\s*(?:no\\.?|number|#|:)?\\s*([A-Z0-9][A-Z0-9-]{3,})\\b`,
+    "gi",
+  );
+  for (const m of text.matchAll(re)) out.add(m[1].toUpperCase());
+  return Array.from(out).slice(0, 5);
+}
+
+/** Pull the short line of original text containing a value, as proof. */
+function snippetFor(text: string, value: string | null): string | null {
+  if (!value) return null;
+  const clean = text.replace(/\s+/g, " ");
+  const idx = clean.toLowerCase().indexOf(value.toLowerCase());
+  if (idx === -1) return null;
+  const start = Math.max(0, idx - 40);
+  const end = Math.min(clean.length, idx + value.length + 40);
+  return `${start > 0 ? "…" : ""}${clean.slice(start, end).trim()}${end < clean.length ? "…" : ""}`;
+}
+
+function buildWatchOuts(type: ItemType, haystack: string, hasText: boolean) {
+  const out: { title: string; detail: string }[] = [];
+  const add = (title: string, detail: string) => out.push({ title, detail });
+
+  if (/\breturn/i.test(haystack) || type === "receipt")
+    add("Return window", "Keep this receipt — returns are usually time-limited.");
+  if (/warranty|guarantee/i.test(haystack) || type === "warranty")
+    add("Warranty", "Note the expiry date and register the product if needed.");
+  if (/check[\s-]?in/i.test(haystack) || type === "travel")
+    add("Check-in", "Check in ahead of time to avoid fees or missing your slot.");
+  if (/cancel/i.test(haystack))
+    add("Cancellation deadline", "Note the free-cancellation cut-off date.");
+  if (/renew|auto[\s-]?renew|subscription/i.test(haystack) || type === "subscription")
+    add("Renewal", "Decide whether to keep it before it auto-renews.");
+  if (!hasText)
+    add("Missing information", "We couldn't read much text — check the original to be sure.");
+
+  return out.slice(0, 4);
+}
+
 /** Heuristic extraction mirroring the LLM's ExtractionResult shape. */
 export function localExtract(title: string, rawText: string): ExtractionResult {
   const text = (rawText ?? "").trim();
@@ -279,9 +320,15 @@ export function localExtract(title: string, rawText: string): ExtractionResult {
     .filter(Boolean)
     .join(" · ");
 
+  const orderNumbers = findTagged(text, "order");
+  const bookingNumbers = findTagged(text, "booking|reservation|pnr|confirmation");
+
   const suggested_tasks: SuggestedTask[] = [
     {
       title: defaultTaskTitle(rule.type, title),
+      reason: headlineDate
+        ? `Tied to ${niceDate(headlineDate)} — don't let it slip.`
+        : "Keeps this item from falling through the cracks.",
       description: taskDetail || "Suggested by DailyOS — edit, keep or remove.",
       due_date: upcoming[0] ?? null,
       priority,
@@ -300,9 +347,22 @@ export function localExtract(title: string, rawText: string): ExtractionResult {
       ]
     : [];
 
+  const source_snippets = [
+    { label: "Key date", value: headlineDate ? niceDate(headlineDate) : null, raw: headlineDate },
+    { label: "Amount", value: prices[0] ?? null, raw: prices[0] ?? null },
+    { label: "Reference", value: references[0] ?? null, raw: references[0] ?? null },
+  ]
+    .map((s) => {
+      const snip = snippetFor(text, s.raw);
+      return snip ? { label: s.label, snippet: snip } : null;
+    })
+    .filter((s): s is { label: string; snippet: string } => s !== null);
+
   return {
     item_type: rule.type,
     summary,
+    confidence: "low",
+    main_date: headlineDate,
     key_dates,
     suggested_tasks,
     suggested_calendar_events,
@@ -312,7 +372,12 @@ export function localExtract(title: string, rawText: string): ExtractionResult {
       places: [],
       prices,
       reference_numbers: references,
+      order_numbers: orderNumbers,
+      booking_numbers: bookingNumbers,
+      deadlines: renewish && headlineDate ? [niceDate(headlineDate)] : [],
     },
+    watch_outs: buildWatchOuts(rule.type, haystack, Boolean(text)),
+    source_snippets,
     vault_category: rule.cat,
   };
 }
@@ -327,6 +392,22 @@ export function ensureSuggestions(
   title: string,
 ): ExtractionResult {
   const r = { ...result };
+
+  // Defensive defaults so the report renders even from partial/old data.
+  r.confidence = r.confidence ?? "medium";
+  r.watch_outs = r.watch_outs ?? [];
+  r.source_snippets = r.source_snippets ?? [];
+  r.entities = {
+    people: r.entities?.people ?? [],
+    companies: r.entities?.companies ?? [],
+    places: r.entities?.places ?? [],
+    prices: r.entities?.prices ?? [],
+    reference_numbers: r.entities?.reference_numbers ?? [],
+    order_numbers: r.entities?.order_numbers ?? [],
+    booking_numbers: r.entities?.booking_numbers ?? [],
+    deadlines: r.entities?.deadlines ?? [],
+  };
+  if (!r.main_date) r.main_date = r.key_dates?.[0]?.date ?? null;
 
   if (!r.summary || !r.summary.trim()) {
     r.summary = `“${title}” — review the suggestions below.`;

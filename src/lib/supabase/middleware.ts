@@ -9,6 +9,7 @@ const PROTECTED_PREFIXES = [
   "/calendar",
   "/tasks",
   "/vault",
+  "/mindfulness",
   "/settings",
 ];
 

@@ -200,6 +200,20 @@ async function getTitle(
   return data?.title as string | undefined;
 }
 
+/** Flip the "handled" flag (set after the user has actioned the report). */
+export async function setInboxHandled(id: string, handled: boolean) {
+  const { supabase } = await requireUser();
+  const { error } = await supabase
+    .from("inbox_items")
+    .update({ handled })
+    .eq("id", id);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath(`/inbox/${id}`);
+  revalidatePath("/inbox");
+  revalidatePath("/today");
+  return { ok: true as const };
+}
+
 export async function deleteInboxItem(id: string) {
   const { supabase } = await requireUser();
   const { error } = await supabase.from("inbox_items").delete().eq("id", id);

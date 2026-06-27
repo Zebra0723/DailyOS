@@ -27,14 +27,31 @@ Rules:
 - If the item mentions any date/time, include a matching suggested_calendar_event.
 - Choose the single best item_type and vault_category.
 
+Act like a personal chief of staff writing a short ACTION REPORT. As well as the
+basics, decide:
+- confidence: how sure you are about the extraction ("low" | "medium" | "high").
+- main_date: the single most important date/deadline (YYYY-MM-DD) or null.
+- For each suggested task, add a one-line "reason" explaining why it matters.
+- watch_outs: practical heads-ups the user shouldn't miss (e.g. return window
+  ending, check-in needed, cancellation deadline, warranty expiry, missing
+  information, renewal coming up, travel prep). [] if none.
+- source_snippets: for the most important details, quote the short bit of the
+  original text it came from, so the user can trust it. Each is { label, snippet }.
+- entities: also capture order_numbers and booking_numbers separately from
+  generic reference_numbers, and any explicit deadlines.
+
 Schema:
 {
   "item_type": "travel | receipt | warranty | booking | school | finance | health | subscription | event | general",
   "summary": "short summary",
+  "confidence": "low | medium | high",
+  "main_date": "YYYY-MM-DD or null",
   "key_dates": [ { "date": "YYYY-MM-DD", "time": "HH:mm or null", "description": "what happens" } ],
-  "suggested_tasks": [ { "title": "task title", "description": "optional detail or null", "due_date": "YYYY-MM-DD or null", "priority": "low | medium | high" } ],
+  "suggested_tasks": [ { "title": "task title", "reason": "why it matters", "description": "optional detail or null", "due_date": "YYYY-MM-DD or null", "priority": "low | medium | high" } ],
   "suggested_calendar_events": [ { "title": "event title", "description": "optional detail or null", "start_time": "ISO datetime or null", "end_time": "ISO datetime or null", "location": "location or null" } ],
-  "entities": { "people": [], "companies": [], "places": [], "prices": [], "reference_numbers": [] },
+  "entities": { "people": [], "companies": [], "places": [], "prices": [], "reference_numbers": [], "order_numbers": [], "booking_numbers": [], "deadlines": [] },
+  "watch_outs": [ { "title": "short heading", "detail": "what to do / why" } ],
+  "source_snippets": [ { "label": "what this proves", "snippet": "quoted text from the item" } ],
   "vault_category": "travel | home | school | finance | purchases | health | subscriptions | general"
 }`;
 

@@ -51,9 +51,14 @@ create table if not exists public.inbox_items (
   summary text,
   raw_ai_json jsonb,
   needs_text_extraction boolean not null default false,
+  handled boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- For projects created before the "handled" column existed:
+alter table public.inbox_items
+  add column if not exists handled boolean not null default false;
 
 create index if not exists inbox_items_user_idx on public.inbox_items(user_id, created_at desc);
 create index if not exists inbox_items_status_idx on public.inbox_items(user_id, status);
