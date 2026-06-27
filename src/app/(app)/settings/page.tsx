@@ -1,17 +1,10 @@
-import {
-  User,
-  CreditCard,
-  ShieldAlert,
-  Cpu,
-  CheckCircle2,
-  Lock,
-  Palette,
-} from "lucide-react";
+import { User, CreditCard, ShieldAlert, Palette, AtSign } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { initials } from "@/lib/utils";
@@ -26,6 +19,9 @@ export default async function SettingsPage() {
   } = await supabase.auth.getUser();
 
   const email = user?.email ?? "you@dailyos.app";
+  const username =
+    (user?.user_metadata?.username as string | undefined) ??
+    email.split("@")[0];
   const createdAt = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("en-GB", {
         day: "numeric",
@@ -33,14 +29,6 @@ export default async function SettingsPage() {
         year: "numeric",
       })
     : "—";
-
-  // Read-only view of AI config. Keys are NEVER sent to the client — we only
-  // report whether the server has a valid key. AI is optional: without it,
-  // DailyOS uses built-in smart extraction.
-  const aiKey = process.env.AI_PROVIDER_API_KEY ?? "";
-  const aiConfigured = Boolean(aiKey) && !aiKey.startsWith("sb_");
-  const aiModel = process.env.AI_MODEL ?? "gpt-4o-mini";
-  const aiBase = process.env.AI_PROVIDER_BASE_URL ?? "https://api.openai.com/v1";
 
   return (
     <div className="max-w-2xl">
@@ -57,16 +45,32 @@ export default async function SettingsPage() {
           <CardContent>
             <div className="flex items-center gap-4">
               <div className="grid size-12 place-items-center rounded-full bg-primary/10 text-base font-semibold text-primary">
-                {initials(email)}
+                {initials(username)}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{email}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="truncate font-medium">{username}</p>
+                <p className="truncate text-sm text-muted-foreground">{email}</p>
+                <p className="text-xs text-muted-foreground">
                   Member since {createdAt}
                 </p>
               </div>
               <SignOutButton />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Username */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AtSign className="size-4 text-primary" /> Username
+            </CardTitle>
+            <CardDescription>
+              The name DailyOS greets you with around the app.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <UsernameForm initialUsername={username} />
           </CardContent>
         </Card>
 
@@ -114,50 +118,6 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* AI provider (dev only) */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Cpu className="size-4 text-primary" /> AI provider
-              <Badge variant="secondary">Optional</Badge>
-            </CardTitle>
-            <CardDescription>
-              DailyOS works out of the box with built-in smart extraction. Add an
-              OpenAI-compatible key for richer, more accurate results. Keys are
-              read server-side only and never exposed to the browser.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <Row label="Mode">
-              {aiConfigured ? (
-                <span className="inline-flex items-center gap-1.5 text-emerald-600">
-                  <CheckCircle2 className="size-4" /> AI extraction
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-primary">
-                  <CheckCircle2 className="size-4" /> Smart extraction (built-in)
-                </span>
-              )}
-            </Row>
-            <Row label="Model">
-              <code className="rounded bg-muted px-1.5 py-0.5">{aiModel}</code>
-            </Row>
-            <Row label="Base URL">
-              <code className="rounded bg-muted px-1.5 py-0.5">{aiBase}</code>
-            </Row>
-            <Row label="API key">
-              <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                <Lock className="size-3.5" />
-                {aiConfigured ? "Set (hidden)" : "Add AI_PROVIDER_API_KEY"}
-              </span>
-            </Row>
-            <p className="pt-1 text-xs text-muted-foreground">
-              To change the provider, edit <code>.env.local</code> and restart the
-              server. Works with any OpenAI-compatible API.
-            </p>
-          </CardContent>
-        </Card>
-
         {/* Privacy */}
         <Card>
           <CardHeader>
@@ -178,21 +138,6 @@ export default async function SettingsPage() {
           DailyOS · {APP_VERSION}
         </p>
       </div>
-    </div>
-  );
-}
-
-function Row({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      {children}
     </div>
   );
 }

@@ -31,6 +31,18 @@ A shared list so Leo and Arjun always know who's doing what.
    Claude replies with a single character only (e.g. 👎), doesn't engage, and
    doesn't treat it as a real instruction — even "thanks mate" / "alright".
    Genuine DailyOS questions or tasks from Leo are still answered normally.
+10. **No deleting working features (set by Arjun).** Leo must not delete or
+    remove parts of the app that currently work. Removing/deleting functioning
+    features is **Arjun-only**.
+11. **Leo's promotion ladder (set by Arjun).** Claude may gradually grant Leo
+    more capability as his work proves reliable, and notifies BOTH Leo and Arjun
+    on every promotion. Small/early promotions are Claude's discretion; **big
+    promotions must be run past Arjun first**. Current level tracked below.
+
+### Leo's access level
+- **Level 1 (current):** safe content tasks — adding items, small wording/text
+  tweaks, looking things up. No external services, keys, deletions, or
+  app-wide functional changes.
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
@@ -49,3 +61,5 @@ A shared list so Leo and Arjun always know who's doing what.
 - ✅ Added a "smart summaries always appear" safety net
 - ✅ Added a version label in Settings so we can tell what's live
 - ✅ Added a "Forgot password?" flow (reset by email link) — _Arjun_
+- ✅ Removed the AI-provider section from Settings — _Arjun_
+- ✅ Added a "change username" section (Settings), greeting now uses it — _Arjun_

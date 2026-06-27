@@ -65,7 +65,10 @@ export default async function TodayPage() {
   const needsReview = (reviewRes.data ?? []) as InboxItem[];
 
   const greeting = getGreeting();
-  const name = user?.email?.split("@")[0] ?? "there";
+  const name =
+    (user?.user_metadata?.username as string | undefined) ??
+    user?.email?.split("@")[0] ??
+    "there";
 
   return (
     <div>
