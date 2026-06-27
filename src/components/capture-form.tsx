@@ -83,19 +83,35 @@ export function CaptureForm({ userId }: { userId: string }) {
         .upload(path, f, { contentType: f.type || undefined });
       if (upErr) throw new Error(upErr.message);
 
-      // .txt files: read text here. Images & PDFs are read server-side
-      // (vision OCR for images, text layer for PDFs) during extraction.
+      // Resolve text up-front so the AI gets real content:
+      //  • .txt  → read the file
+      //  • image → OCR in the browser (Tesseract) so even text-only AI models work
+      //  • PDF   → read server-side from its text layer
       let extractedText = notes.trim() ? `Notes: ${notes.trim()}` : "";
+      const isImage = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext);
+
       if (ext === "txt") {
         const raw = await f.text();
         extractedText = [raw, extractedText].filter(Boolean).join("\n\n");
+      } else if (isImage) {
+        setStage("Reading your photo… 0%");
+        try {
+          const { recognize } = await import("tesseract.js");
+          const { data } = await recognize(f, "eng", {
+            logger: (m: { status: string; progress: number }) => {
+              if (m.status === "recognizing text") {
+                setStage(`Reading your photo… ${Math.round(m.progress * 100)}%`);
+              }
+            },
+          });
+          const ocr = (data.text ?? "").replace(/\n{3,}/g, "\n\n").trim();
+          if (ocr) extractedText = [ocr, extractedText].filter(Boolean).join("\n\n");
+        } catch {
+          // OCR failed — still save the file; the user can paste text on review.
+        }
       }
 
-      setStage(
-        ext === "png" || ext === "jpg" || ext === "jpeg"
-          ? "Reading your photo…"
-          : "Reading & extracting…",
-      );
+      setStage("Extracting details…");
       const res = await createInboxItem({
         title: title.trim() || f.name,
         text: extractedText || undefined,

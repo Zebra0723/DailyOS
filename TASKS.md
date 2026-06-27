@@ -126,3 +126,5 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
 - ✅ Added a "Forgot password?" flow (reset by email link) — _Arjun_
 - ✅ Removed the AI-provider section from Settings — _Arjun_
 - ✅ Added a "change username" section (Settings), greeting now uses it — _Arjun_
+- ✅ Read text from photos/screenshots via in-browser OCR (Tesseract), then
+  Groq extracts — works with text-only AI models — _Arjun_
