@@ -132,7 +132,10 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- (none right now)
+- 💡 **Welcome interstitial** (Leo's idea): after sign-up/log-in, show a ~10s
+  screen explaining what DailyOS is for, with a **Skip** button, then go to the
+  home page. Functional (post-auth flow + timer + redirect) → needs Arjun to
+  greenlight.
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
