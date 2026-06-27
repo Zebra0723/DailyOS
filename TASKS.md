@@ -9,8 +9,17 @@ A shared list so Leo and Arjun always know who's doing what.
    up someone else's half-done task.
 3. Claude updates this file as tasks start, move along, and finish, and names
    who did what in every recap.
-4. **Language style:** Leo = plain, simple English, no jargon (he's newer to the
-   techie stuff). Arjun = full technical detail is fine.
+4. **Language style:** Leo = plain, simple English, no jargon + a bit more
+   explanation (he's newer). Arjun = full technical detail is fine.
+5. **Who does what:**
+   - **Leo** handles the safe, simple stuff: adding items, small wording/text
+     tweaks, looking things up.
+   - **Big or risky jobs go to Arjun** — anything with API keys, Vercel/hosting
+     settings, multi-step changes, or that changes how the whole app works.
+     If Leo asks for one of these, Claude says "this one's for Arjun" and holds
+     it for him.
+6. Both work in the **same chat on different devices**, so the full history is
+   shared.
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
