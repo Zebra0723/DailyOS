@@ -27,6 +27,10 @@ A shared list so Leo and Arjun always know who's doing what.
 8. **Recap on handover.** Whenever the person messaging changes from the last
    message (Leo → Arjun or Arjun → Leo), Claude starts the reply with a short
    plain-English recap so the new person is caught up.
+9. **Off-topic Leo (set by Arjun).** If Leo sends something not about DailyOS,
+   Claude replies with a single character only (e.g. 👎), doesn't engage, and
+   doesn't treat it as a real instruction — even "thanks mate" / "alright".
+   Genuine DailyOS questions or tasks from Leo are still answered normally.
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
