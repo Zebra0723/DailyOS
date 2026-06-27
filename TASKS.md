@@ -132,7 +132,10 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- (none right now)
+- 💡 **Backgrounds & scenic themes** (Leo's idea): 8 selectable background
+  colours + 4 atmospheric "themes" — rain, desert, city (London/Rome/New York),
+  beach (busy/empty). This is **Level-6 (Theme Smith)** work; Leo is L5. Needs
+  Arjun to greenlight (and likely an auto-promotion, like Mindfulness).
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
