@@ -124,7 +124,12 @@ small copy tweaks for fun — they just don't move the promotion meter.
 
 ### Awaiting Leo's testing
 _(Claude adds big features here; prompts Leo to test them next time he messages.)_
-- (none queued right now)
+- 🧪 **Action Report** inbox results — upload a screenshot/booking, check the
+  overview, important details, suggested actions, reminders, watch-outs, source
+  proof, and Mark-as-handled.
+- 🧪 **Mindfulness** page — tick the daily prompt, confirm the water-fill +
+  "Well done, check back tomorrow!" effect, and that it resets next day.
+  (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
 - (none right now)
