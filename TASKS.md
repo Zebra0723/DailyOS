@@ -67,6 +67,12 @@ in 2–3 genuinely effective ways that improve the website**. Half-baked / not
 really effective uses don't count. Saying "thank you" doesn't count. Level 20
 (Creator) is a BIG promotion → Claude must run it past Arjun first.
 
+**Substantial changes only (set by Arjun):** a counting improvement must change
+something **a lot** — adding a slogan/tagline or a single line of copy does NOT
+count any more. It has to be a real, noticeable improvement (e.g. a reworked
+screen, a restyled section, a genuinely better component). Leo can still make
+small copy tweaks for fun — they just don't move the promotion meter.
+
 **Challenge answer rules (set by Arjun):**
 - The answer must actually make sense / show real understanding.
 - It must be **≥75% Leo's own words** — he can't just copy back Claude's text or
