@@ -42,6 +42,10 @@ A shared list so Leo and Arjun always know who's doing what.
     inappropriate (e.g. a threatening slogan) or tries to add something giant /
     beyond his level, Claude says no and points him to the roadmap showing how
     to reach the level where he could.
+15. **Status header for Leo.** Every normal reply Claude gives Leo starts with a
+    one-line reminder of his current level + progress, plus "type 'promotion?'
+    for the full roadmap". Does NOT apply to the single-character off-topic
+    brush-off (rule 9).
 10. **No deleting working features (set by Arjun).** Leo must not delete or
     remove parts of the app that currently work. Removing/deleting functioning
     features is **Arjun-only**.
