@@ -15,7 +15,7 @@ import { PageHeader } from "@/components/page-header";
 import { TaskItem } from "@/components/task-item";
 import { StatusBadge } from "@/components/badges";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
 import { formatDateTime, relativeDay } from "@/lib/utils";
 import type { CalendarEvent, ExtractedTask, InboxItem } from "@/lib/types";
@@ -198,13 +198,18 @@ export default async function TodayPage() {
       {/* Recently processed */}
       <div className="mt-6">
         <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <InboxIcon className="size-4 text-primary" /> Recently added
-            </CardTitle>
+          <CardHeader className="flex-row items-start justify-between space-y-0">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <InboxIcon className="size-4 text-primary" /> Recently added
+              </CardTitle>
+              <CardDescription className="mt-1">
+                From bookings to emails, we&apos;ve got you sorted.
+              </CardDescription>
+            </div>
             <Link
               href="/inbox"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
             >
               View inbox
             </Link>

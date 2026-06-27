@@ -70,8 +70,8 @@ really effective uses don't count. Saying "thank you" doesn't count. Level 20
 | Lvl | Name | Unlock = capability or 🧩 challenge |
 | --- | --- | --- |
 | 1 | Rookie | Content tasks: add items, look things up ✅ done |
-| 2 | **Stylist (CURRENT)** | Full aesthetics control + Tester + "thank you" perk |
-| 3 | Wordsmith | Own all user-facing copy/microcopy (labels, empty states, errors) |
+| 2 | Stylist ✅ | Full aesthetics control + Tester + "thank you" perk |
+| 3 | **Wordsmith (CURRENT)** | Own all user-facing copy/microcopy (labels, empty states, errors) |
 | 4 | 🧩 Decode the Nerd | Correctly explain a techie message Claude gives you |
 | 5 | Layout Architect | Restructure page layouts / reorder sections |
 | 6 | Theme Smith | Add/edit accent themes & design tokens (colours, radius, shadows) |
@@ -91,11 +91,12 @@ really effective uses don't count. Saying "thank you" doesn't count. Level 20
 | 20 | **Creator (Arjun status)** | Full powers, equal to Arjun (needs Arjun's OK) |
 
 ### Leo's progress
-- **Current level:** 2 (Stylist)
-- **To reach Level 3 (Wordsmith):** use your Level-2 aesthetic powers in 2–3
-  effective, website-improving ways.
-- **Progress: 2 / 3** — ✅ login logo move/scale-up; ✅ branded loading screen
-  ("DailyOS, your future, organised."). One more good one and you're promoted.
+- **Current level:** 3 (Wordsmith) 🎉 — promoted after 3 strong visual changes:
+  ✅ login logo move/scale-up; ✅ branded loading screen; ✅ "Recently added"
+  tagline on the home screen.
+- **To reach Level 4 (🧩 Decode the Nerd):** it's a CHALLENGE level — Leo must
+  correctly understand/explain a techie message Claude sets him (no "use it 3×"
+  needed for challenge levels).
 
 ### Tester role
 - **Still gated (Arjun-only) until earned higher up:** functional/behaviour
