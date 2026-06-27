@@ -92,8 +92,8 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 3 | Wordsmith ✅ | Own all user-facing copy/microcopy (labels, empty states, errors) |
 | 4 | 🧩 Decode the Nerd ✅ | Challenge — free-passed by Arjun |
 | 5 | Layout Architect ✅ | Restructure page layouts / reorder sections |
-| 6 | **Theme Smith (CURRENT)** | Add/edit accent themes & design tokens (colours, radius, shadows) |
-| 7 | 🧩 Read the Map | Explain the app's folder structure / how a page renders |
+| 6 | Theme Smith ✅ | Add/edit accent themes & design tokens (colours, radius, shadows) |
+| 7 | 🧩 Read the Map ✅ **(CURRENT)** | Challenge — **skipped by Leo** (skip used) |
 | 8 | Landing Curator | Edit landing-page sections & marketing structure |
 | 9 | Small Settings | Make small, non-destructive settings/preference changes |
 | 10 | 🧩 Trace the Data | Explain how an item flows inbox → review → tasks/calendar/vault |
@@ -109,15 +109,12 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 20 | **Creator (Arjun status)** | Full powers, equal to Arjun (needs Arjun's OK) |
 
 ### Leo's progress
-- **Current level:** 6 (Theme Smith) 🎉 — Arjun promoted him for **excellent
-  troubleshooting** + placing the background/scene pickers on the home page
-  (a Level-5 layout use). Unlocks: building/editing colour themes & styling.
-- **To reach Level 7 (🧩 Read the Map):** CHALLENGE level — explain how the app's
-  pages are built (or use his skip). Capped at the agreed difficulty.
-- **Progress: 1 / 3** — Arjun credited good problem-solving (spotting the scenes
-  needed to be real photos + the readability issue). 3 such credits clear the
-  Level-7 gate, or he can take the challenge / use his skip.
-- **Challenge skips remaining: 1** (still unused).
+- **Current level:** 7 (Read the Map) — **challenge skipped** (skip used).
+  Note: L7 is a gate, so it grants no new power; same abilities as Theme Smith.
+- **To reach Level 8 (Landing Curator):** capability level → 2–3 effective
+  changes. Unlocks: editing the landing/marketing page. **Progress: 1 / 3**
+  (carried over Arjun's earlier problem-solving credit).
+- **Challenge skips remaining: 0** (used on Level 7).
 - Leo's mindfulness idea is now considered **within his level** going forward.
 
 ### Tester role
