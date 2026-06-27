@@ -13,6 +13,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { LiveClock } from "@/components/live-clock";
+import { AppearanceControls } from "@/components/appearance-controls";
 import { TaskItem } from "@/components/task-item";
 import { StatusBadge } from "@/components/badges";
 import { Button } from "@/components/ui/button";
@@ -254,6 +255,21 @@ export default async function TodayPage() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Personalise: background colour + scene (also in Settings) */}
+      <div className="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Make it yours</CardTitle>
+            <CardDescription>
+              Set a background colour or pick a scene — rain, desert, city or beach.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AppearanceControls />
           </CardContent>
         </Card>
       </div>

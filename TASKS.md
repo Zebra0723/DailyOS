@@ -91,8 +91,8 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 2 | Stylist ✅ | Full aesthetics control + Tester + "thank you" perk |
 | 3 | Wordsmith ✅ | Own all user-facing copy/microcopy (labels, empty states, errors) |
 | 4 | 🧩 Decode the Nerd ✅ | Challenge — free-passed by Arjun |
-| 5 | **Layout Architect (CURRENT)** | Restructure page layouts / reorder sections |
-| 6 | Theme Smith | Add/edit accent themes & design tokens (colours, radius, shadows) |
+| 5 | Layout Architect ✅ | Restructure page layouts / reorder sections |
+| 6 | **Theme Smith (CURRENT)** | Add/edit accent themes & design tokens (colours, radius, shadows) |
 | 7 | 🧩 Read the Map | Explain the app's folder structure / how a page renders |
 | 8 | Landing Curator | Edit landing-page sections & marketing structure |
 | 9 | Small Settings | Make small, non-destructive settings/preference changes |
@@ -109,13 +109,11 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 20 | **Creator (Arjun status)** | Full powers, equal to Arjun (needs Arjun's OK) |
 
 ### Leo's progress
-- **Current level:** 5 (Layout Architect) 🎉 — **auto-promotion from Arjun** for
-  having a **whole new section** (Mindfulness / Wellbeing) built from his idea.
-  Unlocks: rearranging whole page layouts.
-- **To reach Level 6 (Theme Smith):** capability level → use his powers in **2–3
-  effective ways**. Unlocks: building colour themes & styling. **Progress: 2 / 3**
-  (Arjun accepted his backgrounds + scenes idea and credited it as 2/3). One more
-  solid change and he's Level 6.
+- **Current level:** 6 (Theme Smith) 🎉 — Arjun promoted him for **excellent
+  troubleshooting** + placing the background/scene pickers on the home page
+  (a Level-5 layout use). Unlocks: building/editing colour themes & styling.
+- **To reach Level 7 (🧩 Read the Map):** CHALLENGE level — explain how the app's
+  pages are built (or use his skip). Capped at the agreed difficulty.
 - **Challenge skips remaining: 1** (still unused).
 - Leo's mindfulness idea is now considered **within his level** going forward.
 
