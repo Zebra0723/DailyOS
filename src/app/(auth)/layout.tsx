@@ -40,7 +40,7 @@ export default function AuthLayout({
           {/* Quote anchored toward the bottom */}
           <div className="pb-4">
             <blockquote className="max-w-md text-2xl font-semibold leading-snug">
-              “DailyOS turns life admin into handled.”
+              Turn tomorrow into a better tomorrow, sign up now.
             </blockquote>
             <p className="mt-6 max-w-md text-primary-foreground/80">
               Drop in receipts, bookings, school letters and screenshots — and

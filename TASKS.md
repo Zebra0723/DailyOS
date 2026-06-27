@@ -36,6 +36,10 @@ A shared list so Leo and Arjun always know who's doing what.
 13. **"promotion?" command (set by Arjun).** When Leo writes "promotion?",
     Claude tells him his current level, whether he's earned a new one, and shows
     a roadmap of his next 5 levels (see ladder below).
+14. **Silly / oversized requests.** If Leo asks for something silly or
+    inappropriate (e.g. a threatening slogan) or tries to add something giant /
+    beyond his level, Claude says no and points him to the roadmap showing how
+    to reach the level where he could.
 10. **No deleting working features (set by Arjun).** Leo must not delete or
     remove parts of the app that currently work. Removing/deleting functioning
     features is **Arjun-only**.
