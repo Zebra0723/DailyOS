@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
+import { LiveClock } from "@/components/live-clock";
 import { TaskItem } from "@/components/task-item";
 import { StatusBadge } from "@/components/badges";
 import { Button } from "@/components/ui/button";
@@ -74,11 +75,19 @@ export default async function TodayPage() {
     <div>
       <PageHeader
         title={`${greeting}, ${name}`}
-        description={new Date().toLocaleDateString("en-GB", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-        })}
+        description={
+          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span>
+              {new Date().toLocaleDateString("en-GB", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
+            </span>
+            <span className="text-muted-foreground/40">·</span>
+            <LiveClock />
+          </span>
+        }
         action={
           <Button asChild>
             <Link href="/inbox/new">
