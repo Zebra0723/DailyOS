@@ -20,8 +20,7 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState(false);
 
-  async function applyCode(e?: React.FormEvent) {
-    e?.preventDefault();
+  async function applyCode() {
     const entered = code.trim().toUpperCase();
     if (entered === "") {
       setError(false);
@@ -47,7 +46,15 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
         </div>
       ) : (
         <div className="mx-auto mb-8 max-w-md">
-          <form onSubmit={applyCode} className="flex items-center gap-2">
+          <form
+            onSubmit={(e) => {
+              // Hard-stop the native submit so the page never reloads.
+              e.preventDefault();
+              e.stopPropagation();
+              applyCode();
+            }}
+            className="flex items-center gap-2"
+          >
             <div className="relative flex-1">
               <Tag className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -57,6 +64,8 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
                   setError(false);
                 }}
                 placeholder="Promo code"
+                autoComplete="off"
+                autoCapitalize="characters"
                 className="pl-9 uppercase placeholder:normal-case"
               />
             </div>
