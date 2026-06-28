@@ -145,7 +145,12 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- (none right now)
+- 💡 **Day-before notifications** (Leo's idea): alert the user when a task/event
+  is due tomorrow. Real "buzz your phone even when the app's closed" version
+  needs back-end infra Arjun controls: a **scheduled job** (e.g. Vercel Cron or
+  a Supabase scheduled Edge Function) + a **delivery channel** (web push w/ VAPID
+  keys, or email). → Arjun's call. _(A no-infra in-app "Due tomorrow" heads-up is
+  buildable now under Leo's powers as a lighter alternative.)_
 - _(Resolved: animated wave scenes built then removed; Mood + Nudges now built.)_
 
 ## Status key
