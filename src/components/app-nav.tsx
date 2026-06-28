@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Sun,
   Inbox,
@@ -92,16 +92,17 @@ function isActive(pathname: string, href: string) {
 
 export function Sidebar({ email, userId }: { email: string; userId?: string }) {
   const pathname = usePathname();
-  const router = useRouter();
   const { tier } = usePlan(userId);
   const vaultLocked = tier === "free";
   const homeLocked = tier !== "pro";
 
   async function signOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
+    try {
+      await createClient().auth.signOut();
+    } catch {
+      /* ignore — redirect regardless */
+    }
+    window.location.href = "/login";
   }
 
   return (
