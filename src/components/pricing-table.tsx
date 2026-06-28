@@ -4,27 +4,22 @@ import * as React from "react";
 import Link from "next/link";
 import { Check, Sparkles, Tag } from "lucide-react";
 import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
+import { usePro, setPro } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 const PROMO_CODE = "ARLEOPRO";
-const PROMO_KEY = "dailyos-pro-lifetime";
 
 export function PricingTable({ compact = false }: { compact?: boolean }) {
   const [annual, setAnnual] = React.useState(true);
-  const [unlocked, setUnlocked] = React.useState(false);
+  const { pro: unlocked } = usePro();
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState(false);
 
-  React.useEffect(() => {
-    setUnlocked(localStorage.getItem(PROMO_KEY) === "1");
-  }, []);
-
   function applyCode() {
     if (code.trim().toUpperCase() === PROMO_CODE) {
-      localStorage.setItem(PROMO_KEY, "1");
-      setUnlocked(true);
+      setPro(true);
       setError(false);
       setCode("");
     } else {

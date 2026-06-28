@@ -15,8 +15,10 @@ import {
   StickyNote,
   SmilePlus,
   ListChecks,
+  Lock,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { usePro } from "@/lib/use-pro";
 import { cn, initials } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -66,6 +68,7 @@ function isActive(pathname: string, href: string) {
 export function Sidebar({ email }: { email: string }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { pro } = usePro();
 
   async function signOut() {
     const supabase = createClient();
@@ -120,6 +123,9 @@ export function Sidebar({ email }: { email: string }) {
                     )}
                   />
                   {l.label}
+                  {l.href === "/vault" && !pro && (
+                    <Lock className="ml-auto size-3.5 text-muted-foreground/60" />
+                  )}
                 </Link>
               );
             })}

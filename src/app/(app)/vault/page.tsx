@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { VaultBrowser } from "@/components/vault-browser";
+import { ProGate } from "@/components/pro-gate";
 
 export const metadata = { title: "Vault · DailyOS" };
 
@@ -17,7 +18,12 @@ export default async function VaultPage() {
         title="Vault"
         description="A calm, searchable home for everything you've processed."
       />
-      <VaultBrowser items={(data ?? []) as never} />
+      <ProGate
+        feature="Vault"
+        blurb="Keep every processed item filed and searchable. Unlock the Vault on Plus or Pro."
+      >
+        <VaultBrowser items={(data ?? []) as never} />
+      </ProGate>
     </div>
   );
 }
