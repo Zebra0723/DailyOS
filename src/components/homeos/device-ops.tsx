@@ -129,7 +129,7 @@ export function DeviceOps() {
   return (
     <div className="space-y-6">
       <Section
-        title="DeviceOps"
+        title="DeviceOS"
         description="Track appliances, electronics, issues, warranties, and maintenance."
       >
         {/* Overview */}

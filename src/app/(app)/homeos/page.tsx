@@ -1,7 +1,5 @@
-import { HomeOSApp } from "@/components/homeos/homeos-app";
+import { HomeOSDashboard } from "@/components/homeos/dashboard";
 
-export const metadata = { title: "HomeOS · DailyOS" };
-
-export default function HomeOSPage() {
-  return <HomeOSApp />;
+export default function HomeOSDashboardPage() {
+  return <HomeOSDashboard />;
 }

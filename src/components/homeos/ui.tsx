@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { AlertSeverity, HomeModule } from "@/lib/homeos/types";
+import { MODULE_LABEL } from "@/components/homeos/tabs";
 
 type BadgeVariant = "default" | "secondary" | "success" | "warning" | "destructive";
 
@@ -38,15 +39,15 @@ export function StatCard({
       className={cn(onClick && "cursor-pointer transition-colors hover:bg-accent/40")}
       onClick={onClick}
     >
-      <CardContent className="flex flex-col gap-1 p-4">
-        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {Icon && <Icon className="size-3.5" />}
-          {label}
+      <CardContent className="flex flex-col gap-1 p-3 sm:p-4">
+        <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground sm:gap-2 sm:text-xs">
+          {Icon && <Icon className="size-3.5 shrink-0" />}
+          <span className="min-w-0 truncate">{label}</span>
         </div>
-        <div className={cn("text-2xl font-bold tracking-tight", toneClasses[tone])}>
+        <div className={cn("text-xl font-bold tracking-tight sm:text-2xl", toneClasses[tone])}>
           {value}
         </div>
-        {hint && <div className="text-xs text-muted-foreground">{hint}</div>}
+        {hint && <div className="truncate text-xs text-muted-foreground">{hint}</div>}
       </CardContent>
     </Card>
   );
@@ -64,7 +65,7 @@ export function SeverityBadge({ severity }: { severity: AlertSeverity }) {
 }
 
 export function ModuleBadge({ module }: { module: HomeModule }) {
-  return <Badge variant="secondary">{module}</Badge>;
+  return <Badge variant="secondary">{MODULE_LABEL[module]}</Badge>;
 }
 
 /** Generic coloured status pill driven by a tone, for the many status enums. */

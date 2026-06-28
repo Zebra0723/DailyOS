@@ -349,7 +349,7 @@ export function RoomOps() {
 function Header() {
   return (
     <div>
-      <h2 className="font-display text-2xl font-bold tracking-tight">RoomOps</h2>
+      <h2 className="font-display text-2xl font-bold tracking-tight">RoomOS</h2>
       <p className="text-sm text-muted-foreground">
         Plan rooms, track furniture, returns, warranties, and setup.
       </p>

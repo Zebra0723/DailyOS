@@ -676,7 +676,7 @@ function Header() {
   return (
     <div>
       <h2 className="font-display text-2xl font-bold tracking-tight">
-        ArrivalOps
+        ArrivalOS
       </h2>
       <p className="text-sm text-muted-foreground">
         Know what&apos;s arriving, who needs access, and what needs follow-up.

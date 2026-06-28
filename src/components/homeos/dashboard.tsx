@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   Activity,
   AlertTriangle,
@@ -25,10 +26,12 @@ import { relativeLabel } from "@/lib/homeos/dates";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatCard, Section, HomeEmpty } from "@/components/homeos/ui";
-import type { HomeTab } from "@/components/homeos/tabs";
+import { homeHref } from "@/components/homeos/tabs";
 
-export function HomeOSDashboard({ onNavigate }: { onNavigate: (tab: HomeTab) => void }) {
+export function HomeOSDashboard() {
   const { data, addTodayAction } = useHomeOS();
+  const router = useRouter();
+  const go = (seg: string) => router.push(homeHref(seg));
 
   const score = getHomeControlScore(data);
   const monthly = getMonthlySubscriptionTotal(data.subscriptions);
@@ -81,7 +84,7 @@ export function HomeOSDashboard({ onNavigate }: { onNavigate: (tab: HomeTab) => 
               </p>
             </div>
           </div>
-          <Button variant="outline" onClick={() => onNavigate("alerts")}>
+          <Button variant="outline" onClick={() => go("alerts")}>
             View alerts <ArrowRight className="size-4" />
           </Button>
         </CardContent>
@@ -95,7 +98,7 @@ export function HomeOSDashboard({ onNavigate }: { onNavigate: (tab: HomeTab) => 
           hint={today.length ? today[0].title : "Nothing scheduled"}
           icon={CalendarClock}
           tone={today.length ? "primary" : "default"}
-          onClick={() => onNavigate("arrivals")}
+          onClick={() => go("arrivals")}
         />
         <StatCard
           label="Money Watch"
@@ -103,7 +106,7 @@ export function HomeOSDashboard({ onNavigate }: { onNavigate: (tab: HomeTab) => 
           hint={savings > 0 ? `£${savings.toFixed(0)}/mo potential savings` : "Subscriptions"}
           icon={PoundSterling}
           tone={savings > 0 ? "amber" : "default"}
-          onClick={() => onNavigate("subscriptions")}
+          onClick={() => go("subscriptions")}
         />
         <StatCard
           label="Open Home Alerts"
@@ -111,7 +114,7 @@ export function HomeOSDashboard({ onNavigate }: { onNavigate: (tab: HomeTab) => 
           hint={`${alertCounts.critical} critical · ${alertCounts.warning} warning`}
           icon={AlertTriangle}
           tone={alertCounts.critical > 0 ? "red" : alertCounts.open > 0 ? "amber" : "green"}
-          onClick={() => onNavigate("alerts")}
+          onClick={() => go("alerts")}
         />
         <StatCard
           label="Decisions Needed"
@@ -119,14 +122,14 @@ export function HomeOSDashboard({ onNavigate }: { onNavigate: (tab: HomeTab) => 
           hint="Trials, reviews & cancellations"
           icon={Sparkles}
           tone={decisions > 0 ? "amber" : "default"}
-          onClick={() => onNavigate("subscriptions")}
+          onClick={() => go("subscriptions")}
         />
         <StatCard
           label="Upcoming Arrivals"
           value={upcoming.length}
           hint={upcoming.length ? `Next: ${relativeLabel(upcoming[0].expectedDate)}` : "None in 14 days"}
           icon={Truck}
-          onClick={() => onNavigate("arrivals")}
+          onClick={() => go("arrivals")}
         />
         <StatCard
           label="Sent to Today"

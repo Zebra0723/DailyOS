@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-const PROMO_CODE = "ARLEOPRO";
+// Any of these unlock lifetime Pro. ARLEOPRO kept for existing users.
+const PROMO_CODES = ["ARLEOPRO", "HOMEOSVIP25"];
 
 export function PricingTable({ compact = false }: { compact?: boolean }) {
   const [annual, setAnnual] = React.useState(true);
@@ -18,7 +19,7 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
   const [error, setError] = React.useState(false);
 
   async function applyCode() {
-    if (code.trim().toUpperCase() === PROMO_CODE) {
+    if (PROMO_CODES.includes(code.trim().toUpperCase())) {
       setError(false);
       setCode("");
       await setPro(true);

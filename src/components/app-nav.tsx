@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { usePro } from "@/lib/use-pro";
+import { HOME_SECTIONS, homeHref } from "@/components/homeos/tabs";
 import { cn, initials } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -100,12 +101,22 @@ export function Sidebar({ email }: { email: string }) {
       </div>
 
       <nav className="mt-7 flex flex-1 flex-col gap-5">
-        {NAV_GROUPS.map((group) => (
+        {NAV_GROUPS.map((group) => {
+          // When inside HomeOS, expand it into its OS sub-sections.
+          const items =
+            group.heading === "HomeOS" && pathname.startsWith("/homeos")
+              ? HOME_SECTIONS.map((s) => ({
+                  href: homeHref(s.seg),
+                  label: s.label,
+                  icon: s.icon,
+                }))
+              : group.items;
+          return (
           <div key={group.heading} className="flex flex-col gap-0.5">
             <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
               {group.heading}
             </p>
-            {group.items.map((l) => {
+            {items.map((l) => {
               const active = isActive(pathname, l.href);
               return (
                 <Link
@@ -128,14 +139,15 @@ export function Sidebar({ email }: { email: string }) {
                     )}
                   />
                   {l.label}
-                  {l.href === "/vault" && !pro && (
+                  {(l.href === "/vault" || l.href === "/homeos") && !pro && (
                     <Lock className="ml-auto size-3.5 text-muted-foreground/60" />
                   )}
                 </Link>
               );
             })}
           </div>
-        ))}
+          );
+        })}
       </nav>
 
       <div className="mt-auto border-t pt-3">

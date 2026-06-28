@@ -7,9 +7,8 @@ import { searchHomeOS } from "@/lib/homeos/search";
 import { Modal, ModuleBadge } from "@/components/homeos/ui";
 import { Input } from "@/components/ui/input";
 import type { HomeModule } from "@/lib/homeos/types";
-import type { HomeTab } from "@/components/homeos/tabs";
 
-const MODULE_TAB: Record<HomeModule, HomeTab> = {
+const MODULE_SEG: Record<HomeModule, string> = {
   SubscriptionOps: "subscriptions",
   ArrivalOps: "arrivals",
   RoomOps: "rooms",
@@ -25,14 +24,14 @@ export function HomeSearch({
 }: {
   open: boolean;
   onClose: () => void;
-  onNavigate: (tab: HomeTab) => void;
+  onNavigate: (seg: string) => void;
 }) {
   const { data } = useHomeOS();
   const [q, setQ] = React.useState("");
   const results = React.useMemo(() => searchHomeOS(q, data), [q, data]);
 
   function go(module: HomeModule) {
-    onNavigate(MODULE_TAB[module]);
+    onNavigate(MODULE_SEG[module]);
     setQ("");
     onClose();
   }

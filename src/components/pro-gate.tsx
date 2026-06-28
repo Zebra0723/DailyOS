@@ -13,10 +13,12 @@ import { Card, CardContent } from "@/components/ui/card";
 export function ProGate({
   feature,
   blurb,
+  tier = "Plus",
   children,
 }: {
   feature: string;
   blurb: string;
+  tier?: "Plus" | "Pro";
   children: React.ReactNode;
 }) {
   const { mounted, pro } = usePro();
@@ -33,7 +35,7 @@ export function ProGate({
           <Lock className="size-7" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold">{feature} is a Plus feature</h3>
+          <h3 className="text-lg font-semibold">{feature} is a {tier} feature</h3>
           <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">
             {blurb}
           </p>
@@ -44,7 +46,7 @@ export function ProGate({
           </Link>
         </Button>
         <p className="text-xs text-muted-foreground">
-          On Plus &amp; Pro · from £4/month
+          {tier === "Pro" ? "On Pro · from £8/month" : "On Plus & Pro · from £4/month"}
         </p>
       </CardContent>
     </Card>

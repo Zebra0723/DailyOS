@@ -473,7 +473,7 @@ function Header() {
   return (
     <div>
       <h2 className="font-display text-2xl font-bold tracking-tight">
-        SubscriptionOps
+        SubscriptionOS
       </h2>
       <p className="text-sm text-muted-foreground">
         Track renewals, trials, contracts, and money leaks.
