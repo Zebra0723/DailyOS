@@ -1,31 +1,23 @@
 import Link from "next/link";
-import { Mail, MessageSquare, Sparkles, ArrowRight } from "lucide-react";
+import { Mail, Inbox, MessageCircle, MessageSquare, Sparkles, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 
-export const metadata = { title: "AI Suggestions · DailyOS" };
+export const metadata = { title: "OrganizerOS · DailyOS" };
 
 const CHANNELS = [
-  {
-    href: "/ai-suggestions/email",
-    title: "E-Mail",
-    desc: "Get reply suggestions for an email conversation.",
-    icon: Mail,
-  },
-  {
-    href: "/ai-suggestions/sms",
-    title: "SMS",
-    desc: "Get reply suggestions for a text conversation.",
-    icon: MessageSquare,
-  },
+  { href: "/ai-suggestions/gmail", title: "Gmail", desc: "Sort your Gmail — urgent, to-dos, calendar, clutter.", icon: Mail },
+  { href: "/ai-suggestions/applemail", title: "Apple Mail", desc: "Sort Apple Mail — urgent, to-dos, calendar, clutter.", icon: Inbox },
+  { href: "/ai-suggestions/whatsapp", title: "WhatsApp", desc: "What needs a reply, what's urgent, what to diarise.", icon: MessageCircle },
+  { href: "/ai-suggestions/sms", title: "SMS", desc: "What needs a reply, what's urgent, what to diarise.", icon: MessageSquare },
 ];
 
-export default function AISuggestionsPage() {
+export default function OrganizerOSPage() {
   return (
     <div className="mx-auto max-w-xl">
       <PageHeader
-        title="AI Suggestions"
-        description="Upload a screenshot or PDF of a conversation and get smart suggestions for what to include in your reply."
+        title="OrganizerOS"
+        description="Upload a screenshot or PDF of your inbox or a conversation, and OrganizerOS tells you what to do, what's urgent, what to put in your calendar, and what to delete to save space."
       />
       <div className="grid gap-3">
         {CHANNELS.map((c) => (
@@ -44,7 +36,7 @@ export default function AISuggestionsPage() {
         ))}
       </div>
       <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
-        <Sparkles className="size-3.5" /> More channels (WhatsApp, letters…) coming soon.
+        <Sparkles className="size-3.5" /> Upload-based for now — live account connection needs a backend.
       </p>
     </div>
   );

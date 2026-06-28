@@ -19,6 +19,7 @@ import {
   Home,
   Mail,
   MessageSquare,
+  MessageCircle,
   Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -46,9 +47,11 @@ const NAV_GROUPS = [
     items: [{ href: "/homeos", label: "HomeOS", icon: Home }],
   },
   {
-    heading: "AI Suggestions",
+    heading: "OrganizerOS",
     items: [
-      { href: "/ai-suggestions/email", label: "E-Mail", icon: Mail },
+      { href: "/ai-suggestions/gmail", label: "Gmail", icon: Mail },
+      { href: "/ai-suggestions/applemail", label: "Apple Mail", icon: Inbox },
+      { href: "/ai-suggestions/whatsapp", label: "WhatsApp", icon: MessageCircle },
       { href: "/ai-suggestions/sms", label: "SMS", icon: MessageSquare },
     ],
   },
@@ -73,7 +76,7 @@ const MOBILE_LINKS = [
   { href: "/homeos", label: "HomeOS", icon: Home },
   { href: "/calendar", label: "Cal", icon: Calendar },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
-  { href: "/ai-suggestions", label: "AI", icon: Sparkles },
+  { href: "/ai-suggestions", label: "Sort", icon: Sparkles },
   { href: "/wellbeing", label: "Calm", icon: Flower2 },
 ];
 

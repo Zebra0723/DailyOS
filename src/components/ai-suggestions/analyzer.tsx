@@ -11,6 +11,10 @@ import {
   X,
   RotateCcw,
   AlertTriangle,
+  Reply,
+  CalendarPlus,
+  Trash2,
+  Flame,
 } from "lucide-react";
 import { getAnalyzer, type AnalyzerConfig } from "@/lib/ai/analyzers";
 import { getSuggestions } from "@/app/(app)/ai-suggestions/actions";
@@ -106,7 +110,7 @@ function AnalyzerInner({ cfg }: { cfg: AnalyzerConfig }) {
         pdfBase64 = await fileToBase64(file);
       }
 
-      setStage("Analyzing your message…");
+      setStage(`Organizing your ${cfg.channelNoun}…`);
       const res = await getSuggestions({ channel: cfg.key, text, pdfBase64 });
       setStage(null);
       if (!res.ok) {
@@ -133,7 +137,7 @@ function AnalyzerInner({ cfg }: { cfg: AnalyzerConfig }) {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader
-        title={`AI Suggestions · ${cfg.label}`}
+        title={`OrganizerOS · ${cfg.label}`}
         description={cfg.description}
       />
 
@@ -224,7 +228,7 @@ function AnalyzerInner({ cfg }: { cfg: AnalyzerConfig }) {
               ) : (
                 <Sparkles className="size-4" />
               )}
-              {busy ? stage : "Get suggestions"}
+              {busy ? stage : "Organize this"}
             </Button>
           </CardContent>
         </Card>
@@ -233,34 +237,50 @@ function AnalyzerInner({ cfg }: { cfg: AnalyzerConfig }) {
       {/* Results */}
       {result && (
         <div className="space-y-4">
-          <Card className="border-primary/20">
-            <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Sparkles className="size-4 text-primary" /> AI Suggestions
-              </CardTitle>
-              <Button variant="ghost" size="sm" onClick={reset}>
-                <RotateCcw className="size-4" /> Analyze another
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {result.checklist.map((s, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
-                  <span className="text-sm">{s}</span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+              <Sparkles className="size-4 text-primary" /> OrganizerOS
+            </h2>
+            <Button variant="ghost" size="sm" onClick={reset}>
+              <RotateCcw className="size-4" /> Organize another
+            </Button>
+          </div>
 
-          <SuggestionSection title="Missing Information" items={result.missingInfo} />
-          <SuggestionSection title="Questions You Should Answer" items={result.questions} />
-          <SuggestionSection title="Tone Improvements" items={result.tone} />
-          <SuggestionSection title="Recommended Additions" items={result.additions} />
+          <ResultSection
+            title="Urgent"
+            items={result.urgent}
+            icon={Flame}
+            tone="red"
+          />
+          <ResultSection
+            title="What to include in your reply"
+            items={result.reply}
+            icon={Reply}
+            tone="primary"
+          />
+          <ResultSection
+            title="To do"
+            items={result.todo}
+            icon={CheckCircle2}
+            tone="green"
+          />
+          <ResultSection
+            title="Add to your calendar"
+            items={result.calendar}
+            icon={CalendarPlus}
+            tone="primary"
+          />
+          <ResultSection
+            title="Delete to save space"
+            items={result.declutter}
+            icon={Trash2}
+            tone="muted"
+          />
 
           {result.overall && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Overall Feedback</CardTitle>
+                <CardTitle className="text-base">Overall</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">{result.overall}</p>
@@ -271,7 +291,7 @@ function AnalyzerInner({ cfg }: { cfg: AnalyzerConfig }) {
           {!result.usedAI && (
             <p className="text-center text-xs text-muted-foreground">
               Generated with on-device analysis. Add an AI key for richer,
-              context-aware suggestions.
+              context-aware results.
             </p>
           )}
         </div>
@@ -280,18 +300,36 @@ function AnalyzerInner({ cfg }: { cfg: AnalyzerConfig }) {
   );
 }
 
-function SuggestionSection({ title, items }: { title: string; items: string[] }) {
+function ResultSection({
+  title,
+  items,
+  icon: Icon,
+  tone,
+}: {
+  title: string;
+  items: string[];
+  icon: React.ComponentType<{ className?: string }>;
+  tone: "red" | "green" | "primary" | "muted";
+}) {
   if (!items || items.length === 0) return null;
+  const toneClass = {
+    red: "text-red-500",
+    green: "text-emerald-500",
+    primary: "text-primary",
+    muted: "text-muted-foreground",
+  }[tone];
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Icon className={cn("size-4", toneClass)} /> {title}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <ul className="space-y-1.5">
           {items.map((it, i) => (
             <li key={i} className="flex gap-2 text-sm">
-              <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
+              <span className={cn("mt-1.5 size-1.5 shrink-0 rounded-full", tone === "red" ? "bg-red-400" : tone === "green" ? "bg-emerald-400" : tone === "muted" ? "bg-muted-foreground/40" : "bg-primary")} />
               {it}
             </li>
           ))}
