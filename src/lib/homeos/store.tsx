@@ -10,6 +10,7 @@ import {
   type DailyOSTodayAction,
   type HomeAlert,
   type HomeArrival,
+  type HomeConcern,
   type HomeDevice,
   type HomeDocument,
   type HomeOSData,
@@ -52,6 +53,7 @@ function emptyData(): HomeOSData {
     devices: [],
     documents: [],
     alerts: [],
+    concerns: [],
     todayActions: [],
     settings: DEFAULT_SETTINGS,
   };
@@ -70,8 +72,9 @@ function loadFromStorage(key: string): HomeOSData | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as HomeOSData;
     if (!parsed || !Array.isArray(parsed.subscriptions)) return null;
-    // Backfill settings in case the shape grew since it was saved.
+    // Backfill in case the shape grew since it was saved.
     parsed.settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
+    if (!Array.isArray(parsed.concerns)) parsed.concerns = [];
     return parsed;
   } catch {
     return null;
@@ -111,6 +114,10 @@ export interface HomeOSContextValue {
   resolveAlert: (id: string) => void;
   snoozeAlert: (id: string, days?: number) => void;
   reopenAlert: (id: string) => void;
+
+  addConcern: (text: string) => void;
+  toggleConcern: (id: string) => void;
+  deleteConcern: (id: string) => void;
 
   addTodayAction: (input: Omit<DailyOSTodayAction, "id" | "createdAt">) => void;
   updateTodayAction: (id: string, patch: Partial<DailyOSTodayAction>) => void;
@@ -274,6 +281,33 @@ export function HomeOSProvider({ children }: { children: React.ReactNode }) {
           ),
         })),
 
+      addConcern: (text) =>
+        mutate((d) => {
+          const trimmed = text.trim();
+          if (!trimmed) return d;
+          const now = nowIso();
+          const concern: HomeConcern = {
+            id: uid("concern"),
+            text: trimmed,
+            resolved: false,
+            createdAt: now,
+            updatedAt: now,
+          };
+          return { ...d, concerns: [concern, ...(d.concerns ?? [])] };
+        }),
+      toggleConcern: (id) =>
+        mutate((d) => ({
+          ...d,
+          concerns: (d.concerns ?? []).map((c) =>
+            c.id === id ? { ...c, resolved: !c.resolved, updatedAt: nowIso() } : c,
+          ),
+        })),
+      deleteConcern: (id) =>
+        mutate((d) => ({
+          ...d,
+          concerns: (d.concerns ?? []).filter((c) => c.id !== id),
+        })),
+
       addTodayAction: (input) =>
         mutate((d) => {
           const action: DailyOSTodayAction = {
@@ -307,6 +341,7 @@ export function HomeOSProvider({ children }: { children: React.ReactNode }) {
             return { ok: false, error: "That doesn't look like HomeOS data." };
           }
           parsed.settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
+          if (!Array.isArray(parsed.concerns)) parsed.concerns = [];
           setData(recompute(parsed));
           return { ok: true };
         } catch (e) {

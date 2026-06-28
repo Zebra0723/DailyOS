@@ -23,15 +23,18 @@ import {
 } from "@/lib/homeos/calculations";
 import { getRecommendedTodayActions } from "@/lib/homeos/suggestions";
 import { relativeLabel } from "@/lib/homeos/dates";
+import { Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatCard, Section, HomeEmpty } from "@/components/homeos/ui";
 import { homeHref } from "@/components/homeos/tabs";
 
 export function HomeOSDashboard() {
-  const { data, addTodayAction, resetDemoData } = useHomeOS();
+  const { data, addTodayAction, resetDemoData, toggleConcern } = useHomeOS();
   const router = useRouter();
   const go = (seg: string) => router.push(homeHref(seg));
+
+  const openConcerns = (data.concerns ?? []).filter((c) => !c.resolved);
 
   const itemCount =
     data.subscriptions.length +
@@ -58,6 +61,38 @@ export function HomeOSDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Urgent house concerns — the daily nag */}
+      {openConcerns.length > 0 && (
+        <Card className="border-amber-300 bg-amber-50/70 dark:border-amber-500/30 dark:bg-amber-500/5">
+          <CardContent className="pt-5">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-400">
+              <AlertTriangle className="size-4" />
+              Urgent — {openConcerns.length} house concern
+              {openConcerns.length > 1 ? "s" : ""} to sort
+            </div>
+            <div className="grid gap-2">
+              {openConcerns.map((c) => (
+                <div
+                  key={c.id}
+                  className="flex items-center gap-3 rounded-lg border bg-card p-3"
+                >
+                  <span className="min-w-0 flex-1 text-sm font-medium">{c.text}</span>
+                  <Button variant="outline" size="sm" onClick={() => toggleConcern(c.id)}>
+                    <Check className="size-4" /> Sorted
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => go("urgent")}
+              className="mt-3 text-xs font-medium text-amber-700 hover:underline dark:text-amber-400"
+            >
+              Manage concerns →
+            </button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Home Control Score */}
       {isEmpty ? (
         <Card>

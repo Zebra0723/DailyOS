@@ -8,6 +8,7 @@ import {
   CalendarDays,
   Bell,
   Settings,
+  AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
 import type { HomeModule } from "@/lib/homeos/types";
@@ -21,6 +22,7 @@ export interface HomeSection {
 
 export const HOME_SECTIONS: HomeSection[] = [
   { seg: "", label: "HomeOS Dashboard", icon: LayoutDashboard },
+  { seg: "urgent", label: "Urgent", icon: AlertTriangle },
   { seg: "subscriptions", label: "SubscriptionOS", icon: CreditCard },
   { seg: "arrivals", label: "ArrivalOS", icon: Truck },
   { seg: "rooms", label: "RoomOS", icon: Sofa },

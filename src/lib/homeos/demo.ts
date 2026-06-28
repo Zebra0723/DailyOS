@@ -376,6 +376,15 @@ export function buildDemoData(): HomeOSData {
     devices,
     documents,
     alerts: [],
+    concerns: [
+      {
+        id: uid("concern"),
+        text: "Damp patch / mould on the bathroom ceiling — get it looked at",
+        resolved: false,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ],
     todayActions: [],
     settings: DEFAULT_SETTINGS,
   };

@@ -313,6 +313,15 @@ export interface HomeOSSettings {
   };
 }
 
+/** An urgent house concern the user wants to be nagged about until sorted. */
+export interface HomeConcern {
+  id: string;
+  text: string;
+  resolved: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface HomeOSData {
   homeProfile: HomeProfile;
   subscriptions: HomeSubscription[];
@@ -321,6 +330,7 @@ export interface HomeOSData {
   devices: HomeDevice[];
   documents: HomeDocument[];
   alerts: HomeAlert[];
+  concerns: HomeConcern[];
   todayActions: DailyOSTodayAction[];
   settings: HomeOSSettings;
 }
