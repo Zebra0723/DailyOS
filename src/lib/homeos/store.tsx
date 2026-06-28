@@ -141,7 +141,9 @@ export function HomeOSProvider({ children }: { children: React.ReactNode }) {
       if (!active) return;
       keyRef.current = storageKeyFor(session?.user?.id);
       const loaded = loadFromStorage(keyRef.current);
-      setData(recompute(loaded ?? buildDemoData()));
+      // Start empty (so a new home shows "No score yet…"); demo data is one
+      // tap away from the dashboard or Settings.
+      setData(recompute(loaded ?? emptyData()));
     })();
     return () => {
       active = false;

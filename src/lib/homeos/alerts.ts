@@ -1,5 +1,12 @@
 import { getMonthlySubscriptionTotal, maintenanceDueDate } from "./calculations";
-import { isOverdue, isToday, isTomorrow, isWithinDays, nowIso } from "./dates";
+import {
+  isOverdue,
+  isToday,
+  isTomorrow,
+  isWithinDays,
+  nowIso,
+  relativeLabel,
+} from "./dates";
 import type {
   AlertSeverity,
   HomeAlert,
@@ -236,6 +243,31 @@ function computeDrafts(data: HomeOSData, s: HomeOSSettings): DraftAlert[] {
           module: "ArrivalOps",
           linkedEntityType: "arrival",
           linkedEntityId: a.id,
+        });
+      }
+      // Arrived but not collected: a tracked delivery/collection whose date
+      // has passed and that hasn't been marked done. Nudges you on the home
+      // page until you confirm you've got it.
+      const collectible =
+        a.type === "Package" ||
+        a.type === "Collection" ||
+        a.type === "Grocery Delivery";
+      if (
+        collectible &&
+        isOverdue(a.expectedDate) &&
+        a.status !== "Completed" &&
+        a.status !== "Cancelled" &&
+        a.status !== "Missed"
+      ) {
+        out.push({
+          alertType: "not-collected",
+          title: `${a.title} not collected yet`,
+          message: `${a.title}${a.trackingNumber ? ` (tracking ${a.trackingNumber})` : ""} was due ${relativeLabel(a.expectedDate)} but isn't marked collected. Mark it done once you've got it.`,
+          severity: "Warning",
+          module: "ArrivalOps",
+          linkedEntityType: "arrival",
+          linkedEntityId: a.id,
+          dueDate: a.expectedDate,
         });
       }
     }

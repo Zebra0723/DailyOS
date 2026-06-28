@@ -85,6 +85,7 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
           expectedDate: form.expectedDate || undefined,
           expectedTimeWindow: form.timeWindow || undefined,
           company: form.company || undefined,
+          trackingNumber: form.trackingNumber || undefined,
           roomOrLocation: form.room || undefined,
           notes: form.notes || undefined,
           priority: "Normal",
@@ -212,7 +213,8 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
                 <Field label="Expected date"><Input type="date" value={form.expectedDate ?? ""} onChange={set("expectedDate")} /></Field>
                 <Field label="Time window"><Input value={form.timeWindow ?? ""} onChange={set("timeWindow")} placeholder="9–12" /></Field>
               </div>
-              <Field label="Company"><Input value={form.company ?? ""} onChange={set("company")} /></Field>
+              <Field label="Company"><Input value={form.company ?? ""} onChange={set("company")} placeholder="e.g. Royal Mail" /></Field>
+              <Field label="Tracking number"><Input value={form.trackingNumber ?? ""} onChange={set("trackingNumber")} placeholder="Royal Mail tracking code" /></Field>
               <Field label="Needs someone home?"><Select value={form.needsHome ?? "no"} onChange={set("needsHome")}><option value="no">No</option><option value="yes">Yes</option></Select></Field>
             </>
           )}

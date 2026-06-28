@@ -29,9 +29,17 @@ import { StatCard, Section, HomeEmpty } from "@/components/homeos/ui";
 import { homeHref } from "@/components/homeos/tabs";
 
 export function HomeOSDashboard() {
-  const { data, addTodayAction } = useHomeOS();
+  const { data, addTodayAction, resetDemoData } = useHomeOS();
   const router = useRouter();
   const go = (seg: string) => router.push(homeHref(seg));
+
+  const itemCount =
+    data.subscriptions.length +
+    data.arrivals.length +
+    data.roomItems.length +
+    data.devices.length +
+    data.documents.length;
+  const isEmpty = itemCount === 0;
 
   const score = getHomeControlScore(data);
   const monthly = getMonthlySubscriptionTotal(data.subscriptions);
@@ -51,6 +59,21 @@ export function HomeOSDashboard() {
   return (
     <div className="space-y-6">
       {/* Home Control Score */}
+      {isEmpty ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+            <p className="text-2xl font-bold tracking-tight">No score yet…</p>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Add your home items — subscriptions, deliveries, rooms, devices —
+              and your Home Control Score will appear here. Want a quick look
+              around first?
+            </p>
+            <Button variant="outline" onClick={resetDemoData}>
+              Load demo data
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
       <Card
         className={
           scoreTone === "green"
@@ -89,6 +112,7 @@ export function HomeOSDashboard() {
           </Button>
         </CardContent>
       </Card>
+      )}
 
       {/* Top cards */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
