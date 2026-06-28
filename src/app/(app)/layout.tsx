@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar, MobileNav, MobileHeader } from "@/components/app-nav";
 import { FreePlanBanner } from "@/components/free-plan-banner";
-import { DeviceGuard } from "@/components/device-guard";
 
 export default async function AppLayout({
   children,
@@ -28,7 +27,6 @@ export default async function AppLayout({
         </main>
       </div>
       <MobileNav />
-      <DeviceGuard />
     </div>
   );
 }
