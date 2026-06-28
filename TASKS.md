@@ -46,6 +46,16 @@ A shared list so Leo and Arjun always know who's doing what.
     one-line reminder of his current level + progress, plus "type 'promotion?'
     for the full roadmap". Does NOT apply to the single-character off-topic
     brush-off (rule 9).
+16. **Leo can build NEW SECTIONS without approval (set by Arjun).** Leo may ask
+    Claude to build brand-new sections/pages and Claude builds them straight
+    away — no flagging to Arjun first. BUT:
+    - **Arjun is still the boss** — he can override, change or remove anything.
+    - **Still Arjun-only:** deleting/removing working features, API keys,
+      external services & hosting/Supabase setup, and changes to how the core
+      app behaves. (So if a new section needs database storage, the one-time
+      Supabase step is still Arjun's — prefer on-device storage to stay
+      self-contained.)
+    - Silly/inappropriate requests are still declined (rule 14).
 10. **No deleting working features (set by Arjun).** Leo must not delete or
     remove parts of the app that currently work. Removing/deleting functioning
     features is **Arjun-only**.
@@ -117,10 +127,10 @@ small copy tweaks for fun — they just don't move the promotion meter.
 - **Challenge skips remaining: 0** (used on Level 7).
 - Leo's mindfulness idea is now considered **within his level** going forward.
 
-### Tester role
-- **Still gated (Arjun-only) until earned higher up:** functional/behaviour
-  changes, external services, API keys, hosting/billing, deleting working
-  features.
+### Standing powers (beyond the ladder)
+- ✅ **Can build new sections without approval** (set by Arjun) — see rule 16.
+- **Still gated (Arjun-only):** deleting working features, external services,
+  API keys, hosting/billing/Supabase setup, changes to core app behaviour.
 
 ### Awaiting Leo's testing
 _(Claude adds big features here; prompts Leo to test them next time he messages.)_
