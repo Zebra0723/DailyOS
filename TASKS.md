@@ -56,6 +56,9 @@ A shared list so Leo and Arjun always know who's doing what.
       Supabase step is still Arjun's — prefer on-device storage to stay
       self-contained.)
     - Silly/inappropriate requests are still declined (rule 14).
+    - **Fit check (set by Arjun):** if a request doesn't really fit the DailyOS
+      idea (off-brand, or doesn't make sense for a calm life-admin + wellbeing
+      app), Claude runs it past Arjun first instead of just building it.
 10. **No deleting working features (set by Arjun).** Leo must not delete or
     remove parts of the app that currently work. Removing/deleting functioning
     features is **Arjun-only**.
