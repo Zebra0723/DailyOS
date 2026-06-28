@@ -9,16 +9,21 @@ import {
   MapPin,
   ArrowRight,
   Plus,
+  Home,
+  Sparkles,
+  Heart,
+  Flower2,
+  StickyNote,
+  CalendarClock,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/page-header";
 import { LiveClock } from "@/components/live-clock";
 import { TaskItem } from "@/components/task-item";
 import { StatusBadge } from "@/components/badges";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
-import { formatDateTime, relativeDay } from "@/lib/utils";
+import { cn, formatDateTime, relativeDay } from "@/lib/utils";
 import { isOnboarding, tailoredIntro } from "@/lib/onboarding";
 import { HomeOSTodayActions } from "@/components/homeos/today-home-actions";
 import type { CalendarEvent, ExtractedTask, InboxItem } from "@/lib/types";
@@ -31,10 +36,6 @@ export default async function TodayPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const todayStart = new Date(new Date().toDateString()).toISOString();
-  const todayEnd = new Date(
-    new Date(new Date().toDateString()).getTime() + 86_400_000,
-  ).toISOString();
   const nowIso = new Date().toISOString();
 
   const [tasksRes, eventsRes, recentRes, reviewRes] = await Promise.all([
@@ -76,35 +77,48 @@ export default async function TodayPage() {
   const onboarding = user?.user_metadata?.onboarding;
   const intro = isOnboarding(onboarding) ? tailoredIntro(onboarding, name) : null;
 
-  return (
-    <div>
-      <PageHeader
-        title={`${greeting}, ${name}`}
-        description={
-          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span>
-              {new Date().toLocaleDateString("en-GB", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              })}
-            </span>
-            <span className="text-muted-foreground/40">·</span>
-            <LiveClock />
-          </span>
-        }
-        action={
-          <Button asChild>
-            <Link href="/inbox/new">
-              <Plus className="size-4" /> Add to Inbox
-            </Link>
-          </Button>
-        }
-      />
+  const dateLabel = new Date().toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
-      {/* Personalised "made for you" card from onboarding answers */}
+  return (
+    <div className="space-y-6">
+      {/* Hero */}
+      <div className="overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-accent/30 to-background p-6 sm:p-7">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="inline-flex flex-wrap items-center gap-x-2 text-sm font-medium text-muted-foreground">
+              <span>{dateLabel}</span>
+              <span className="text-muted-foreground/40">·</span>
+              <LiveClock />
+            </p>
+            <h1 className="mt-1 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+              {greeting}, {name}
+            </h1>
+            <p className="mt-1.5 text-muted-foreground">
+              Your day, handled. Here&apos;s what matters right now.
+            </p>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <Button asChild>
+              <Link href="/inbox/new">
+                <Plus className="size-4" /> Add to Inbox
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/build-day">
+                <CalendarClock className="size-4" /> Plan day
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Personalised "made for you" card from onboarding */}
       {intro && (
-        <Card className="mb-6 border-primary/20 bg-accent/30">
+        <Card className="border-primary/20 bg-accent/30">
           <CardContent className="pt-5">
             <p className="font-semibold">{intro.headline}</p>
             {intro.suggestions.length > 0 && (
@@ -130,7 +144,7 @@ export default async function TodayPage() {
 
       {/* Needs review banner */}
       {needsReview.length > 0 && (
-        <Card className="mb-6 border-amber-200 bg-amber-50/60 dark:border-amber-500/20 dark:bg-amber-500/5">
+        <Card className="border-amber-200 bg-amber-50/60 dark:border-amber-500/20 dark:bg-amber-500/5">
           <CardContent className="flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div className="grid size-10 place-items-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-500/15">
@@ -155,17 +169,22 @@ export default async function TodayPage() {
         </Card>
       )}
 
+      {/* Quick stats */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatTile href="/tasks" label="Due today" value={dueTasks.length} hint="tasks" icon={CheckSquare} tone={dueTasks.length ? "primary" : "default"} />
+        <StatTile href="/calendar" label="Upcoming" value={events.length} hint="events" icon={CalendarDays} />
+        <StatTile href={needsReview.length ? `/inbox/${needsReview[0].id}` : "/inbox"} label="To review" value={needsReview.length} hint="items" icon={AlertTriangle} tone={needsReview.length ? "amber" : "default"} />
+        <StatTile href="/inbox" label="In your inbox" value={recent.length} hint="recent" icon={InboxIcon} />
+      </div>
+
+      {/* Due today + Upcoming */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Tasks due */}
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle className="flex items-center gap-2 text-base">
               <CheckSquare className="size-4 text-primary" /> Due today
             </CardTitle>
-            <Link
-              href="/tasks"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
+            <Link href="/tasks" className="text-sm text-muted-foreground hover:text-foreground">
               All tasks
             </Link>
           </CardHeader>
@@ -184,16 +203,12 @@ export default async function TodayPage() {
           </CardContent>
         </Card>
 
-        {/* Upcoming events */}
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle className="flex items-center gap-2 text-base">
               <CalendarDays className="size-4 text-primary" /> Upcoming
             </CardTitle>
-            <Link
-              href="/calendar"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
+            <Link href="/calendar" className="text-sm text-muted-foreground hover:text-foreground">
               Calendar
             </Link>
           </CardHeader>
@@ -205,10 +220,7 @@ export default async function TodayPage() {
             ) : (
               <div className="grid gap-2">
                 {events.map((e) => (
-                  <div
-                    key={e.id}
-                    className="flex items-center gap-3 rounded-lg border p-3"
-                  >
+                  <div key={e.id} className="flex items-center gap-3 rounded-lg border p-3">
                     <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
                       <CalendarDays className="size-4" />
                     </div>
@@ -235,61 +247,134 @@ export default async function TodayPage() {
         </Card>
       </div>
 
-      {/* Recently processed */}
-      <div className="mt-6">
-        <Card>
-          <CardHeader className="flex-row items-start justify-between space-y-0">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <InboxIcon className="size-4 text-primary" /> Recently added
-              </CardTitle>
-              <CardDescription className="mt-1">
-                From bookings to emails, we&apos;ve got you sorted.
-              </CardDescription>
-            </div>
-            <Link
-              href="/inbox"
-              className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
-            >
-              View inbox
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {recent.length === 0 ? (
-              <EmptyState
-                icon={Sun}
-                title="Let's get started"
-                description="Drop your first receipt, booking or screenshot into the Life Inbox and watch DailyOS handle it."
-                actionLabel="Add your first item"
-                actionHref="/inbox/new"
-              />
-            ) : (
-              <div className="grid gap-2">
-                {recent.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/inbox/${item.id}`}
-                    className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent/40"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{item.title}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {item.summary ?? "Awaiting review"}
-                      </p>
-                    </div>
-                    <span className="hidden text-xs text-muted-foreground sm:block">
-                      {relativeDay(item.created_at)}
-                    </span>
-                    <StatusBadge status={item.status} />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Explore your DailyOS */}
+      <div>
+        <h2 className="mb-3 font-display text-lg font-semibold tracking-tight">
+          Your DailyOS
+        </h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <BranchLink href="/build-day" icon={CalendarClock} title="Build My Day" desc="Plan a calm, productive day" />
+          <BranchLink href="/homeos" icon={Home} title="HomeOS" desc="Run your home" />
+          <BranchLink href="/ai-suggestions" icon={Sparkles} title="OrganizerOS" desc="Sort your messages" />
+          <BranchLink href="/interests" icon={Heart} title="Interests" desc="Live what you love" />
+          <BranchLink href="/wellbeing" icon={Flower2} title="Wellbeing" desc="A calmer you" />
+          <BranchLink href="/notes" icon={StickyNote} title="Notes" desc="Quick capture" />
+        </div>
       </div>
 
+      {/* Recently added */}
+      <Card>
+        <CardHeader className="flex-row items-start justify-between space-y-0">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <InboxIcon className="size-4 text-primary" /> Recently added
+            </CardTitle>
+            <CardDescription className="mt-1">
+              From bookings to emails, we&apos;ve got you sorted.
+            </CardDescription>
+          </div>
+          <Link href="/inbox" className="shrink-0 text-sm text-muted-foreground hover:text-foreground">
+            View inbox
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {recent.length === 0 ? (
+            <EmptyState
+              icon={Sun}
+              title="Let's get started"
+              description="Drop your first receipt, booking or screenshot into the Life Inbox and watch DailyOS handle it."
+              actionLabel="Add your first item"
+              actionHref="/inbox/new"
+            />
+          ) : (
+            <div className="grid gap-2">
+              {recent.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/inbox/${item.id}`}
+                  className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent/40"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{item.title}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {item.summary ?? "Awaiting review"}
+                    </p>
+                  </div>
+                  <span className="hidden text-xs text-muted-foreground sm:block">
+                    {relativeDay(item.created_at)}
+                  </span>
+                  <StatusBadge status={item.status} />
+                </Link>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
+  );
+}
+
+function StatTile({
+  href,
+  label,
+  value,
+  hint,
+  icon: Icon,
+  tone = "default",
+}: {
+  href: string;
+  label: string;
+  value: number;
+  hint: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tone?: "default" | "primary" | "amber";
+}) {
+  const toneClass = {
+    default: "text-foreground",
+    primary: "text-primary",
+    amber: "text-amber-600 dark:text-amber-400",
+  }[tone];
+  return (
+    <Link href={href}>
+      <Card className="transition-colors hover:bg-accent/40">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+            <Icon className="size-3.5 shrink-0" />
+            <span className="truncate">{label}</span>
+          </div>
+          <div className={cn("mt-1 text-2xl font-bold tracking-tight", toneClass)}>
+            {value}
+          </div>
+          <div className="text-xs text-muted-foreground">{hint}</div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+function BranchLink({
+  href,
+  icon: Icon,
+  title,
+  desc,
+}: {
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <Link href={href}>
+      <Card className="flex h-full items-center gap-3 p-3.5 transition-colors hover:bg-accent/40">
+        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
+          <Icon className="size-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-medium">{title}</p>
+          <p className="truncate text-xs text-muted-foreground">{desc}</p>
+        </div>
+      </Card>
+    </Link>
   );
 }
 
