@@ -1,4 +1,4 @@
-import { User, CreditCard, ShieldAlert, Palette, AtSign } from "lucide-react";
+import { User, CreditCard, ShieldAlert, Palette, AtSign, Laptop } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
@@ -6,6 +6,7 @@ import { SignOutButton } from "@/components/sign-out-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { PricingTable } from "@/components/pricing-table";
 import { UsernameForm } from "@/components/username-form";
+import { DevicesManager } from "@/components/devices-manager";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { initials } from "@/lib/utils";
@@ -112,6 +113,22 @@ export default async function SettingsPage() {
               <Badge variant="warning">Billing coming soon</Badge>
             </div>
             <PricingTable compact />
+          </CardContent>
+        </Card>
+
+        {/* Devices */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Laptop className="size-4 text-primary" /> Devices
+            </CardTitle>
+            <CardDescription>
+              Devices signed in to your account. Free covers one device; Pro is
+              unlimited. Remove a device to free up a slot.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DevicesManager />
           </CardContent>
         </Card>
 
