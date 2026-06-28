@@ -45,8 +45,12 @@ export async function setPro(on: boolean, userId?: string) {
   });
 }
 
-/** Reactively read whether the current account has Pro unlocked. */
-export function usePro(): { mounted: boolean; pro: boolean } {
+/**
+ * Reactively read whether the current account has Pro unlocked.
+ * Pass `userId` (from the server) for a reliable, synchronous read of the
+ * per-user flag — avoids depending on a client session lookup that can lag.
+ */
+export function usePro(userId?: string): { mounted: boolean; pro: boolean } {
   const [state, setState] = React.useState({ mounted: false, pro: false });
 
   React.useEffect(() => {
@@ -54,29 +58,42 @@ export function usePro(): { mounted: boolean; pro: boolean } {
     let active = true;
 
     const read = async () => {
-      // getSession reads the locally-stored session (no network) — fast and
-      // fine for a non-security UI flag like Pro. Always resolve `mounted` so
-      // gated screens never get stuck on their loading skeleton.
       let pro = false;
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        const user = session?.user;
-        const metaPro = user?.user_metadata?.pro === true;
-        const localPro =
-          !!user && typeof window !== "undefined" &&
-          localStorage.getItem(keyFor(user.id)) === "1";
-        pro = metaPro || localPro;
-      } catch {
-        /* fall through with pro = false */
+
+      // Fast, reliable path: read the per-user flag directly when we know the id.
+      if (
+        userId &&
+        typeof window !== "undefined" &&
+        localStorage.getItem(keyFor(userId)) === "1"
+      ) {
+        pro = true;
       }
+
+      // Fallback: derive the id from the session (and honour cross-device
+      // metadata). Wrapped so `mounted` always resolves.
+      if (!pro) {
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          const user = session?.user;
+          if (user) {
+            if (user.user_metadata?.pro === true) pro = true;
+            else if (
+              typeof window !== "undefined" &&
+              localStorage.getItem(keyFor(user.id)) === "1"
+            )
+              pro = true;
+          }
+        } catch {
+          /* fall through with pro = false */
+        }
+      }
+
       if (active) setState({ mounted: true, pro });
     };
 
     read();
-    // Re-read when the promo is applied and whenever the account changes
-    // (sign in/out/switch) so Pro never carries over between accounts.
     window.addEventListener(PRO_EVENT, read);
     window.addEventListener("storage", read);
     const { data: sub } = supabase.auth.onAuthStateChange(() => read());
@@ -87,7 +104,7 @@ export function usePro(): { mounted: boolean; pro: boolean } {
       window.removeEventListener("storage", read);
       sub.subscription.unsubscribe();
     };
-  }, []);
+  }, [userId]);
 
   return state;
 }

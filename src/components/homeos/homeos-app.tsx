@@ -14,12 +14,19 @@ import { HomeReview } from "@/components/homeos/home-review";
 import { HomeSearch } from "@/components/homeos/home-search";
 
 /** Layout shell for every /homeos route: provider, Pro gate, header, modals. */
-export function HomeOSShell({ children }: { children: React.ReactNode }) {
+export function HomeOSShell({
+  children,
+  userId,
+}: {
+  children: React.ReactNode;
+  userId?: string;
+}) {
   return (
     <HomeOSProvider>
       <ProGate
         tier="Pro"
         feature="HomeOS"
+        userId={userId}
         blurb="Run your whole home — subscriptions, deliveries, rooms, devices and documents — in one operational command centre."
       >
         <Shell>{children}</Shell>

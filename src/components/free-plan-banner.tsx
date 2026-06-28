@@ -5,8 +5,8 @@ import { Sparkles } from "lucide-react";
 import { usePro } from "@/lib/use-pro";
 
 /** A gentle, always-on reminder of Free-plan limits (hidden once on Pro). */
-export function FreePlanBanner() {
-  const { mounted, pro } = usePro();
+export function FreePlanBanner({ userId }: { userId?: string }) {
+  const { mounted, pro } = usePro(userId);
   if (!mounted || pro) return null;
 
   return (

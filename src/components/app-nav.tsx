@@ -71,10 +71,10 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Sidebar({ email }: { email: string }) {
+export function Sidebar({ email, userId }: { email: string; userId?: string }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { pro } = usePro();
+  const { pro } = usePro(userId);
 
   async function signOut() {
     const supabase = createClient();

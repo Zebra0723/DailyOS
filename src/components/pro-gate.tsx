@@ -14,14 +14,16 @@ export function ProGate({
   feature,
   blurb,
   tier = "Plus",
+  userId,
   children,
 }: {
   feature: string;
   blurb: string;
   tier?: "Plus" | "Pro";
+  userId?: string;
   children: React.ReactNode;
 }) {
-  const { mounted, pro } = usePro();
+  const { mounted, pro } = usePro(userId);
 
   if (!mounted) {
     return <div className="h-40 animate-pulse rounded-2xl bg-muted" />;

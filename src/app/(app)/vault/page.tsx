@@ -7,6 +7,9 @@ export const metadata = { title: "Vault · DailyOS" };
 
 export default async function VaultPage() {
   const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data } = await supabase
     .from("vault_items")
     .select("*, inbox_items(input_type, file_name)")
@@ -20,6 +23,7 @@ export default async function VaultPage() {
       />
       <ProGate
         feature="Vault"
+        userId={user?.id}
         blurb="Keep every processed item filed and searchable. Unlock the Vault on Plus or Pro."
       >
         <VaultBrowser items={(data ?? []) as never} />

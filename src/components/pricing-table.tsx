@@ -21,7 +21,7 @@ export function PricingTable({
   userId?: string;
 }) {
   const [annual, setAnnual] = React.useState(true);
-  const { pro } = usePro();
+  const { pro } = usePro(userId);
   const { toast } = useToast();
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState(false);

@@ -18,10 +18,10 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen bg-muted/30">
-      <Sidebar email={user.email ?? "you@dailyos.app"} />
+      <Sidebar email={user.email ?? "you@dailyos.app"} userId={user.id} />
       <div className="flex min-w-0 flex-1 flex-col">
         <MobileHeader />
-        <FreePlanBanner />
+        <FreePlanBanner userId={user.id} />
         <main className="flex-1 pb-20 md:pb-0">
           <div className="container max-w-5xl py-6 md:py-10">{children}</div>
         </main>
