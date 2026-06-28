@@ -180,6 +180,10 @@ export function WorldClock({ userId }: { userId: string }) {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {cities.map((c) => {
             const { h, m, s } = timeParts(c.zone, now);
+            const dayNum = new Intl.DateTimeFormat("en-GB", {
+              timeZone: c.zone,
+              day: "numeric",
+            }).format(now);
             return (
               <div key={c.zone} className="group relative flex flex-col items-center gap-2">
                 <button
@@ -189,7 +193,7 @@ export function WorldClock({ userId }: { userId: string }) {
                 >
                   <X className="size-3.5" />
                 </button>
-                <PatekWatch h={h} m={m} s={s} />
+                <PatekWatch h={h} m={m} s={s} city={c.city} dateNum={dayNum} />
                 <div className="text-center">
                   <p className="text-sm font-semibold">{c.city}</p>
                   <p className="font-mono text-xs text-muted-foreground">
@@ -209,107 +213,152 @@ export function WorldClock({ userId }: { userId: string }) {
   );
 }
 
-/** A Patek-Philippe-Nautilus-inspired analogue watch. */
-function PatekWatch({ h, m, s }: { h: number; m: number; s: number }) {
+/** An Aquanaut-inspired analogue watch (embossed grid dial, applied numerals). */
+function PatekWatch({
+  h,
+  m,
+  s,
+  city,
+  dateNum,
+}: {
+  h: number;
+  m: number;
+  s: number;
+  city: string;
+  dateNum: string;
+}) {
   const secAngle = s * 6;
   const minAngle = m * 6 + s * 0.1;
   const hourAngle = (h % 12) * 30 + m * 0.5;
 
-  // Chamfered-rectangle (rounded octagon) bezel — the Nautilus silhouette.
-  const w = 72, hh = 74, c = 22, cx = 100, cy = 100;
-  const oct = [
-    [cx - (w - c), cy - hh],
-    [cx + (w - c), cy - hh],
-    [cx + w, cy - (hh - c)],
-    [cx + w, cy + (hh - c)],
-    [cx + (w - c), cy + hh],
-    [cx - (w - c), cy + hh],
-    [cx - w, cy + (hh - c)],
-    [cx - w, cy - (hh - c)],
-  ]
-    .map((p) => p.join(","))
-    .join(" ");
+  const cx = 100, cy = 100;
+  // Rounded cushion-octagon case (the Aquanaut silhouette).
+  const w = 76, hh = 78, c = 18;
+  const octPts = (sx: number) => {
+    const W = w * sx, H = hh * sx, C = c * sx;
+    return [
+      [cx - (W - C), cy - H],
+      [cx + (W - C), cy - H],
+      [cx + W, cy - (H - C)],
+      [cx + W, cy + (H - C)],
+      [cx + (W - C), cy + H],
+      [cx - (W - C), cy + H],
+      [cx - W, cy + (H - C)],
+      [cx - W, cy - (H - C)],
+    ]
+      .map((p) => p.join(","))
+      .join(" ");
+  };
 
+  const nums = [12, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11]; // 3 omitted for the date
   const markers = Array.from({ length: 12 }, (_, i) => i * 30);
-  const grooves = Array.from({ length: 11 }, (_, i) => 44 + i * 11);
+  const grid = Array.from({ length: 9 }, (_, i) => 44 + i * 14);
 
   return (
     <svg viewBox="0 0 200 200" className="w-full max-w-[150px] drop-shadow-md">
       <defs>
         <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#e8eaed" />
-          <stop offset="0.5" stopColor="#aeb4ba" />
-          <stop offset="1" stopColor="#7c828a" />
+          <stop offset="0" stopColor="#eef0f2" />
+          <stop offset="0.5" stopColor="#b4bac0" />
+          <stop offset="1" stopColor="#80868e" />
         </linearGradient>
-        <radialGradient id="dial" cx="0.5" cy="0.4" r="0.75">
-          <stop offset="0" stopColor="#3b6ea5" />
-          <stop offset="0.6" stopColor="#1c3f6e" />
-          <stop offset="1" stopColor="#0e2444" />
+        <radialGradient id="dial" cx="0.5" cy="0.42" r="0.8">
+          <stop offset="0" stopColor="#3f72ad" />
+          <stop offset="0.55" stopColor="#1f4880" />
+          <stop offset="1" stopColor="#0c2247" />
         </radialGradient>
-        <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#f6e7b6" />
-          <stop offset="1" stopColor="#c8a24a" />
-        </linearGradient>
         <clipPath id="dialClip">
-          <circle cx="100" cy="100" r="60" />
+          <circle cx="100" cy="100" r="59" />
         </clipPath>
       </defs>
 
-      {/* Side ears (hinges) */}
-      <rect x="14" y="90" width="20" height="20" rx="6" fill="url(#steel)" />
-      <rect x="166" y="90" width="20" height="20" rx="6" fill="url(#steel)" />
+      {/* Strap lugs (top & bottom) + crown (right) */}
+      <rect x="86" y="16" width="28" height="14" rx="4" fill="url(#steel)" />
+      <rect x="86" y="170" width="28" height="14" rx="4" fill="url(#steel)" />
+      <rect x="176" y="94" width="10" height="12" rx="2" fill="url(#steel)" stroke="#6b7178" strokeWidth="0.5" />
 
-      {/* Case + bezel */}
-      <polygon points={oct} fill="url(#steel)" stroke="#5e636b" strokeWidth="1.5" strokeLinejoin="round" />
-      <polygon
-        points={oct}
-        fill="none"
-        stroke="#f2f4f6"
-        strokeWidth="1"
-        strokeLinejoin="round"
-        transform="scale(0.93)"
-        style={{ transformOrigin: "100px 100px" }}
-      />
+      {/* Case + brushed bezel */}
+      <polygon points={octPts(1)} fill="url(#steel)" stroke="#5e636b" strokeWidth="1.5" strokeLinejoin="round" />
+      <polygon points={octPts(0.9)} fill="#0c2247" stroke="#eef0f2" strokeWidth="0.8" strokeLinejoin="round" />
 
       {/* Dial */}
-      <circle cx="100" cy="100" r="62" fill="#11233f" />
-      <circle cx="100" cy="100" r="60" fill="url(#dial)" />
+      <circle cx="100" cy="100" r="59" fill="url(#dial)" />
 
-      {/* Horizontal grooves (Nautilus dial texture) */}
-      <g clipPath="url(#dialClip)" stroke="#0c1e3a" strokeWidth="1.4" opacity="0.55">
-        {grooves.map((y) => (
-          <line key={y} x1="38" y1={y} x2="162" y2={y} />
-        ))}
+      {/* Embossed grid texture (Aquanaut "tropical" pattern) */}
+      <g clipPath="url(#dialClip)">
+        <g stroke="#0c2143" strokeWidth="1.3" opacity="0.55">
+          {grid.map((p) => (
+            <line key={`v${p}`} x1={p} y1="40" x2={p} y2="160" />
+          ))}
+          {grid.map((p) => (
+            <line key={`h${p}`} x1="40" y1={p} x2="160" y2={p} />
+          ))}
+        </g>
+        <g stroke="#5688c4" strokeWidth="0.6" opacity="0.4">
+          {grid.map((p) => (
+            <line key={`vh${p}`} x1={p + 1} y1="40" x2={p + 1} y2="160" />
+          ))}
+          {grid.map((p) => (
+            <line key={`hh${p}`} x1="40" y1={p + 1} x2="160" y2={p + 1} />
+          ))}
+        </g>
       </g>
 
-      {/* Brand text — our own (no real trademarks) */}
-      <text x="100" y="78" textAnchor="middle" fill="#e9d9a7" fontSize="7.5" letterSpacing="1" fontFamily="Georgia, serif">
-        DAILYOS
-      </text>
-      <text x="100" y="132" textAnchor="middle" fill="#cdd6e4" fontSize="6" letterSpacing="1.2" fontFamily="Georgia, serif">
-        AUTOMATIC
-      </text>
-
-      {/* Hour markers (applied batons) */}
+      {/* Outer luminous baton markers */}
       {markers.map((a) => (
         <rect
           key={a}
-          x="98.6"
-          y="46"
-          width="2.8"
-          height={a % 90 === 0 ? 11 : 8}
-          rx="1.2"
-          fill="#e9d9a7"
+          x="98.8"
+          y="44"
+          width="2.4"
+          height="6"
+          rx="1"
+          fill="#e7eef6"
           transform={`rotate(${a} 100 100)`}
         />
       ))}
 
+      {/* Applied Arabic numerals */}
+      {nums.map((n) => {
+        const a = (n * 30 * Math.PI) / 180;
+        const r = 41;
+        return (
+          <text
+            key={n}
+            x={cx + r * Math.sin(a)}
+            y={cy - r * Math.cos(a)}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize="9.5"
+            fontWeight="700"
+            fontFamily="'Arial Rounded MT Bold', Arial, sans-serif"
+            fill="#e7eef6"
+          >
+            {n}
+          </text>
+        );
+      })}
+
+      {/* Date window at 3 o'clock */}
+      <rect x="130" y="93" width="15" height="14" rx="1.5" fill="#f3f5f8" stroke="#9aa0a6" strokeWidth="0.5" />
+      <text x="137.5" y="100.5" textAnchor="middle" dominantBaseline="central" fontSize="9" fontWeight="700" fill="#1b3a66">
+        {dateNum}
+      </text>
+
+      {/* Brand + city */}
+      <text x="100" y="76" textAnchor="middle" fill="#eef3f9" fontSize="8" letterSpacing="0.4" fontWeight="700" fontFamily="Georgia, serif">
+        DailyOS
+      </text>
+      <text x="100" y="86" textAnchor="middle" fill="#c6d2e2" fontSize="6" letterSpacing="0.6" fontFamily="Georgia, serif">
+        {city}
+      </text>
+
       {/* Hands */}
-      <rect x="98.4" y="58" width="3.2" height="46" rx="1.6" fill="#eef2f7" transform={`rotate(${hourAngle} 100 100)`} />
-      <rect x="99" y="44" width="2" height="60" rx="1" fill="#eef2f7" transform={`rotate(${minAngle} 100 100)`} />
-      <line x1="100" y1="112" x2="100" y2="42" stroke="#e9d9a7" strokeWidth="1" transform={`rotate(${secAngle} 100 100)`} />
-      <circle cx="100" cy="100" r="3.4" fill="#e9d9a7" />
-      <circle cx="100" cy="100" r="1.4" fill="#1c3f6e" />
+      <rect x="98.2" y="60" width="3.6" height="44" rx="1.8" fill="#f3f7fb" stroke="#9fb4cc" strokeWidth="0.4" transform={`rotate(${hourAngle} 100 100)`} />
+      <rect x="98.8" y="46" width="2.4" height="58" rx="1.2" fill="#f3f7fb" stroke="#9fb4cc" strokeWidth="0.4" transform={`rotate(${minAngle} 100 100)`} />
+      <line x1="100" y1="114" x2="100" y2="46" stroke="#e7eef6" strokeWidth="0.9" transform={`rotate(${secAngle} 100 100)`} />
+      <circle cx="100" cy="100" r="3" fill="#e7eef6" />
+      <circle cx="100" cy="100" r="1.2" fill="#1f4880" />
     </svg>
   );
 }
