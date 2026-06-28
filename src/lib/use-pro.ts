@@ -17,8 +17,9 @@ const keyFor = (userId: string) => `dailyos-pro:${userId}`;
 export async function setPro(on: boolean) {
   const supabase = createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
   if (!user) return;
 
   // 1. Instant local flip for this account in this browser.
@@ -43,9 +44,12 @@ export function usePro(): { mounted: boolean; pro: boolean } {
     let active = true;
 
     const read = async () => {
+      // getSession reads the locally-stored session (no network) — fast and
+      // fine for a non-security UI flag like Pro.
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
+        data: { session },
+      } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!active) return;
       const metaPro = user?.user_metadata?.pro === true;
       const localPro =
