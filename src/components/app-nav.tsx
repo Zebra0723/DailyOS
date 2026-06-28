@@ -13,6 +13,8 @@ import {
   LogOut,
   Flower2,
   StickyNote,
+  SmilePlus,
+  ListChecks,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn, initials } from "@/lib/utils";
@@ -34,7 +36,11 @@ const NAV_GROUPS = [
   },
   {
     heading: "Wellbeing",
-    items: [{ href: "/mindfulness", label: "Mindfulness", icon: Flower2 }],
+    items: [
+      { href: "/mindfulness", label: "Mindfulness", icon: Flower2 },
+      { href: "/mood", label: "Mood", icon: SmilePlus },
+      { href: "/nudges", label: "Nudges", icon: ListChecks },
+    ],
   },
   {
     heading: "Account",
@@ -50,7 +56,7 @@ const MOBILE_LINKS = [
   { href: "/calendar", label: "Cal", icon: Calendar },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/vault", label: "Vault", icon: Archive },
-  { href: "/mindfulness", label: "Calm", icon: Flower2 },
+  { href: "/wellbeing", label: "Calm", icon: Flower2 },
 ];
 
 function isActive(pathname: string, href: string) {

@@ -159,6 +159,19 @@
     animation: float-bob 4s ease-in-out infinite;
   }
 
+  /* Nudges finale: a tick-carrying racecar drives slowly across the screen. */
+  @keyframes drive {
+    from {
+      transform: translateX(-40vw);
+    }
+    to {
+      transform: translateX(110vw);
+    }
+  }
+  .racecar {
+    animation: drive 7s linear forwards;
+  }
+
   /* subtle dotted grid for hero / empty states */
   .bg-grid {
     background-image: radial-gradient(
