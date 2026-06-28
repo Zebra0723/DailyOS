@@ -132,10 +132,16 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- 💡 **Smart Notepad** (Leo's idea): a quick notepad where you jot things down
-  and DailyOS auto-sorts each note into categories — its own section. Functional
-  (saves notes to the DB + runs AI to categorise + new section) → needs Arjun to
-  greenlight. Overlaps a bit with Life Inbox (could share the extraction layer).
+- 💡 **Smart Notepad** (Leo's idea; refined per Arjun — _no promotion for Leo_):
+  a quick "Notes" section that connects Life Inbox + Wellbeing.
+  - Jot a note → saves instantly → AI tags a category.
+  - **→ Life Inbox:** if it mentions life-admin (date/bill/booking/deadline),
+    offers a smart reminder/task/event from it (one tap to accept).
+  - **→ Mindfulness:** if it sounds stressed/overwhelmed/grateful, surfaces a
+    gentle wellbeing nudge linking to the Mindfulness page.
+  - Lives under the **Life Inbox** nav group. Reuses the extraction layer; a
+    small `notes` table; notes that spawn a task/event keep a link.
+  - Status: **"Maybe" — awaiting Arjun's final go** to build.
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
