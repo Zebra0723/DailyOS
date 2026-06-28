@@ -2,16 +2,71 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, Sparkles, Tag } from "lucide-react";
 import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
+const PROMO_CODE = "ARLEOPRO";
+const PROMO_KEY = "dailyos-pro-lifetime";
 
 export function PricingTable({ compact = false }: { compact?: boolean }) {
   const [annual, setAnnual] = React.useState(true);
+  const [unlocked, setUnlocked] = React.useState(false);
+  const [code, setCode] = React.useState("");
+  const [error, setError] = React.useState(false);
+
+  React.useEffect(() => {
+    setUnlocked(localStorage.getItem(PROMO_KEY) === "1");
+  }, []);
+
+  function applyCode() {
+    if (code.trim().toUpperCase() === PROMO_CODE) {
+      localStorage.setItem(PROMO_KEY, "1");
+      setUnlocked(true);
+      setError(false);
+      setCode("");
+    } else {
+      setError(true);
+    }
+  }
 
   return (
     <div>
+      {/* Promo code */}
+      {unlocked ? (
+        <div className="mx-auto mb-8 flex max-w-md items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
+          <Sparkles className="size-4" /> Lifetime Pro unlocked — enjoy, legend! 🎉
+        </div>
+      ) : (
+        <div className="mx-auto mb-8 max-w-md">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Tag className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={code}
+                onChange={(e) => {
+                  setCode(e.target.value);
+                  setError(false);
+                }}
+                onKeyDown={(e) => e.key === "Enter" && applyCode()}
+                placeholder="Promo code"
+                className="pl-9 uppercase placeholder:normal-case"
+              />
+            </div>
+            <Button variant="outline" onClick={applyCode}>
+              Apply
+            </Button>
+          </div>
+          {error && (
+            <p className="mt-2 text-center text-sm text-destructive">
+              That code isn&apos;t valid.
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Billing-cycle toggle */}
       <div className="mb-8 flex items-center justify-center gap-3">
         <Cycle active={!annual} onClick={() => setAnnual(false)}>
@@ -27,7 +82,13 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
 
       <div className="grid gap-5 md:grid-cols-3">
         {PLANS.map((plan) => (
-          <PlanCard key={plan.key} plan={plan} annual={annual} compact={compact} />
+          <PlanCard
+            key={plan.key}
+            plan={plan}
+            annual={annual}
+            compact={compact}
+            unlocked={unlocked && plan.key === "pro"}
+          />
         ))}
       </div>
 
@@ -66,10 +127,12 @@ function PlanCard({
   plan,
   annual,
   compact,
+  unlocked,
 }: {
   plan: Plan;
   annual: boolean;
   compact: boolean;
+  unlocked: boolean;
 }) {
   const free = plan.monthly === 0;
   const saving = annualSavingPct(plan);
@@ -79,79 +142,89 @@ function PlanCard({
       className={cn(
         "relative flex flex-col rounded-2xl border bg-card p-6 shadow-card",
         plan.highlight && "border-2 border-primary shadow-elevated",
+        unlocked && "border-2 border-emerald-400",
       )}
     >
-      {plan.highlight && (
-        <div className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-          Most popular
+      {unlocked ? (
+        <div className="absolute -top-3 left-6 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
+          Your plan · Lifetime
         </div>
+      ) : (
+        plan.highlight && (
+          <div className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+            Most popular
+          </div>
+        )
       )}
 
       <h3 className="text-lg font-bold">{plan.name}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{plan.tagline}</p>
 
       <div className="mt-5 flex items-end gap-1.5">
-        {free ? (
+        {unlocked ? (
+          <span className="text-4xl font-bold">Free</span>
+        ) : free ? (
           <span className="text-4xl font-bold">£0</span>
-        ) : annual ? (
-          <>
-            <span className="text-4xl font-bold">£{annualPerMonth(plan)}</span>
-            <span className="pb-1 text-muted-foreground">/mo</span>
-          </>
         ) : (
           <>
-            <span className="text-4xl font-bold">£{plan.monthly}</span>
+            <span className="text-4xl font-bold">
+              £{annual ? annualPerMonth(plan) : plan.monthly}
+            </span>
             <span className="pb-1 text-muted-foreground">/mo</span>
           </>
         )}
       </div>
       <p className="mt-1 h-5 text-xs text-muted-foreground">
-        {free
-          ? "Free forever"
-          : annual
-            ? `Billed £${plan.annual}/year · save ${saving}%`
-            : `Billed monthly`}
+        {unlocked
+          ? "Unlocked for life 🎉"
+          : free
+            ? "Free forever"
+            : annual
+              ? `Billed £${plan.annual}/year · save ${saving}%`
+              : "Billed monthly"}
       </p>
 
-      <Button
-        asChild
-        variant={plan.highlight ? "default" : "outline"}
-        className="mt-5 w-full"
-      >
-        <Link href="/signup">{plan.cta}</Link>
-      </Button>
-
-      {!compact && (
-        <ul className="mt-6 space-y-2.5 text-sm">
-          {plan.features.map((f) => {
-            const isHeader = f.endsWith(":");
-            const isNegative = f.toLowerCase().startsWith("no ");
-            return (
-              <li
-                key={f}
-                className={cn(
-                  "flex items-start gap-2",
-                  isHeader && "font-medium text-foreground",
-                )}
-              >
-                {isHeader ? (
-                  <span className="h-4 w-4" />
-                ) : (
-                  <Check
-                    className={cn(
-                      "mt-0.5 size-4 shrink-0",
-                      isNegative ? "text-muted-foreground/40" : "text-primary",
-                    )}
-                  />
-                )}
-                <span className={cn(isNegative && "text-muted-foreground")}>
-                  {f}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+      {unlocked ? (
+        <Button disabled className="mt-5 w-full">
+          <Check className="size-4" /> Active
+        </Button>
+      ) : (
+        <Button
+          asChild
+          variant={plan.highlight ? "default" : "outline"}
+          className="mt-5 w-full"
+        >
+          <Link href="/signup">{plan.cta}</Link>
+        </Button>
       )}
+
+      <ul className={cn("mt-6 space-y-2.5 text-sm", compact && "mt-5")}>
+        {(compact ? plan.features.slice(0, 4) : plan.features).map((f) => {
+          const isHeader = f.endsWith(":");
+          const isNegative = f.toLowerCase().startsWith("no ");
+          return (
+            <li
+              key={f}
+              className={cn(
+                "flex items-start gap-2",
+                isHeader && "font-medium text-foreground",
+              )}
+            >
+              {isHeader ? (
+                <span className="h-4 w-4" />
+              ) : (
+                <Check
+                  className={cn(
+                    "mt-0.5 size-4 shrink-0",
+                    isNegative ? "text-muted-foreground/40" : "text-primary",
+                  )}
+                />
+              )}
+              <span className={cn(isNegative && "text-muted-foreground")}>{f}</span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
