@@ -167,4 +167,73 @@
     );
     background-size: 22px 22px;
   }
+
+  /* ---- App canvas + optional calm wave backgrounds ---- */
+  .app-canvas {
+    background-color: var(--app-bg, hsl(var(--muted)));
+  }
+  .calm-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .calm-bg::before,
+  .calm-bg::after {
+    content: "";
+    position: absolute;
+    inset: -5% -5% 0 -5%;
+    background-repeat: repeat-x;
+  }
+  @keyframes wave-a {
+    from {
+      background-position-x: 0;
+    }
+    to {
+      background-position-x: 240px;
+    }
+  }
+  @keyframes wave-b {
+    from {
+      background-position-x: 0;
+    }
+    to {
+      background-position-x: -200px;
+    }
+  }
+
+  /* Blue waves on a purple canvas */
+  .calm-purple-waves {
+    background: linear-gradient(160deg, #3b0764, #4c1d95 45%, #312e81 100%);
+  }
+  .calm-purple-waves::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='80' viewBox='0 0 240 80'%3E%3Cpath d='M0 40 C 40 12 80 12 120 40 S 200 68 240 40 L240 80 L0 80 Z' fill='%2360a5fa' fill-opacity='0.5'/%3E%3C/svg%3E");
+    background-size: 240px 80px;
+    background-position: 0 72%;
+    animation: wave-a 9s linear infinite;
+  }
+  .calm-purple-waves::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='70' viewBox='0 0 200 70'%3E%3Cpath d='M0 35 C 35 10 65 10 100 35 S 165 60 200 35 L200 70 L0 70 Z' fill='%23818cf8' fill-opacity='0.45'/%3E%3C/svg%3E");
+    background-size: 200px 70px;
+    background-position: 0 88%;
+    animation: wave-b 13s linear infinite;
+  }
+
+  /* Baby-blue waves on a purple canvas */
+  .calm-baby-waves {
+    background: linear-gradient(160deg, #4c1d95, #5b21b6 45%, #6d28d9 100%);
+  }
+  .calm-baby-waves::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='80' viewBox='0 0 240 80'%3E%3Cpath d='M0 40 C 40 12 80 12 120 40 S 200 68 240 40 L240 80 L0 80 Z' fill='%23bae6fd' fill-opacity='0.55'/%3E%3C/svg%3E");
+    background-size: 240px 80px;
+    background-position: 0 72%;
+    animation: wave-a 9s linear infinite;
+  }
+  .calm-baby-waves::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='70' viewBox='0 0 200 70'%3E%3Cpath d='M0 35 C 35 10 65 10 100 35 S 165 60 200 35 L200 70 L0 70 Z' fill='%2393c5fd' fill-opacity='0.5'/%3E%3C/svg%3E");
+    background-size: 200px 70px;
+    background-position: 0 88%;
+    animation: wave-b 13s linear infinite;
+  }
 }

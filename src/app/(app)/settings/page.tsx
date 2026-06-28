@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ModeToggle } from "@/components/mode-toggle";
+import { CalmBackgroundPicker } from "@/components/calm-background-picker";
 import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -81,11 +82,16 @@ export default async function SettingsPage() {
               <Palette className="size-4 text-primary" /> Appearance
             </CardTitle>
             <CardDescription>
-              Choose light, dark, or match your device. Remembered on this device.
+              Light, dark or match your device — plus an optional calm backdrop.
+              Remembered on this device.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <ModeToggle />
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Mode</p>
+              <ModeToggle />
+            </div>
+            <CalmBackgroundPicker />
           </CardContent>
         </Card>
 

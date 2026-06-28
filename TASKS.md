@@ -132,11 +132,7 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- 💡 **Animated wave scenes** (Leo wants these): pick a moving background in
-  Settings — e.g. blue waves on a purple canvas, baby-blue waves on purple.
-  Lightweight CSS animation, text kept readable. **NOTE:** this REVERSES Arjun's
-  earlier "light/dark only, no scenes" decision, so it needs Arjun's explicit
-  go-ahead (not Leo's call to undo).
+- (none right now)
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
@@ -178,3 +174,7 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   promotion for Leo_
 - ✅ **Vault icons:** category-specific icons (plane/home/finance/etc.) instead
   of one generic file icon — _Arjun_
+- ✅ **Calm wave backgrounds** (opt-in, OFF by default): "Purple Waves" &
+  "Soft Waves" — gentle animated CSS waves on purple, picked in Settings, text
+  kept readable — _Leo's idea; Arjun delegated the call ("your call"); built as
+  a subtle opt-in. No promotion credited (Arjun was neutral)._

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MODE_KEY, APPEARANCE_EVENT, applyAppearance } from "@/lib/calm";
 
 const MODES = [
   { key: "light", label: "Light", icon: Sun },
@@ -10,27 +11,18 @@ const MODES = [
   { key: "system", label: "System", icon: Monitor },
 ] as const;
 
-export const MODE_STORAGE_KEY = "dailyos-mode";
-
-export function applyMode(mode: string) {
-  const dark =
-    mode === "dark" ||
-    (mode === "system" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.classList.toggle("dark", dark);
-}
-
 export function ModeToggle() {
   const [mode, setMode] = React.useState<string>("system");
 
   React.useEffect(() => {
-    setMode(localStorage.getItem(MODE_STORAGE_KEY) ?? "system");
+    setMode(localStorage.getItem(MODE_KEY) ?? "system");
   }, []);
 
   function pick(next: string) {
     setMode(next);
-    localStorage.setItem(MODE_STORAGE_KEY, next);
-    applyMode(next);
+    localStorage.setItem(MODE_KEY, next);
+    applyAppearance();
+    window.dispatchEvent(new Event(APPEARANCE_EVENT));
   }
 
   return (
