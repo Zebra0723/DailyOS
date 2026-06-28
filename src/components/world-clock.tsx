@@ -134,7 +134,7 @@ export function WorldClock({ userId }: { userId: string }) {
   const now = new Date();
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-4xl">
       <PageHeader
         title="World Clock"
         description="Type a city to add it — each one shows the time on an elegant luxury-style watch."
@@ -177,7 +177,7 @@ export function WorldClock({ userId }: { userId: string }) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
           {cities.map((c) => {
             const { h, m, s } = timeParts(c.zone, now);
             const dayNum = new Intl.DateTimeFormat("en-GB", {
@@ -195,12 +195,12 @@ export function WorldClock({ userId }: { userId: string }) {
                 </button>
                 <PatekWatch h={h} m={m} s={s} city={c.city} dateNum={dayNum} />
                 <div className="text-center">
-                  <p className="text-sm font-semibold">{c.city}</p>
-                  <p className="font-mono text-xs text-muted-foreground">
+                  <p className="text-base font-semibold">{c.city}</p>
+                  <p className="font-mono text-sm text-muted-foreground">
                     {String(h).padStart(2, "0")}:{String(m).padStart(2, "0")}:
                     {String(s).padStart(2, "0")}
                   </p>
-                  <p className="text-[11px] text-muted-foreground/70">
+                  <p className="text-xs text-muted-foreground/70">
                     {dateLabel(c.zone, now)}
                   </p>
                 </div>
@@ -255,7 +255,7 @@ function PatekWatch({
   const grid = Array.from({ length: 9 }, (_, i) => 44 + i * 14);
 
   return (
-    <svg viewBox="0 0 200 200" className="w-full max-w-[150px] drop-shadow-md">
+    <svg viewBox="0 0 200 200" className="w-full max-w-[320px] drop-shadow-xl">
       <defs>
         <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#eef0f2" />
