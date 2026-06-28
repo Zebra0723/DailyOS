@@ -11,7 +11,12 @@ export function SignOutButton() {
   async function signOut() {
     setBusy(true);
     try {
-      await createClient().auth.signOut();
+      // Local scope clears the session in the browser without waiting on a
+      // slow global revocation. Cap it so it can never hang.
+      await Promise.race([
+        createClient().auth.signOut({ scope: "local" }),
+        new Promise((r) => setTimeout(r, 1500)),
+      ]);
     } catch {
       /* ignore — redirect regardless */
     }

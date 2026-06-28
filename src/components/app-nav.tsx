@@ -98,7 +98,10 @@ export function Sidebar({ email, userId }: { email: string; userId?: string }) {
 
   async function signOut() {
     try {
-      await createClient().auth.signOut();
+      await Promise.race([
+        createClient().auth.signOut({ scope: "local" }),
+        new Promise((r) => setTimeout(r, 1500)),
+      ]);
     } catch {
       /* ignore — redirect regardless */
     }
