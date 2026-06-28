@@ -57,6 +57,8 @@ export const PLANS: Plan[] = [
     cta: "Go Pro",
     features: [
       "Everything in Plus, plus:",
+      "HomeOS — your home command centre",
+      "Subscriptions, deliveries, rooms & devices",
       "Unlimited life-admin updates",
       "Priority AI processing",
       "Day-before notifications",

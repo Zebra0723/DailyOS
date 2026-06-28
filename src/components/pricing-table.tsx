@@ -19,13 +19,19 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
   const [error, setError] = React.useState(false);
 
   async function applyCode() {
-    if (PROMO_CODES.includes(code.trim().toUpperCase())) {
+    const entered = code.trim().toUpperCase();
+    if (entered === "") {
       setError(false);
-      setCode("");
-      await setPro(true);
-    } else {
-      setError(true);
+      return;
     }
+    if (!PROMO_CODES.includes(entered)) {
+      setError(true);
+      return;
+    }
+    // Valid: unlock. Leave the box as-is — the success banner replaces it
+    // when Pro flips on, so we never re-validate an emptied box.
+    setError(false);
+    await setPro(true);
   }
 
   return (
@@ -51,7 +57,7 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
                 className="pl-9 uppercase placeholder:normal-case"
               />
             </div>
-            <Button variant="outline" onClick={applyCode}>
+            <Button type="button" variant="outline" onClick={applyCode}>
               Apply
             </Button>
           </div>
