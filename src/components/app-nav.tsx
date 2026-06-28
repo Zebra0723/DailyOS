@@ -53,7 +53,7 @@ const NAV_GROUPS = [
     ],
   },
   {
-    heading: "WellOS",
+    heading: "Wellbeing",
     items: [
       { href: "/mindfulness", label: "Mindfulness", icon: Flower2 },
       { href: "/mood", label: "Mood", icon: SmilePlus },
