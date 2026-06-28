@@ -132,16 +132,7 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- 💡 **Smart Notepad** (Leo's idea; refined per Arjun — _no promotion for Leo_):
-  a quick "Notes" section that connects Life Inbox + Wellbeing.
-  - Jot a note → saves instantly → AI tags a category.
-  - **→ Life Inbox:** if it mentions life-admin (date/bill/booking/deadline),
-    offers a smart reminder/task/event from it (one tap to accept).
-  - **→ Mindfulness:** if it sounds stressed/overwhelmed/grateful, surfaces a
-    gentle wellbeing nudge linking to the Mindfulness page.
-  - Lives under the **Life Inbox** nav group. Reuses the extraction layer; a
-    small `notes` table; notes that spawn a task/event keep a link.
-  - Status: **"Maybe" — awaiting Arjun's final go** to build.
+- (none right now)
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
@@ -177,3 +168,9 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   colour picker, background colours and scenes all removed.
 - ✅ **Welcome screen** after sign-up/log-in: ~10s DailyOS intro with countdown
   + Skip, then home — _Leo's idea (Arjun accepted)_
+- ✅ **Smart Notepad** (`/notes`): jot a note → auto-filed by category; if it's
+  life-admin it offers a one-tap reminder (always asks), if it sounds stressed
+  it nudges toward Mindfulness — _Leo's idea, refined+built per Arjun; NO
+  promotion for Leo_
+- ✅ **Vault icons:** category-specific icons (plane/home/finance/etc.) instead
+  of one generic file icon — _Arjun_

@@ -12,6 +12,7 @@ import {
   Plus,
   LogOut,
   Flower2,
+  StickyNote,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn, initials } from "@/lib/utils";
@@ -25,6 +26,7 @@ const NAV_GROUPS = [
     items: [
       { href: "/today", label: "Today", icon: Sun },
       { href: "/inbox", label: "Inbox", icon: Inbox },
+      { href: "/notes", label: "Notes", icon: StickyNote },
       { href: "/calendar", label: "Calendar", icon: Calendar },
       { href: "/tasks", label: "Tasks", icon: CheckSquare },
       { href: "/vault", label: "Vault", icon: Archive },
@@ -44,7 +46,8 @@ const NAV_GROUPS = [
 const MOBILE_LINKS = [
   { href: "/today", label: "Today", icon: Sun },
   { href: "/inbox", label: "Inbox", icon: Inbox },
-  { href: "/calendar", label: "Calendar", icon: Calendar },
+  { href: "/notes", label: "Notes", icon: StickyNote },
+  { href: "/calendar", label: "Cal", icon: Calendar },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/vault", label: "Vault", icon: Archive },
   { href: "/mindfulness", label: "Calm", icon: Flower2 },
@@ -144,7 +147,7 @@ export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-card/95 backdrop-blur md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-7 border-t bg-card/95 backdrop-blur md:hidden">
       {MOBILE_LINKS.map((l) => (
         <Link
           key={l.href}

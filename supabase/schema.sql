@@ -145,6 +145,24 @@ create table if not exists public.processing_logs (
 
 create index if not exists logs_item_idx on public.processing_logs(inbox_item_id, created_at);
 
+-- ---------------------------------------------------------------------------
+-- notes (Smart Notepad)
+-- ---------------------------------------------------------------------------
+create table if not exists public.notes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  content text not null,
+  category text not null default 'general',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists notes_user_idx on public.notes(user_id, created_at desc);
+
+drop trigger if exists trg_notes_updated on public.notes;
+create trigger trg_notes_updated before update on public.notes
+  for each row execute function public.set_updated_at();
+
 -- ============================================================================
 -- Row Level Security — users may only ever touch their own rows.
 -- ============================================================================
@@ -153,13 +171,14 @@ alter table public.extracted_tasks enable row level security;
 alter table public.calendar_events enable row level security;
 alter table public.vault_items     enable row level security;
 alter table public.processing_logs enable row level security;
+alter table public.notes           enable row level security;
 
 -- A reusable pattern: owner can do everything, nobody else can do anything.
 do $$
 declare t text;
 begin
   foreach t in array array[
-    'inbox_items','extracted_tasks','calendar_events','vault_items','processing_logs'
+    'inbox_items','extracted_tasks','calendar_events','vault_items','processing_logs','notes'
   ]
   loop
     execute format('drop policy if exists "owner_select" on public.%I;', t);

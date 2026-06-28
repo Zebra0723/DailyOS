@@ -102,6 +102,30 @@ export interface ProcessingLog {
   created_at: string;
 }
 
+export interface Note {
+  id: string;
+  user_id: string;
+  content: string;
+  category: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Result of analysing a note the moment it's written. */
+export interface NoteAnalysis {
+  category: string;
+  kind: "admin" | "wellbeing" | "note";
+  // A smart reminder DailyOS offers (one tap to confirm) when the note looks
+  // like life admin. null when there's nothing actionable.
+  suggested_task: {
+    title: string;
+    due_date: string | null;
+    priority: Priority;
+  } | null;
+  // True when the note has a stressed / grateful tone → gentle wellbeing nudge.
+  wellbeing: boolean;
+}
+
 // --- AI extraction shape ----------------------------------------------------
 
 export interface KeyDate {

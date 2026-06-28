@@ -2,7 +2,19 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Search, Archive, FileText } from "lucide-react";
+import {
+  Search,
+  Archive,
+  FileText,
+  Plane,
+  Home,
+  GraduationCap,
+  Banknote,
+  ShoppingBag,
+  HeartPulse,
+  RefreshCw,
+  type LucideIcon,
+} from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { CategoryBadge } from "@/components/badges";
 import { Input } from "@/components/ui/input";
@@ -16,6 +28,18 @@ import {
 
 type VaultRow = VaultItem & {
   inbox_items?: { input_type: string; file_name: string | null } | null;
+};
+
+// Category-specific icons for the vault, instead of one generic file icon.
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  travel: Plane,
+  home: Home,
+  school: GraduationCap,
+  finance: Banknote,
+  purchases: ShoppingBag,
+  health: HeartPulse,
+  subscriptions: RefreshCw,
+  general: FileText,
 };
 
 export function VaultBrowser({ items }: { items: VaultRow[] }) {
@@ -91,12 +115,14 @@ export function VaultBrowser({ items }: { items: VaultRow[] }) {
         </p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
-          {filtered.map((it) => (
+          {filtered.map((it) => {
+            const Icon = CATEGORY_ICON[it.category] ?? FileText;
+            return (
             <Link key={it.id} href={`/inbox/${it.inbox_item_id}`}>
               <Card className="h-full p-4 transition-colors hover:bg-accent/40">
                 <div className="flex items-start justify-between gap-2">
                   <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
-                    <FileText className="size-5" />
+                    <Icon className="size-5" />
                   </div>
                   <CategoryBadge category={it.category as VaultCategory} />
                 </div>
@@ -111,7 +137,8 @@ export function VaultBrowser({ items }: { items: VaultRow[] }) {
                 </p>
               </Card>
             </Link>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
