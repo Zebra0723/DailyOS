@@ -10,6 +10,7 @@ const PROTECTED_PREFIXES = [
   "/homeos",
   "/ai-suggestions",
   "/build-day",
+  "/interests",
   "/inbox",
   "/notes",
   "/calendar",

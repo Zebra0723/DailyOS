@@ -22,6 +22,7 @@ import {
   MessageCircle,
   Sparkles,
   CalendarClock,
+  Heart,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { usePlan } from "@/lib/use-pro";
@@ -38,6 +39,7 @@ const NAV_GROUPS = [
       { href: "/today", label: "Today", icon: Sun },
       { href: "/inbox", label: "Inbox", icon: Inbox },
       { href: "/build-day", label: "Build My Day", icon: CalendarClock },
+      { href: "/interests", label: "Interests", icon: Heart },
       { href: "/notes", label: "Notes", icon: StickyNote },
       { href: "/calendar", label: "Calendar", icon: Calendar },
       { href: "/tasks", label: "Tasks", icon: CheckSquare },
