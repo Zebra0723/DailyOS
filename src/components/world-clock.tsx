@@ -137,7 +137,7 @@ export function WorldClock({ userId }: { userId: string }) {
     <div className="mx-auto max-w-3xl">
       <PageHeader
         title="World Clock"
-        description="Type a city to add it — each one shows the time on a watch styled after a Patek Philippe."
+        description="Type a city to add it — each one shows the time on an elegant luxury-style watch."
       />
 
       {/* Search */}
@@ -282,12 +282,12 @@ function PatekWatch({ h, m, s }: { h: number; m: number; s: number }) {
         ))}
       </g>
 
-      {/* Brand text */}
-      <text x="100" y="78" textAnchor="middle" fill="#e9d9a7" fontSize="7" letterSpacing="0.5" fontFamily="Georgia, serif">
-        PATEK PHILIPPE
+      {/* Brand text — our own (no real trademarks) */}
+      <text x="100" y="78" textAnchor="middle" fill="#e9d9a7" fontSize="7.5" letterSpacing="1" fontFamily="Georgia, serif">
+        DAILYOS
       </text>
       <text x="100" y="132" textAnchor="middle" fill="#cdd6e4" fontSize="6" letterSpacing="1.2" fontFamily="Georgia, serif">
-        GENÈVE
+        AUTOMATIC
       </text>
 
       {/* Hour markers (applied batons) */}
