@@ -172,6 +172,35 @@
     animation: drive 7s linear forwards;
   }
 
+  /* Grow-a-plant: warm pulsing glow around the sun. */
+  @keyframes sun-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 40px 10px rgba(250, 204, 21, 0.55);
+    }
+    50% {
+      box-shadow: 0 0 64px 22px rgba(250, 204, 21, 0.75);
+    }
+  }
+  .sun-glow {
+    animation: sun-glow 3s ease-in-out infinite;
+  }
+
+  /* Grow-a-plant: a gentle sway for the fully-grown flower. */
+  @keyframes plant-sway {
+    0%,
+    100% {
+      transform: translateX(-50%) rotate(-2deg);
+    }
+    50% {
+      transform: translateX(-50%) rotate(2deg);
+    }
+  }
+  .plant-sway {
+    animation: plant-sway 4.5s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+
   /* subtle dotted grid for hero / empty states */
   .bg-grid {
     background-image: radial-gradient(

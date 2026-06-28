@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Flower2, SmilePlus, ListChecks, ArrowRight } from "lucide-react";
+import { Flower2, SmilePlus, ListChecks, Sprout, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 
@@ -23,6 +23,12 @@ const SECTIONS = [
     title: "Nudges",
     desc: "Gentle daily habits to tick off.",
     icon: ListChecks,
+  },
+  {
+    href: "/grow",
+    title: "Grow a Plant",
+    desc: "Hold to grow a sunflower — one a day.",
+    icon: Sprout,
   },
 ];
 
