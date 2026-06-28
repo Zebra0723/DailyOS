@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.06.28 · v49 (No score yet + parcel alert)";
+export const APP_VERSION = "2026.06.28 · v50 (Blue lock screen)";
