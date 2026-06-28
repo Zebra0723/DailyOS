@@ -1,0 +1,318 @@
+"use client";
+
+import * as React from "react";
+import { regenerateAlerts as computeAlerts } from "./alerts";
+import { buildDemoData } from "./demo";
+import { nowIso } from "./dates";
+import {
+  DEFAULT_SETTINGS,
+  type DailyOSTodayAction,
+  type HomeAlert,
+  type HomeArrival,
+  type HomeDevice,
+  type HomeDocument,
+  type HomeOSData,
+  type HomeOSSettings,
+  type HomeProfile,
+  type HomeSubscription,
+  type RoomItem,
+} from "./types";
+
+const STORAGE_KEY = "dailyos-homeos-v1";
+
+function uid(prefix: string): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return `${prefix}_${crypto.randomUUID().slice(0, 8)}`;
+  }
+  return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+type New<T> = Omit<T, "id" | "createdAt" | "updatedAt">;
+
+function emptyData(): HomeOSData {
+  const now = nowIso();
+  return {
+    homeProfile: {
+      id: uid("home"),
+      name: "Main Home",
+      addressLabel: "",
+      householdMembers: [],
+      createdAt: now,
+      updatedAt: now,
+    },
+    subscriptions: [],
+    arrivals: [],
+    roomItems: [],
+    devices: [],
+    documents: [],
+    alerts: [],
+    todayActions: [],
+    settings: DEFAULT_SETTINGS,
+  };
+}
+
+/** Recompute auto alerts (preserving user status) and keep any manual alerts. */
+function recompute(data: HomeOSData): HomeOSData {
+  const auto = computeAlerts(data, data.alerts);
+  const manual = data.alerts.filter((a) => a.key.startsWith("manual:"));
+  return { ...data, alerts: [...manual, ...auto] };
+}
+
+function loadFromStorage(): HomeOSData | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as HomeOSData;
+    if (!parsed || !Array.isArray(parsed.subscriptions)) return null;
+    // Backfill settings in case the shape grew since it was saved.
+    parsed.settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export interface HomeOSContextValue {
+  data: HomeOSData;
+  ready: boolean;
+
+  updateProfile: (patch: Partial<HomeProfile>) => void;
+  updateSettings: (patch: Partial<HomeOSSettings>) => void;
+
+  addSubscription: (input: New<HomeSubscription>) => void;
+  updateSubscription: (id: string, patch: Partial<HomeSubscription>) => void;
+  deleteSubscription: (id: string) => void;
+
+  addArrival: (input: New<HomeArrival>) => void;
+  updateArrival: (id: string, patch: Partial<HomeArrival>) => void;
+  deleteArrival: (id: string) => void;
+
+  addRoomItem: (input: New<RoomItem>) => void;
+  updateRoomItem: (id: string, patch: Partial<RoomItem>) => void;
+  deleteRoomItem: (id: string) => void;
+
+  addDevice: (input: New<HomeDevice>) => void;
+  updateDevice: (id: string, patch: Partial<HomeDevice>) => void;
+  deleteDevice: (id: string) => void;
+
+  addDocument: (input: New<HomeDocument>) => void;
+  updateDocument: (id: string, patch: Partial<HomeDocument>) => void;
+  deleteDocument: (id: string) => void;
+
+  addAlert: (input: { title: string; message: string; severity: HomeAlert["severity"]; module: HomeAlert["module"] }) => void;
+  updateAlert: (id: string, patch: Partial<HomeAlert>) => void;
+  deleteAlert: (id: string) => void;
+  resolveAlert: (id: string) => void;
+  snoozeAlert: (id: string, days?: number) => void;
+  reopenAlert: (id: string) => void;
+
+  addTodayAction: (input: Omit<DailyOSTodayAction, "id" | "createdAt">) => void;
+  updateTodayAction: (id: string, patch: Partial<DailyOSTodayAction>) => void;
+  deleteTodayAction: (id: string) => void;
+
+  regenerateAlerts: () => void;
+  resetDemoData: () => void;
+  clearHomeOSData: () => void;
+  exportHomeOSJSON: () => string;
+  importHomeOSJSON: (json: string) => { ok: boolean; error?: string };
+}
+
+const HomeOSContext = React.createContext<HomeOSContextValue | null>(null);
+
+export function HomeOSProvider({ children }: { children: React.ReactNode }) {
+  const [data, setData] = React.useState<HomeOSData | null>(null);
+
+  React.useEffect(() => {
+    const loaded = loadFromStorage();
+    setData(recompute(loaded ?? buildDemoData()));
+  }, []);
+
+  React.useEffect(() => {
+    if (data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch {
+        /* ignore quota errors in the prototype */
+      }
+    }
+  }, [data]);
+
+  const mutate = React.useCallback((fn: (d: HomeOSData) => HomeOSData) => {
+    setData((prev) => (prev ? recompute(fn(prev)) : prev));
+  }, []);
+
+  // Generic add/update/delete builders for the entity collections.
+  function makeAdd<T extends { id: string; createdAt: string; updatedAt: string }>(
+    keyName: keyof HomeOSData,
+    prefix: string,
+  ) {
+    return (input: New<T>) =>
+      mutate((d) => {
+        const now = nowIso();
+        const item = { ...input, id: uid(prefix), createdAt: now, updatedAt: now } as unknown as T;
+        return { ...d, [keyName]: [item, ...(d[keyName] as unknown as T[])] };
+      });
+  }
+  function makeUpdate<T extends { id: string; updatedAt: string }>(keyName: keyof HomeOSData) {
+    return (id: string, patch: Partial<T>) =>
+      mutate((d) => ({
+        ...d,
+        [keyName]: (d[keyName] as unknown as T[]).map((x) =>
+          x.id === id ? { ...x, ...patch, updatedAt: nowIso() } : x,
+        ),
+      }));
+  }
+  function makeDelete<T extends { id: string }>(keyName: keyof HomeOSData) {
+    return (id: string) =>
+      mutate((d) => ({
+        ...d,
+        [keyName]: (d[keyName] as unknown as T[]).filter((x) => x.id !== id),
+      }));
+  }
+
+  const value = React.useMemo<HomeOSContextValue>(() => {
+    return {
+      data: data ?? emptyData(),
+      ready: data !== null,
+
+      updateProfile: (patch) =>
+        mutate((d) => ({
+          ...d,
+          homeProfile: { ...d.homeProfile, ...patch, updatedAt: nowIso() },
+        })),
+      updateSettings: (patch) =>
+        mutate((d) => ({ ...d, settings: { ...d.settings, ...patch } })),
+
+      addSubscription: makeAdd<HomeSubscription>("subscriptions", "sub"),
+      updateSubscription: makeUpdate<HomeSubscription>("subscriptions"),
+      deleteSubscription: makeDelete<HomeSubscription>("subscriptions"),
+
+      addArrival: makeAdd<HomeArrival>("arrivals", "arr"),
+      updateArrival: makeUpdate<HomeArrival>("arrivals"),
+      deleteArrival: makeDelete<HomeArrival>("arrivals"),
+
+      addRoomItem: makeAdd<RoomItem>("roomItems", "room"),
+      updateRoomItem: makeUpdate<RoomItem>("roomItems"),
+      deleteRoomItem: makeDelete<RoomItem>("roomItems"),
+
+      addDevice: makeAdd<HomeDevice>("devices", "dev"),
+      updateDevice: makeUpdate<HomeDevice>("devices"),
+      deleteDevice: makeDelete<HomeDevice>("devices"),
+
+      addDocument: makeAdd<HomeDocument>("documents", "doc"),
+      updateDocument: makeUpdate<HomeDocument>("documents"),
+      deleteDocument: makeDelete<HomeDocument>("documents"),
+
+      addAlert: (input) =>
+        mutate((d) => {
+          const now = nowIso();
+          const id = uid("alert");
+          const alert: HomeAlert = {
+            id,
+            key: `manual:${id}`,
+            title: input.title,
+            message: input.message,
+            severity: input.severity,
+            module: input.module,
+            linkedEntityType: null,
+            status: "Open",
+            createdAt: now,
+            updatedAt: now,
+          };
+          return { ...d, alerts: [alert, ...d.alerts] };
+        }),
+      updateAlert: makeUpdate<HomeAlert>("alerts"),
+      deleteAlert: makeDelete<HomeAlert>("alerts"),
+      resolveAlert: (id) =>
+        mutate((d) => ({
+          ...d,
+          alerts: d.alerts.map((a) =>
+            a.id === id ? { ...a, status: "Resolved", updatedAt: nowIso() } : a,
+          ),
+        })),
+      snoozeAlert: (id, days = 3) =>
+        mutate((d) => {
+          const until = new Date();
+          until.setDate(until.getDate() + days);
+          return {
+            ...d,
+            alerts: d.alerts.map((a) =>
+              a.id === id
+                ? { ...a, status: "Snoozed", snoozedUntil: until.toISOString(), updatedAt: nowIso() }
+                : a,
+            ),
+          };
+        }),
+      reopenAlert: (id) =>
+        mutate((d) => ({
+          ...d,
+          alerts: d.alerts.map((a) =>
+            a.id === id ? { ...a, status: "Open", snoozedUntil: undefined, updatedAt: nowIso() } : a,
+          ),
+        })),
+
+      addTodayAction: (input) =>
+        mutate((d) => {
+          const action: DailyOSTodayAction = {
+            ...input,
+            id: uid("today"),
+            createdAt: nowIso(),
+          };
+          return { ...d, todayActions: [action, ...d.todayActions] };
+        }),
+      updateTodayAction: (id, patch) =>
+        mutate((d) => ({
+          ...d,
+          todayActions: d.todayActions.map((t) =>
+            t.id === id ? { ...t, ...patch } : t,
+          ),
+        })),
+      deleteTodayAction: (id) =>
+        mutate((d) => ({
+          ...d,
+          todayActions: d.todayActions.filter((t) => t.id !== id),
+        })),
+
+      regenerateAlerts: () => mutate((d) => d),
+      resetDemoData: () => setData(recompute(buildDemoData())),
+      clearHomeOSData: () => setData(recompute(emptyData())),
+      exportHomeOSJSON: () => JSON.stringify(data ?? emptyData(), null, 2),
+      importHomeOSJSON: (json) => {
+        try {
+          const parsed = JSON.parse(json) as HomeOSData;
+          if (!parsed || !Array.isArray(parsed.subscriptions)) {
+            return { ok: false, error: "That doesn't look like HomeOS data." };
+          }
+          parsed.settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
+          setData(recompute(parsed));
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, error: e instanceof Error ? e.message : "Invalid JSON." };
+        }
+      },
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, mutate]);
+
+  return <HomeOSContext.Provider value={value}>{children}</HomeOSContext.Provider>;
+}
+
+export function useHomeOS(): HomeOSContextValue {
+  const ctx = React.useContext(HomeOSContext);
+  if (!ctx) throw new Error("useHomeOS must be used within a HomeOSProvider");
+  return ctx;
+}
+
+/** Read HomeOS Today actions outside the provider (e.g. on the DailyOS Today page). */
+export function readHomeOSTodayActions(): DailyOSTodayAction[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as HomeOSData;
+    return Array.isArray(parsed.todayActions) ? parsed.todayActions : [];
+  } catch {
+    return [];
+  }
+}
+
+export { STORAGE_KEY as HOMEOS_STORAGE_KEY };
