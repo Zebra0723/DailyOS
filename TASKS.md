@@ -132,7 +132,10 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- (none right now)
+- 💡 **Smart Notepad** (Leo's idea): a quick notepad where you jot things down
+  and DailyOS auto-sorts each note into categories — its own section. Functional
+  (saves notes to the DB + runs AI to categorise + new section) → needs Arjun to
+  greenlight. Overlaps a bit with Life Inbox (could share the extraction layer).
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
