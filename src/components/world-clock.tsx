@@ -137,7 +137,7 @@ export function WorldClock({ userId }: { userId: string }) {
     <div className="mx-auto max-w-4xl">
       <PageHeader
         title="World Clock"
-        description="Type a city to add it — each one shows the time on an elegant luxury-style watch."
+        description="Keeping calls, family and travel straight across time zones is its own little life-admin chore — so DailyOS handles it. Add any city and see its time at a glance (on a watch we made beautiful on purpose)."
       />
 
       {/* Search */}
