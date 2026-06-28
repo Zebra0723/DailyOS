@@ -15,7 +15,6 @@ import {
   StickyNote,
   SmilePlus,
   ListChecks,
-  Sprout,
   Lock,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -43,7 +42,6 @@ const NAV_GROUPS = [
       { href: "/mindfulness", label: "Mindfulness", icon: Flower2 },
       { href: "/mood", label: "Mood", icon: SmilePlus },
       { href: "/nudges", label: "Nudges", icon: ListChecks },
-      { href: "/grow", label: "Grow a Plant", icon: Sprout },
     ],
   },
   {

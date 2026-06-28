@@ -15,7 +15,6 @@ const PROTECTED_PREFIXES = [
   "/mindfulness",
   "/mood",
   "/nudges",
-  "/grow",
   "/wellbeing",
   "/settings",
 ];
