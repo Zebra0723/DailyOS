@@ -13,19 +13,29 @@ export const PRO_EVENT = "dailyos-pro";
 
 const keyFor = (userId: string) => `dailyos-pro:${userId}`;
 
-/** Grant or revoke Pro for the currently signed-in account. */
-export async function setPro(on: boolean) {
+/**
+ * Grant or revoke Pro for an account. Pass `userId` (from the server) for a
+ * guaranteed, synchronous flip; otherwise we look it up from the session.
+ */
+export async function setPro(on: boolean, userId?: string) {
   const supabase = createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user;
-  if (!user) return;
 
-  // 1. Instant local flip for this account in this browser.
-  if (typeof window !== "undefined") {
-    if (on) localStorage.setItem(keyFor(user.id), "1");
-    else localStorage.removeItem(keyFor(user.id));
+  let id = userId;
+  if (!id) {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      id = session?.user?.id;
+    } catch {
+      /* ignore — handled below */
+    }
+  }
+
+  // 1. Instant, reliable local flip for this account in this browser.
+  if (typeof window !== "undefined" && id) {
+    if (on) localStorage.setItem(keyFor(id), "1");
+    else localStorage.removeItem(keyFor(id));
     window.dispatchEvent(new Event(PRO_EVENT));
   }
 

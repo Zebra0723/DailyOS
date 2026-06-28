@@ -13,14 +13,24 @@ import { cn } from "@/lib/utils";
 // Any of these unlock lifetime Pro. ARLEOPRO kept for existing users.
 const PROMO_CODES = ["ARLEOPRO", "HOMEOSVIP25"];
 
-export function PricingTable({ compact = false }: { compact?: boolean }) {
+export function PricingTable({
+  compact = false,
+  userId,
+}: {
+  compact?: boolean;
+  userId?: string;
+}) {
   const [annual, setAnnual] = React.useState(true);
-  const { pro: unlocked } = usePro();
+  const { pro } = usePro();
   const { toast } = useToast();
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState(false);
+  // Flip the UI to "unlocked" the instant a valid code is entered, without
+  // waiting on any async read — so success is always immediate and visible.
+  const [justUnlocked, setJustUnlocked] = React.useState(false);
+  const unlocked = pro || justUnlocked;
 
-  async function applyCode() {
+  function applyCode() {
     const entered = code.trim().toUpperCase();
     if (entered === "") {
       setError(false);
@@ -30,11 +40,11 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
       setError(true);
       return;
     }
-    // Valid: unlock. Leave the box as-is — the success banner replaces it
-    // when Pro flips on, so we never re-validate an emptied box.
     setError(false);
-    await setPro(true);
+    setJustUnlocked(true);
     toast({ variant: "success", title: "Lifetime Pro unlocked 🎉" });
+    // Persist for this account (and unlock the gated screens via the event).
+    void setPro(true, userId);
   }
 
   return (

@@ -71,5 +71,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Never let the browser serve a stale HTML shell — that leaves old cached
+  // JS wired to new markup and breaks buttons after a deploy. Hashed JS/CSS
+  // chunks under _next/static are excluded by the matcher, so they stay cached.
+  supabaseResponse.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate",
+  );
   return supabaseResponse;
 }

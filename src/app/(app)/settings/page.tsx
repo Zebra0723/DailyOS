@@ -111,7 +111,7 @@ export default async function SettingsPage() {
               </div>
               <Badge variant="warning">Billing coming soon</Badge>
             </div>
-            <PricingTable compact />
+            <PricingTable compact userId={user?.id} />
           </CardContent>
         </Card>
 
