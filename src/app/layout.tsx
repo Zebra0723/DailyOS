@@ -29,8 +29,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Apply light/dark + calm background before first paint to avoid a flash.
-  const themeScript = `(function(){try{var m=localStorage.getItem('dailyos-mode')||'system';var bg=localStorage.getItem('dailyos-calm-bg')||'none';var r=document.documentElement;var dark = bg!=='none' ? true : (m==='dark' || (m==='system' && window.matchMedia('(prefers-color-scheme: dark)').matches));r.classList.toggle('dark', dark);if(bg!=='none'){r.style.setProperty('--app-bg','transparent');}else{r.style.removeProperty('--app-bg');}}catch(e){}})();`;
+  // Apply light/dark before first paint to avoid a flash.
+  const themeScript = `(function(){try{var m=localStorage.getItem('dailyos-mode')||'system';var dark = m==='dark' || (m==='system' && window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark', dark);}catch(e){}})();`;
 
   return (
     <html
