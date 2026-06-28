@@ -132,7 +132,11 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- (none right now)
+- 💡 **Animated wave scenes** (Leo wants these): pick a moving background in
+  Settings — e.g. blue waves on a purple canvas, baby-blue waves on purple.
+  Lightweight CSS animation, text kept readable. **NOTE:** this REVERSES Arjun's
+  earlier "light/dark only, no scenes" decision, so it needs Arjun's explicit
+  go-ahead (not Leo's call to undo).
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
