@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import { usePro } from "@/lib/use-pro";
+import { usePlan } from "@/lib/use-pro";
 
-/** A gentle, always-on reminder of Free-plan limits (hidden once on Pro). */
+/** A gentle, always-on reminder of Free-plan limits (hidden on Plus/Pro). */
 export function FreePlanBanner({ userId }: { userId?: string }) {
-  const { mounted, pro } = usePro(userId);
-  if (!mounted || pro) return null;
+  const { mounted, tier } = usePlan(userId);
+  if (!mounted || tier !== "free") return null;
 
   return (
     <div className="border-b bg-muted/50">

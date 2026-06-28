@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Lock, Sparkles } from "lucide-react";
-import { usePro } from "@/lib/use-pro";
+import { usePlan, tierMeets } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 
@@ -23,12 +23,12 @@ export function ProGate({
   userId?: string;
   children: React.ReactNode;
 }) {
-  const { mounted, pro } = usePro(userId);
+  const { mounted, tier: userTier } = usePlan(userId);
 
   if (!mounted) {
     return <div className="h-40 animate-pulse rounded-2xl bg-muted" />;
   }
-  if (pro) return <>{children}</>;
+  if (tierMeets(userTier, tier)) return <>{children}</>;
 
   return (
     <div className="grid place-items-center py-8">

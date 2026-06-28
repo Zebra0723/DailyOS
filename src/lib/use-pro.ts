@@ -3,21 +3,19 @@
 import * as React from "react";
 import { createClient } from "@/lib/supabase/client";
 
-// The only "plan" signal we have without real billing: the ARLEOPRO promo.
-// Stored TWO ways, both keyed/scoped to the signed-in user so Pro never leaks
-// between accounts on the same browser:
-//   1. a per-user localStorage flag  -> instant, reliable unlock in this browser
-//   2. the user's auth metadata      -> follows them to other devices
-// Pro is on if EITHER says so.
+// Plan tiers. Stored per-user (keyed by user id) so a plan never leaks
+// between accounts on the same browser. Source of truth without real billing:
+//   1. per-user localStorage flag  -> instant, reliable in this browser
+//   2. the user's auth metadata    -> follows them to other devices
+export type Tier = "free" | "plus" | "pro";
+
 export const PRO_EVENT = "dailyos-pro";
 
-const keyFor = (userId: string) => `dailyos-pro:${userId}`;
+const tierKey = (userId: string) => `dailyos-tier:${userId}`;
+const legacyProKey = (userId: string) => `dailyos-pro:${userId}`; // older "pro" flag
 
-/**
- * Grant or revoke Pro for an account. Pass `userId` (from the server) for a
- * guaranteed, synchronous flip; otherwise we look it up from the session.
- */
-export async function setPro(on: boolean, userId?: string) {
+/** Set the plan for an account. Pass userId (from the server) for a reliable flip. */
+export async function setPlan(tier: Tier, userId?: string) {
   const supabase = createClient();
 
   let id = userId;
@@ -28,69 +26,75 @@ export async function setPro(on: boolean, userId?: string) {
       } = await supabase.auth.getSession();
       id = session?.user?.id;
     } catch {
-      /* ignore — handled below */
+      /* handled below */
     }
   }
 
-  // 1. Instant, reliable local flip for this account in this browser.
   if (typeof window !== "undefined" && id) {
-    if (on) localStorage.setItem(keyFor(id), "1");
-    else localStorage.removeItem(keyFor(id));
+    if (tier === "free") {
+      localStorage.removeItem(tierKey(id));
+      localStorage.removeItem(legacyProKey(id));
+    } else {
+      localStorage.setItem(tierKey(id), tier);
+      if (tier === "pro") localStorage.setItem(legacyProKey(id), "1");
+      else localStorage.removeItem(legacyProKey(id));
+    }
     window.dispatchEvent(new Event(PRO_EVENT));
   }
 
-  // 2. Best-effort cross-device persistence (don't block the UI on it).
-  supabase.auth.updateUser({ data: { pro: on } }).catch(() => {
-    /* metadata write can fail offline; the local flag still unlocks here */
-  });
+  supabase.auth
+    .updateUser({ data: { plan: tier, pro: tier === "pro" } })
+    .catch(() => {
+      /* metadata write can fail offline; local flag still applies here */
+    });
 }
 
-/**
- * Reactively read whether the current account has Pro unlocked.
- * Pass `userId` (from the server) for a reliable, synchronous read of the
- * per-user flag — avoids depending on a client session lookup that can lag.
- */
-export function usePro(userId?: string): { mounted: boolean; pro: boolean } {
-  const [state, setState] = React.useState({ mounted: false, pro: false });
+function readTierFor(
+  id: string | undefined,
+  metaPlan?: unknown,
+  metaPro?: boolean,
+): Tier {
+  if (id && typeof window !== "undefined") {
+    const t = localStorage.getItem(tierKey(id));
+    if (t === "plus" || t === "pro") return t;
+    if (localStorage.getItem(legacyProKey(id)) === "1") return "pro";
+  }
+  if (metaPlan === "plus" || metaPlan === "pro") return metaPlan;
+  if (metaPro === true) return "pro";
+  return "free";
+}
+
+/** Reactively read the account's plan tier. Pass userId (server) for reliability. */
+export function usePlan(userId?: string): { mounted: boolean; tier: Tier } {
+  const [state, setState] = React.useState<{ mounted: boolean; tier: Tier }>({
+    mounted: false,
+    tier: "free",
+  });
 
   React.useEffect(() => {
     const supabase = createClient();
     let active = true;
 
     const read = async () => {
-      let pro = false;
-
-      // Fast, reliable path: read the per-user flag directly when we know the id.
-      if (
-        userId &&
-        typeof window !== "undefined" &&
-        localStorage.getItem(keyFor(userId)) === "1"
-      ) {
-        pro = true;
-      }
-
-      // Fallback: derive the id from the session (and honour cross-device
-      // metadata). Wrapped so `mounted` always resolves.
-      if (!pro) {
+      let tier = readTierFor(userId);
+      if (tier === "free") {
         try {
           const {
             data: { session },
           } = await supabase.auth.getSession();
           const user = session?.user;
           if (user) {
-            if (user.user_metadata?.pro === true) pro = true;
-            else if (
-              typeof window !== "undefined" &&
-              localStorage.getItem(keyFor(user.id)) === "1"
-            )
-              pro = true;
+            tier = readTierFor(
+              userId ?? user.id,
+              user.user_metadata?.plan,
+              user.user_metadata?.pro === true,
+            );
           }
         } catch {
-          /* fall through with pro = false */
+          /* fall through with free */
         }
       }
-
-      if (active) setState({ mounted: true, pro });
+      if (active) setState({ mounted: true, tier });
     };
 
     read();
@@ -107,4 +111,22 @@ export function usePro(userId?: string): { mounted: boolean; pro: boolean } {
   }, [userId]);
 
   return state;
+}
+
+/** True if `tier` meets the `required` access level. */
+export function tierMeets(tier: Tier, required: "Plus" | "Pro"): boolean {
+  if (tier === "pro") return true;
+  if (required === "Plus" && tier === "plus") return true;
+  return false;
+}
+
+// ---- Back-compat helpers (treat any paid tier as "pro") --------------------
+
+export function usePro(userId?: string): { mounted: boolean; pro: boolean } {
+  const { mounted, tier } = usePlan(userId);
+  return { mounted, pro: tier !== "free" };
+}
+
+export async function setPro(on: boolean, userId?: string) {
+  return setPlan(on ? "pro" : "free", userId);
 }

@@ -4,14 +4,19 @@ import * as React from "react";
 import Link from "next/link";
 import { Check, Sparkles, Tag } from "lucide-react";
 import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
-import { usePro, setPro } from "@/lib/use-pro";
+import { usePlan, setPlan, type Tier } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
-// Any of these unlock lifetime Pro. ARLEOPRO kept for existing users.
-const PROMO_CODES = ["ARLEOPRO", "HOMEOSVIP25"];
+// Promo codes → the plan they switch you to.
+const CODE_PLANS: Record<string, Tier> = {
+  ARLEOPRO: "pro",
+  HOMEOSVIP25: "pro",
+  ARLEOPLUS: "plus",
+  ARLEOFREE: "free",
+};
 
 export function PricingTable({
   compact = false,
@@ -21,14 +26,14 @@ export function PricingTable({
   userId?: string;
 }) {
   const [annual, setAnnual] = React.useState(true);
-  const { pro } = usePro(userId);
+  const { tier } = usePlan(userId);
   const { toast } = useToast();
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState(false);
-  // Flip the UI to "unlocked" the instant a valid code is entered, without
-  // waiting on any async read — so success is always immediate and visible.
-  const [justUnlocked, setJustUnlocked] = React.useState(false);
-  const unlocked = pro || justUnlocked;
+  // Reflect a just-entered code instantly, without waiting on any async read.
+  const [justTier, setJustTier] = React.useState<Tier | null>(null);
+  const currentTier = justTier ?? tier;
+  const unlocked = currentTier !== "free";
 
   function applyCode() {
     const entered = code.trim().toUpperCase();
@@ -36,15 +41,22 @@ export function PricingTable({
       setError(false);
       return;
     }
-    if (!PROMO_CODES.includes(entered)) {
+    const plan = CODE_PLANS[entered];
+    if (!plan) {
       setError(true);
       return;
     }
     setError(false);
-    setJustUnlocked(true);
-    toast({ variant: "success", title: "Lifetime Pro unlocked 🎉" });
-    // Persist for this account (and unlock the gated screens via the event).
-    void setPro(true, userId);
+    setJustTier(plan);
+    toast({
+      variant: plan === "free" ? "info" : "success",
+      title:
+        plan === "free"
+          ? "Switched to Free"
+          : `${plan === "pro" ? "Pro" : "Plus"} unlocked 🎉`,
+    });
+    // Persist for this account (and update the gated screens via the event).
+    void setPlan(plan, userId);
   }
 
   return (
@@ -52,7 +64,8 @@ export function PricingTable({
       {/* Promo code */}
       {unlocked ? (
         <div className="mx-auto mb-8 flex max-w-md items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
-          <Sparkles className="size-4" /> Lifetime Pro unlocked — enjoy, legend! 🎉
+          <Sparkles className="size-4" /> You&apos;re on{" "}
+          {currentTier === "pro" ? "Pro" : "Plus"} — enjoy, legend! 🎉
         </div>
       ) : (
         <div className="mx-auto mb-8 max-w-md">
@@ -111,7 +124,7 @@ export function PricingTable({
             plan={plan}
             annual={annual}
             compact={compact}
-            unlocked={unlocked && plan.key === "pro"}
+            unlocked={currentTier === plan.key}
           />
         ))}
       </div>

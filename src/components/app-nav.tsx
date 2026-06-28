@@ -19,7 +19,7 @@ import {
   Home,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { usePro } from "@/lib/use-pro";
+import { usePlan } from "@/lib/use-pro";
 import { HOME_SECTIONS, homeHref } from "@/components/homeos/tabs";
 import { cn, initials } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -74,7 +74,9 @@ function isActive(pathname: string, href: string) {
 export function Sidebar({ email, userId }: { email: string; userId?: string }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { pro } = usePro(userId);
+  const { tier } = usePlan(userId);
+  const vaultLocked = tier === "free";
+  const homeLocked = tier !== "pro";
 
   async function signOut() {
     const supabase = createClient();
@@ -139,7 +141,8 @@ export function Sidebar({ email, userId }: { email: string; userId?: string }) {
                     )}
                   />
                   {l.label}
-                  {(l.href === "/vault" || l.href === "/homeos") && !pro && (
+                  {((l.href === "/vault" && vaultLocked) ||
+                    (l.href === "/homeos" && homeLocked)) && (
                     <Lock className="ml-auto size-3.5 text-muted-foreground/60" />
                   )}
                 </Link>
