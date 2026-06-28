@@ -17,11 +17,11 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState(false);
 
-  function applyCode() {
+  async function applyCode() {
     if (code.trim().toUpperCase() === PROMO_CODE) {
-      setPro(true);
       setError(false);
       setCode("");
+      await setPro(true);
     } else {
       setError(true);
     }
