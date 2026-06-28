@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ModeToggle } from "@/components/mode-toggle";
+import { PricingTable } from "@/components/pricing-table";
 import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -97,7 +98,7 @@ export default async function SettingsPage() {
             </CardTitle>
             <CardDescription>Your plan and billing.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5">
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div>
                 <div className="flex items-center gap-2">
@@ -105,15 +106,12 @@ export default async function SettingsPage() {
                   <Badge variant="secondary">Current</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  25 inbox items / month
+                  15 life-admin updates &amp; 30 events / month · no Vault
                 </p>
               </div>
               <Badge variant="warning">Billing coming soon</Badge>
             </div>
-            <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-              Pro (£6/month) with unlimited items, priority processing and family
-              sharing is on the way. Payments aren&apos;t live yet — no card needed.
-            </div>
+            <PricingTable compact />
           </CardContent>
         </Card>
 

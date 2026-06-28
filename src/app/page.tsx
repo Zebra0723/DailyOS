@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
+import { PricingTable } from "@/components/pricing-table";
 
 const steps = [
   {
@@ -185,40 +186,8 @@ export default function LandingPage() {
               Start free. Upgrade when life gets busy.
             </p>
           </div>
-          <div className="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border bg-card p-8 shadow-sm">
-              <h3 className="font-semibold">Free</h3>
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-bold">£0</span>
-                <span className="text-muted-foreground">/month</span>
-              </div>
-              <ul className="mt-6 space-y-3 text-sm">
-                <PricingRow>25 inbox items / month</PricingRow>
-                <PricingRow>Tasks, calendar &amp; vault</PricingRow>
-                <PricingRow>AI extraction &amp; review</PricingRow>
-              </ul>
-              <Button variant="outline" className="mt-8 w-full" asChild>
-                <Link href="/signup">Get started</Link>
-              </Button>
-            </div>
-            <div className="relative rounded-2xl border-2 border-primary bg-card p-8 shadow-md">
-              <div className="absolute -top-3 left-8 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-                Most popular
-              </div>
-              <h3 className="font-semibold">Pro</h3>
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-bold">£6</span>
-                <span className="text-muted-foreground">/month</span>
-              </div>
-              <ul className="mt-6 space-y-3 text-sm">
-                <PricingRow>Unlimited inbox items</PricingRow>
-                <PricingRow>Priority processing</PricingRow>
-                <PricingRow>Family sharing (coming soon)</PricingRow>
-              </ul>
-              <Button className="mt-8 w-full" asChild>
-                <Link href="/signup">Start free trial</Link>
-              </Button>
-            </div>
+          <div className="mx-auto mt-12 max-w-5xl">
+            <PricingTable />
           </div>
         </div>
       </section>
@@ -250,14 +219,5 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  );
-}
-
-function PricingRow({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex items-center gap-2">
-      <CheckCircle2 className="size-4 shrink-0 text-primary" />
-      <span>{children}</span>
-    </li>
   );
 }
