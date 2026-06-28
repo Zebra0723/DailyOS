@@ -7,6 +7,7 @@ import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
 import { usePro, setPro } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 // Any of these unlock lifetime Pro. ARLEOPRO kept for existing users.
@@ -15,10 +16,12 @@ const PROMO_CODES = ["ARLEOPRO", "HOMEOSVIP25"];
 export function PricingTable({ compact = false }: { compact?: boolean }) {
   const [annual, setAnnual] = React.useState(true);
   const { pro: unlocked } = usePro();
+  const { toast } = useToast();
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState(false);
 
-  async function applyCode() {
+  async function applyCode(e?: React.FormEvent) {
+    e?.preventDefault();
     const entered = code.trim().toUpperCase();
     if (entered === "") {
       setError(false);
@@ -32,6 +35,7 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
     // when Pro flips on, so we never re-validate an emptied box.
     setError(false);
     await setPro(true);
+    toast({ variant: "success", title: "Lifetime Pro unlocked 🎉" });
   }
 
   return (
@@ -43,7 +47,7 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
         </div>
       ) : (
         <div className="mx-auto mb-8 max-w-md">
-          <div className="flex items-center gap-2">
+          <form onSubmit={applyCode} className="flex items-center gap-2">
             <div className="relative flex-1">
               <Tag className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -52,15 +56,14 @@ export function PricingTable({ compact = false }: { compact?: boolean }) {
                   setCode(e.target.value);
                   setError(false);
                 }}
-                onKeyDown={(e) => e.key === "Enter" && applyCode()}
                 placeholder="Promo code"
                 className="pl-9 uppercase placeholder:normal-case"
               />
             </div>
-            <Button type="button" variant="outline" onClick={applyCode}>
+            <Button type="submit" variant="outline">
               Apply
             </Button>
-          </div>
+          </form>
           {error && (
             <p className="mt-2 text-center text-sm text-destructive">
               That code isn&apos;t valid.
