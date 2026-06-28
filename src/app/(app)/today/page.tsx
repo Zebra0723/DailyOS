@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
 import { formatDateTime, relativeDay } from "@/lib/utils";
+import { isOnboarding, tailoredIntro } from "@/lib/onboarding";
 import type { CalendarEvent, ExtractedTask, InboxItem } from "@/lib/types";
 
 export const metadata = { title: "Today · DailyOS" };
@@ -71,6 +72,9 @@ export default async function TodayPage() {
     user?.email?.split("@")[0] ??
     "there";
 
+  const onboarding = user?.user_metadata?.onboarding;
+  const intro = isOnboarding(onboarding) ? tailoredIntro(onboarding, name) : null;
+
   return (
     <div>
       <PageHeader
@@ -96,6 +100,29 @@ export default async function TodayPage() {
           </Button>
         }
       />
+
+      {/* Personalised "made for you" card from onboarding answers */}
+      {intro && (
+        <Card className="mb-6 border-primary/20 bg-accent/30">
+          <CardContent className="pt-5">
+            <p className="font-semibold">{intro.headline}</p>
+            {intro.suggestions.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {intro.suggestions.map((s) => (
+                  <Link
+                    key={s.label}
+                    href={s.href}
+                    className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent"
+                  >
+                    {s.label}
+                    <ArrowRight className="size-3.5" />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Needs review banner */}
       {needsReview.length > 0 && (
