@@ -40,6 +40,7 @@ export const PLANS: Plan[] = [
     cta: "Start Plus",
     features: [
       "Everything in Free, plus:",
+      "Build My Day — AI plans a calm, productive day",
       "Searchable Vault",
       "100 life-admin updates / month",
       "Unlimited calendar events",

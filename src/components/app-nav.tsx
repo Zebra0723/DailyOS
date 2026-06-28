@@ -156,7 +156,7 @@ export function Sidebar({ email, userId }: { email: string; userId?: string }) {
                     )}
                   />
                   {l.label}
-                  {((l.href === "/vault" && vaultLocked) ||
+                  {(((l.href === "/vault" || l.href === "/build-day") && vaultLocked) ||
                     (l.href === "/homeos" && homeLocked)) && (
                     <Lock className="ml-auto size-3.5 text-muted-foreground/60" />
                   )}
