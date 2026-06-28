@@ -193,3 +193,21 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   promotion for Leo_
 - ✅ **Vault icons:** category-specific icons (plane/home/finance/etc.) instead
   of one generic file icon — _Arjun_
+
+## Parked / future (remember for later)
+
+- ⏸️ **Live account connections for OrganizerOS** — _Arjun (parked)_
+  - **Gmail** — possible, but needs a real OAuth backend (Google Cloud project,
+    consent screen, sensitive-scope verification, secure token storage). Real
+    project, not MVP. Build alongside the billing/backend work.
+  - **Apple Mail** — no cloud API exists (device app). Closest is iCloud Mail
+    over IMAP w/ an app-specific password — clunky. Effectively not feasible.
+  - **WhatsApp (personal)** — no API to read personal chats. WhatsApp Business
+    API is for companies messaging customers. Not possible.
+  - For now OrganizerOS is upload-based (screenshot/PDF), which covers all.
+- ⏸️ **Real billing (Stripe)** → unlocks true, secure plan tiers + device
+  limits + Gmail OAuth. Currently plans are promo-code flags (per-account).
+- ⏸️ **Cross-device sync** for HomeOS + plan + wellbeing state (needs backend;
+  currently per-account localStorage).
+- ⏸️ **New big category** idea (MoneyOS / CarOS / TravelOS / FamilyOS) — Leo to
+  pick when ready.
