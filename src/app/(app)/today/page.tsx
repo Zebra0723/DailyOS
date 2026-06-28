@@ -20,6 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { EmptyState } from "@/components/empty-state";
 import { formatDateTime, relativeDay } from "@/lib/utils";
 import { isOnboarding, tailoredIntro } from "@/lib/onboarding";
+import { HomeOSTodayActions } from "@/components/homeos/today-home-actions";
 import type { CalendarEvent, ExtractedTask, InboxItem } from "@/lib/types";
 
 export const metadata = { title: "Today · DailyOS" };
@@ -123,6 +124,9 @@ export default async function TodayPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* HomeOS actions pushed into Today */}
+      {user && <HomeOSTodayActions userId={user.id} />}
 
       {/* Needs review banner */}
       {needsReview.length > 0 && (

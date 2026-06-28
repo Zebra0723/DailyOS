@@ -16,6 +16,7 @@ import {
   SmilePlus,
   ListChecks,
   Lock,
+  Home,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { usePro } from "@/lib/use-pro";
@@ -26,7 +27,7 @@ import { Button } from "@/components/ui/button";
 // "Ultra categories" — sidebar groups.
 const NAV_GROUPS = [
   {
-    heading: "Life Inbox",
+    heading: "LifeOS",
     items: [
       { href: "/today", label: "Today", icon: Sun },
       { href: "/inbox", label: "Inbox", icon: Inbox },
@@ -37,7 +38,11 @@ const NAV_GROUPS = [
     ],
   },
   {
-    heading: "Wellbeing",
+    heading: "HomeOS",
+    items: [{ href: "/homeos", label: "HomeOS", icon: Home }],
+  },
+  {
+    heading: "WellOS",
     items: [
       { href: "/mindfulness", label: "Mindfulness", icon: Flower2 },
       { href: "/mood", label: "Mood", icon: SmilePlus },
@@ -54,7 +59,7 @@ const NAV_GROUPS = [
 const MOBILE_LINKS = [
   { href: "/today", label: "Today", icon: Sun },
   { href: "/inbox", label: "Inbox", icon: Inbox },
-  { href: "/notes", label: "Notes", icon: StickyNote },
+  { href: "/homeos", label: "HomeOS", icon: Home },
   { href: "/calendar", label: "Cal", icon: Calendar },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/vault", label: "Vault", icon: Archive },
