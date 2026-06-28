@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createClient } from "@/lib/supabase/client";
 import { regenerateAlerts as computeAlerts } from "./alerts";
 import { buildDemoData } from "./demo";
 import { nowIso } from "./dates";
@@ -18,7 +19,12 @@ import {
   type RoomItem,
 } from "./types";
 
-const STORAGE_KEY = "dailyos-homeos-v1";
+const STORAGE_BASE = "dailyos-homeos-v1";
+
+/** Storage is scoped per user so HomeOS data never leaks between accounts. */
+function storageKeyFor(userId: string | null | undefined): string {
+  return `${STORAGE_BASE}:${userId ?? "anon"}`;
+}
 
 function uid(prefix: string): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -58,9 +64,9 @@ function recompute(data: HomeOSData): HomeOSData {
   return { ...data, alerts: [...manual, ...auto] };
 }
 
-function loadFromStorage(): HomeOSData | null {
+function loadFromStorage(key: string): HomeOSData | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as HomeOSData;
     if (!parsed || !Array.isArray(parsed.subscriptions)) return null;
@@ -121,16 +127,31 @@ const HomeOSContext = React.createContext<HomeOSContextValue | null>(null);
 
 export function HomeOSProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = React.useState<HomeOSData | null>(null);
+  const keyRef = React.useRef<string>(storageKeyFor("anon"));
 
   React.useEffect(() => {
-    const loaded = loadFromStorage();
-    setData(recompute(loaded ?? buildDemoData()));
+    let active = true;
+    const supabase = createClient();
+    (async () => {
+      // Resolve the per-account storage key before loading, so HomeOS data
+      // is remembered for this user and never bleeds across accounts.
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!active) return;
+      keyRef.current = storageKeyFor(session?.user?.id);
+      const loaded = loadFromStorage(keyRef.current);
+      setData(recompute(loaded ?? buildDemoData()));
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
 
   React.useEffect(() => {
     if (data) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem(keyRef.current, JSON.stringify(data));
       } catch {
         /* ignore quota errors in the prototype */
       }
@@ -304,9 +325,9 @@ export function useHomeOS(): HomeOSContextValue {
 }
 
 /** Read HomeOS Today actions outside the provider (e.g. on the DailyOS Today page). */
-export function readHomeOSTodayActions(): DailyOSTodayAction[] {
+export function readHomeOSTodayActions(userId?: string | null): DailyOSTodayAction[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKeyFor(userId));
     if (!raw) return [];
     const parsed = JSON.parse(raw) as HomeOSData;
     return Array.isArray(parsed.todayActions) ? parsed.todayActions : [];
@@ -315,4 +336,4 @@ export function readHomeOSTodayActions(): DailyOSTodayAction[] {
   }
 }
 
-export { STORAGE_KEY as HOMEOS_STORAGE_KEY };
+export { STORAGE_BASE as HOMEOS_STORAGE_BASE, storageKeyFor as homeOSStorageKeyFor };
