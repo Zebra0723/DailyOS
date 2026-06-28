@@ -18,6 +18,15 @@ const POINTS = [
 export function WelcomeScreen({ name }: { name: string }) {
   const router = useRouter();
   const [left, setLeft] = React.useState(SECONDS);
+  // Guard so the click and the countdown can't both fire navigation, and so a
+  // single tap reliably leaves on the first try.
+  const leaving = React.useRef(false);
+
+  const go = React.useCallback(() => {
+    if (leaving.current) return;
+    leaving.current = true;
+    router.push("/today");
+  }, [router]);
 
   React.useEffect(() => {
     const id = setInterval(() => setLeft((s) => s - 1), 1000);
@@ -25,18 +34,10 @@ export function WelcomeScreen({ name }: { name: string }) {
   }, []);
 
   React.useEffect(() => {
-    if (left <= 0) {
-      router.push("/today");
-      router.refresh();
-    }
-  }, [left, router]);
+    if (left <= 0) go();
+  }, [left, go]);
 
   const progress = ((SECONDS - left) / SECONDS) * 100;
-
-  function go() {
-    router.push("/today");
-    router.refresh();
-  }
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6">
