@@ -132,11 +132,19 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
   (Requested by Arjun.)
 
 ### Proposed features (need Arjun's OK — beyond Leo's level)
-- 💡 **Animated wave scenes** (Leo wants these): pick a moving background in
-  Settings — e.g. blue waves on a purple canvas, baby-blue waves on purple.
-  Lightweight CSS animation, text kept readable. **NOTE:** this REVERSES Arjun's
-  earlier "light/dark only, no scenes" decision, so it needs Arjun's explicit
-  go-ahead (not Leo's call to undo).
+- 💡 **Two new Wellbeing sections** (Leo's ideas, refined — awaiting Arjun's go):
+  1. **Mood** — a 1–10 slider daily check-in; keeps recent scores + shows a
+     7-day average/trend. After checking in: score <5 → supportive tips to
+     improve the day (link to Mindfulness); score ≥5 → cheerful note + a
+     "Back to my day" button to Today.
+  2. **Nudges** — a short daily wellbeing checklist (water, stretch, fresh air,
+     screen break, move, breathe); resets daily; ticking the last one triggers a
+     slow racecar-with-a-tick driving across the screen saying "Well done, check
+     in tomorrow!".
+  - Both = their own sections under Wellbeing. Saved **on-device (localStorage)**
+    so NO Supabase setup is needed (avoids the Notes blocker).
+- _(Resolved: the animated wave scenes were built then removed at Leo's request —
+  back to clean light/dark.)_
 
 ## Status key
 🟡 In progress · ✅ Done · ⛔ Blocked (waiting on something)
