@@ -45,17 +45,23 @@ export function usePro(): { mounted: boolean; pro: boolean } {
 
     const read = async () => {
       // getSession reads the locally-stored session (no network) — fast and
-      // fine for a non-security UI flag like Pro.
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const user = session?.user;
-      if (!active) return;
-      const metaPro = user?.user_metadata?.pro === true;
-      const localPro =
-        !!user && typeof window !== "undefined" &&
-        localStorage.getItem(keyFor(user.id)) === "1";
-      setState({ mounted: true, pro: metaPro || localPro });
+      // fine for a non-security UI flag like Pro. Always resolve `mounted` so
+      // gated screens never get stuck on their loading skeleton.
+      let pro = false;
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const user = session?.user;
+        const metaPro = user?.user_metadata?.pro === true;
+        const localPro =
+          !!user && typeof window !== "undefined" &&
+          localStorage.getItem(keyFor(user.id)) === "1";
+        pro = metaPro || localPro;
+      } catch {
+        /* fall through with pro = false */
+      }
+      if (active) setState({ mounted: true, pro });
     };
 
     read();
