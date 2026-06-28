@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Check, Wind, RotateCcw } from "lucide-react";
+import Link from "next/link";
+import { Check, Wind, RotateCcw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -76,14 +77,21 @@ export function MindfulnessBox() {
             <p className="text-3xl font-bold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)] sm:text-5xl">
               Well done, check back tomorrow!
             </p>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={undo}
-              className="pointer-events-auto mt-8"
-            >
-              <RotateCcw className="size-4" /> Undo
-            </Button>
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={undo}
+                className="pointer-events-auto"
+              >
+                <RotateCcw className="size-4" /> Undo
+              </Button>
+              <Button size="sm" asChild className="pointer-events-auto">
+                <Link href="/today">
+                  <Home className="size-4" /> Back to Today
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </>
