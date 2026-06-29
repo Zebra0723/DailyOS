@@ -24,6 +24,7 @@ import {
   CalendarClock,
   Heart,
   Globe,
+  ShoppingCart,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { usePlan } from "@/lib/use-pro";
@@ -42,6 +43,7 @@ const NAV_GROUPS = [
       { href: "/build-day", label: "Build My Day", icon: CalendarClock },
       { href: "/interests", label: "Interests", icon: Heart },
       { href: "/world-clock", label: "World Clock", icon: Globe },
+      { href: "/shopping", label: "Shopping List", icon: ShoppingCart },
       { href: "/notes", label: "Notes", icon: StickyNote },
       { href: "/calendar", label: "Calendar", icon: Calendar },
       { href: "/tasks", label: "Tasks", icon: CheckSquare },

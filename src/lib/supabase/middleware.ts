@@ -12,6 +12,7 @@ const PROTECTED_PREFIXES = [
   "/build-day",
   "/interests",
   "/world-clock",
+  "/shopping",
   "/inbox",
   "/notes",
   "/calendar",
