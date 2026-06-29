@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ArrowLeft, Loader2, Check } from "lucide-react";
+import { ArrowRight, ArrowLeft, Loader2, Check, type LucideIcon } from "lucide-react";
 import { saveOnboarding } from "@/app/onboarding/actions";
 import {
   PERSONAS,
@@ -99,7 +99,7 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
                     key={p.key}
                     selected={persona === p.key}
                     onClick={() => setPersona(p.key)}
-                    emoji={p.emoji}
+                    icon={p.icon}
                     label={p.label}
                     desc={p.desc}
                   />
@@ -111,22 +111,25 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
           {step === 2 && (
             <Step title="What do you most want help with?" subtitle="Pick any that fit — we'll surface the right things.">
               <div className="flex flex-wrap gap-2">
-                {FOCUS_OPTIONS.map((f) => (
-                  <button
-                    key={f.key}
-                    onClick={() => toggleFocus(f.key)}
-                    className={cn(
-                      "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                      focus.includes(f.key)
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "bg-card hover:bg-accent",
-                    )}
-                  >
-                    <span>{f.emoji}</span>
-                    {f.label}
-                    {focus.includes(f.key) && <Check className="size-4" />}
-                  </button>
-                ))}
+                {FOCUS_OPTIONS.map((f) => {
+                  const Icon = f.icon;
+                  return (
+                    <button
+                      key={f.key}
+                      onClick={() => toggleFocus(f.key)}
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                        focus.includes(f.key)
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "bg-card hover:bg-accent",
+                      )}
+                    >
+                      <Icon className="size-4" />
+                      {f.label}
+                      {focus.includes(f.key) && <Check className="size-4" />}
+                    </button>
+                  );
+                })}
               </div>
             </Step>
           )}
@@ -139,7 +142,7 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
                     key={t.key}
                     selected={tone === t.key}
                     onClick={() => setTone(t.key)}
-                    emoji={t.emoji}
+                    icon={t.icon}
                     label={t.label}
                   />
                 ))}
@@ -197,13 +200,13 @@ function Step({
 function Choice({
   selected,
   onClick,
-  emoji,
+  icon: Icon,
   label,
   desc,
 }: {
   selected: boolean;
   onClick: () => void;
-  emoji: string;
+  icon: LucideIcon;
   label: string;
   desc?: string;
 }) {
@@ -215,7 +218,7 @@ function Choice({
         selected ? "border-2 border-primary bg-accent/50" : "hover:bg-accent",
       )}
     >
-      <span className="text-2xl">{emoji}</span>
+      <Icon className="size-6 shrink-0 text-muted-foreground" />
       <span className="flex-1">
         <span className="block font-medium">{label}</span>
         {desc && <span className="block text-sm text-muted-foreground">{desc}</span>}

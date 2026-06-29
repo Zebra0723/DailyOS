@@ -2,7 +2,17 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Flower2, ArrowRight, Sparkles } from "lucide-react";
+import {
+  Flower2,
+  ArrowRight,
+  Sparkles,
+  Frown,
+  Annoyed,
+  Meh,
+  Smile,
+  Laugh,
+  type LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -15,12 +25,12 @@ function pad(n: number) {
 function ymd(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
-function emojiFor(score: number) {
-  if (score <= 2) return "😔";
-  if (score <= 4) return "😕";
-  if (score <= 6) return "😐";
-  if (score <= 8) return "🙂";
-  return "😄";
+function moodIconFor(score: number): LucideIcon {
+  if (score <= 2) return Frown;
+  if (score <= 4) return Annoyed;
+  if (score <= 6) return Meh;
+  if (score <= 8) return Smile;
+  return Laugh;
 }
 
 const LOW_TIPS = [
@@ -72,13 +82,14 @@ export function MoodCheckin() {
   if (!mounted) return <Card className="h-48 animate-pulse" />;
 
   const low = score < 5;
+  const MoodIcon = moodIconFor(score);
 
   return (
     <div className="space-y-5">
       {/* Slider check-in */}
       <Card>
         <CardContent className="space-y-5 py-8 text-center">
-          <div className="text-5xl">{emojiFor(score)}</div>
+          <MoodIcon className="mx-auto size-14 text-primary" strokeWidth={1.5} />
           <p className="text-lg font-semibold">How are you feeling today?</p>
           <div className="px-2">
             <input
@@ -106,7 +117,7 @@ export function MoodCheckin() {
         (low ? (
           <Card className="border-amber-200/70 bg-amber-50/40 dark:border-amber-500/20 dark:bg-amber-500/5">
             <CardContent className="space-y-3 pt-6">
-              <p className="font-semibold">Sounds like a tough one. 💛</p>
+              <p className="font-semibold">Sounds like a tough one.</p>
               <p className="text-sm text-muted-foreground">
                 A few small things that might help your day:
               </p>
@@ -130,7 +141,7 @@ export function MoodCheckin() {
             <CardContent className="flex flex-col items-start gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-semibold text-emerald-700 dark:text-emerald-400">
-                  Glad you&apos;re doing alright! 🎉
+                  Glad you&apos;re doing alright!
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Have a good one — your day&apos;s waiting.

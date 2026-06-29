@@ -191,7 +191,7 @@ export default async function TodayPage() {
           <CardContent>
             {dueTasks.length === 0 ? (
               <p className="py-4 text-center text-sm text-muted-foreground">
-                Nothing due today. Enjoy the calm. ✨
+                Nothing due today. Enjoy the calm.
               </p>
             ) : (
               <div className="grid gap-2">

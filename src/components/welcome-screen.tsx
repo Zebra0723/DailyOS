@@ -46,7 +46,7 @@ export function WelcomeScreen({ name }: { name: string }) {
         <Logo className="mx-auto" />
 
         <h1 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl">
-          Welcome{name ? `, ${name}` : ""} 👋
+          Welcome{name ? `, ${name}` : ""}
         </h1>
         <p className="mt-3 text-balance text-muted-foreground">
           Here&apos;s what DailyOS does for you — turning life admin into handled.

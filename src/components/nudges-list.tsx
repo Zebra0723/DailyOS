@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Droplet, Wind, Sun, Eye, PersonStanding, Heart } from "lucide-react";
+import { Check, Droplet, Wind, Sun, Eye, PersonStanding, Heart, Car } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -64,7 +64,7 @@ export function NudgesList() {
               <span className="grid size-12 place-items-center rounded-full bg-emerald-500 text-white shadow-elevated">
                 <Check className="size-7" />
               </span>
-              <span className="-scale-x-100 text-5xl">🏎️</span>
+              <Car className="-scale-x-100 size-12 text-primary" />
               <span className="rounded-full bg-card px-4 py-2 text-lg font-semibold shadow-elevated">
                 Well done, check in tomorrow!
               </span>
@@ -73,7 +73,7 @@ export function NudgesList() {
           <Card className="border-emerald-200 bg-emerald-50/60 dark:border-emerald-500/20 dark:bg-emerald-500/5">
             <CardContent className="py-6 text-center">
               <p className="text-lg font-semibold text-emerald-700 dark:text-emerald-400">
-                All done! 🎉 Well done — check in tomorrow.
+                All done! Well done — check in tomorrow.
               </p>
             </CardContent>
           </Card>
@@ -116,7 +116,7 @@ export function NudgesList() {
       </div>
 
       <p className="px-1 text-xs text-muted-foreground">
-        Resets each morning. Tick them off as you go. 🌿
+        Resets each morning. Tick them off as you go.
       </p>
     </div>
   );

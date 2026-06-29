@@ -47,7 +47,7 @@ export function HomeUrgent() {
       </Section>
 
       {open.length === 0 && done.length === 0 ? (
-        <HomeEmpty message="No concerns logged. The house is in good shape. ✨" />
+        <HomeEmpty message="No concerns logged. The house is in good shape." />
       ) : (
         <div className="space-y-2">
           {open.map((c) => (

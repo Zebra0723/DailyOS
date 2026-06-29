@@ -249,7 +249,7 @@ export function ItemReview({
       {item.handled && (
         <div className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white">
           <CheckCircle2 className="size-4" />
-          Handled — nothing left to do on this one. 🎉
+          Handled — nothing left to do on this one.
         </div>
       )}
 
@@ -553,7 +553,7 @@ function MarkHandled({ item }: { item: InboxItem }) {
     if (res.ok) {
       toast({
         variant: "success",
-        title: item.handled ? "Marked as not handled" : "Marked as handled 🎉",
+        title: item.handled ? "Marked as not handled" : "Marked as handled",
       });
       router.refresh();
     } else {

@@ -17,7 +17,7 @@ export default function MindfulnessPage() {
         <p className="mt-1">
           Sorting your life admin is calmer when you are. A 60-second reset —
           breathing, a stretch, a little gratitude — makes the to-do list feel
-          lighter. Tick today&apos;s off and watch the screen settle. 🌊
+          lighter. Tick today&apos;s off and watch the screen settle.
         </p>
       </div>
     </div>

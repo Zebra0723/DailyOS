@@ -4,6 +4,24 @@
 // are saved on the user's account (auth metadata) and used to tailor the app.
 // ----------------------------------------------------------------------------
 
+import {
+  type LucideIcon,
+  User,
+  Users,
+  GraduationCap,
+  Sparkles,
+  Wallet,
+  Plane,
+  Backpack,
+  HeartPulse,
+  Briefcase,
+  Waves,
+  FolderKanban,
+  Heart,
+  Star,
+  PartyPopper,
+} from "lucide-react";
+
 export type Persona = "adult" | "family" | "student" | "kid";
 export type Tone = "calm" | "warm" | "fun";
 
@@ -14,27 +32,27 @@ export interface Onboarding {
   done: boolean;
 }
 
-export const PERSONAS: { key: Persona; label: string; desc: string; emoji: string }[] = [
-  { key: "adult", label: "Just me", desc: "My personal life admin", emoji: "🙂" },
-  { key: "family", label: "A parent / family", desc: "Family & kids' admin", emoji: "👨‍👩‍👧" },
-  { key: "student", label: "A student", desc: "Uni / school & deadlines", emoji: "🎓" },
-  { key: "kid", label: "A young person", desc: "Keep it simple & fun", emoji: "🛹" },
+export const PERSONAS: { key: Persona; label: string; desc: string; icon: LucideIcon }[] = [
+  { key: "adult", label: "Just me", desc: "My personal life admin", icon: User },
+  { key: "family", label: "A parent / family", desc: "Family & kids' admin", icon: Users },
+  { key: "student", label: "A student", desc: "Uni / school & deadlines", icon: GraduationCap },
+  { key: "kid", label: "A young person", desc: "Keep it simple & fun", icon: Sparkles },
 ];
 
-export const FOCUS_OPTIONS: { key: string; label: string; emoji: string }[] = [
-  { key: "money", label: "Bills & money", emoji: "💷" },
-  { key: "travel", label: "Travel & bookings", emoji: "✈️" },
-  { key: "school", label: "School & kids", emoji: "🎒" },
-  { key: "health", label: "Health & appointments", emoji: "❤️" },
-  { key: "work", label: "Work & deadlines", emoji: "💼" },
-  { key: "wellbeing", label: "Staying calm", emoji: "🌊" },
-  { key: "organised", label: "Just getting organised", emoji: "🗂️" },
+export const FOCUS_OPTIONS: { key: string; label: string; icon: LucideIcon }[] = [
+  { key: "money", label: "Bills & money", icon: Wallet },
+  { key: "travel", label: "Travel & bookings", icon: Plane },
+  { key: "school", label: "School & kids", icon: Backpack },
+  { key: "health", label: "Health & appointments", icon: HeartPulse },
+  { key: "work", label: "Work & deadlines", icon: Briefcase },
+  { key: "wellbeing", label: "Staying calm", icon: Waves },
+  { key: "organised", label: "Just getting organised", icon: FolderKanban },
 ];
 
-export const TONES: { key: Tone; label: string; emoji: string }[] = [
-  { key: "calm", label: "Calm & minimal", emoji: "🤍" },
-  { key: "warm", label: "Warm & encouraging", emoji: "🌟" },
-  { key: "fun", label: "Fun & playful", emoji: "🎉" },
+export const TONES: { key: Tone; label: string; icon: LucideIcon }[] = [
+  { key: "calm", label: "Calm & minimal", icon: Heart },
+  { key: "warm", label: "Warm & encouraging", icon: Star },
+  { key: "fun", label: "Fun & playful", icon: PartyPopper },
 ];
 
 const FOCUS_SUGGESTION: Record<string, { label: string; href: string }> = {
@@ -51,15 +69,12 @@ const FOCUS_SUGGESTION: Record<string, { label: string; href: string }> = {
 export function tailoredIntro(o: Onboarding, name: string) {
   const who = name ? `, ${name}` : "";
   const headlineByPersona: Record<Persona, string> = {
-    kid: `Let's make life admin easy${who}! 🎉`,
+    kid: `Let's make life admin easy${who}!`,
     student: `Deadlines and admin, sorted${who}.`,
     family: `Let's keep the family's admin handled${who}.`,
     adult: `Your space to get life admin handled${who}.`,
   };
-  const headline =
-    o.tone === "fun"
-      ? `${headlineByPersona[o.persona]} 🎉`.replace(" 🎉 🎉", " 🎉")
-      : headlineByPersona[o.persona];
+  const headline = headlineByPersona[o.persona];
 
   const suggestions = (o.focus ?? [])
     .map((f) => FOCUS_SUGGESTION[f])

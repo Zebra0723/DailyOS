@@ -205,7 +205,7 @@ export function HomeOSDashboard() {
         description="The most useful things to do around the home right now."
       >
         {recommended.length === 0 ? (
-          <HomeEmpty message="Nothing pressing — your home is under control. 🎉" />
+          <HomeEmpty message="Nothing pressing — your home is under control." />
         ) : (
           <div className="grid gap-2">
             {recommended.map((a, i) => {

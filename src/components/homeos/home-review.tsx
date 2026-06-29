@@ -88,7 +88,7 @@ export function HomeReview({ open, onClose }: { open: boolean; onClose: () => vo
             })}
             {review.nextActions.length === 0 && (
               <p className="text-sm text-muted-foreground">
-                Nothing pressing right now. 🎉
+                Nothing pressing right now.
               </p>
             )}
           </div>

@@ -53,7 +53,7 @@ export function PricingTable({
       title:
         plan === "free"
           ? "Switched to Free"
-          : `${plan === "pro" ? "Pro" : "Plus"} unlocked 🎉`,
+          : `${plan === "pro" ? "Pro" : "Plus"} unlocked`,
     });
     // Persist for this account (and update the gated screens via the event).
     void setPlan(plan, userId);
@@ -65,7 +65,7 @@ export function PricingTable({
       {unlocked ? (
         <div className="mx-auto mb-8 flex max-w-md items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
           <Sparkles className="size-4" /> You&apos;re on{" "}
-          {currentTier === "pro" ? "Pro" : "Plus"} — enjoy, legend! 🎉
+          {currentTier === "pro" ? "Pro" : "Plus"} — enjoy, legend!
         </div>
       ) : (
         <div className="mx-auto mb-8 max-w-md">
@@ -213,7 +213,7 @@ function PlanCard({
       </div>
       <p className="mt-1 h-5 text-xs text-muted-foreground">
         {unlocked
-          ? "Unlocked for life 🎉"
+          ? "Unlocked for life"
           : free
             ? "Free forever"
             : annual
