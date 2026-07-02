@@ -2,6 +2,8 @@
 
 **Your life admin, finally handled.**
 
+**Live app:** https://daily-os-lac.vercel.app
+
 DailyOS is a personal “chief of staff” for life admin. Drop in receipts,
 bookings, school letters, screenshots, PDFs and reminders — and DailyOS reads
 them, extracts the useful details, and turns them into **tasks**, **calendar
