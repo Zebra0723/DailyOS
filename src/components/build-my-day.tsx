@@ -26,6 +26,42 @@ import { cn } from "@/lib/utils";
 
 type FixedRow = { start: string; end: string; label: string };
 
+// --- Plan intelligence: computed insights, no AI key required ----------------
+function blockMins(b: { start: string; end: string }): number {
+  const [sh, sm] = b.start.split(":").map(Number);
+  const [eh, em] = b.end.split(":").map(Number);
+  return Math.max(0, eh * 60 + em - (sh * 60 + sm));
+}
+function fmtDuration(min: number): string {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return h ? (m ? `${h}h ${m}m` : `${h}h`) : `${m}m`;
+}
+function dayStats(blocks: DayPlan["blocks"]) {
+  const focusMin = blocks.filter((b) => b.type === "focus").reduce((s, b) => s + blockMins(b), 0);
+  const restMin = blocks
+    .filter((b) => b.type === "break" || b.type === "wellbeing" || b.type === "meal")
+    .reduce((s, b) => s + blockMins(b), 0);
+  const focusCount = blocks.filter((b) => b.type === "focus").length;
+  const longestFocus = Math.max(0, ...blocks.filter((b) => b.type === "focus").map(blockMins));
+  const hasReset = blocks.some((b) => b.type === "wellbeing");
+
+  // One specific, plan-derived coaching line.
+  let tip: string;
+  if (focusCount === 0) {
+    tip = "No focus blocks today — add a goal or two and rebuild to make it count.";
+  } else if (longestFocus >= 90) {
+    tip = `Your deepest block is ${fmtDuration(longestFocus)} — put your phone in another room for it.`;
+  } else if (!hasReset) {
+    tip = "It's a packed day — take even one slow-breathing minute to reset.";
+  } else if (restMin < focusMin / 5) {
+    tip = "Focus outweighs rest today — don't skip the breaks, they're what keep it sustainable.";
+  } else {
+    tip = "Nicely balanced — start with the first focus block before the day fills up.";
+  }
+  return { focusMin, restMin, focusCount, tip };
+}
+
 const PACES: { key: Pace; label: string; hint: string }[] = [
   { key: "calm", label: "Calm", hint: "Lots of breathing room" },
   { key: "balanced", label: "Balanced", hint: "Steady & sustainable" },
@@ -185,11 +221,42 @@ export function BuildMyDay() {
       ) : (
         <div className="space-y-4">
           <Card className="border-primary/20 bg-accent/30">
-            <CardContent className="flex items-center justify-between gap-3 pt-5">
-              <p className="text-sm">{plan.summary}</p>
-              <Button variant="ghost" size="sm" onClick={() => setPlan(null)}>
-                <RotateCcw className="size-4" /> Edit
-              </Button>
+            <CardContent className="pt-5">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm">{plan.summary}</p>
+                <Button variant="ghost" size="sm" onClick={() => setPlan(null)}>
+                  <RotateCcw className="size-4" /> Edit
+                </Button>
+              </div>
+              {(() => {
+                const s = dayStats(plan.blocks);
+                return (
+                  <>
+                    <div className="mt-4 grid grid-cols-3 gap-2">
+                      <div className="rounded-lg border bg-card p-2.5 text-center">
+                        <p className="text-lg font-bold tracking-tight text-primary">
+                          {fmtDuration(s.focusMin)}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">deep focus</p>
+                      </div>
+                      <div className="rounded-lg border bg-card p-2.5 text-center">
+                        <p className="text-lg font-bold tracking-tight">{s.focusCount}</p>
+                        <p className="text-[11px] text-muted-foreground">focus blocks</p>
+                      </div>
+                      <div className="rounded-lg border bg-card p-2.5 text-center">
+                        <p className="text-lg font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
+                          {fmtDuration(s.restMin)}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">rest &amp; breaks</p>
+                      </div>
+                    </div>
+                    <p className="mt-3 flex items-start gap-2 text-sm">
+                      <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
+                      <span>{s.tip}</span>
+                    </p>
+                  </>
+                );
+              })()}
             </CardContent>
           </Card>
 
