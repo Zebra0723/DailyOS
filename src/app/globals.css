@@ -4,67 +4,67 @@
 
 @layer base {
   :root {
-    /* Soft lavender-white canvas; cards stay crisp white and lift off it. */
-    --background: 264 48% 98.5%;
-    --foreground: 262 20% 12%;
+    /* Architectural: crisp near-white, electric cobalt accent, sharp corners. */
+    --background: 210 30% 99%;
+    --foreground: 222 26% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 262 20% 12%;
+    --card-foreground: 222 26% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 262 20% 12%;
+    --popover-foreground: 222 26% 11%;
 
-    /* Lavender-violet primary */
-    --primary: 258 86% 64%;
+    /* Electric cobalt primary */
+    --primary: 224 92% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 264 40% 96%;
-    --secondary-foreground: 262 16% 16%;
+    --secondary: 214 28% 95%;
+    --secondary-foreground: 222 26% 14%;
 
-    --muted: 264 36% 96%;
-    --muted-foreground: 262 10% 46%;
+    --muted: 214 28% 95%;
+    --muted-foreground: 220 12% 42%;
 
-    --accent: 262 92% 96.5%;
-    --accent-foreground: 260 74% 48%;
+    --accent: 214 100% 95%;
+    --accent-foreground: 224 84% 44%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 74% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 264 30% 91.5%;
-    --input: 264 28% 90%;
-    --ring: 258 86% 64%;
+    --border: 220 18% 87%;
+    --input: 220 18% 85%;
+    --ring: 224 92% 55%;
 
-    --radius: 1rem;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 260 26% 8%;
-    --foreground: 264 30% 97%;
+    --background: 222 32% 8%;
+    --foreground: 210 30% 96%;
 
-    --card: 260 24% 11%;
-    --card-foreground: 264 30% 97%;
+    --card: 222 30% 11%;
+    --card-foreground: 210 30% 96%;
 
-    --popover: 260 24% 11%;
-    --popover-foreground: 264 30% 97%;
+    --popover: 222 30% 11%;
+    --popover-foreground: 210 30% 96%;
 
-    --primary: 260 90% 74%;
-    --primary-foreground: 260 30% 10%;
+    --primary: 218 94% 63%;
+    --primary-foreground: 222 40% 10%;
 
-    --secondary: 260 18% 17%;
-    --secondary-foreground: 264 30% 97%;
+    --secondary: 220 20% 16%;
+    --secondary-foreground: 210 30% 96%;
 
-    --muted: 260 18% 17%;
-    --muted-foreground: 262 14% 66%;
+    --muted: 220 20% 16%;
+    --muted-foreground: 216 16% 66%;
 
-    --accent: 260 42% 22%;
-    --accent-foreground: 262 92% 90%;
+    --accent: 220 44% 20%;
+    --accent-foreground: 214 100% 84%;
 
-    --destructive: 0 63% 41%;
+    --destructive: 0 63% 44%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 260 16% 19%;
-    --input: 260 16% 20%;
-    --ring: 260 90% 74%;
+    --border: 220 18% 20%;
+    --input: 220 18% 21%;
+    --ring: 218 94% 63%;
   }
 }
 
@@ -90,13 +90,13 @@
   /* Soft, diffuse shadows for that calm, premium, floating-surface feel. */
   .shadow-card {
     box-shadow:
-      0 1px 2px 0 rgb(17 17 26 / 0.03),
-      0 8px 24px -12px rgb(17 17 26 / 0.08);
+      0 1px 2px 0 rgb(15 23 42 / 0.06),
+      0 1px 1px 0 rgb(15 23 42 / 0.04);
   }
   .shadow-elevated {
     box-shadow:
-      0 2px 8px -2px rgb(17 17 26 / 0.05),
-      0 24px 48px -18px rgb(17 17 26 / 0.16);
+      0 4px 14px -3px rgb(15 23 42 / 0.12),
+      0 2px 4px -2px rgb(15 23 42 / 0.06);
   }
 }
 
