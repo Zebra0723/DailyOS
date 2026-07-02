@@ -10,7 +10,6 @@ import {
   ArrowRight,
   Plus,
   Home,
-  Sparkles,
   Heart,
   Flower2,
   StickyNote,
@@ -85,19 +84,22 @@ export default async function TodayPage() {
 
   return (
     <div className="space-y-6">
-      {/* Hero */}
-      <div className="overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-accent/30 to-background p-6 sm:p-7">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      {/* Editorial masthead */}
+      <header className="border-b border-foreground/15 pb-6">
+        <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+          <span>The Daily Brief</span>
+          <span className="inline-flex items-center gap-x-2">
+            <span className="hidden sm:inline">{dateLabel}</span>
+            <span className="text-muted-foreground/40">·</span>
+            <LiveClock />
+          </span>
+        </div>
+        <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="inline-flex flex-wrap items-center gap-x-2 text-sm font-medium text-muted-foreground">
-              <span>{dateLabel}</span>
-              <span className="text-muted-foreground/40">·</span>
-              <LiveClock />
-            </p>
-            <h1 className="mt-1 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
               {greeting}, {name}
             </h1>
-            <p className="mt-1.5 text-muted-foreground">
+            <p className="mt-2 max-w-md text-muted-foreground">
               Your day, handled. Here&apos;s what matters right now.
             </p>
           </div>
@@ -114,7 +116,7 @@ export default async function TodayPage() {
             </Button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Personalised "made for you" card from onboarding */}
       {intro && (
@@ -255,7 +257,6 @@ export default async function TodayPage() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <BranchLink href="/build-day" icon={CalendarClock} title="Build My Day" desc="Plan a calm, productive day" />
           <BranchLink href="/homeos" icon={Home} title="HomeOS" desc="Run your home" />
-          <BranchLink href="/ai-suggestions" icon={Sparkles} title="OrganizerOS" desc="Sort your messages" />
           <BranchLink href="/interests" icon={Heart} title="Interests" desc="Live what you love" />
           <BranchLink href="/wellbeing" icon={Flower2} title="Wellbeing" desc="A calmer you" />
           <BranchLink href="/notes" icon={StickyNote} title="Notes" desc="Quick capture" />

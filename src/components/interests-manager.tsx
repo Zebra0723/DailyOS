@@ -18,8 +18,20 @@ import { Card, CardContent } from "@/components/ui/card";
 interface Interest {
   id: string;
   text: string;
+  intro?: string;
   suggestions?: string[];
   usedAI?: boolean;
+}
+
+// Split "Today: do a drill" into a label chip + the rest.
+const LABELS = ["Today", "This week", "Go deeper", "Level up", "Community", "Spend wisely"];
+function splitSuggestion(s: string): { label?: string; text: string } {
+  const idx = s.indexOf(":");
+  if (idx > 0) {
+    const label = s.slice(0, idx).trim();
+    if (LABELS.includes(label)) return { label, text: s.slice(idx + 1).trim() };
+  }
+  return { text: s };
 }
 
 const keyFor = (userId: string) => `dailyos-interests:${userId}`;
@@ -81,7 +93,12 @@ export function InterestsManager({ userId }: { userId: string }) {
       persist(
         items.map((x) =>
           x.id === it.id
-            ? { ...x, suggestions: res.ideas.suggestions, usedAI: res.ideas.usedAI }
+            ? {
+                ...x,
+                intro: res.ideas.intro,
+                suggestions: res.ideas.suggestions,
+                usedAI: res.ideas.usedAI,
+              }
             : x,
         ),
       );
@@ -167,19 +184,38 @@ export function InterestsManager({ userId }: { userId: string }) {
                   </div>
                 </div>
 
+                {it.intro && (
+                  <p className="mt-3 text-sm italic text-muted-foreground">
+                    {it.intro}
+                  </p>
+                )}
+
                 {it.suggestions && it.suggestions.length > 0 && (
-                  <ul className="mt-4 space-y-2">
-                    {it.suggestions.map((s, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-sm">
-                        <Lightbulb className="mt-0.5 size-4 shrink-0 text-amber-500" />
-                        <span>{s}</span>
-                      </li>
-                    ))}
+                  <ul className="mt-4 space-y-2.5">
+                    {it.suggestions.map((s, i) => {
+                      const { label, text } = splitSuggestion(s);
+                      return (
+                        <li
+                          key={i}
+                          className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3 text-sm"
+                        >
+                          {label ? (
+                            <span className="mt-0.5 inline-flex shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                              {label}
+                            </span>
+                          ) : (
+                            <Lightbulb className="mt-0.5 size-4 shrink-0 text-amber-500" />
+                          )}
+                          <span className="flex-1">{text}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
                 {it.suggestions && it.usedAI === false && (
                   <p className="mt-3 text-xs text-muted-foreground">
-                    On-device ideas. Add an AI key for tailored, specific suggestions.
+                    Built-in plan. Connect an AI key for suggestions tailored to
+                    your exact interest.
                   </p>
                 )}
               </CardContent>

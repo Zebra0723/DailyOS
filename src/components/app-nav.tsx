@@ -17,10 +17,6 @@ import {
   ListChecks,
   Lock,
   Home,
-  Mail,
-  MessageSquare,
-  MessageCircle,
-  Sparkles,
   CalendarClock,
   Heart,
   Globe,
@@ -32,10 +28,22 @@ import { cn, initials } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 
-// "Ultra categories" — sidebar groups.
-const NAV_GROUPS = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+// "Ultra categories" — now the top-level tabs of the top command bar.
+// `lead` is where the category tab points; `items` is its contextual sub-nav.
+const CATEGORIES: {
+  key: string;
+  lead: string;
+  items: NavItem[];
+}[] = [
   {
-    heading: "LifeOS",
+    key: "LifeOS",
+    lead: "/today",
     items: [
       { href: "/today", label: "Today", icon: Sun },
       { href: "/inbox", label: "Inbox", icon: Inbox },
@@ -49,20 +57,13 @@ const NAV_GROUPS = [
     ],
   },
   {
-    heading: "HomeOS",
+    key: "HomeOS",
+    lead: "/homeos",
     items: [{ href: "/homeos", label: "HomeOS", icon: Home }],
   },
   {
-    heading: "OrganizerOS",
-    items: [
-      { href: "/ai-suggestions/gmail", label: "Gmail", icon: Mail },
-      { href: "/ai-suggestions/applemail", label: "Apple Mail", icon: Inbox },
-      { href: "/ai-suggestions/whatsapp", label: "WhatsApp", icon: MessageCircle },
-      { href: "/ai-suggestions/sms", label: "SMS", icon: MessageSquare },
-    ],
-  },
-  {
-    heading: "Wellbeing",
+    key: "Wellbeing",
+    lead: "/mindfulness",
     items: [
       { href: "/mindfulness", label: "Mindfulness", icon: Flower2 },
       { href: "/mood", label: "Mood", icon: SmilePlus },
@@ -70,7 +71,8 @@ const NAV_GROUPS = [
     ],
   },
   {
-    heading: "Account",
+    key: "Account",
+    lead: "/settings",
     items: [{ href: "/settings", label: "Settings", icon: Settings }],
   },
 ];
@@ -82,7 +84,7 @@ const MOBILE_LINKS = [
   { href: "/homeos", label: "HomeOS", icon: Home },
   { href: "/calendar", label: "Cal", icon: Calendar },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
-  { href: "/ai-suggestions", label: "Sort", icon: Sparkles },
+  { href: "/notes", label: "Notes", icon: StickyNote },
   { href: "/wellbeing", label: "Calm", icon: Flower2 },
 ];
 
@@ -90,11 +92,45 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Sidebar({ email, userId }: { email: string; userId?: string }) {
+const catByKey = (key: string) =>
+  CATEGORIES.find((c) => c.key === key) ?? CATEGORIES[0];
+
+// Which top-level category owns the current route? Longest-prefix wins.
+function activeCategory(pathname: string) {
+  if (pathname.startsWith("/homeos")) return catByKey("HomeOS");
+  if (pathname.startsWith("/wellbeing")) return catByKey("Wellbeing");
+  let best = CATEGORIES[0];
+  let bestLen = -1;
+  for (const cat of CATEGORIES) {
+    for (const it of cat.items) {
+      if (isActive(pathname, it.href) && it.href.length > bestLen) {
+        best = cat;
+        bestLen = it.href.length;
+      }
+    }
+  }
+  return best;
+}
+
+export function TopNav({ email, userId }: { email: string; userId?: string }) {
   const pathname = usePathname();
   const { tier } = usePlan(userId);
   const vaultLocked = tier === "free";
   const homeLocked = tier !== "pro";
+
+  const current = activeCategory(pathname);
+
+  // Inside HomeOS, the contextual bar expands into the OS sub-sections.
+  const subItems: NavItem[] =
+    current.key === "HomeOS" && pathname.startsWith("/homeos")
+      ? HOME_SECTIONS.map((s) => ({
+          href: homeHref(s.seg),
+          label: s.label,
+          icon: s.icon,
+        }))
+      : current.items;
+
+  const showSubBar = subItems.length > 1;
 
   async function signOut() {
     try {
@@ -109,80 +145,54 @@ export function Sidebar({ email, userId }: { email: string; userId?: string }) {
   }
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r bg-card/70 px-4 py-5 backdrop-blur-xl md:flex">
-      <div className="px-1 py-1">
-        <Link href="/today">
+    <header className="sticky top-0 z-30 hidden border-b border-border bg-background/85 backdrop-blur-xl md:block">
+      {/* Masthead row: logo · categories · actions */}
+      <div className="container flex h-16 max-w-6xl items-center gap-6">
+        <Link href="/today" className="shrink-0">
           <Logo />
         </Link>
-      </div>
 
-      <div className="mt-6">
-        <Button asChild className="w-full justify-start shadow-elevated">
-          <Link href="/inbox/new">
-            <Plus className="size-4" />
-            Add to Inbox
-          </Link>
-        </Button>
-      </div>
+        <nav className="flex flex-1 items-center gap-1">
+          {CATEGORIES.map((cat) => {
+            const active = cat.key === current.key;
+            const locked =
+              (cat.key === "HomeOS" && homeLocked) ? true : false;
+            return (
+              <Link
+                key={cat.key}
+                href={cat.lead}
+                className={cn(
+                  "group relative rounded-full px-3.5 py-1.5 text-sm font-medium tracking-tight transition-colors",
+                  active
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  {cat.key}
+                  {locked && <Lock className="size-3 text-muted-foreground/60" />}
+                </span>
+                {active && (
+                  <span className="absolute inset-x-3 -bottom-[9px] h-0.5 rounded-full bg-primary" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
 
-      <nav className="mt-7 flex flex-1 flex-col gap-5">
-        {NAV_GROUPS.map((group) => {
-          // When inside HomeOS, expand it into its OS sub-sections.
-          const items =
-            group.heading === "HomeOS" && pathname.startsWith("/homeos")
-              ? HOME_SECTIONS.map((s) => ({
-                  href: homeHref(s.seg),
-                  label: s.label,
-                  icon: s.icon,
-                }))
-              : group.items;
-          return (
-          <div key={group.heading} className="flex flex-col gap-0.5">
-            <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              {group.heading}
-            </p>
-            {items.map((l) => {
-              const active = isActive(pathname, l.href);
-              return (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={cn(
-                    "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                    active
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                  )}
-                >
-                  {active && (
-                    <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary" />
-                  )}
-                  <l.icon
-                    className={cn(
-                      "size-[18px]",
-                      active ? "text-primary" : "text-muted-foreground",
-                    )}
-                  />
-                  {l.label}
-                  {(((l.href === "/vault" || l.href === "/build-day") && vaultLocked) ||
-                    (l.href === "/homeos" && homeLocked)) && (
-                    <Lock className="ml-auto size-3.5 text-muted-foreground/60" />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-          );
-        })}
-      </nav>
-
-      <div className="mt-auto border-t pt-3">
-        <div className="flex items-center gap-3 px-2 py-2">
-          <div className="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+        <div className="flex shrink-0 items-center gap-3">
+          <Button asChild size="sm" className="shadow-elevated">
+            <Link href="/inbox/new">
+              <Plus className="size-4" />
+              Add
+            </Link>
+          </Button>
+          <div className="h-6 w-px bg-border" />
+          <div
+            className="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary"
+            title={email}
+          >
             {initials(email)}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{email}</p>
           </div>
           <button
             onClick={signOut}
@@ -194,7 +204,45 @@ export function Sidebar({ email, userId }: { email: string; userId?: string }) {
           </button>
         </div>
       </div>
-    </aside>
+
+      {/* Contextual sub-nav row for the active category */}
+      {showSubBar && (
+        <div className="border-t border-border/70 bg-muted/30">
+          <div className="container flex max-w-6xl items-center gap-1 overflow-x-auto py-1.5">
+            {subItems.map((l) => {
+              const active = isActive(pathname, l.href);
+              const locked =
+                ((l.href === "/vault" || l.href === "/build-day") &&
+                  vaultLocked) ||
+                (l.href === "/homeos" && homeLocked);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={cn(
+                    "inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  <l.icon
+                    className={cn(
+                      "size-[16px]",
+                      active ? "text-primary" : "text-muted-foreground",
+                    )}
+                  />
+                  {l.label}
+                  {locked && (
+                    <Lock className="size-3 text-muted-foreground/60" />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </header>
   );
 }
 

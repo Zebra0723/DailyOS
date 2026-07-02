@@ -8,7 +8,6 @@ const PROTECTED_PREFIXES = [
   "/welcome",
   "/today",
   "/homeos",
-  "/ai-suggestions",
   "/build-day",
   "/interests",
   "/world-clock",

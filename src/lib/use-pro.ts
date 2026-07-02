@@ -75,6 +75,10 @@ export function usePlan(userId?: string): { mounted: boolean; tier: Tier } {
     const supabase = createClient();
     let active = true;
 
+    // Paint immediately from localStorage so a gate never hangs on a spinner
+    // while we wait for the network. The async pass below refines from metadata.
+    setState({ mounted: true, tier: readTierFor(userId) });
+
     const read = async () => {
       let tier = readTierFor(userId);
       if (tier === "free") {
