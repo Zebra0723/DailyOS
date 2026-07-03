@@ -2,7 +2,11 @@
 
 export function safeParseDate(value?: string | null): Date | null {
   if (!value) return null;
-  const d = new Date(value);
+  // A bare date ("YYYY-MM-DD") is parsed as UTC midnight by `new Date`, which
+  // can land on the previous/next calendar day in a non-UTC timezone. Pin it to
+  // local midnight so day counts and formatting reflect the intended day.
+  const s = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value;
+  const d = new Date(s);
   return Number.isNaN(d.getTime()) ? null : d;
 }
 

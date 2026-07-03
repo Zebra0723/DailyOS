@@ -5,10 +5,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Parse a date value. A bare "YYYY-MM-DD" is parsed as *local* midnight (not
+ * UTC), so relative-day counts and formatting don't drift by a day in non-UTC
+ * timezones.
+ */
+function parseLocal(value: string): Date {
+  const s = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value;
+  return new Date(s);
+}
+
 /** Format an ISO date string into a friendly label, e.g. "23 Jun 2026". */
 export function formatDate(value?: string | null): string {
   if (!value) return "";
-  const d = new Date(value);
+  const d = parseLocal(value);
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleDateString("en-GB", {
     day: "numeric",
@@ -20,7 +30,7 @@ export function formatDate(value?: string | null): string {
 /** Format an ISO datetime into "23 Jun, 14:30". */
 export function formatDateTime(value?: string | null): string {
   if (!value) return "";
-  const d = new Date(value);
+  const d = parseLocal(value);
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleString("en-GB", {
     day: "numeric",
@@ -33,7 +43,7 @@ export function formatDateTime(value?: string | null): string {
 /** "in 3 days", "today", "2 days ago" style relative label for a date. */
 export function relativeDay(value?: string | null): string {
   if (!value) return "";
-  const d = new Date(value);
+  const d = parseLocal(value);
   if (Number.isNaN(d.getTime())) return "";
   const today = new Date();
   const a = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
@@ -48,7 +58,7 @@ export function relativeDay(value?: string | null): string {
 
 export function isToday(value?: string | null): boolean {
   if (!value) return false;
-  const d = new Date(value);
+  const d = parseLocal(value);
   const t = new Date();
   return (
     d.getFullYear() === t.getFullYear() &&
