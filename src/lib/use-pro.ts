@@ -99,15 +99,19 @@ export async function setAdmin(on: boolean, userId?: string) {
 /** Reactively read the account's plan tier + admin access. Pass userId (server) for reliability. */
 export function usePlan(userId?: string): {
   mounted: boolean;
+  /** True once the metadata read has completed (or was unnecessary). */
+  resolved: boolean;
   tier: Tier;
   admin: boolean;
 } {
   const [state, setState] = React.useState<{
     mounted: boolean;
+    resolved: boolean;
     tier: Tier;
     admin: boolean;
   }>({
     mounted: false,
+    resolved: false,
     tier: "free",
     admin: false,
   });
@@ -118,10 +122,16 @@ export function usePlan(userId?: string): {
 
     // Paint immediately from localStorage so a gate never hangs on a spinner
     // while we wait for the network. The async pass below refines from metadata.
+    const localTier = readTierFor(userId);
+    const localAdmin = readAdminFor(userId);
+    // If localStorage already grants paid access we don't need the network at
+    // all — mark resolved so gates show content immediately, no flicker.
+    const localResolved = localTier !== "free";
     setState({
       mounted: true,
-      tier: readTierFor(userId),
-      admin: readAdminFor(userId),
+      resolved: localResolved,
+      tier: localTier,
+      admin: localAdmin,
     });
 
     const read = async () => {
@@ -148,7 +158,7 @@ export function usePlan(userId?: string): {
           /* fall through with free */
         }
       }
-      if (active) setState({ mounted: true, tier, admin });
+      if (active) setState({ mounted: true, resolved: true, tier, admin });
     };
 
     read();

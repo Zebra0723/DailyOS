@@ -132,16 +132,32 @@ export interface HomeOSContextValue {
 
 const HomeOSContext = React.createContext<HomeOSContextValue | null>(null);
 
-export function HomeOSProvider({ children }: { children: React.ReactNode }) {
+export function HomeOSProvider({
+  children,
+  userId,
+}: {
+  children: React.ReactNode;
+  userId?: string;
+}) {
   const [data, setData] = React.useState<HomeOSData | null>(null);
   const keyRef = React.useRef<string>(storageKeyFor("anon"));
 
   React.useEffect(() => {
     let active = true;
+
+    // When the server handed us a userId, load synchronously — never block
+    // HomeOS behind a network call that could stall and leave it "not loading".
+    if (userId) {
+      keyRef.current = storageKeyFor(userId);
+      setData(recompute(loadFromStorage(keyRef.current) ?? emptyData()));
+      return () => {
+        active = false;
+      };
+    }
+
+    // No userId passed → fall back to resolving the session for the key.
     const supabase = createClient();
     (async () => {
-      // Resolve the per-account storage key before loading, so HomeOS data
-      // is remembered for this user and never bleeds across accounts.
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -155,7 +171,7 @@ export function HomeOSProvider({ children }: { children: React.ReactNode }) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [userId]);
 
   React.useEffect(() => {
     if (data) {

@@ -24,16 +24,19 @@ export function ProGate({
   userId?: string;
   children: React.ReactNode;
 }) {
-  const { mounted, tier: userTier } = usePlan(userId);
+  const { mounted, resolved, tier: userTier } = usePlan(userId);
 
-  if (!mounted) {
+  // Access granted → show content. Otherwise, while we're still confirming the
+  // plan (metadata read in flight) show a spinner rather than flashing the lock
+  // screen at a paying user. Only show the lock once the plan is resolved.
+  if (mounted && tierMeets(userTier, tier)) return <>{children}</>;
+  if (!mounted || !resolved) {
     return (
       <div className="grid place-items-center py-16 text-muted-foreground">
         <Loader2 className="size-5 animate-spin" />
       </div>
     );
   }
-  if (tierMeets(userTier, tier)) return <>{children}</>;
 
   return (
     <div className="grid place-items-center py-8">

@@ -22,7 +22,7 @@ export function HomeOSShell({
   userId?: string;
 }) {
   return (
-    <HomeOSProvider>
+    <HomeOSProvider userId={userId}>
       <ProGate
         tier="Pro"
         feature="HomeOS"
