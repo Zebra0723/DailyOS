@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Lock, Sparkles, Loader2 } from "lucide-react";
-import { usePlan, tierMeets } from "@/lib/use-pro";
+import { Lock, Sparkles, Loader2, KeyRound } from "lucide-react";
+import { usePlan, tierMeets, setPlan, setAdmin } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
+import { useToast } from "@/components/ui/toast";
 
 /**
  * Gates a Plus/Pro-only feature. Free users see a locked screen with a short
@@ -25,6 +26,15 @@ export function ProGate({
   children: React.ReactNode;
 }) {
   const { mounted, resolved, tier: userTier } = usePlan(userId);
+  const { toast } = useToast();
+
+  function ownerUnlock() {
+    // Owners (Arjun & Leo) are meant to have Pro — unlock this account in one
+    // tap, no code typing. Grants Pro + admin, exactly like the ARLEOPRO code.
+    void setPlan("pro", userId);
+    void setAdmin(true, userId);
+    toast({ variant: "success", title: `${feature} unlocked` });
+  }
 
   // Access granted → show content. Otherwise, while we're still confirming the
   // plan (metadata read in flight) show a spinner rather than flashing the lock
@@ -71,6 +81,14 @@ export function ProGate({
           {tier === "Pro" ? "Included on Pro" : "Included on Plus & Pro"} · or enter a
           code on the subscriptions page.
         </p>
+
+        {/* Owner unlock — one tap for Arjun & Leo, no code needed. */}
+        <button
+          onClick={ownerUnlock}
+          className="mx-auto mt-5 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+        >
+          <KeyRound className="size-3.5" /> Owner? Unlock {feature} now
+        </button>
       </div>
     </div>
   );
