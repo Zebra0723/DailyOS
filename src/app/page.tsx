@@ -213,6 +213,14 @@ export default function LandingPage() {
       <footer className="border-t py-10">
         <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Logo />
+          <div className="flex items-center gap-5 text-sm text-muted-foreground">
+            <Link href="/privacy" className="hover:text-foreground">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground">
+              Terms
+            </Link>
+          </div>
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} DailyOS. Life admin, handled.
           </p>

@@ -18,6 +18,15 @@ export default function AuthLayout({
         <div className="flex flex-1 items-center justify-center px-6 py-12">
           <div className="w-full max-w-sm">{children}</div>
         </div>
+        <div className="container flex flex-wrap items-center justify-center gap-x-4 gap-y-1 py-6 text-xs text-muted-foreground">
+          <Link href="/privacy" className="hover:text-foreground">
+            Privacy
+          </Link>
+          <Link href="/terms" className="hover:text-foreground">
+            Terms
+          </Link>
+          <span>© 2026 DailyOS</span>
+        </div>
       </div>
 
       {/* Right: brand panel */}

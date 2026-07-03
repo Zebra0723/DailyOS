@@ -130,8 +130,16 @@ export default async function SettingsPage() {
               private file storage. You&apos;re always in control.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <SettingsDanger />
+            <div className="flex gap-4 border-t pt-4 text-sm">
+              <a href="/privacy" className="text-primary hover:underline">
+                Privacy Policy
+              </a>
+              <a href="/terms" className="text-primary hover:underline">
+                Terms of Service
+              </a>
+            </div>
           </CardContent>
         </Card>
 
