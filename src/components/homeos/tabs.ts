@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import type { HomeModule } from "@/lib/homeos/types";
 
-/** A HomeOS section = a sidebar item and a route under /homeos. */
+/** A HomeOS section = a top-nav item and a route under /homeos. */
 export interface HomeSection {
   seg: string; // "" = dashboard at /homeos, else /homeos/<seg>
   label: string;

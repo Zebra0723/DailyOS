@@ -75,7 +75,7 @@ const PACES: { key: Pace; label: string; hint: string }[] = [
 ];
 
 const BLOCK_STYLE: Record<BlockType, { icon: React.ComponentType<{ className?: string }>; dot: string; chip: string }> = {
-  fixed: { icon: CalendarClock, dot: "bg-blue-500", chip: "text-blue-600 dark:text-blue-400" },
+  fixed: { icon: CalendarClock, dot: "bg-stone-500", chip: "text-stone-600 dark:text-stone-400" },
   focus: { icon: Target, dot: "bg-primary", chip: "text-primary" },
   admin: { icon: Target, dot: "bg-primary", chip: "text-primary" },
   break: { icon: Coffee, dot: "bg-amber-500", chip: "text-amber-600 dark:text-amber-400" },

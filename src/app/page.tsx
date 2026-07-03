@@ -83,7 +83,7 @@ export default function LandingPage() {
             <h1 className="text-balance text-5xl font-extrabold leading-[1.05] tracking-tight sm:text-7xl">
               Your life admin,
               <br className="hidden sm:block" />{" "}
-              <span className="bg-gradient-to-r from-primary to-[#5BC2D4] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-[#E0864F] bg-clip-text text-transparent">
                 finally handled.
               </span>
             </h1>

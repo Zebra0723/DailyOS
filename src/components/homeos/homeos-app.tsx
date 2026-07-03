@@ -77,7 +77,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      {/* Mobile sub-navigation (desktop uses the sidebar) */}
+      {/* Mobile sub-navigation (desktop uses the top nav's contextual bar) */}
       <div className="-mx-1 overflow-x-auto pb-1 lg:hidden">
         <div className="flex w-max gap-1 rounded-xl border bg-card/60 p-1">
           {HOME_SECTIONS.map((s) => {

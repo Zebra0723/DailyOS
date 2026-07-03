@@ -6,8 +6,8 @@ export function LogoMark({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="dos-mark" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#5BC2D4" />
-          <stop offset="1" stopColor="#1E3A5F" />
+          <stop offset="0" stopColor="#E0864F" />
+          <stop offset="1" stopColor="#9A3412" />
         </linearGradient>
       </defs>
       <g
@@ -45,8 +45,8 @@ export function Logo({
       {withText && (
         <span className="flex flex-col leading-none">
           <span className="text-lg font-bold tracking-tight">
-            <span className="text-[#2B9CB8]">Daily</span>
-            <span className="text-[#1E3A5F] dark:text-slate-200">OS</span>
+            <span className="text-primary">Daily</span>
+            <span className="text-foreground">OS</span>
           </span>
           {tagline && (
             <span className="mt-0.5 text-[11px] font-medium text-muted-foreground">

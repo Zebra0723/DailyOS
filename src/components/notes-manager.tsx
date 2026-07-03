@@ -149,10 +149,10 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
 
       {/* Wellbeing nudge */}
       {suggestion?.analysis.wellbeing && !suggestion.analysis.suggested_task && (
-        <Card className="border-blue-200 bg-blue-50/60 dark:border-blue-500/20 dark:bg-blue-500/5">
+        <Card className="border-primary/20 bg-accent/40">
           <CardContent className="flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
-              <Flower2 className="mt-0.5 size-5 shrink-0 text-blue-500" />
+              <Flower2 className="mt-0.5 size-5 shrink-0 text-primary" />
               <div>
                 <p className="text-sm font-medium">Sounds like a lot on.</p>
                 <p className="text-sm text-muted-foreground">

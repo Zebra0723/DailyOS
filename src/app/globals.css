@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* Almanac: warm paper, ink, burnt-clay accent, generous corners.
-       An editorial broadsheet — deliberately nothing like the cool cobalt UI. */
+       An editorial broadsheet aesthetic. */
     --background: 39 38% 97%;
     --foreground: 24 22% 14%;
 

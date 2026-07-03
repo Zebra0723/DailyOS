@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
-  const router = useRouter();
   const params = useSearchParams();
   const { toast } = useToast();
   const supabase = React.useMemo(() => createClient(), []);
@@ -56,11 +55,13 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       }
 
       toast({ variant: "success", title: "Welcome to DailyOS" });
-      router.push(redirect);
-      router.refresh();
+      // One clean, hard navigation: the browser makes a single request that
+      // runs middleware once and picks up the fresh auth cookie. This avoids
+      // the slow router.push()+refresh() double server round-trip after login.
+      window.location.assign(redirect);
+      return; // keep the spinner up while the next page loads
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
       setLoading(false);
     }
   }
