@@ -4,50 +4,71 @@
 
 **Live app:** https://daily-os-lac.vercel.app
 
-DailyOS is a personal “chief of staff” for life admin. Drop in receipts,
+DailyOS is a personal "chief of staff" for life admin. Drop in receipts,
 bookings, school letters, screenshots, PDFs and reminders — and DailyOS reads
 them, extracts the useful details, and turns them into **tasks**, **calendar
 events** and a **searchable vault**. Nothing is saved until you review and
-approve it.
+approve it. Around that core sit a handful of focused "OS" modules for the rest
+of life admin.
 
 > DailyOS turns life admin into handled.
 
 ---
 
-## ✨ Features
+## Features
 
-- **Life Inbox** — paste text or upload a PDF/PNG/JPG/TXT.
-- **AI extraction** — pulls out item type, a summary, key dates, suggested
-  tasks, suggested calendar events, key entities and a vault category as
-  strict JSON.
-- **Review & approve** — edit everything on a review screen. Nothing reaches
-  Tasks / Calendar / Vault until you confirm.
-- **Today** — tasks due today, upcoming events, recent items and a “needs
-  review” banner.
-- **Tasks** — add, edit, complete, delete and filter by due date & priority.
-- **Calendar** — a clean internal month view with add/edit/delete.
-- **Vault** — categorised, searchable home for everything processed, with
-  original-file download.
-- **Settings** — account info, full data/account deletion, a billing
-  placeholder, and a dev-only AI provider status panel.
+**LifeOS — the core**
+
+- **Today ("The Daily Brief")** — an editorial dashboard of what matters now:
+  tasks due, upcoming events, items needing review and recent activity.
+- **Life Inbox** — paste text or upload a PDF/PNG/JPG/TXT; AI extracts the item
+  type, a summary, key dates, suggested tasks and events, and a vault category.
+- **Review & approve** — edit everything before it reaches Tasks / Calendar /
+  Vault. Nothing is saved until you confirm.
+- **Build My Day** — turn your hours, fixed commitments and goals into a calm,
+  productive schedule you can then rearrange, retime and edit block by block.
+- **Interests** — name an interest and get a specific, tiered mini-plan
+  (today → this week → go deeper → level up → community → spend wisely).
+- **World Clock**, **Notes**, **Tasks**, **Calendar** and a categorised,
+  searchable **Vault** with original-file download.
+
+**HomeOS** — run your whole home: subscriptions, deliveries, rooms, devices and
+documents, with a Home Control Score, alerts and a combined calendar. *(Pro.)*
+
+**Wellbeing** — Mindfulness, Mood and Nudges.
+
+- **Settings** — account, username, appearance (light/dark), plan & billing,
+  full data/account deletion, and a dev-only AI provider status panel.
 - **Private by design** — Supabase Row Level Security, private file storage,
   server-only API keys.
 
 ---
 
-## 🧱 Tech stack
+## Plans
 
-| Area      | Choice                                              |
-| --------- | --------------------------------------------------- |
-| Framework | Next.js 14 (App Router) + TypeScript                |
-| Styling   | Tailwind CSS + shadcn-style components              |
-| Auth/DB   | Supabase (Postgres, Auth, Storage)                  |
-| AI        | Any **OpenAI-compatible** chat API (swappable)      |
-| Hosting   | Vercel (recommended)                                |
+Three tiers — **Free**, **Plus** and **Pro** — gate the heavier modules (Vault,
+Build My Day, HomeOS). Real billing isn't wired up yet; plans are switched with
+promo codes on the Settings page and remembered per account. Pro unlocks
+everything including HomeOS.
 
 ---
 
-## 🚀 Getting started
+## Tech stack
+
+| Area      | Choice                                                |
+| --------- | ----------------------------------------------------- |
+| Framework | Next.js 14 (App Router) + TypeScript                  |
+| Styling   | Tailwind CSS + shadcn-style components, CSS-var theme |
+| Auth/DB   | Supabase (Postgres, Auth, Storage)                    |
+| AI        | Any **OpenAI-compatible** chat API (swappable)        |
+| Hosting   | Vercel                                                |
+
+The UI is a warm "Almanac" editorial theme: paper/ink palette, a burnt-clay
+accent, a serif display face, and a two-tier top navigation bar.
+
+---
+
+## Getting started
 
 ### 1. Prerequisites
 
@@ -64,7 +85,7 @@ npm install
 ### 3. Configure Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. Open **SQL Editor** and run the contents of [`supabase/schema.sql`](supabase/schema.sql).
+2. Open **SQL Editor** and run [`supabase/schema.sql`](supabase/schema.sql).
    This creates all tables, enums, triggers, **Row Level Security policies**
    and the private `inbox-files` storage bucket.
 3. In **Settings → API**, copy your **Project URL**, **anon key** and
@@ -90,8 +111,9 @@ AI_MODEL=gpt-4o-mini
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-> 🔐 `SUPABASE_SERVICE_ROLE_KEY` and `AI_PROVIDER_API_KEY` are **only ever read
-> on the server**. They are never sent to the browser.
+> `SUPABASE_SERVICE_ROLE_KEY` and `AI_PROVIDER_API_KEY` are **only ever read on
+> the server**. They are never sent to the browser. When no AI key is set, the
+> AI-backed features fall back to solid built-in logic so the app still works.
 
 ### 5. Run
 
@@ -101,15 +123,9 @@ npm run dev
 
 Open <http://localhost:3000>, sign up, and add your first item.
 
-### 6. (Optional) Seed demo data
-
-After signing up once, run [`supabase/seed.sql`](supabase/seed.sql) in the
-Supabase SQL editor. It inserts a realistic set of demo items, tasks and events
-for your most recent user so the app feels lived-in.
-
 ---
 
-## 🔌 Swapping the AI provider
+## Swapping the AI provider
 
 The LLM layer ([`src/lib/ai/provider.ts`](src/lib/ai/provider.ts)) targets the
 OpenAI-compatible `/chat/completions` endpoint, so switching providers is just
@@ -123,50 +139,11 @@ changing environment variables:
 | Ollama     | `http://localhost:11434/v1`         | `llama3.1`                |
 
 If extraction fails or no text is available (e.g. an image/PDF before OCR), the
-item is saved safely with a **“Needs review”** state instead of being lost.
-
-> **Note on PDFs/images:** text extraction (OCR) is a planned milestone. Today,
-> uploaded PDFs/images are stored and marked *“needs text”* — you paste the key
-> text on the item screen and DailyOS extracts the rest. Pasted text and `.txt`
-> uploads are fully automatic.
+item is saved safely with a **"Needs review"** state instead of being lost.
 
 ---
 
-## 🗂 Project structure
-
-```
-src/
-  app/
-    page.tsx                 Landing page
-    (auth)/login, signup     Auth pages
-    auth/callback            Email-confirmation handler
-    (app)/                   Authenticated shell + nav
-      today/                 Dashboard
-      inbox/                 Life Inbox, capture, review/detail
-      calendar/              Calendar
-      tasks/                 Tasks
-      vault/                 Vault
-      settings/              Settings
-  components/                UI + feature components
-  lib/
-    ai/                      Provider, prompt, Zod validation
-    supabase/                Browser/server/middleware clients
-    process.ts               processInboxItem() extraction pipeline
-    types.ts                 Shared domain types
-  middleware.ts              Session refresh + route guards
-supabase/
-  schema.sql                 Tables, RLS, storage bucket
-  seed.sql                   Demo data
-```
-
-The core pipeline, `processInboxItem()`, lives in
-[`src/lib/process.ts`](src/lib/process.ts): it loads the item, resolves text,
-calls the LLM for strict JSON, validates it, stores it in
-`inbox_items.raw_ai_json`, and sets the status to `review`.
-
----
-
-## ☁️ Deployment (Vercel)
+## Deployment (Vercel)
 
 1. Push this repo to GitHub.
 2. Import it at [vercel.com/new](https://vercel.com/new).
@@ -177,30 +154,25 @@ calls the LLM for strict JSON, validates it, stores it in
    the allowed redirect URLs.
 5. Deploy.
 
-### Why not GitHub Pages?
-
-GitHub Pages only serves **static files** and can’t run server code. DailyOS
-deliberately runs AI extraction, auth and data access **on the server** so your
-API keys are never exposed in the browser. A static-only host can’t provide
-that, so Vercel (or any Node host) is the right home for the full app. A static
-marketing build could be published to Pages later, but the app itself needs a
-server runtime.
+The app runs AI extraction, auth and data access **on the server** so your API
+keys are never exposed in the browser — a static-only host can't provide that,
+so Vercel (or any Node host) is the right home.
 
 ---
 
-## 🔒 Security & privacy
+## Security & privacy
 
-- **Row Level Security** on every table — users can only read/write their own
-  rows (`auth.uid() = user_id`).
-- **Private storage** — files live under `inbox-files/<user_id>/…` and are only
-  accessible to their owner via short-lived signed URLs.
+- **Row Level Security** on every table — users only read/write their own rows
+  (`auth.uid() = user_id`).
+- **Private storage** — files live under `inbox-files/<user_id>/…`, reachable
+  only by their owner via short-lived signed URLs.
 - **Server-only secrets** — the service-role key and AI key are read in Server
   Components / Server Actions only.
 - **Data control** — delete all data, or your whole account, from Settings.
 
 ---
 
-## 📜 Scripts
+## Scripts
 
 | Command             | Description                      |
 | ------------------- | -------------------------------- |
