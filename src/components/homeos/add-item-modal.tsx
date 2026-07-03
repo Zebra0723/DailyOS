@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Modal, Field } from "@/components/homeos/ui";
+import { MODULE_LABEL } from "@/components/homeos/tabs";
 
 type Kind = "subscription" | "arrival" | "room" | "device" | "document" | "alert";
 
@@ -272,7 +273,7 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
               <Field label="Message"><Textarea value={form.message ?? ""} onChange={set("message")} /></Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Severity"><Select value={form.severity ?? "Info"} onChange={set("severity")}>{["Critical","Warning","Info"].map((o)=><option key={o}>{o}</option>)}</Select></Field>
-                <Field label="Module"><Select value={form.module ?? "HomeOS"} onChange={set("module")}>{HOME_MODULES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
+                <Field label="Module"><Select value={form.module ?? "HomeOS"} onChange={set("module")}>{HOME_MODULES.map((o)=><option key={o} value={o}>{MODULE_LABEL[o]}</option>)}</Select></Field>
               </div>
             </>
           )}

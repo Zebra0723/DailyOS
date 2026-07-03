@@ -28,7 +28,7 @@ import { Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatCard, Section, HomeEmpty } from "@/components/homeos/ui";
-import { homeHref } from "@/components/homeos/tabs";
+import { homeHref, MODULE_LABEL } from "@/components/homeos/tabs";
 
 export function HomeOSDashboard() {
   const { data, addTodayAction, resetDemoData, toggleConcern } = useHomeOS();
@@ -222,7 +222,7 @@ export function HomeOSDashboard() {
                     <div className="min-w-0 flex-1">
                       <p className="font-medium">{a.title}</p>
                       <p className="text-sm text-muted-foreground">
-                        {a.reason} · {a.sourceModule} · ~{a.estimatedMinutes} min
+                        {a.reason} · {MODULE_LABEL[a.sourceModule]} · ~{a.estimatedMinutes} min
                       </p>
                     </div>
                     <Button
@@ -281,7 +281,7 @@ export function HomeOSDashboard() {
                       {t.title}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {t.sourceModule} · {t.status}
+                      {MODULE_LABEL[t.sourceModule ?? "HomeOS"]} · {t.status}
                     </p>
                   </div>
                 </CardContent>

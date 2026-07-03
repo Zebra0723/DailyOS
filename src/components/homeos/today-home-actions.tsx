@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Home, ArrowRight, Check } from "lucide-react";
 import { homeOSStorageKeyFor } from "@/lib/homeos/store";
 import type { DailyOSTodayAction, HomeOSData } from "@/lib/homeos/types";
+import { MODULE_LABEL } from "@/components/homeos/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -89,7 +90,7 @@ export function HomeOSTodayActions({ userId }: { userId: string }) {
                   {a.title}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {a.sourceModule}
+                  {MODULE_LABEL[a.sourceModule ?? "HomeOS"]}
                   {a.estimatedMinutes ? ` · ~${a.estimatedMinutes} min` : ""}
                 </p>
               </div>

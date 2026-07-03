@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useHomeOS } from "@/lib/homeos/store";
 import { getHomeReviewSummary } from "@/lib/homeos/suggestions";
 import { Drawer } from "@/components/homeos/ui";
+import { MODULE_LABEL } from "@/components/homeos/tabs";
 import { Button } from "@/components/ui/button";
 
 export function HomeReview({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -53,7 +54,7 @@ export function HomeReview({ open, onClose }: { open: boolean; onClose: () => vo
                 <div key={i} className="rounded-lg border p-3">
                   <p className="text-sm font-medium">{a.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {a.reason} · {a.sourceModule} · ~{a.estimatedMinutes} min · {a.priority}
+                    {a.reason} · {MODULE_LABEL[a.sourceModule]} · ~{a.estimatedMinutes} min · {a.priority}
                   </p>
                   <Button
                     size="sm"
