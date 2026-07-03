@@ -13,9 +13,15 @@ import {
   Wind,
   CalendarClock,
   Circle,
+  ChevronUp,
+  ChevronDown,
+  Pencil,
+  Trash2,
+  Check,
+  ArrowDownUp,
 } from "lucide-react";
 import { buildDay } from "@/app/(app)/build-day/actions";
-import type { DayPlan, BlockType, Pace } from "@/lib/ai/build-day";
+import type { DayPlan, DayBlock, BlockType, Pace } from "@/lib/ai/build-day";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,6 +84,16 @@ const BLOCK_STYLE: Record<BlockType, { icon: React.ComponentType<{ className?: s
   buffer: { icon: Circle, dot: "bg-muted-foreground/40", chip: "text-muted-foreground" },
 };
 
+const BLOCK_TYPES: BlockType[] = [
+  "focus",
+  "fixed",
+  "break",
+  "meal",
+  "wellbeing",
+  "admin",
+  "buffer",
+];
+
 export function BuildMyDay() {
   const [dayStart, setDayStart] = React.useState("08:00");
   const [dayEnd, setDayEnd] = React.useState("22:00");
@@ -87,6 +103,51 @@ export function BuildMyDay() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [plan, setPlan] = React.useState<DayPlan | null>(null);
+  const [editing, setEditing] = React.useState<number | null>(null);
+
+  // --- Editing the generated plan (the auto-plan is a starting point) --------
+  function setBlocks(next: DayBlock[]) {
+    setPlan((p) => (p ? { ...p, blocks: next } : p));
+  }
+  function moveBlock(i: number, dir: -1 | 1) {
+    setPlan((p) => {
+      if (!p) return p;
+      const j = i + dir;
+      if (j < 0 || j >= p.blocks.length) return p;
+      const next = [...p.blocks];
+      [next[i], next[j]] = [next[j], next[i]];
+      return { ...p, blocks: next };
+    });
+    setEditing(null);
+  }
+  function deleteBlock(i: number) {
+    if (!plan) return;
+    setBlocks(plan.blocks.filter((_, idx) => idx !== i));
+    setEditing(null);
+  }
+  function patchBlock(i: number, patch: Partial<DayBlock>) {
+    if (!plan) return;
+    setBlocks(plan.blocks.map((b, idx) => (idx === i ? { ...b, ...patch } : b)));
+  }
+  function addBlock() {
+    if (!plan) return;
+    const last = plan.blocks[plan.blocks.length - 1];
+    const start = last?.end ?? dayStart;
+    setBlocks([
+      ...plan.blocks,
+      { start, end: start, title: "New block", type: "focus" },
+    ]);
+    setEditing(plan.blocks.length);
+  }
+  function sortByTime() {
+    if (!plan) return;
+    const toMin = (t: string) => {
+      const [h, m] = t.split(":").map(Number);
+      return (h || 0) * 60 + (m || 0);
+    };
+    setBlocks([...plan.blocks].sort((a, b) => toMin(a.start) - toMin(b.start)));
+    setEditing(null);
+  }
 
   function setRow(i: number, patch: Partial<FixedRow>) {
     setFixed((rows) => rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
@@ -225,7 +286,7 @@ export function BuildMyDay() {
               <div className="flex items-start justify-between gap-3">
                 <p className="text-sm">{plan.summary}</p>
                 <Button variant="ghost" size="sm" onClick={() => setPlan(null)}>
-                  <RotateCcw className="size-4" /> Edit
+                  <RotateCcw className="size-4" /> Rebuild
                 </Button>
               </div>
               {(() => {
@@ -260,10 +321,26 @@ export function BuildMyDay() {
             </CardContent>
           </Card>
 
+          {/* Edit toolbar */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-muted-foreground">
+              Your schedule — tweak anything below
+            </p>
+            <div className="flex gap-1.5">
+              <Button variant="outline" size="sm" onClick={sortByTime}>
+                <ArrowDownUp className="size-4" /> Sort by time
+              </Button>
+              <Button variant="outline" size="sm" onClick={addBlock}>
+                <Plus className="size-4" /> Add block
+              </Button>
+            </div>
+          </div>
+
           <div className="space-y-2">
             {plan.blocks.map((b, i) => {
               const style = BLOCK_STYLE[b.type] ?? BLOCK_STYLE.buffer;
               const Icon = style.icon;
+              const isEditing = editing === i;
               return (
                 <div key={i} className="flex gap-3">
                   <div className="w-20 shrink-0 pt-3 text-right text-xs font-medium text-muted-foreground">
@@ -276,13 +353,92 @@ export function BuildMyDay() {
                     {i < plan.blocks.length - 1 && <span className="w-px flex-1 bg-border" />}
                   </div>
                   <Card className="mb-1 flex-1">
-                    <CardContent className="flex items-start gap-3 p-3">
-                      <Icon className={cn("mt-0.5 size-4 shrink-0", style.chip)} />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium">{b.title}</p>
-                        {b.note && <p className="text-xs text-muted-foreground">{b.note}</p>}
-                      </div>
-                    </CardContent>
+                    {isEditing ? (
+                      <CardContent className="space-y-3 p-3">
+                        <Input
+                          value={b.title}
+                          onChange={(e) => patchBlock(i, { title: e.target.value })}
+                          placeholder="What is this block?"
+                          className="h-9"
+                        />
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="time"
+                            value={b.start}
+                            onChange={(e) => patchBlock(i, { start: e.target.value })}
+                            className="h-9 w-28"
+                          />
+                          <span className="text-muted-foreground">–</span>
+                          <Input
+                            type="time"
+                            value={b.end}
+                            onChange={(e) => patchBlock(i, { end: e.target.value })}
+                            className="h-9 w-28"
+                          />
+                          <select
+                            value={b.type}
+                            onChange={(e) =>
+                              patchBlock(i, { type: e.target.value as BlockType })
+                            }
+                            className="h-9 flex-1 rounded-md border border-input bg-background px-2 text-sm"
+                          >
+                            {BLOCK_TYPES.map((t) => (
+                              <option key={t} value={t}>
+                                {t}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="flex justify-end gap-1.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteBlock(i)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="size-4" /> Delete
+                          </Button>
+                          <Button size="sm" onClick={() => setEditing(null)}>
+                            <Check className="size-4" /> Done
+                          </Button>
+                        </div>
+                      </CardContent>
+                    ) : (
+                      <CardContent className="flex items-start gap-3 p-3">
+                        <Icon className={cn("mt-0.5 size-4 shrink-0", style.chip)} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium">{b.title}</p>
+                          {b.note && (
+                            <p className="text-xs text-muted-foreground">{b.note}</p>
+                          )}
+                        </div>
+                        <div className="flex shrink-0 items-center">
+                          <button
+                            onClick={() => moveBlock(i, -1)}
+                            disabled={i === 0}
+                            className="grid size-7 place-items-center rounded text-muted-foreground hover:text-foreground disabled:opacity-30"
+                            aria-label="Move up"
+                          >
+                            <ChevronUp className="size-4" />
+                          </button>
+                          <button
+                            onClick={() => moveBlock(i, 1)}
+                            disabled={i === plan.blocks.length - 1}
+                            className="grid size-7 place-items-center rounded text-muted-foreground hover:text-foreground disabled:opacity-30"
+                            aria-label="Move down"
+                          >
+                            <ChevronDown className="size-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditing(i)}
+                            className="grid size-7 place-items-center rounded text-muted-foreground hover:text-foreground"
+                            aria-label="Edit block"
+                          >
+                            <Pencil className="size-4" />
+                          </button>
+                        </div>
+                      </CardContent>
+                    )}
                   </Card>
                 </div>
               );
@@ -291,7 +447,8 @@ export function BuildMyDay() {
 
           {!plan.usedAI && (
             <p className="text-center text-xs text-muted-foreground">
-              Planned on-device. Add an AI key for smarter, tailored days.
+              Planned on-device, then yours to rearrange. Add an AI key for
+              smarter first drafts.
             </p>
           )}
         </div>
