@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Check, Sparkles, Tag } from "lucide-react";
 import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
-import { usePlan, setPlan, type Tier } from "@/lib/use-pro";
+import { usePlan, setPlan, setAdmin, type Tier } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -17,6 +17,10 @@ const CODE_PLANS: Record<string, Tier> = {
   ARLEOPLUS: "plus",
   ARLEOFREE: "free",
 };
+
+// ARLEOPRO is the owners' admin code (just Arjun & Leo): it grants admin
+// access on top of Pro (e.g. HomeOS demo data). Other codes never grant it.
+const ADMIN_CODES = new Set(["ARLEOPRO"]);
 
 export function PricingTable({
   compact = false,
@@ -48,15 +52,21 @@ export function PricingTable({
     }
     setError(false);
     setJustTier(plan);
+    const isAdmin = ADMIN_CODES.has(entered);
     toast({
       variant: plan === "free" ? "info" : "success",
-      title:
-        plan === "free"
+      title: isAdmin
+        ? "Admin access unlocked"
+        : plan === "free"
           ? "Switched to Free"
           : `${plan === "pro" ? "Pro" : "Plus"} unlocked`,
     });
     // Persist for this account (and update the gated screens via the event).
     void setPlan(plan, userId);
+    // ARLEOPRO grants admin; the free-reset code revokes it. Other codes leave
+    // admin status untouched.
+    if (isAdmin) void setAdmin(true, userId);
+    else if (plan === "free") void setAdmin(false, userId);
   }
 
   return (

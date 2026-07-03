@@ -13,6 +13,7 @@ export const PRO_EVENT = "dailyos-pro";
 
 const tierKey = (userId: string) => `dailyos-tier:${userId}`;
 const legacyProKey = (userId: string) => `dailyos-pro:${userId}`; // older "pro" flag
+const adminKey = (userId: string) => `dailyos-admin:${userId}`; // ARLEOPRO admin access
 
 /** Set the plan for an account. Pass userId (from the server) for a reliable flip. */
 export async function setPlan(tier: Tier, userId?: string) {
@@ -64,11 +65,51 @@ function readTierFor(
   return "free";
 }
 
-/** Reactively read the account's plan tier. Pass userId (server) for reliability. */
-export function usePlan(userId?: string): { mounted: boolean; tier: Tier } {
-  const [state, setState] = React.useState<{ mounted: boolean; tier: Tier }>({
+function readAdminFor(id: string | undefined, metaAdmin?: boolean): boolean {
+  if (id && typeof window !== "undefined") {
+    if (localStorage.getItem(adminKey(id)) === "1") return true;
+  }
+  return metaAdmin === true;
+}
+
+/** Grant or revoke ARLEOPRO admin access for an account. */
+export async function setAdmin(on: boolean, userId?: string) {
+  const supabase = createClient();
+  let id = userId;
+  if (!id) {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      id = session?.user?.id;
+    } catch {
+      /* handled below */
+    }
+  }
+  if (typeof window !== "undefined" && id) {
+    if (on) localStorage.setItem(adminKey(id), "1");
+    else localStorage.removeItem(adminKey(id));
+    window.dispatchEvent(new Event(PRO_EVENT));
+  }
+  supabase.auth.updateUser({ data: { admin: on } }).catch(() => {
+    /* metadata write can fail offline; local flag still applies here */
+  });
+}
+
+/** Reactively read the account's plan tier + admin access. Pass userId (server) for reliability. */
+export function usePlan(userId?: string): {
+  mounted: boolean;
+  tier: Tier;
+  admin: boolean;
+} {
+  const [state, setState] = React.useState<{
+    mounted: boolean;
+    tier: Tier;
+    admin: boolean;
+  }>({
     mounted: false,
     tier: "free",
+    admin: false,
   });
 
   React.useEffect(() => {
@@ -77,11 +118,16 @@ export function usePlan(userId?: string): { mounted: boolean; tier: Tier } {
 
     // Paint immediately from localStorage so a gate never hangs on a spinner
     // while we wait for the network. The async pass below refines from metadata.
-    setState({ mounted: true, tier: readTierFor(userId) });
+    setState({
+      mounted: true,
+      tier: readTierFor(userId),
+      admin: readAdminFor(userId),
+    });
 
     const read = async () => {
       let tier = readTierFor(userId);
-      if (tier === "free") {
+      let admin = readAdminFor(userId);
+      if (tier === "free" || !admin) {
         try {
           const {
             data: { session },
@@ -93,12 +139,16 @@ export function usePlan(userId?: string): { mounted: boolean; tier: Tier } {
               user.user_metadata?.plan,
               user.user_metadata?.pro === true,
             );
+            admin = readAdminFor(
+              userId ?? user.id,
+              user.user_metadata?.admin === true,
+            );
           }
         } catch {
           /* fall through with free */
         }
       }
-      if (active) setState({ mounted: true, tier });
+      if (active) setState({ mounted: true, tier, admin });
     };
 
     read();

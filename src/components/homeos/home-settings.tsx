@@ -11,6 +11,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useHomeOS } from "@/lib/homeos/store";
+import { usePlan } from "@/lib/use-pro";
 import type { HomeOSSettings } from "@/lib/homeos/types";
 import { Section } from "@/components/homeos/ui";
 import { Button } from "@/components/ui/button";
@@ -162,6 +163,7 @@ export function HomeSettings() {
     exportHomeOSJSON,
     importHomeOSJSON,
   } = useHomeOS();
+  const { admin } = usePlan();
 
   const { homeProfile, settings } = data;
 
@@ -346,10 +348,12 @@ export function HomeSettings() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-wrap gap-3">
-              <Button variant="outline" onClick={handleReset}>
-                <RotateCcw className="size-4" />
-                Reset HomeOS demo data
-              </Button>
+              {admin && (
+                <Button variant="outline" onClick={handleReset}>
+                  <RotateCcw className="size-4" />
+                  Reset HomeOS demo data
+                </Button>
+              )}
               <Button variant="destructive" onClick={handleClear}>
                 <Trash2 className="size-4" />
                 Clear HomeOS data

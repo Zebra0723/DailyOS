@@ -5,6 +5,7 @@ import { SettingsDanger } from "@/components/settings-danger";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { PricingTable } from "@/components/pricing-table";
+import { AdminPanel } from "@/components/admin-panel";
 import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +60,9 @@ export default async function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Owner tools (admin only — renders nothing otherwise) */}
+        <AdminPanel userId={user?.id} />
 
         {/* Username */}
         <Card>

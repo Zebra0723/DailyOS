@@ -13,6 +13,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useHomeOS } from "@/lib/homeos/store";
+import { usePlan } from "@/lib/use-pro";
 import {
   getArrivalsToday,
   getHomeControlScore,
@@ -31,6 +32,7 @@ import { homeHref } from "@/components/homeos/tabs";
 
 export function HomeOSDashboard() {
   const { data, addTodayAction, resetDemoData, toggleConcern } = useHomeOS();
+  const { admin } = usePlan();
   const router = useRouter();
   const go = (seg: string) => router.push(homeHref(seg));
 
@@ -100,12 +102,14 @@ export function HomeOSDashboard() {
             <p className="text-2xl font-bold tracking-tight">No score yet…</p>
             <p className="max-w-sm text-sm text-muted-foreground">
               Add your home items — subscriptions, deliveries, rooms, devices —
-              and your Home Control Score will appear here. Want a quick look
-              around first?
+              and your Home Control Score will appear here.
+              {admin ? " Want a quick look around first?" : ""}
             </p>
-            <Button variant="outline" onClick={resetDemoData}>
-              Load demo data
-            </Button>
+            {admin && (
+              <Button variant="outline" onClick={resetDemoData}>
+                Load demo data
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (
