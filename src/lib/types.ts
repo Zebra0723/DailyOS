@@ -56,6 +56,8 @@ export interface InboxItem {
   updated_at: string;
 }
 
+export type Recurrence = "none" | "daily" | "weekly" | "monthly";
+
 export interface ExtractedTask {
   id: string;
   user_id: string;
@@ -65,6 +67,8 @@ export interface ExtractedTask {
   due_date: string | null;
   priority: Priority;
   status: TaskStatus;
+  /** Optional — present only after the recurrence migration is run. */
+  recurrence?: Recurrence;
   created_at: string;
   updated_at: string;
 }

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
-import type { ExtractedTask, Priority } from "@/lib/types";
+import type { ExtractedTask, Priority, Recurrence } from "@/lib/types";
 
 type DueFilter = "all" | "today" | "week" | "overdue" | "none";
 type PriorityFilter = "all" | Priority;
@@ -38,6 +38,7 @@ export function TasksManager({ tasks }: { tasks: ExtractedTask[] }) {
   const [title, setTitle] = React.useState("");
   const [dueDate, setDueDate] = React.useState("");
   const [newPriority, setNewPriority] = React.useState<Priority>("medium");
+  const [recurrence, setRecurrence] = React.useState<Recurrence>("none");
   const [saving, setSaving] = React.useState(false);
 
   const filtered = tasks.filter((t) => {
@@ -63,6 +64,7 @@ export function TasksManager({ tasks }: { tasks: ExtractedTask[] }) {
       title,
       due_date: dueDate || null,
       priority: newPriority,
+      recurrence,
     });
     setSaving(false);
     if (res.ok) {
@@ -70,6 +72,7 @@ export function TasksManager({ tasks }: { tasks: ExtractedTask[] }) {
       setTitle("");
       setDueDate("");
       setNewPriority("medium");
+      setRecurrence("none");
       setOpen(false);
       router.refresh();
     } else {
@@ -105,6 +108,21 @@ export function TasksManager({ tasks }: { tasks: ExtractedTask[] }) {
                 <option value="high">High priority</option>
               </Select>
             </div>
+            <Select
+              value={recurrence}
+              onChange={(e) => setRecurrence(e.target.value as Recurrence)}
+              aria-label="Repeat"
+            >
+              <option value="none">Doesn&apos;t repeat</option>
+              <option value="daily">Repeats daily</option>
+              <option value="weekly">Repeats weekly</option>
+              <option value="monthly">Repeats monthly</option>
+            </Select>
+            {recurrence !== "none" && !dueDate && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                Add a due date so the repeat has a starting point.
+              </p>
+            )}
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => setOpen(false)}>
                 Cancel

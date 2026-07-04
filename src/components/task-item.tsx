@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Check, Trash2, Link2 } from "lucide-react";
+import { Check, Trash2, Link2, Repeat } from "lucide-react";
 import Link from "next/link";
 import { setTaskStatus, deleteTask } from "@/app/(app)/tasks/actions";
 import { cn, formatDate, relativeDay } from "@/lib/utils";
@@ -63,6 +63,11 @@ export function TaskItem({ task }: { task: ExtractedTask }) {
               )}
             >
               {relativeDay(task.due_date)} · {formatDate(task.due_date)}
+            </span>
+          )}
+          {task.recurrence && task.recurrence !== "none" && (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Repeat className="size-3" /> {task.recurrence}
             </span>
           )}
           {task.inbox_item_id && (

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TopNav, MobileNav, MobileHeader } from "@/components/app-nav";
 import { FreePlanBanner } from "@/components/free-plan-banner";
 import { CommandPalette } from "@/components/command-palette";
+import { DueReminder } from "@/components/due-reminder";
 
 export default async function AppLayout({
   children,
@@ -27,6 +28,7 @@ export default async function AppLayout({
       </main>
       <MobileNav />
       <CommandPalette />
+      <DueReminder />
     </div>
   );
 }
