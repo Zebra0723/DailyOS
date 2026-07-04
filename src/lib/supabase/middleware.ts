@@ -30,6 +30,12 @@ const AUTH_ROUTES = ["/login", "/signup"];
  * Refreshes the Supabase session on every request and guards protected routes.
  */
 export async function updateSession(request: NextRequest) {
+  // Let the sign-out route clear cookies without the middleware refreshing the
+  // session underneath it.
+  if (request.nextUrl.pathname === "/auth/signout") {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

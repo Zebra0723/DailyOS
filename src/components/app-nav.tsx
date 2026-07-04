@@ -134,16 +134,15 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
 
   const showSubBar = subItems.length > 1;
 
-  async function signOut() {
+  function signOut() {
+    // Clear the local session copy, then let the server route clear the auth
+    // cookies and redirect to /login (so /login can't bounce back to /today).
     try {
-      await Promise.race([
-        createClient().auth.signOut({ scope: "local" }),
-        new Promise((r) => setTimeout(r, 1500)),
-      ]);
+      void createClient().auth.signOut({ scope: "local" });
     } catch {
-      /* ignore — redirect regardless */
+      /* ignore */
     }
-    window.location.href = "/login";
+    window.location.href = "/auth/signout";
   }
 
   return (

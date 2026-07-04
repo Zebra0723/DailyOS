@@ -8,20 +8,17 @@ import { Button } from "@/components/ui/button";
 export function SignOutButton() {
   const [busy, setBusy] = React.useState(false);
 
-  async function signOut() {
+  function signOut() {
     setBusy(true);
+    // Clear the local session copy, then hand off to the server route which
+    // clears the auth cookies and redirects to /login — so /login can't see a
+    // stale session and bounce back to /today.
     try {
-      // Local scope clears the session in the browser without waiting on a
-      // slow global revocation. Cap it so it can never hang.
-      await Promise.race([
-        createClient().auth.signOut({ scope: "local" }),
-        new Promise((r) => setTimeout(r, 1500)),
-      ]);
+      void createClient().auth.signOut({ scope: "local" });
     } catch {
-      /* ignore — redirect regardless */
+      /* ignore */
     }
-    // Hard navigation guarantees a clean, fully-reloaded /login.
-    window.location.href = "/login";
+    window.location.href = "/auth/signout";
   }
 
   return (
