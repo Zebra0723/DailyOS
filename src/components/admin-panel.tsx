@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ShieldCheck, Home, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ShieldCheck, Home, Sparkles, FlaskConical } from "lucide-react";
 import { usePlan, setAdmin } from "@/lib/use-pro";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -52,9 +53,16 @@ export function AdminPanel({ userId }: { userId?: string }) {
             </span>
           </li>
         </ul>
-        <Button variant="outline" size="sm" onClick={turnOff}>
-          Turn off admin on this device
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild size="sm">
+            <Link href="/admin">
+              <FlaskConical className="size-4" /> Open testing console
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" onClick={turnOff}>
+            Turn off admin on this device
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

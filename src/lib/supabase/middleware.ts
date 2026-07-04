@@ -21,6 +21,7 @@ const PROTECTED_PREFIXES = [
   "/nudges",
   "/wellbeing",
   "/settings",
+  "/admin",
 ];
 
 const AUTH_ROUTES = ["/login", "/signup"];
