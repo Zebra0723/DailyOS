@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/client";
 import { buildDemoData } from "@/lib/homeos/demo";
 import { homeOSStorageKeyFor } from "@/lib/homeos/store";
 import { PageHeader } from "@/components/page-header";
+import { DevicePreview } from "@/components/device-preview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -90,7 +91,7 @@ export function AdminConsole({
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-5">
+    <div className="mx-auto max-w-3xl space-y-5">
       <PageHeader
         title="Testing"
         description="Owner-only quick controls for testing DailyOS."
@@ -191,6 +192,9 @@ export function AdminConsole({
           </Button>
         </CardContent>
       </Card>
+
+      {/* Real-app preview across devices */}
+      <DevicePreview />
     </div>
   );
 }
