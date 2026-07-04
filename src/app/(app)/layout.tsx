@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TopNav, MobileNav, MobileHeader } from "@/components/app-nav";
 import { FreePlanBanner } from "@/components/free-plan-banner";
+import { CommandPalette } from "@/components/command-palette";
 
 export default async function AppLayout({
   children,
@@ -25,6 +26,7 @@ export default async function AppLayout({
         <div className="container max-w-6xl py-8 md:py-12">{children}</div>
       </main>
       <MobileNav />
+      <CommandPalette />
     </div>
   );
 }

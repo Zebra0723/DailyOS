@@ -20,7 +20,9 @@ import {
   CalendarClock,
   Heart,
   Globe,
+  Search,
 } from "lucide-react";
+import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { createClient } from "@/lib/supabase/client";
 import { usePlan } from "@/lib/use-pro";
 import { HOME_SECTIONS, homeHref } from "@/components/homeos/tabs";
@@ -181,6 +183,17 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
         </nav>
 
         <div className="flex shrink-0 items-center gap-3">
+          <button
+            onClick={() => window.dispatchEvent(new Event(OPEN_COMMAND_EVENT))}
+            className="inline-flex items-center gap-2 rounded-full border border-input bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            aria-label="Search"
+          >
+            <Search className="size-4" />
+            <span className="hidden lg:inline">Search</span>
+            <kbd className="hidden rounded border px-1.5 text-[10px] lg:inline">
+              ⌘K
+            </kbd>
+          </button>
           <Button asChild size="sm" className="shadow-elevated">
             <Link href="/inbox/new">
               <Plus className="size-4" />

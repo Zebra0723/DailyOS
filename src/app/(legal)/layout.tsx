@@ -23,7 +23,7 @@ export default function LegalLayout({
         </div>
       </header>
       <main className="container max-w-3xl py-10 md:py-14">
-        <article className="space-y-4 text-[15px] leading-relaxed text-muted-foreground [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_a]:text-primary [&_a]:underline [&_li]:ml-5 [&_li]:list-disc [&_strong]:text-foreground">
+        <article className="space-y-4 text-[15px] leading-relaxed text-muted-foreground [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:mt-5 [&_h3]:font-semibold [&_h3]:text-foreground [&_a]:text-primary [&_a]:underline [&_li]:ml-5 [&_li]:list-disc [&_strong]:text-foreground [&_table]:w-full [&_table]:text-sm [&_th]:border-b [&_th]:py-2 [&_th]:pr-4 [&_th]:text-left [&_th]:font-semibold [&_th]:text-foreground [&_td]:border-b [&_td]:py-2 [&_td]:pr-4 [&_td]:align-top">
           {children}
         </article>
       </main>
@@ -33,6 +33,9 @@ export default function LegalLayout({
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-foreground">
               Privacy
+            </Link>
+            <Link href="/cookies" className="hover:text-foreground">
+              Cookies
             </Link>
             <Link href="/terms" className="hover:text-foreground">
               Terms

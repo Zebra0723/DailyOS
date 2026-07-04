@@ -217,6 +217,9 @@ export default function LandingPage() {
             <Link href="/privacy" className="hover:text-foreground">
               Privacy
             </Link>
+            <Link href="/cookies" className="hover:text-foreground">
+              Cookies
+            </Link>
             <Link href="/terms" className="hover:text-foreground">
               Terms
             </Link>
