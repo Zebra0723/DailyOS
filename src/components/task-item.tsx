@@ -4,15 +4,33 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Check, Trash2, Link2, Repeat } from "lucide-react";
 import Link from "next/link";
-import { setTaskStatus, deleteTask } from "@/app/(app)/tasks/actions";
+import {
+  setTaskStatus,
+  deleteTask,
+  deleteRecurringTask,
+} from "@/app/(app)/tasks/actions";
 import { cn, formatDate, relativeDay } from "@/lib/utils";
 import { PriorityBadge } from "@/components/badges";
+import { Button } from "@/components/ui/button";
 import type { ExtractedTask } from "@/lib/types";
 
 export function TaskItem({ task }: { task: ExtractedTask }) {
   const router = useRouter();
   const [pending, setPending] = React.useState(false);
+  const [confirmRepeat, setConfirmRepeat] = React.useState(false);
   const done = task.status === "completed";
+  const repeats = !!task.recurrence && task.recurrence !== "none";
+
+  async function removeThisOnly() {
+    setPending(true);
+    await deleteRecurringTask(task.id, "one");
+    router.refresh();
+  }
+  async function removeFuture() {
+    setPending(true);
+    await deleteRecurringTask(task.id, "future");
+    router.refresh();
+  }
 
   const overdue =
     !done &&
@@ -87,6 +105,11 @@ export function TaskItem({ task }: { task: ExtractedTask }) {
         aria-label="Delete task"
         disabled={pending}
         onClick={async () => {
+          // Recurring tasks ask "this one" vs "all future"; others delete now.
+          if (repeats) {
+            setConfirmRepeat(true);
+            return;
+          }
           setPending(true);
           await deleteTask(task.id);
           router.refresh();
@@ -95,6 +118,46 @@ export function TaskItem({ task }: { task: ExtractedTask }) {
       >
         <Trash2 className="size-4" />
       </button>
+
+      {confirmRepeat && (
+        <div
+          className="fixed inset-0 z-[65] grid place-items-center bg-foreground/30 p-4 backdrop-blur-sm"
+          onClick={() => setConfirmRepeat(false)}
+        >
+          <div
+            className="w-full max-w-xs rounded-2xl border bg-popover p-5 text-center shadow-elevated"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="font-medium">Delete a repeating task</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              &ldquo;{task.title}&rdquo; repeats {task.recurrence}.
+            </p>
+            <div className="mt-4 grid gap-2">
+              <Button
+                variant="outline"
+                disabled={pending}
+                onClick={removeThisOnly}
+              >
+                Delete this one only
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={pending}
+                onClick={removeFuture}
+              >
+                Delete all future repeats
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setConfirmRepeat(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

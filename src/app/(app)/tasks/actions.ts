@@ -120,3 +120,39 @@ export async function deleteTask(id: string) {
   revalidatePath("/today");
   return { ok: true as const };
 }
+
+/**
+ * Delete a recurring task with calendar-style semantics:
+ * - "one":    remove just this occurrence but keep the series going (spawns the
+ *             next occurrence, like skipping this one).
+ * - "future": remove this occurrence and stop all future repeats.
+ */
+export async function deleteRecurringTask(id: string, mode: "one" | "future") {
+  const { supabase, user } = await requireUser();
+
+  if (mode === "one") {
+    const { data: task } = await supabase
+      .from("extracted_tasks")
+      .select("*")
+      .eq("id", id)
+      .single();
+    const rec = (task?.recurrence ?? "none") as Recurrence;
+    if (task && rec !== "none" && task.due_date) {
+      await supabase.from("extracted_tasks").insert({
+        user_id: user.id,
+        title: task.title,
+        description: task.description ?? null,
+        due_date: nextDue(task.due_date, rec),
+        priority: task.priority ?? "medium",
+        status: "pending",
+        recurrence: rec,
+      });
+    }
+  }
+
+  const { error } = await supabase.from("extracted_tasks").delete().eq("id", id);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/tasks");
+  revalidatePath("/today");
+  return { ok: true as const };
+}
