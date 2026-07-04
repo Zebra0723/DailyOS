@@ -73,9 +73,9 @@ class OpenAICompatibleProvider implements AIProvider {
         messages,
         ...(json ? { response_format: { type: "json_object" } } : {}),
       }),
-      // Don't hang on a slow provider. If the AI doesn't answer within 10s we
-      // fall back to local extraction so "Add to Inbox" stays snappy.
-      signal: AbortSignal.timeout(10_000),
+      // Keep it snappy: if the AI doesn't answer within 5s we fall back to
+      // local extraction so "Add to Inbox" is always fast.
+      signal: AbortSignal.timeout(5_000),
     });
 
     if (!res.ok) {
