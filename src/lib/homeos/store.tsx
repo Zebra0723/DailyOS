@@ -413,4 +413,16 @@ export function readHomeOSTodayActions(userId?: string | null): DailyOSTodayActi
   }
 }
 
+/** Read the full HomeOS data blob outside the provider (best-effort). */
+export function readHomeOSData(userId?: string | null): HomeOSData | null {
+  try {
+    const raw = localStorage.getItem(storageKeyFor(userId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as HomeOSData;
+    return parsed && Array.isArray(parsed.subscriptions) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 export { STORAGE_BASE as HOMEOS_STORAGE_BASE, storageKeyFor as homeOSStorageKeyFor };

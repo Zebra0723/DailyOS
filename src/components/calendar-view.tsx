@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
@@ -8,12 +9,15 @@ import {
   MapPin,
   Clock,
   CalendarDays,
+  Home,
 } from "lucide-react";
 import { EventDialog } from "@/components/event-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn, formatDateTime } from "@/lib/utils";
+import { readHomeOSData } from "@/lib/homeos/store";
+import { getCalendarEvents } from "@/lib/homeos/calculations";
 import type { CalendarEvent } from "@/lib/types";
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -24,7 +28,28 @@ function ymd(d: Date) {
   ).padStart(2, "0")}`;
 }
 
-export function CalendarView({ events }: { events: CalendarEvent[] }) {
+// A unified display event — either a LifeOS calendar event (editable) or a
+// HomeOS-derived date (read-only, links to HomeOS).
+type Disp = {
+  id: string;
+  title: string;
+  dayKey: string;
+  ts: number;
+  source: "life" | "home";
+  life?: CalendarEvent;
+  timeLabel?: string;
+  location?: string | null;
+  kind?: string;
+};
+
+export function CalendarView({
+  events,
+  userId,
+}: {
+  events: CalendarEvent[];
+  userId?: string;
+}) {
+  const router = useRouter();
   const [cursor, setCursor] = React.useState(() => {
     const n = new Date();
     return new Date(n.getFullYear(), n.getMonth(), 1);
@@ -32,17 +57,52 @@ export function CalendarView({ events }: { events: CalendarEvent[] }) {
   const [dialog, setDialog] = React.useState<
     { event: CalendarEvent | null; date?: string } | null
   >(null);
+  const [homeEvents, setHomeEvents] = React.useState<Disp[]>([]);
+
+  // Pull in HomeOS dates client-side so the calendar shows both.
+  React.useEffect(() => {
+    const data = readHomeOSData(userId);
+    if (!data) return;
+    try {
+      setHomeEvents(
+        getCalendarEvents(data).map((e) => ({
+          id: `home-${e.id}`,
+          title: e.title,
+          dayKey: e.date.slice(0, 10),
+          ts: new Date(e.date).getTime(),
+          source: "home" as const,
+          kind: e.kind,
+        })),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [userId]);
+
+  const all = React.useMemo<Disp[]>(() => {
+    const life: Disp[] = events.map((e) => ({
+      id: `life-${e.id}`,
+      title: e.title,
+      dayKey: ymd(new Date(e.start_time)),
+      ts: new Date(e.start_time).getTime(),
+      source: "life",
+      life: e,
+      timeLabel: formatDateTime(e.start_time),
+      location: e.location,
+    }));
+    return [...life, ...homeEvents];
+  }, [events, homeEvents]);
 
   const byDay = React.useMemo(() => {
-    const map = new Map<string, CalendarEvent[]>();
-    for (const e of events) {
-      const key = ymd(new Date(e.start_time));
-      const arr = map.get(key) ?? [];
-      arr.push(e);
-      map.set(key, arr);
+    const map = new Map<string, Disp[]>();
+    for (const d of all) {
+      const arr = map.get(d.dayKey) ?? [];
+      arr.push(d);
+      map.set(d.dayKey, arr);
     }
+    for (const arr of map.values()) arr.sort((a, b) => a.ts - b.ts);
     return map;
-  }, [events]);
+  }, [all]);
 
   // Build the month grid (Mon-first).
   const year = cursor.getFullYear();
@@ -56,10 +116,16 @@ export function CalendarView({ events }: { events: CalendarEvent[] }) {
   while (cells.length % 7 !== 0) cells.push(null);
 
   const todayKey = ymd(new Date());
+  const nowStart = new Date(new Date().toDateString()).getTime();
+  const upcoming = all
+    .filter((d) => d.ts >= nowStart)
+    .sort((a, b) => a.ts - b.ts)
+    .slice(0, 8);
 
-  const upcoming = events
-    .filter((e) => new Date(e.start_time) >= new Date(new Date().toDateString()))
-    .slice(0, 6);
+  function openDisp(d: Disp) {
+    if (d.source === "life" && d.life) setDialog({ event: d.life });
+    else router.push("/homeos");
+  }
 
   return (
     <div className="space-y-6">
@@ -148,9 +214,14 @@ export function CalendarView({ events }: { events: CalendarEvent[] }) {
                           key={e.id}
                           onClick={(ev) => {
                             ev.stopPropagation();
-                            setDialog({ event: e });
+                            openDisp(e);
                           }}
-                          className="block w-full truncate rounded bg-primary/10 px-1.5 py-0.5 text-left text-[11px] font-medium text-primary hover:bg-primary/20"
+                          className={cn(
+                            "block w-full truncate rounded px-1.5 py-0.5 text-left text-[11px] font-medium",
+                            e.source === "home"
+                              ? "bg-amber-500/15 text-amber-700 hover:bg-amber-500/25 dark:text-amber-300"
+                              : "bg-primary/10 text-primary hover:bg-primary/20",
+                          )}
                         >
                           {e.title}
                         </button>
@@ -185,23 +256,42 @@ export function CalendarView({ events }: { events: CalendarEvent[] }) {
             {upcoming.map((e) => (
               <button
                 key={e.id}
-                onClick={() => setDialog({ event: e })}
+                onClick={() => openDisp(e)}
                 className="flex items-center gap-4 rounded-xl border bg-card p-3 text-left transition-colors hover:bg-accent/40"
               >
-                <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
-                  <CalendarDays className="size-5" />
+                <div
+                  className={cn(
+                    "grid size-10 shrink-0 place-items-center rounded-lg",
+                    e.source === "home"
+                      ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                      : "bg-accent text-accent-foreground",
+                  )}
+                >
+                  {e.source === "home" ? (
+                    <Home className="size-5" />
+                  ) : (
+                    <CalendarDays className="size-5" />
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{e.title}</p>
                   <div className="flex flex-wrap items-center gap-x-3 text-sm text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="size-3.5" />
-                      {formatDateTime(e.start_time)}
-                    </span>
-                    {e.location && (
+                    {e.source === "life" ? (
+                      <>
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="size-3.5" />
+                          {e.timeLabel}
+                        </span>
+                        {e.location && (
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin className="size-3.5" />
+                            {e.location}
+                          </span>
+                        )}
+                      </>
+                    ) : (
                       <span className="inline-flex items-center gap-1">
-                        <MapPin className="size-3.5" />
-                        {e.location}
+                        <Home className="size-3.5" /> {e.kind} · HomeOS
                       </span>
                     )}
                   </div>

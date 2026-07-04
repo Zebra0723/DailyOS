@@ -5,7 +5,6 @@ import {
   Sofa,
   Cpu,
   FolderLock,
-  CalendarDays,
   Bell,
   Settings,
   AlertTriangle,
@@ -28,7 +27,6 @@ export const HOME_SECTIONS: HomeSection[] = [
   { seg: "rooms", label: "RoomOS", icon: Sofa },
   { seg: "devices", label: "DeviceOS", icon: Cpu },
   { seg: "vault", label: "Home Vault", icon: FolderLock },
-  { seg: "calendar", label: "Calendar", icon: CalendarDays },
   { seg: "alerts", label: "Alerts", icon: Bell },
   { seg: "settings", label: "Settings", icon: Settings },
 ];

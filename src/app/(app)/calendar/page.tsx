@@ -7,6 +7,9 @@ export const metadata = { title: "Calendar · DailyOS" };
 
 export default async function CalendarPage() {
   const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data } = await supabase
     .from("calendar_events")
     .select("*")
@@ -16,9 +19,12 @@ export default async function CalendarPage() {
     <div>
       <PageHeader
         title="Calendar"
-        description="Your bookings, appointments and reminders in one place."
+        description="Every date in one place — your bookings and appointments, plus HomeOS renewals, deliveries and warranties."
       />
-      <CalendarView events={(data ?? []) as CalendarEvent[]} />
+      <CalendarView
+        events={(data ?? []) as CalendarEvent[]}
+        userId={user?.id}
+      />
     </div>
   );
 }
