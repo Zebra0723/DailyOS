@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
 import { SignOutButton } from "@/components/sign-out-button";
+import { InviteButton } from "@/components/invite-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { PricingTable } from "@/components/pricing-table";
 import { AdminPanel } from "@/components/admin-panel";
@@ -57,6 +58,12 @@ export default async function SettingsPage() {
                 </p>
               </div>
               <SignOutButton />
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-3 border-t pt-4">
+              <p className="text-sm text-muted-foreground">
+                Enjoying DailyOS? Share it.
+              </p>
+              <InviteButton />
             </div>
           </CardContent>
         </Card>
