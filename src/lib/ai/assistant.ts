@@ -14,8 +14,9 @@ export interface ChatTurn {
 }
 
 export interface AssistantAction {
-  type: "task" | "event" | "note";
+  type: "task" | "event" | "note" | "complete_task" | "reschedule_task";
   label: string;
+  id?: string; // for complete_task / reschedule_task — an existing task's id
   title?: string;
   content?: string;
   due_date?: string | null;
@@ -32,8 +33,9 @@ export interface AssistantReply {
 }
 
 const ActionSchema = z.object({
-  type: z.enum(["task", "event", "note"]),
+  type: z.enum(["task", "event", "note", "complete_task", "reschedule_task"]),
   label: z.string().optional().default(""),
+  id: z.string().optional(),
   title: z.string().optional(),
   content: z.string().optional(),
   due_date: z.string().nullish(),
@@ -62,11 +64,16 @@ function systemPrompt(context: string, today: string): string {
     "",
     "USE THEIR REAL DATA below to be specific: reference their actual tasks and events by name and date, give real counts, and flag anything overdue or clashing. Never invent data that isn't there. If they have none, say so and suggest a good first step.",
     "",
-    "CAPTURING THINGS: If the user mentions anything worth saving — a to-do, an appointment/event, or a note — add it to `actions` so they can save it in one tap, and mention it in your reply. Only propose what they clearly implied; if they're just asking a question, leave actions empty.",
+    "ACTIONS: propose actions in `actions` so the user can apply them with one tap, and mention them in your reply. Only propose what the user clearly implied; if they're just asking a question, leave actions empty.",
+    "Create new things:",
     "- task: to-dos. Fields: title, due_date (YYYY-MM-DD or null), recurrence (none|daily|weekly|monthly), priority (low|medium|high).",
     "- event: things at a specific time. Fields: title, start_time (ISO 8601, include the time), location (or null).",
     "- note: information to keep. Field: content.",
-    "Always set a short `label` summarising each action (e.g. \"Task: Pay rent — 1 Aug, repeats monthly\").",
+    "Act on EXISTING tasks (each pending task below is listed with its id):",
+    "- complete_task: mark a task done. Fields: id (the task's id).",
+    "- reschedule_task: change a task's due date. Fields: id, due_date (YYYY-MM-DD).",
+    "Only use complete_task / reschedule_task with an id that appears in the data below — never invent an id.",
+    "Always set a short `label` summarising each action (e.g. \"Task: Pay rent — 1 Aug, repeats monthly\" or \"Complete: Call the dentist\").",
     `Resolve relative dates ("tomorrow", "next Tuesday", "the 1st") using TODAY = ${today}.`,
     "",
     "THE USER'S CURRENT DATA:",

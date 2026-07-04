@@ -12,7 +12,7 @@ async function buildContext(
   const [tasksRes, eventsRes, notesRes] = await Promise.all([
     supabase
       .from("extracted_tasks")
-      .select("title,due_date,priority,recurrence")
+      .select("id,title,due_date,priority,recurrence")
       .eq("status", "pending")
       .order("due_date", { ascending: true })
       .limit(25),
@@ -30,6 +30,7 @@ async function buildContext(
   ]);
 
   const tasks = (tasksRes.data ?? []) as {
+    id: string;
     title: string;
     due_date: string | null;
     priority: string;
@@ -45,11 +46,11 @@ async function buildContext(
   const parts: string[] = [];
   if (tasks.length) {
     parts.push(
-      "PENDING TASKS:\n" +
+      "PENDING TASKS (id in brackets):\n" +
         tasks
           .map(
             (t) =>
-              `- ${t.title}` +
+              `- [${t.id}] ${t.title}` +
               (t.due_date ? ` (due ${formatDate(t.due_date)})` : "") +
               (t.priority && t.priority !== "medium" ? ` [${t.priority}]` : "") +
               (t.recurrence && t.recurrence !== "none" ? ` [repeats ${t.recurrence}]` : ""),

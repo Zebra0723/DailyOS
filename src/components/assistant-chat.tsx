@@ -13,7 +13,11 @@ import {
 } from "lucide-react";
 import { askAssistant } from "@/app/(app)/assistant/actions";
 import type { AssistantAction, ChatTurn } from "@/lib/ai/assistant";
-import { createTask } from "@/app/(app)/tasks/actions";
+import {
+  createTask,
+  setTaskStatus,
+  updateTask,
+} from "@/app/(app)/tasks/actions";
 import { createEvent } from "@/app/(app)/calendar/actions";
 import { createNote } from "@/app/(app)/notes/actions";
 import { Button } from "@/components/ui/button";
@@ -38,7 +42,15 @@ const ACTION_ICON = {
   task: CheckSquare,
   event: CalendarDays,
   note: StickyNote,
+  complete_task: Check,
+  reschedule_task: CalendarDays,
 } as const;
+
+function actionVerb(type: AssistantAction["type"]): string {
+  if (type === "complete_task") return "Complete";
+  if (type === "reschedule_task") return "Reschedule";
+  return "Add";
+}
 
 export function AssistantChat() {
   const { toast } = useToast();
@@ -79,6 +91,7 @@ export function AssistantChat() {
     const today = new Date().toISOString().slice(0, 10);
     try {
       let res: { ok: boolean } = { ok: false };
+      let done = "Added";
       if (a.type === "task") {
         res = await createTask({
           title: a.title || a.label || "Task",
@@ -86,23 +99,32 @@ export function AssistantChat() {
           priority: a.priority ?? "medium",
           recurrence: a.recurrence ?? "none",
         });
+        done = "Added to Tasks";
       } else if (a.type === "event") {
         res = await createEvent({
           title: a.title || a.label || "Event",
           start_time: a.start_time || `${today}T09:00:00`,
           location: a.location ?? null,
         });
+        done = "Added to Calendar";
       } else if (a.type === "note") {
         res = await createNote(a.content || a.title || a.label || "");
+        done = "Added to Notes";
+      } else if (a.type === "complete_task" && a.id) {
+        res = await setTaskStatus(a.id, "completed");
+        done = "Task completed";
+      } else if (a.type === "reschedule_task" && a.id) {
+        res = await updateTask(a.id, { due_date: a.due_date ?? null });
+        done = "Task rescheduled";
       }
       if (res.ok) {
         setAdded((p) => ({ ...p, [key]: true }));
-        toast({ variant: "success", title: `Added to ${a.type === "event" ? "Calendar" : a.type === "note" ? "Notes" : "Tasks"}` });
+        toast({ variant: "success", title: done });
       } else {
-        toast({ variant: "error", title: "Couldn't add that" });
+        toast({ variant: "error", title: "Couldn't do that" });
       }
     } catch {
-      toast({ variant: "error", title: "Couldn't add that" });
+      toast({ variant: "error", title: "Couldn't do that" });
     }
   }
 
@@ -179,11 +201,11 @@ export function AssistantChat() {
                         >
                           {isAdded ? (
                             <>
-                              <Check className="size-4" /> Added
+                              <Check className="size-4" /> Done
                             </>
                           ) : (
                             <>
-                              <Plus className="size-4" /> Add
+                              <Plus className="size-4" /> {actionVerb(a.type)}
                             </>
                           )}
                         </Button>
