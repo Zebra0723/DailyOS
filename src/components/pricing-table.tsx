@@ -45,6 +45,16 @@ export function PricingTable({
       setError(false);
       return;
     }
+    // Referral discount: a percentage off at checkout, not a plan unlock. It
+    // takes effect once real paid plans (Stripe) are live.
+    if (entered === "DAILYOSFRIEND10") {
+      setError(false);
+      toast({
+        variant: "info",
+        title: "DAILYOSFRIEND10 — 10% off, applied at checkout once paid plans are live.",
+      });
+      return;
+    }
     const plan = CODE_PLANS[entered];
     if (!plan) {
       setError(true);

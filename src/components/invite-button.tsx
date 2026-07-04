@@ -5,16 +5,24 @@ import { UserPlus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 
-/** Share / copy an invite link to DailyOS. Uses the native share sheet on
- *  mobile, falls back to copying the link. */
-export function InviteButton() {
+/** Share / copy a personal referral link. Friends who sign up through it are
+ *  attributed to you, so that once payments are live and they subscribe to a
+ *  paid plan you can be credited the DAILYOSFRIEND10 (10% off) reward.
+ *  Uses the native share sheet on mobile, falls back to copying the link. */
+export function InviteButton({ userId }: { userId?: string }) {
   const { toast } = useToast();
   const [copied, setCopied] = React.useState(false);
 
-  async function invite() {
-    const url =
+  function referralUrl() {
+    const base =
       process.env.NEXT_PUBLIC_SITE_URL ||
       (typeof window !== "undefined" ? window.location.origin : "");
+    const ref = userId ? `?ref=${encodeURIComponent(userId)}` : "";
+    return `${base}/signup${ref}`;
+  }
+
+  async function invite() {
+    const url = referralUrl();
     const shareData = {
       title: "DailyOS",
       text: "I'm using DailyOS to handle life admin — give it a try:",
@@ -31,7 +39,7 @@ export function InviteButton() {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      toast({ variant: "success", title: "Invite link copied" });
+      toast({ variant: "success", title: "Referral link copied" });
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
       toast({ variant: "info", title: url });

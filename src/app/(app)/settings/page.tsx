@@ -59,11 +59,13 @@ export default async function SettingsPage() {
               </div>
               <SignOutButton />
             </div>
-            <div className="mt-4 flex items-center justify-between gap-3 border-t pt-4">
-              <p className="text-sm text-muted-foreground">
-                Enjoying DailyOS? Share it.
+            <div className="mt-4 flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="max-w-xs text-sm text-muted-foreground">
+                Invite a friend. When they subscribe to Plus or Pro, you get{" "}
+                <strong className="text-foreground">DAILYOSFRIEND10</strong> — 10%
+                off.
               </p>
-              <InviteButton />
+              <InviteButton userId={user?.id} />
             </div>
           </CardContent>
         </Card>

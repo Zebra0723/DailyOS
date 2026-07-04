@@ -38,10 +38,13 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
     try {
       if (mode === "signup") {
+        // Attribute the signup to a referrer if they arrived via a ?ref link.
+        const referredBy = params.get("ref");
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
+            data: referredBy ? { referred_by: referredBy } : undefined,
             emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`,
           },
         });
