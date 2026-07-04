@@ -49,12 +49,16 @@ are three separate things (see above).
 
 Order: run the migration → I wire the code → you add keys. Then it's live.
 
-## 4. Cross-device sync (recommended before scale)
+## 4. Cross-device sync (built — needs one SQL step)
 
-Today, HomeOS data, Interests, and plan status live in the browser's
-localStorage, so they don't follow a user across devices. **[code]** Moving
-these to Supabase tables (same RLS pattern as the rest of the app) makes the
-product feel "real." The subscriptions table above is the first piece.
+Plan/admin status already syncs via account metadata. HomeOS and Interests now
+sync too, via a per-user `user_state` table.
+
+- **[code, done]** Sync code (`src/lib/sync.ts`) reads/writes the table and
+  falls back to local storage if it isn't there — so nothing breaks today.
+- **[you]** Run `supabase/migrations/0003_user_state.sql` in the Supabase SQL
+  editor. After that, refresh the app and the same account's HomeOS/Interests
+  data follows the user across devices.
 
 ## 5. Before you flip it public
 

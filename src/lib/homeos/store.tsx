@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { createClient } from "@/lib/supabase/client";
+import { loadRemote, saveRemote, debounce } from "@/lib/sync";
 import { regenerateAlerts as computeAlerts } from "./alerts";
 import { buildDemoData } from "./demo";
 import { nowIso } from "./dates";
@@ -21,6 +22,8 @@ import {
 } from "./types";
 
 const STORAGE_BASE = "dailyos-homeos-v1";
+// Cross-device sync key (scoped to the user server-side by RLS).
+const SYNC_KEY = "homeos-v1";
 
 /** Storage is scoped per user so HomeOS data never leaks between accounts. */
 function storageKeyFor(userId: string | null | undefined): string {
@@ -141,33 +144,53 @@ export function HomeOSProvider({
 }) {
   const [data, setData] = React.useState<HomeOSData | null>(null);
   const keyRef = React.useRef<string>(storageKeyFor("anon"));
+  // Only push to the remote (cross-device) store once the initial pull has
+  // finished, so a fresh device's empty state can't clobber synced data.
+  const hydratedRef = React.useRef(false);
+  const pushRemote = React.useMemo(
+    () => debounce((v: HomeOSData) => void saveRemote(SYNC_KEY, v), 800),
+    [],
+  );
 
   React.useEffect(() => {
     let active = true;
+    hydratedRef.current = false;
 
-    // When the server handed us a userId, load synchronously — never block
-    // HomeOS behind a network call that could stall and leave it "not loading".
-    if (userId) {
-      keyRef.current = storageKeyFor(userId);
-      setData(recompute(loadFromStorage(keyRef.current) ?? emptyData()));
-      return () => {
-        active = false;
-      };
-    }
-
-    // No userId passed → fall back to resolving the session for the key.
-    const supabase = createClient();
     (async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      // Resolve the per-account key. Prefer the server userId (no network, so
+      // HomeOS never stalls); otherwise fall back to the session.
+      let uid = userId;
+      if (!uid) {
+        try {
+          const {
+            data: { session },
+          } = await createClient().auth.getSession();
+          uid = session?.user?.id;
+        } catch {
+          /* uid stays undefined */
+        }
+      }
       if (!active) return;
-      keyRef.current = storageKeyFor(session?.user?.id);
-      const loaded = loadFromStorage(keyRef.current);
-      // Start empty (so a new home shows "No score yet…"); demo data is one
-      // tap away from the dashboard or Settings.
-      setData(recompute(loaded ?? emptyData()));
+      keyRef.current = storageKeyFor(uid);
+
+      // 1. Instant paint from local storage.
+      const local = loadFromStorage(keyRef.current) ?? emptyData();
+      setData(recompute(local));
+
+      // 2. Cross-device pull (best-effort). If the remote has data, it wins;
+      //    otherwise seed the remote from local so other devices can pick it up.
+      const remote = await loadRemote<HomeOSData>(SYNC_KEY);
+      if (!active) return;
+      if (remote && Array.isArray(remote.subscriptions)) {
+        remote.settings = { ...DEFAULT_SETTINGS, ...remote.settings };
+        if (!Array.isArray(remote.concerns)) remote.concerns = [];
+        setData(recompute(remote));
+      } else {
+        void saveRemote(SYNC_KEY, local);
+      }
+      hydratedRef.current = true;
     })();
+
     return () => {
       active = false;
     };
@@ -180,8 +203,9 @@ export function HomeOSProvider({
       } catch {
         /* ignore quota errors in the prototype */
       }
+      if (hydratedRef.current) pushRemote(data);
     }
-  }, [data]);
+  }, [data, pushRemote]);
 
   const mutate = React.useCallback((fn: (d: HomeOSData) => HomeOSData) => {
     setData((prev) => (prev ? recompute(fn(prev)) : prev));

@@ -71,48 +71,48 @@ export function PricingTable({
 
   return (
     <div>
-      {/* Promo code */}
-      {unlocked ? (
-        <div className="mx-auto mb-8 flex max-w-md items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
-          <Sparkles className="size-4" /> You&apos;re on{" "}
-          {currentTier === "pro" ? "Pro" : "Plus"} — enjoy, legend!
-        </div>
-      ) : (
-        <div className="mx-auto mb-8 max-w-md">
-          <form
-            onSubmit={(e) => {
-              // Hard-stop the native submit so the page never reloads.
-              e.preventDefault();
-              e.stopPropagation();
-              applyCode();
-            }}
-            className="flex items-center gap-2"
-          >
-            <div className="relative flex-1">
-              <Tag className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={code}
-                onChange={(e) => {
-                  setCode(e.target.value);
-                  setError(false);
-                }}
-                placeholder="Promo code"
-                autoComplete="off"
-                autoCapitalize="characters"
-                className="pl-9 uppercase placeholder:normal-case"
-              />
-            </div>
-            <Button type="submit" variant="outline">
-              Apply
-            </Button>
-          </form>
-          {error && (
-            <p className="mt-2 text-center text-sm text-destructive">
-              That code isn&apos;t valid.
-            </p>
-          )}
-        </div>
-      )}
+      {/* Promo code — always available so a code (e.g. the owner ARLEOPRO code)
+          can be entered even after a plan is already unlocked. */}
+      <div className="mx-auto mb-8 max-w-md">
+        {unlocked && (
+          <div className="mb-3 flex items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
+            <Sparkles className="size-4" /> You&apos;re on{" "}
+            {currentTier === "pro" ? "Pro" : "Plus"} — enjoy, legend!
+          </div>
+        )}
+        <form
+          onSubmit={(e) => {
+            // Hard-stop the native submit so the page never reloads.
+            e.preventDefault();
+            e.stopPropagation();
+            applyCode();
+          }}
+          className="flex items-center gap-2"
+        >
+          <div className="relative flex-1">
+            <Tag className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                setError(false);
+              }}
+              placeholder={unlocked ? "Have another code?" : "Promo code"}
+              autoComplete="off"
+              autoCapitalize="characters"
+              className="pl-9 uppercase placeholder:normal-case"
+            />
+          </div>
+          <Button type="submit" variant="outline">
+            Apply
+          </Button>
+        </form>
+        {error && (
+          <p className="mt-2 text-center text-sm text-destructive">
+            That code isn&apos;t valid.
+          </p>
+        )}
+      </div>
 
       {/* Billing-cycle toggle */}
       <div className="mb-8 flex items-center justify-center gap-3">

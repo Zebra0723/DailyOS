@@ -10,6 +10,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { getInterestIdeas } from "@/app/(app)/interests/actions";
+import { loadRemote, saveRemote, debounce } from "@/lib/sync";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,8 @@ function splitSuggestion(s: string): { label?: string; text: string } {
 }
 
 const keyFor = (userId: string) => `dailyos-interests:${userId}`;
+// Cross-device sync key (scoped to the user server-side by RLS).
+const SYNC_KEY = "interests-v1";
 
 function uid() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -48,14 +51,44 @@ export function InterestsManager({ userId }: { userId: string }) {
   const [draft, setDraft] = React.useState("");
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const hydratedRef = React.useRef(false);
+  const pushRemote = React.useMemo(
+    () => debounce((v: Interest[]) => void saveRemote(SYNC_KEY, v), 800),
+    [],
+  );
 
   React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem(key);
-      setItems(raw ? (JSON.parse(raw) as Interest[]) : []);
-    } catch {
-      setItems([]);
-    }
+    let active = true;
+    (async () => {
+      // Instant paint from local storage.
+      let local: Interest[] = [];
+      try {
+        const raw = localStorage.getItem(key);
+        local = raw ? (JSON.parse(raw) as Interest[]) : [];
+      } catch {
+        local = [];
+      }
+      if (!active) return;
+      setItems(local);
+
+      // Cross-device pull (best-effort): remote wins if present, else seed it.
+      const remote = await loadRemote<Interest[]>(SYNC_KEY);
+      if (!active) return;
+      if (Array.isArray(remote)) {
+        setItems(remote);
+        try {
+          localStorage.setItem(key, JSON.stringify(remote));
+        } catch {
+          /* ignore */
+        }
+      } else if (local.length > 0) {
+        void saveRemote(SYNC_KEY, local);
+      }
+      hydratedRef.current = true;
+    })();
+    return () => {
+      active = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -66,6 +99,7 @@ export function InterestsManager({ userId }: { userId: string }) {
     } catch {
       /* ignore */
     }
+    if (hydratedRef.current) pushRemote(next);
   }
 
   function add() {
