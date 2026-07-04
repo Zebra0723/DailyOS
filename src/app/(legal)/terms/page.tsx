@@ -114,6 +114,12 @@ export default function TermsPage() {
       <ul>
         <li>AI output may be inaccurate and is <strong>not</strong> legal, medical, financial or other professional advice.</li>
         <li>You are responsible for decisions you make using AI output; review it before relying on it.</li>
+        <li>
+          The &ldquo;Ask DailyOS&rdquo; assistant uses AI and, to answer, is sent
+          a summary of your relevant DailyOS data along with your message, as
+          described in our <a href="/privacy">Privacy Policy</a>. It can suggest
+          adding tasks, events or notes, but nothing is saved until you confirm.
+        </li>
         <li>AI features may have usage limits, and prompts/outputs are handled as described in our <a href="/privacy">Privacy Policy</a>.</li>
         <li>Do not submit content you don&rsquo;t have the right to use, or use AI for illegal or harmful purposes.</li>
       </ul>

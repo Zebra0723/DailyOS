@@ -7,6 +7,7 @@ const PROTECTED_PREFIXES = [
   "/onboarding",
   "/welcome",
   "/today",
+  "/assistant",
   "/homeos",
   "/build-day",
   "/interests",

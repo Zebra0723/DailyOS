@@ -21,6 +21,7 @@ import {
   Heart,
   Globe,
   Search,
+  Sparkles,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { createClient } from "@/lib/supabase/client";
@@ -48,6 +49,7 @@ const CATEGORIES: {
     lead: "/today",
     items: [
       { href: "/today", label: "Today", icon: Sun },
+      { href: "/assistant", label: "Ask DailyOS", icon: Sparkles },
       { href: "/inbox", label: "Inbox", icon: Inbox },
       { href: "/build-day", label: "Build My Day", icon: CalendarClock },
       { href: "/interests", label: "Interests", icon: Heart },

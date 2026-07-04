@@ -21,6 +21,7 @@ import {
   Settings,
   CornerDownLeft,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -32,6 +33,7 @@ type Item = { id: string; label: string; sub: string; href: string; icon: Icon }
 const PAGES: Item[] = [
   { id: "p-add", label: "Add to Inbox", sub: "Page", href: "/inbox/new", icon: Plus },
   { id: "p-today", label: "Today", sub: "Page", href: "/today", icon: Sun },
+  { id: "p-ask", label: "Ask DailyOS", sub: "Page", href: "/assistant", icon: Sparkles },
   { id: "p-inbox", label: "Inbox", sub: "Page", href: "/inbox", icon: Inbox },
   { id: "p-build", label: "Build My Day", sub: "Page", href: "/build-day", icon: CalendarClock },
   { id: "p-interests", label: "Interests", sub: "Page", href: "/interests", icon: Heart },

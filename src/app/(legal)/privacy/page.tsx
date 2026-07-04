@@ -112,12 +112,21 @@ export default function PrivacyPage() {
         Some features (organising your Life Inbox, planning your day, suggesting
         ideas) use AI. When AI is enabled, only the specific text needed for that
         request is sent to a third-party, OpenAI-compatible model provider to
-        extract details or generate suggestions. We do <strong>not</strong> use
-        your content to train our own or third parties&rsquo; AI models. AI output
-        can be inaccurate — always review it (nothing is saved to your tasks,
-        calendar or vault until you approve it). If no AI provider is configured,
-        this processing happens on-device with built-in logic and nothing is sent
-        externally.
+        extract details or generate suggestions.
+      </p>
+      <p>
+        The <strong>&ldquo;Ask DailyOS&rdquo; assistant</strong> works the same
+        way, but to answer usefully it is also sent a short summary of your
+        relevant DailyOS data — for example your upcoming tasks and events and a
+        few recent notes — along with your message. This is used only to generate
+        your answer for that request; it is not used to train any AI model.
+      </p>
+      <p>
+        We do <strong>not</strong> use your content to train our own or third
+        parties&rsquo; AI models. AI output can be inaccurate — always review it
+        (nothing is saved to your tasks, calendar or vault until you approve it).
+        If no AI provider is configured, this processing happens on-device with
+        built-in logic and nothing is sent externally.
       </p>
 
       <h2>7. Automated decision-making</h2>

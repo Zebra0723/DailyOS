@@ -25,6 +25,9 @@ export interface ChatOptions {
   /** Encourage strict JSON output where the provider supports it. */
   json?: boolean;
   temperature?: number;
+  /** Per-call timeout in ms. Defaults to 5s (fast inbox extraction); the
+   *  assistant passes a longer budget for richer replies. */
+  timeoutMs?: number;
 }
 
 export interface AIProvider {
@@ -54,7 +57,7 @@ class OpenAICompatibleProvider implements AIProvider {
     );
   }
 
-  async chat({ messages, json, temperature = 0.2 }: ChatOptions): Promise<string> {
+  async chat({ messages, json, temperature = 0.2, timeoutMs = 5_000 }: ChatOptions): Promise<string> {
     if (!this.isConfigured()) {
       throw new Error(
         "AI provider is not configured. Set AI_PROVIDER_BASE_URL, AI_PROVIDER_API_KEY and AI_MODEL.",
@@ -73,9 +76,8 @@ class OpenAICompatibleProvider implements AIProvider {
         messages,
         ...(json ? { response_format: { type: "json_object" } } : {}),
       }),
-      // Keep it snappy: if the AI doesn't answer within 5s we fall back to
-      // local extraction so "Add to Inbox" is always fast.
-      signal: AbortSignal.timeout(5_000),
+      // Per-call budget (default 5s for fast inbox extraction).
+      signal: AbortSignal.timeout(timeoutMs),
     });
 
     if (!res.ok) {
