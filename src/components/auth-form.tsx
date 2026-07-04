@@ -46,6 +46,12 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           },
         });
         if (error) throw error;
+        // The signup agreement covers cookies — record the acceptance.
+        try {
+          localStorage.setItem("dailyos-cookie-consent", "accepted");
+        } catch {
+          /* ignore */
+        }
         // If email confirmation is enabled there is no active session yet.
         if (!data.session) {
           setSentConfirmation(true);
@@ -144,9 +150,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               rel="noreferrer"
               className="font-medium text-primary hover:underline"
             >
-              Terms of Service
-            </a>{" "}
-            and{" "}
+              Terms
+            </a>
+            ,{" "}
             <a
               href="/privacy"
               target="_blank"
@@ -154,8 +160,17 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               className="font-medium text-primary hover:underline"
             >
               Privacy Policy
+            </a>{" "}
+            and{" "}
+            <a
+              href="/cookies"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-primary hover:underline"
+            >
+              Cookie Policy
             </a>
-            .
+            , including the use of essential cookies.
           </span>
         </label>
       )}
