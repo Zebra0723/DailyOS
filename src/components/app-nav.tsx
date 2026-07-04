@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -22,6 +23,8 @@ import {
   Globe,
   Search,
   Sparkles,
+  Menu,
+  X,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { createClient } from "@/lib/supabase/client";
@@ -81,15 +84,12 @@ const CATEGORIES: {
   },
 ];
 
-// Bottom bar (mobile): the most-used destinations.
-const MOBILE_LINKS = [
+// Bottom bar (mobile): four key destinations + a "More" menu for everything.
+const BOTTOM = [
   { href: "/today", label: "Today", icon: Sun },
+  { href: "/assistant", label: "Ask", icon: Sparkles },
   { href: "/inbox", label: "Inbox", icon: Inbox },
-  { href: "/homeos", label: "HomeOS", icon: Home },
-  { href: "/calendar", label: "Cal", icon: Calendar },
-  { href: "/tasks", label: "Tasks", icon: CheckSquare },
-  { href: "/notes", label: "Notes", icon: StickyNote },
-  { href: "/wellbeing", label: "Calm", icon: Flower2 },
+  { href: "/calendar", label: "Calendar", icon: Calendar },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -260,42 +260,162 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
   );
 }
 
-export function MobileNav() {
+export function MobileNav({ email, userId }: { email?: string; userId?: string }) {
   const pathname = usePathname();
+  const { tier } = usePlan(userId);
+  const vaultLocked = tier === "free";
+  const homeLocked = tier !== "pro";
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    setMenuOpen(false); // close the drawer whenever the route changes
+  }, [pathname]);
+
+  async function signOut() {
+    try {
+      void createClient().auth.signOut({ scope: "local" });
+    } catch {
+      /* ignore */
+    }
+    window.location.href = "/auth/signout";
+  }
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-7 border-t bg-card/95 backdrop-blur md:hidden">
-      {MOBILE_LINKS.map((l) => (
-        <Link
-          key={l.href}
-          href={l.href}
-          className={cn(
-            "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors",
-            isActive(pathname, l.href)
-              ? "text-primary"
-              : "text-muted-foreground",
-          )}
+    <>
+      {/* Bottom bar */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 backdrop-blur md:hidden">
+        {BOTTOM.map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className={cn(
+              "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors",
+              isActive(pathname, l.href) ? "text-primary" : "text-muted-foreground",
+            )}
+          >
+            <l.icon className="size-5" />
+            {l.label}
+          </Link>
+        ))}
+        <button
+          onClick={() => setMenuOpen(true)}
+          className="flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground"
+          aria-label="More"
         >
-          <l.icon className="size-5" />
-          {l.label}
-        </Link>
-      ))}
-    </nav>
+          <Menu className="size-5" />
+          More
+        </button>
+      </nav>
+
+      {/* Full-nav drawer */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm md:hidden"
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            className="absolute inset-y-0 right-0 flex w-[82%] max-w-xs flex-col bg-card shadow-elevated"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <Link href="/today" onClick={() => setMenuOpen(false)}>
+                <Logo />
+              </Link>
+              <button
+                onClick={() => setMenuOpen(false)}
+                aria-label="Close menu"
+                className="text-muted-foreground"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="px-4 py-3">
+              <Button asChild className="w-full justify-start">
+                <Link href="/inbox/new" onClick={() => setMenuOpen(false)}>
+                  <Plus className="size-4" /> Add to Inbox
+                </Link>
+              </Button>
+            </div>
+
+            <nav className="flex-1 space-y-4 overflow-y-auto px-2 pb-4">
+              {CATEGORIES.map((cat) => (
+                <div key={cat.key}>
+                  <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                    {cat.key}
+                  </p>
+                  {cat.items.map((l) => {
+                    const active = isActive(pathname, l.href);
+                    const locked =
+                      ((l.href === "/vault" || l.href === "/build-day") && vaultLocked) ||
+                      (l.href === "/homeos" && homeLocked);
+                    return (
+                      <Link
+                        key={l.href}
+                        href={l.href}
+                        onClick={() => setMenuOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium",
+                          active
+                            ? "bg-accent text-accent-foreground"
+                            : "text-muted-foreground",
+                        )}
+                      >
+                        <l.icon
+                          className={cn("size-[18px]", active ? "text-primary" : "text-muted-foreground")}
+                        />
+                        {l.label}
+                        {locked && <Lock className="ml-auto size-3.5 text-muted-foreground/60" />}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ))}
+            </nav>
+
+            <div className="border-t px-4 py-3">
+              <div className="flex items-center gap-3">
+                <div className="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                  {initials(email ?? "")}
+                </div>
+                <p className="min-w-0 flex-1 truncate text-sm">{email}</p>
+                <button
+                  onClick={signOut}
+                  aria-label="Sign out"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <LogOut className="size-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
 export function MobileHeader() {
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/90 px-4 backdrop-blur md:hidden">
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b bg-background/90 px-4 backdrop-blur md:hidden">
       <Link href="/today">
         <Logo />
       </Link>
-      <Button size="sm" asChild>
-        <Link href="/inbox/new">
-          <Plus className="size-4" />
-          Add
-        </Link>
-      </Button>
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => window.dispatchEvent(new Event(OPEN_COMMAND_EVENT))}
+          aria-label="Search"
+          className="grid size-9 place-items-center rounded-full text-muted-foreground hover:text-foreground"
+        >
+          <Search className="size-5" />
+        </button>
+        <Button size="sm" asChild>
+          <Link href="/inbox/new">
+            <Plus className="size-4" />
+            Add
+          </Link>
+        </Button>
+      </div>
     </header>
   );
 }
