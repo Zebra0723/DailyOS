@@ -3,7 +3,8 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
-import { MonitorSmartphone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MonitorSmartphone, Columns2 } from "lucide-react";
 
 // Real device viewport sizes (CSS pixels).
 const DEVICES = [
@@ -37,9 +38,49 @@ const ROUTES = [
   "/settings",
 ];
 
+function Frame({
+  device,
+  route,
+  avail,
+}: {
+  device: (typeof DEVICES)[number];
+  route: string;
+  avail: number;
+}) {
+  const scale = Math.min(1, avail / device.w);
+  const frameW = Math.round(device.w * scale);
+  const frameH = Math.round(device.h * scale);
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div
+        style={{ width: frameW, height: frameH }}
+        className="overflow-hidden rounded-2xl border-2 border-foreground/70 bg-background shadow-elevated"
+      >
+        <iframe
+          key={`${device.name}-${route}`}
+          src={route}
+          title={`${device.name} preview`}
+          style={{
+            width: device.w,
+            height: device.h,
+            border: 0,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        />
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        {device.name} · {device.w}×{device.h} · {Math.round(scale * 100)}%
+      </p>
+    </div>
+  );
+}
+
 export function DevicePreview() {
   const [di, setDi] = React.useState(0);
+  const [di2, setDi2] = React.useState(6); // Desktop
   const [route, setRoute] = React.useState("/today");
+  const [compare, setCompare] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [maxW, setMaxW] = React.useState(320);
 
@@ -53,11 +94,7 @@ export function DevicePreview() {
     return () => ro.disconnect();
   }, []);
 
-  const device = DEVICES[di];
-  // Scale so the device's true width fits the panel; never upscale past 1.
-  const scale = Math.min(1, maxW / device.w);
-  const frameW = Math.round(device.w * scale);
-  const frameH = Math.round(device.h * scale);
+  const avail = compare ? Math.max(120, (maxW - 16) / 2) : maxW;
 
   return (
     <Card>
@@ -67,7 +104,7 @@ export function DevicePreview() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Select
             value={String(di)}
             onChange={(e) => setDi(Number(e.target.value))}
@@ -80,6 +117,20 @@ export function DevicePreview() {
               </option>
             ))}
           </Select>
+          {compare && (
+            <Select
+              value={String(di2)}
+              onChange={(e) => setDi2(Number(e.target.value))}
+              aria-label="Second device"
+              className="w-auto"
+            >
+              {DEVICES.map((d, i) => (
+                <option key={d.name} value={i}>
+                  {d.name} · {d.w}×{d.h}
+                </option>
+              ))}
+            </Select>
+          )}
           <Select
             value={route}
             onChange={(e) => setRoute(e.target.value)}
@@ -92,36 +143,25 @@ export function DevicePreview() {
               </option>
             ))}
           </Select>
+          <Button
+            variant={compare ? "default" : "outline"}
+            size="sm"
+            onClick={() => setCompare((c) => !c)}
+          >
+            <Columns2 className="size-4" /> Compare
+          </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          This is the <strong>real app</strong> rendered at each device&rsquo;s
-          exact viewport — the same code, logged in as you, scaled to fit. Not a
-          mockup.
+          The <strong>real app</strong> rendered at each device&rsquo;s exact
+          viewport — same code, logged in as you, scaled to fit. Not a mockup.
         </p>
 
         <div ref={containerRef} className="overflow-x-auto">
-          <div
-            style={{ width: frameW, height: frameH }}
-            className="mx-auto overflow-hidden rounded-2xl border-2 border-foreground/70 bg-background shadow-elevated"
-          >
-            <iframe
-              key={`${device.name}-${route}`}
-              src={route}
-              title={`${device.name} preview`}
-              style={{
-                width: device.w,
-                height: device.h,
-                border: 0,
-                transform: `scale(${scale})`,
-                transformOrigin: "top left",
-              }}
-            />
+          <div className="flex flex-wrap items-start justify-center gap-4">
+            <Frame device={DEVICES[di]} route={route} avail={avail} />
+            {compare && <Frame device={DEVICES[di2]} route={route} avail={avail} />}
           </div>
         </div>
-        <p className="text-center text-[11px] text-muted-foreground">
-          Showing {route} at {device.name} ({device.w}×{device.h}px), scaled to{" "}
-          {Math.round(scale * 100)}%.
-        </p>
       </CardContent>
     </Card>
   );
