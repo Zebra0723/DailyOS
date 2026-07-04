@@ -228,7 +228,8 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
               const locked =
                 ((l.href === "/vault" || l.href === "/build-day") &&
                   vaultLocked) ||
-                (l.href === "/homeos" && homeLocked);
+                ((l.href === "/homeos" || l.href === "/assistant") &&
+                  homeLocked);
               return (
                 <Link
                   key={l.href}
@@ -348,7 +349,7 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
                     const active = isActive(pathname, l.href);
                     const locked =
                       ((l.href === "/vault" || l.href === "/build-day") && vaultLocked) ||
-                      (l.href === "/homeos" && homeLocked);
+                      ((l.href === "/homeos" || l.href === "/assistant") && homeLocked);
                     return (
                       <Link
                         key={l.href}
