@@ -10,6 +10,7 @@ import {
   StickyNote,
   Check,
   Plus,
+  RotateCcw,
 } from "lucide-react";
 import { askAssistant } from "@/app/(app)/assistant/actions";
 import type { AssistantAction, ChatTurn } from "@/lib/ai/assistant";
@@ -128,8 +129,21 @@ export function AssistantChat() {
     }
   }
 
+  function reset() {
+    setMessages([]);
+    setAdded({});
+    setInput("");
+  }
+
   return (
     <div className="flex h-[calc(100vh-9rem)] flex-col">
+      {messages.length > 0 && (
+        <div className="flex justify-end pb-2">
+          <Button variant="ghost" size="sm" onClick={reset}>
+            <RotateCcw className="size-4" /> New chat
+          </Button>
+        </div>
+      )}
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto pb-4">
         {messages.length === 0 && (
