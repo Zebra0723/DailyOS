@@ -18,7 +18,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <TopNav email={user.email ?? "you@dailyos.app"} userId={user.id} />
+      <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
       <MobileHeader />
       <FreePlanBanner userId={user.id} />
       <main className="flex-1 pb-20 md:pb-0">

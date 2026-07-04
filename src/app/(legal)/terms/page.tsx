@@ -99,8 +99,8 @@ export default function TermsPage() {
 
       <h2>11. Contact</h2>
       <p>
-        Questions about these terms? Email{" "}
-        <a href="mailto:support@dailyos.app">support@dailyos.app</a>.
+        Questions about these terms? A support contact will be published here
+        soon.
       </p>
     </>
   );

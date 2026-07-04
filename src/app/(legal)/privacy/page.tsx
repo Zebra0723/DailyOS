@@ -99,8 +99,9 @@ export default function PrivacyPage() {
 
       <h2>Contact</h2>
       <p>
-        Questions about privacy? Email{" "}
-        <a href="mailto:support@dailyos.app">support@dailyos.app</a>.
+        Questions about privacy? A support contact will be published here soon.
+        In the meantime, you can view, edit and permanently delete all your data
+        yourself from <strong>Settings</strong>.
       </p>
     </>
   );

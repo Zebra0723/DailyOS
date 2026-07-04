@@ -14,7 +14,7 @@ The product itself is feature-complete. What's left is commercial plumbing.
   and includes free email forwarding.
 - **[you] Point Vercel at it** — add the domain in Vercel → Project → Domains,
   and set `NEXT_PUBLIC_SITE_URL` to `https://dailyos.app`.
-- **[you] Email forwarding** — forward `support@dailyos.app` to your inbox so
+- **[you] Email forwarding** — forward `support@yourdomain (once you set it up)` to your inbox so
   the address on the legal pages is real (receive-only, free).
 - **[you] (optional) A real mailbox** — Zoho (free tier) or Google Workspace
   (~£5/mo) if you want to *send* from `support@`.
@@ -62,7 +62,7 @@ product feel "real." The subscriptions table above is the first piece.
   actually enforced for the public.
 - **[you + code]** Add error monitoring (Sentry) — needs your account, I wire
   it in.
-- **[you]** Make sure `support@dailyos.app` receives mail.
+- **[you]** Make sure `support@yourdomain (once you set it up)` receives mail.
 
 ## 6. Marketing readiness
 

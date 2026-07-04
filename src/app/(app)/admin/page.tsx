@@ -17,7 +17,7 @@ export default async function AdminPage() {
   return (
     <AdminConsole
       userId={user?.id}
-      email={user?.email ?? "you@dailyos.app"}
+      email={user?.email ?? "you@example.com"}
       aiConfigured={aiConfigured}
       version={APP_VERSION}
     />

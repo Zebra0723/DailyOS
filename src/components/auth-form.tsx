@@ -20,6 +20,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [sentConfirmation, setSentConfirmation] = React.useState(false);
+  const [agreed, setAgreed] = React.useState(false);
 
   // New sign-ups go through onboarding; logins land on the welcome screen.
   // A `redirect` param (e.g. from a protected page) takes priority.
@@ -28,6 +29,10 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (mode === "signup" && !agreed) {
+      setError("Please agree to the Terms of Service and Privacy Policy.");
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -119,13 +124,53 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         />
       </div>
 
+      {mode === "signup" && (
+        <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => {
+              setAgreed(e.target.checked);
+              if (e.target.checked) setError(null);
+            }}
+            className="mt-0.5 size-4 shrink-0 accent-primary"
+            aria-label="Agree to the Terms of Service and Privacy Policy"
+          />
+          <span>
+            I agree to the{" "}
+            <a
+              href="/terms"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-primary hover:underline"
+            >
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-primary hover:underline"
+            >
+              Privacy Policy
+            </a>
+            .
+          </span>
+        </label>
+      )}
+
       {error && (
         <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={loading || (mode === "signup" && !agreed)}
+      >
         {loading && <Loader2 className="size-4 animate-spin" />}
         {mode === "signup" ? "Create account" : "Log in"}
       </Button>

@@ -20,7 +20,7 @@ export default async function SettingsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const email = user?.email ?? "you@dailyos.app";
+  const email = user?.email ?? "you@example.com";
   const username =
     (user?.user_metadata?.username as string | undefined) ??
     email.split("@")[0];
