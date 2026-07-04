@@ -57,13 +57,21 @@ export async function createInboxItem(input: CreateItemInput) {
     return { ok: false as const, error: error?.message ?? "Could not save item." };
   }
 
-  // Run extraction inline so the review screen is ready on arrival.
-  const result = await processInboxItem(data.id);
+  // Run extraction inline so the review screen is ready on arrival. Guard it so
+  // that even if extraction throws unexpectedly, the item is still created and
+  // the user lands on the review screen (never a hung "Add to Inbox").
+  let status: InboxItem["status"] = "pending";
+  try {
+    const result = await processInboxItem(data.id);
+    status = result.status;
+  } catch {
+    /* item stays 'pending'; the review screen can re-run extraction */
+  }
 
   revalidatePath("/inbox");
   revalidatePath("/today");
 
-  return { ok: true as const, id: data.id, status: result.status };
+  return { ok: true as const, id: data.id, status };
 }
 
 /** Re-run extraction for an existing item (e.g. after adding text). */

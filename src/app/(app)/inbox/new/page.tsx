@@ -5,6 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CaptureForm } from "@/components/capture-form";
 
 export const metadata = { title: "Add to Inbox · DailyOS" };
+// Give the inline AI extraction room to finish (capped at 25s in the provider);
+// prevents the "Add to Inbox" server action being killed early on a slow AI.
+export const maxDuration = 60;
 
 export default async function NewInboxPage() {
   const supabase = createClient();

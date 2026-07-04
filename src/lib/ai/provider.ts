@@ -73,8 +73,10 @@ class OpenAICompatibleProvider implements AIProvider {
         messages,
         ...(json ? { response_format: { type: "json_object" } } : {}),
       }),
-      // Don't hang forever on a slow provider.
-      signal: AbortSignal.timeout(60_000),
+      // Don't hang forever on a slow provider. Kept well under typical
+      // serverless limits so a slow AI response falls back to local extraction
+      // instead of hanging the request (or the "Add to Inbox" flow).
+      signal: AbortSignal.timeout(25_000),
     });
 
     if (!res.ok) {
