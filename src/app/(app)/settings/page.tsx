@@ -7,11 +7,13 @@ import { InviteButton } from "@/components/invite-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { PricingTable } from "@/components/pricing-table";
 import { AdminPanel } from "@/components/admin-panel";
+import { CalendarSyncCard } from "@/components/calendar-sync-card";
 import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { initials } from "@/lib/utils";
 import { APP_VERSION } from "@/lib/version";
+import { makeFeedToken } from "@/lib/calendar-feed";
 
 export const metadata = { title: "Settings · DailyOS" };
 
@@ -32,6 +34,18 @@ export default async function SettingsPage() {
         year: "numeric",
       })
     : "—";
+
+  // Calendar sync (Pro): build the private feed URL server-side, gated on the
+  // account's plan metadata so the token isn't exposed to non-Pro accounts.
+  const meta = user?.user_metadata ?? {};
+  const isPro =
+    meta.plan === "pro" || meta.pro === true || meta.admin === true;
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://daily-os-lac.vercel.app";
+  const feedUrl =
+    isPro && user
+      ? `${siteUrl}/api/calendar/feed?token=${makeFeedToken(user.id)}`
+      : null;
 
   return (
     <div className="max-w-2xl">
@@ -102,6 +116,9 @@ export default async function SettingsPage() {
             <ModeToggle />
           </CardContent>
         </Card>
+
+        {/* Calendar sync (Pro) */}
+        <CalendarSyncCard feedUrl={feedUrl} />
 
         {/* Billing placeholder */}
         <Card>

@@ -32,8 +32,10 @@ const AUTH_ROUTES = ["/login", "/signup"];
  */
 export async function updateSession(request: NextRequest) {
   // Let the sign-out route clear cookies without the middleware refreshing the
-  // session underneath it.
-  if (request.nextUrl.pathname === "/auth/signout") {
+  // session underneath it. The public calendar feed is token-authorised and
+  // must be reachable without a session.
+  const p = request.nextUrl.pathname;
+  if (p === "/auth/signout" || p.startsWith("/api/calendar/")) {
     return NextResponse.next({ request });
   }
 

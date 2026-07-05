@@ -63,6 +63,7 @@ export const PLANS: Plan[] = [
       "Everything in Plus, plus:",
       "Ask DailyOS — your AI chief-of-staff assistant",
       "The assistant can act — complete & reschedule tasks",
+      "Calendar sync — Apple & Google Calendar",
       "Unlimited life-admin updates",
       "Priority AI processing",
       "Family sharing (coming soon)",
