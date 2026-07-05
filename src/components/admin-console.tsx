@@ -10,6 +10,8 @@ import {
   Database,
   Trash2,
   RotateCcw,
+  ClipboardList,
+  Circle,
 } from "lucide-react";
 import { usePlan, setPlan, setAdmin, type Tier } from "@/lib/use-pro";
 import { createClient } from "@/lib/supabase/client";
@@ -23,16 +25,25 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
+type Setup = {
+  aiConfigured: boolean;
+  emailConfigured: boolean;
+  referralsReady: boolean;
+  subscriptionsReady: boolean;
+};
+
 export function AdminConsole({
   userId,
   email,
   aiConfigured,
   version,
+  setup,
 }: {
   userId?: string;
   email: string;
   aiConfigured: boolean;
   version: string;
+  setup?: Setup;
 }) {
   const { mounted, admin, tier } = usePlan(userId);
   const { toast } = useToast();
@@ -193,8 +204,75 @@ export function AdminConsole({
         </CardContent>
       </Card>
 
+      {/* What still needs your logins (Leo can't do these) */}
+      {setup && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ClipboardList className="size-4 text-primary" /> Your setup
+              checklist
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              These need your own accounts and keys, so they&apos;re on you — not
+              Leo. Each one lights up green here once it&apos;s live.
+            </p>
+            <SetupItem
+              done={setup.emailConfigured}
+              title="Transactional email (Resend)"
+              detail="Create a Resend account, verify a sending domain, then add RESEND_API_KEY and EMAIL_FROM in Vercel. Until then, referral reward emails are skipped (referrals still count)."
+            />
+            <SetupItem
+              done={setup.referralsReady}
+              title="Run migration 0005_referrals.sql"
+              detail="Paste supabase/migrations/0005_referrals.sql into the Supabase SQL editor so referrals are stored and countable."
+            />
+            <SetupItem
+              done={setup.subscriptionsReady}
+              title="Payments (Stripe) — real 'pays' signal"
+              detail="Run 0002_subscriptions.sql and add Stripe keys so a real subscription triggers rewards. For now, a friend entering ARLEOPRO stands in for a payment."
+            />
+            <SetupItem
+              done={aiConfigured}
+              title="AI provider key"
+              detail="Add the AI provider key in Vercel for real inbox parsing and Ask DailyOS answers."
+            />
+            <SetupItem
+              done={false}
+              title="Google / Apple Calendar OAuth (two-way)"
+              detail="One-way subscribe already works. Two-way import needs Google/Apple OAuth credentials you set up — a future step."
+            />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Real-app preview across devices */}
       <DevicePreview />
+    </div>
+  );
+}
+
+function SetupItem({
+  done,
+  title,
+  detail,
+}: {
+  done: boolean;
+  title: string;
+  detail: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-lg border p-3">
+      {done ? (
+        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+      ) : (
+        <Circle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+      )}
+      <div className="min-w-0">
+        <p className="text-sm font-medium">{title}</p>
+        <p className="text-xs text-muted-foreground">{detail}</p>
+      </div>
     </div>
   );
 }

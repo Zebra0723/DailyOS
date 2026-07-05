@@ -5,9 +5,10 @@ import { UserPlus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 
-/** Share / copy a personal referral link. Friends who sign up through it are
- *  attributed to you, so that once payments are live and they subscribe to a
- *  paid plan you can be credited the DAILYOSFRIEND10 (10% off) reward.
+/** Share / copy a personal referral link. It points at a one-of-a-kind referral
+ *  page (/r/<your id>) that explains the 10%-off-for-both deal and sends the
+ *  friend on to sign up attributed to you. When they land on a paid plan, both
+ *  of you are emailed the DAILYOSFRIEND10 (10% off) code.
  *  Uses the native share sheet on mobile, falls back to copying the link. */
 export function InviteButton({ userId }: { userId?: string }) {
   const { toast } = useToast();
@@ -17,15 +18,16 @@ export function InviteButton({ userId }: { userId?: string }) {
     const base =
       process.env.NEXT_PUBLIC_SITE_URL ||
       (typeof window !== "undefined" ? window.location.origin : "");
-    const ref = userId ? `?ref=${encodeURIComponent(userId)}` : "";
-    return `${base}/signup${ref}`;
+    // No id → fall back to a plain signup link (shouldn't happen for a
+    // signed-in user, but keeps the button safe).
+    return userId ? `${base}/r/${encodeURIComponent(userId)}` : `${base}/signup`;
   }
 
   async function invite() {
     const url = referralUrl();
     const shareData = {
-      title: "DailyOS",
-      text: "I'm using DailyOS to handle life admin — give it a try:",
+      title: "DailyOS — 10% off",
+      text: "I'm using DailyOS to handle life admin. Join through my link and we both get 10% off:",
       url,
     };
     try {

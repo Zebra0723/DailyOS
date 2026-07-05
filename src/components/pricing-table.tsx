@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check, Sparkles, Tag } from "lucide-react";
 import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
 import { usePlan, setPlan, setAdmin, type Tier } from "@/lib/use-pro";
+import { recordReferralConversion } from "@/app/(app)/subscriptions/referral-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -77,6 +78,33 @@ export function PricingTable({
     // admin status untouched.
     if (isAdmin) void setAdmin(true, userId);
     else if (plan === "free") void setAdmin(false, userId);
+
+    // Landing on a paid plan is what "counts" a referral. Until Stripe is live,
+    // a paid code stands in for a payment (e.g. a referred friend entering
+    // ARLEOPRO). If this account was referred, both parties get emailed the
+    // 10%-off code. No-ops safely for non-referred users.
+    if (plan !== "free") void convertReferral();
+  }
+
+  async function convertReferral() {
+    try {
+      const res = await recordReferralConversion();
+      if (res.ok && res.reason !== "already-converted") {
+        if (res.emailed) {
+          toast({
+            variant: "success",
+            title: "Referral counted — 10% off is on its way to both inboxes.",
+          });
+        } else if (res.reason === "email-not-configured") {
+          toast({
+            variant: "info",
+            title: "Referral counted. Email isn't wired up yet, so no code was sent.",
+          });
+        }
+      }
+    } catch {
+      /* referral tracking is best-effort — never block unlocking a plan */
+    }
   }
 
   return (

@@ -62,9 +62,9 @@ export default async function SettingsPage() {
             </div>
             <div className="mt-4 flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="max-w-xs text-sm text-muted-foreground">
-                Invite a friend. When they subscribe to Plus or Pro, you get{" "}
-                <strong className="text-foreground">DAILYOSFRIEND10</strong> — 10%
-                off.
+                Invite a friend with your own link. When they subscribe to Plus
+                or Pro, <strong className="text-foreground">you both</strong> get
+                10% off — automatically emailed to each of you.
               </p>
               <InviteButton userId={user?.id} />
             </div>

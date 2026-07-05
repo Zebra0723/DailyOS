@@ -1,6 +1,8 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, Gift } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PricingTable } from "@/components/pricing-table";
+import { InviteButton } from "@/components/invite-button";
+import { getReferralSummary } from "@/app/(app)/subscriptions/referral-actions";
 
 export const metadata = { title: "Subscription · DailyOS" };
 
@@ -9,6 +11,8 @@ export default async function SubscriptionsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const referrals = await getReferralSummary();
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -27,6 +31,45 @@ export default async function SubscriptionsPage() {
       </div>
 
       <PricingTable userId={user?.id} />
+
+      {/* Refer a friend — 10% off for both */}
+      <div className="mt-10 overflow-hidden rounded-3xl border bg-card p-6 shadow-card sm:p-8">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+              <Gift className="size-5" />
+            </div>
+            <div>
+              <h2 className="font-display text-xl font-semibold tracking-tight">
+                Give 10%, get 10%
+              </h2>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                Share your one-of-a-kind link. When a friend subscribes, you
+                both get <strong className="text-foreground">10% off</strong> —
+                the code lands in both inboxes automatically.
+              </p>
+            </div>
+          </div>
+          <div className="shrink-0">
+            <InviteButton userId={user?.id} />
+          </div>
+        </div>
+
+        {referrals.total > 0 && (
+          <div className="mt-6 flex gap-6 border-t pt-5 text-sm">
+            <div>
+              <div className="text-2xl font-semibold">{referrals.total}</div>
+              <div className="text-muted-foreground">Invited</div>
+            </div>
+            <div>
+              <div className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+                {referrals.converted}
+              </div>
+              <div className="text-muted-foreground">Subscribed</div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
