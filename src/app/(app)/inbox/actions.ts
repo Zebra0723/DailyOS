@@ -224,10 +224,18 @@ export async function setInboxHandled(id: string, handled: boolean) {
 
 export async function deleteInboxItem(id: string) {
   const { supabase } = await requireUser();
+  // Remove everything created from this item first, so nothing is orphaned
+  // (tasks, calendar events, the vault entry, and the processing log).
+  await supabase.from("extracted_tasks").delete().eq("inbox_item_id", id);
+  await supabase.from("calendar_events").delete().eq("inbox_item_id", id);
+  await supabase.from("vault_items").delete().eq("inbox_item_id", id);
+  await supabase.from("processing_logs").delete().eq("inbox_item_id", id);
   const { error } = await supabase.from("inbox_items").delete().eq("id", id);
   if (error) return { ok: false as const, error: error.message };
   revalidatePath("/inbox");
   revalidatePath("/today");
+  revalidatePath("/tasks");
+  revalidatePath("/calendar");
   revalidatePath("/vault");
   return { ok: true as const };
 }

@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { Inbox as InboxIcon, Plus, FileText, Type } from "lucide-react";
+import { Inbox as InboxIcon, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
-import { StatusBadge, ItemTypeBadge } from "@/components/badges";
+import { InboxRow } from "@/components/inbox-row";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { relativeDay } from "@/lib/utils";
 import type { InboxItem } from "@/lib/types";
 
 export const metadata = { title: "Inbox · DailyOS" };
@@ -46,34 +44,7 @@ export default async function InboxPage() {
       ) : (
         <div className="grid gap-3">
           {items.map((item) => (
-            <Link key={item.id} href={`/inbox/${item.id}`}>
-              <Card className="flex items-center gap-4 p-4 transition-colors hover:bg-accent/40">
-                <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
-                  {item.input_type === "file" ? (
-                    <FileText className="size-5" />
-                  ) : (
-                    <Type className="size-5" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate font-medium">{item.title}</p>
-                  </div>
-                  <p className="truncate text-sm text-muted-foreground">
-                    {item.summary ?? "Awaiting review"}
-                  </p>
-                </div>
-                <div className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
-                  <StatusBadge status={item.status} />
-                  <span className="text-xs text-muted-foreground">
-                    {relativeDay(item.created_at)}
-                  </span>
-                </div>
-                <div className="shrink-0 sm:hidden">
-                  <StatusBadge status={item.status} />
-                </div>
-              </Card>
-            </Link>
+            <InboxRow key={item.id} item={item} />
           ))}
         </div>
       )}

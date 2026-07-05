@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Search,
   Archive,
@@ -13,12 +14,16 @@ import {
   ShoppingBag,
   HeartPulse,
   RefreshCw,
+  Trash2,
+  Loader2,
   type LucideIcon,
 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { CategoryBadge } from "@/components/badges";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/toast";
+import { deleteVaultItem } from "@/app/(app)/vault/actions";
 import { cn, formatDate } from "@/lib/utils";
 import {
   VAULT_CATEGORY_LABELS,
@@ -43,8 +48,31 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
 };
 
 export function VaultBrowser({ items }: { items: VaultRow[] }) {
+  const router = useRouter();
+  const { toast } = useToast();
   const [query, setQuery] = React.useState("");
   const [category, setCategory] = React.useState<VaultCategory | "all">("all");
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
+  async function onDelete(id: string) {
+    if (deletingId) return;
+    if (!window.confirm("Remove this from your vault? This cannot be undone."))
+      return;
+    setDeletingId(id);
+    try {
+      const res = await deleteVaultItem(id);
+      if (res.ok) {
+        toast({ variant: "success", title: "Removed from vault" });
+        router.refresh();
+      } else {
+        toast({ variant: "error", title: "Couldn't remove", description: res.error });
+      }
+    } catch {
+      toast({ variant: "error", title: "Couldn't remove" });
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   const categories = React.useMemo(() => {
     const counts = new Map<string, number>();
@@ -118,25 +146,41 @@ export function VaultBrowser({ items }: { items: VaultRow[] }) {
           {filtered.map((it) => {
             const Icon = CATEGORY_ICON[it.category] ?? FileText;
             return (
-            <Link key={it.id} href={`/inbox/${it.inbox_item_id}`}>
-              <Card className="h-full p-4 transition-colors hover:bg-accent/40">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
-                    <Icon className="size-5" />
+            <div key={it.id} className="relative">
+              <Link href={`/inbox/${it.inbox_item_id}`}>
+                <Card className="h-full p-4 transition-colors hover:bg-accent/40">
+                  <div className="flex items-start justify-between gap-2 pr-9">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
+                      <Icon className="size-5" />
+                    </div>
+                    <CategoryBadge category={it.category as VaultCategory} />
                   </div>
-                  <CategoryBadge category={it.category as VaultCategory} />
-                </div>
-                <p className="mt-3 font-medium leading-snug">{it.title}</p>
-                {it.summary && (
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {it.summary}
+                  <p className="mt-3 font-medium leading-snug">{it.title}</p>
+                  {it.summary && (
+                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                      {it.summary}
+                    </p>
+                  )}
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Saved {formatDate(it.created_at)}
                   </p>
+                </Card>
+              </Link>
+              <button
+                type="button"
+                onClick={() => onDelete(it.id)}
+                disabled={deletingId === it.id}
+                aria-label="Remove from vault"
+                title="Remove from vault"
+                className="absolute right-3 top-3 grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+              >
+                {deletingId === it.id ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Trash2 className="size-4" />
                 )}
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Saved {formatDate(it.created_at)}
-                </p>
-              </Card>
-            </Link>
+              </button>
+            </div>
             );
           })}
         </div>

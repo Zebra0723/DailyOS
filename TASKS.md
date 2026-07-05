@@ -72,6 +72,11 @@ A shared list so Leo and Arjun always know who's doing what.
     feedback flows: Leo → Claude → Arjun. Pending items live in "Awaiting Leo's
     testing" below.
 
+17. **Always surface reminders (set by Arjun).** Claude ends EVERY reply — to
+    Leo, Arjun, or an unnamed sender — with a short "🔔 Reminders" footer listing
+    the still-outstanding owner setup items (the ⛔/⏸️ block under "Owner setup
+    reminders"). Keep it brief (just the open ones); drop items as they go done.
+
 ### Leo's level ladder (20 levels → Arjun status)
 
 **How to level up:** to advance from your current level you either (a) complete
