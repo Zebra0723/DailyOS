@@ -196,6 +196,26 @@ _(Claude adds big features here; prompts Leo to test them next time he messages.
 
 ## Parked / future (remember for later)
 
+### 🔔 Owner setup reminders (Arjun-only — needs your logins / keys)
+_The code for these is built and safely switched off until you wire the service
+up. Each one is tracked live on `/admin` → "Your setup checklist" (goes green
+when done)._
+
+- ⛔ **Transactional email (Resend)** — powers the referral reward emails (when a
+  referred friend goes paid, both people get emailed the `DAILYOSFRIEND10` 10%-off
+  code). Code is done & env-gated. **To turn on:** sign up at resend.com → verify a
+  sending domain → add `RESEND_API_KEY` and `EMAIL_FROM` in Vercel. Until then
+  referrals still *count*, they just don't email.
+- ⛔ **Run `0005_referrals.sql`** in the Supabase SQL editor — turns on referral
+  tracking / the Invited·Subscribed counts. (Only outstanding migration; the rest
+  are done. `0002_subscriptions.sql` waits for Stripe.)
+- ⏸️ **Payments (Stripe)** — gives a real "they paid" signal for referrals + true
+  secure plan tiers (see the parked Stripe item below). Needs `0002_subscriptions.sql`
+  + Stripe keys. For now a paid promo code (e.g. entering a code) stands in for payment.
+- ⏸️ **Google / Apple Calendar two-way sync (OAuth)** — one-way *subscribe* (the
+  read-only feed) is live. Importing events back needs Google/Apple OAuth
+  credentials you set up.
+
 - ⏸️ **Live account connections for OrganizerOS** — _Arjun (parked)_
   - **Gmail** — possible, but needs a real OAuth backend (Google Cloud project,
     consent screen, sensitive-scope verification, secure token storage). Real

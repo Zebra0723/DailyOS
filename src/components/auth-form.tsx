@@ -48,7 +48,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           password,
           options: {
             data: referredBy ? { referred_by: referredBy } : undefined,
-            emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`,
+            // Carry the "Remember me" choice through the email-confirmation link
+            // so the callback can stamp the right session length (4wk vs 3d).
+            emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}&remember=${remember ? 1 : 0}`,
           },
         });
         if (error) throw error;
@@ -71,9 +73,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         if (error) throw error;
       }
 
-      // Stamp how long this login should last. A brand-new signup is kept for
-      // the full 4 weeks; a returning login honours the "Remember me" tick.
-      markSessionStart(mode === "signup" ? true : remember);
+      // Stamp how long this session lasts, honouring the "Remember me" tick on
+      // both login and signup (ticked → 4 weeks, unticked → 3 days).
+      markSessionStart(remember);
 
       toast({ variant: "success", title: "Welcome to DailyOS" });
       // One clean, hard navigation: the browser makes a single request that
@@ -140,22 +142,20 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         />
       </div>
 
-      {mode === "login" && (
-        <label className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="size-4 shrink-0 accent-primary"
-          />
-          <span>
-            Keep me logged in for 4 weeks
-            <span className="block text-xs text-muted-foreground/80">
-              Otherwise you&apos;ll be signed out after 3 days.
-            </span>
+      <label className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground">
+        <input
+          type="checkbox"
+          checked={remember}
+          onChange={(e) => setRemember(e.target.checked)}
+          className="size-4 shrink-0 accent-primary"
+        />
+        <span>
+          Keep me logged in for 4 weeks
+          <span className="block text-xs text-muted-foreground/80">
+            Otherwise you&apos;ll be signed out after 3 days.
           </span>
-        </label>
-      )}
+        </span>
+      </label>
 
       {mode === "signup" && (
         <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted-foreground">
