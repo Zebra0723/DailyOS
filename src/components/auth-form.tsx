@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { markSessionStart } from "@/lib/session-expiry";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [error, setError] = React.useState<string | null>(null);
   const [sentConfirmation, setSentConfirmation] = React.useState(false);
   const [agreed, setAgreed] = React.useState(false);
+  // Off by default: a plain login lasts 3 days; ticking it stretches to 4 weeks.
+  const [remember, setRemember] = React.useState(false);
 
   // New sign-ups go through onboarding; logins land on the welcome screen.
   // A `redirect` param (e.g. from a protected page) takes priority.
@@ -67,6 +70,10 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         });
         if (error) throw error;
       }
+
+      // Stamp how long this login should last. A brand-new signup is kept for
+      // the full 4 weeks; a returning login honours the "Remember me" tick.
+      markSessionStart(mode === "signup" ? true : remember);
 
       toast({ variant: "success", title: "Welcome to DailyOS" });
       // One clean, hard navigation: the browser makes a single request that
@@ -132,6 +139,23 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           required
         />
       </div>
+
+      {mode === "login" && (
+        <label className="flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+            className="size-4 shrink-0 accent-primary"
+          />
+          <span>
+            Keep me logged in for 4 weeks
+            <span className="block text-xs text-muted-foreground/80">
+              Otherwise you&apos;ll be signed out after 3 days.
+            </span>
+          </span>
+        </label>
+      )}
 
       {mode === "signup" && (
         <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted-foreground">

@@ -12,6 +12,7 @@ import {
   RotateCcw,
   ClipboardList,
   Circle,
+  Heart,
 } from "lucide-react";
 import { usePlan, setPlan, setAdmin, type Tier } from "@/lib/use-pro";
 import { createClient } from "@/lib/supabase/client";
@@ -201,6 +202,33 @@ export function AdminConsole({
           <Button variant="outline" size="sm" onClick={resetOnboarding}>
             <RotateCcw className="size-4" /> Reset onboarding
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Memories — where DailyOS started */}
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-accent/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Heart className="size-4 text-primary" /> Memories
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="rounded-xl border bg-card/60 p-4">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium">The first working DailyOS</p>
+              <Badge variant="success">v1 · 23 Jun 2026</Badge>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              The day the whole thing first stood up: the Life Inbox, AI that
+              read receipts and letters, and tasks, calendar and the Vault to
+              catch what it found. Rough around the edges, but it worked — and
+              everything since grew from here.
+            </p>
+          </div>
+          <p className="text-center text-xs text-muted-foreground">
+            From that first build to{" "}
+            <strong className="text-foreground">{version}</strong>. Keep going. 💛
+          </p>
         </CardContent>
       </Card>
 

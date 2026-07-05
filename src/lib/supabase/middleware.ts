@@ -1,5 +1,9 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  SESSION_DEADLINE_COOKIE,
+  isSessionExpired,
+} from "@/lib/session-expiry";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
@@ -70,6 +74,25 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
   const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
+
+  // A logged-in session that has outlived its "Remember me" window (4 weeks) —
+  // or its default 3-day window — gets signed out. The deadline cookie is
+  // stamped at login and drops itself when it lapses; a missing one counts as
+  // expired, so pre-feature sessions are re-authenticated once. /auth/signout
+  // is already short-circuited above, so there's no redirect loop.
+  const sessionExpired =
+    Boolean(user) &&
+    isSessionExpired(
+      request.cookies.get(SESSION_DEADLINE_COOKIE)?.value,
+      Date.now(),
+    );
+
+  if (sessionExpired) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/signout";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
