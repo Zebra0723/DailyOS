@@ -25,6 +25,7 @@ import {
   Sparkles,
   Menu,
   X,
+  CreditCard,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { createClient } from "@/lib/supabase/client";
@@ -79,8 +80,11 @@ const CATEGORIES: {
   },
   {
     key: "Account",
-    lead: "/settings",
-    items: [{ href: "/settings", label: "Settings", icon: Settings }],
+    lead: "/subscriptions",
+    items: [
+      { href: "/subscriptions", label: "Subscription", icon: CreditCard },
+      { href: "/settings", label: "Settings", icon: Settings },
+    ],
   },
 ];
 

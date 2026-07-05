@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CalendarClock, Copy, Check, Sparkles } from "lucide-react";
+import { CalendarClock, Copy, Check, Sparkles, Loader2 } from "lucide-react";
+import { usePlan, tierMeets } from "@/lib/use-pro";
+import { getCalendarFeedUrl } from "@/app/(app)/settings/calendar-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,9 +16,24 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
 
-export function CalendarSyncCard({ feedUrl }: { feedUrl: string | null }) {
+export function CalendarSyncCard({ userId }: { userId?: string }) {
+  const { mounted, tier } = usePlan(userId);
   const { toast } = useToast();
+  const isPro = tierMeets(tier, "Pro");
+  const [feedUrl, setFeedUrl] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    let active = true;
+    if (isPro && !feedUrl) {
+      getCalendarFeedUrl().then((r) => {
+        if (active && r.ok && r.url) setFeedUrl(r.url);
+      });
+    }
+    return () => {
+      active = false;
+    };
+  }, [isPro, feedUrl]);
 
   async function copy() {
     if (!feedUrl) return;
@@ -42,7 +59,26 @@ export function CalendarSyncCard({ feedUrl }: { feedUrl: string | null }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {feedUrl ? (
+        {!mounted ? (
+          <div className="grid place-items-center py-6 text-muted-foreground">
+            <Loader2 className="size-5 animate-spin" />
+          </div>
+        ) : !isPro ? (
+          <div className="flex flex-col items-start gap-3 rounded-lg border border-primary/20 bg-accent/30 p-4">
+            <p className="text-sm">
+              Calendar sync is a <strong>Pro</strong> feature.
+            </p>
+            <Button asChild size="sm">
+              <Link href="/subscriptions">
+                <Sparkles className="size-4" /> See Pro
+              </Link>
+            </Button>
+          </div>
+        ) : !feedUrl ? (
+          <div className="grid place-items-center py-6 text-muted-foreground">
+            <Loader2 className="size-5 animate-spin" />
+          </div>
+        ) : (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Input readOnly value={feedUrl} className="text-xs" />
@@ -67,17 +103,6 @@ export function CalendarSyncCard({ feedUrl }: { feedUrl: string | null }) {
                 can see these events.
               </p>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-start gap-3 rounded-lg border border-primary/20 bg-accent/30 p-4">
-            <p className="text-sm">
-              Calendar sync is a <strong>Pro</strong> feature.
-            </p>
-            <Button asChild size="sm">
-              <Link href="#plans">
-                <Sparkles className="size-4" /> See Pro
-              </Link>
-            </Button>
           </div>
         )}
       </CardContent>

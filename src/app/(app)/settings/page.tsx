@@ -5,15 +5,14 @@ import { SettingsDanger } from "@/components/settings-danger";
 import { SignOutButton } from "@/components/sign-out-button";
 import { InviteButton } from "@/components/invite-button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { PricingTable } from "@/components/pricing-table";
 import { AdminPanel } from "@/components/admin-panel";
 import { CalendarSyncCard } from "@/components/calendar-sync-card";
 import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { initials } from "@/lib/utils";
 import { APP_VERSION } from "@/lib/version";
-import { makeFeedToken } from "@/lib/calendar-feed";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export const metadata = { title: "Settings · DailyOS" };
 
@@ -34,18 +33,6 @@ export default async function SettingsPage() {
         year: "numeric",
       })
     : "—";
-
-  // Calendar sync (Pro): build the private feed URL server-side, gated on the
-  // account's plan metadata so the token isn't exposed to non-Pro accounts.
-  const meta = user?.user_metadata ?? {};
-  const isPro =
-    meta.plan === "pro" || meta.pro === true || meta.admin === true;
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://daily-os-lac.vercel.app";
-  const feedUrl =
-    isPro && user
-      ? `${siteUrl}/api/calendar/feed?token=${makeFeedToken(user.id)}`
-      : null;
 
   return (
     <div className="max-w-2xl">
@@ -118,32 +105,25 @@ export default async function SettingsPage() {
         </Card>
 
         {/* Calendar sync (Pro) */}
-        <CalendarSyncCard feedUrl={feedUrl} />
+        <CalendarSyncCard userId={user?.id} />
 
-        {/* Billing placeholder */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CreditCard className="size-4 text-primary" /> Subscription
-            </CardTitle>
-            <CardDescription>Your plan and billing.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-medium">Free plan</p>
-                  <Badge variant="secondary">Current</Badge>
-                </div>
+        {/* Subscription — link to its own dedicated section */}
+        <Link href="/subscriptions" className="block">
+          <Card className="transition-colors hover:bg-accent/40">
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                <CreditCard className="size-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium">Subscription &amp; plans</p>
                 <p className="text-sm text-muted-foreground">
-                  15 life-admin updates &amp; 30 events / month · no Vault
+                  Compare Free, Plus and Pro, upgrade, or enter a code.
                 </p>
               </div>
-              <Badge variant="warning">Billing coming soon</Badge>
-            </div>
-            <PricingTable compact userId={user?.id} />
-          </CardContent>
-        </Card>
+              <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Privacy */}
         <Card>

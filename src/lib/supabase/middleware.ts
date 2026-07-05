@@ -22,6 +22,7 @@ const PROTECTED_PREFIXES = [
   "/nudges",
   "/wellbeing",
   "/settings",
+  "/subscriptions",
   "/admin",
 ];
 

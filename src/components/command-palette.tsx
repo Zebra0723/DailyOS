@@ -22,6 +22,7 @@ import {
   CornerDownLeft,
   Loader2,
   Sparkles,
+  CreditCard,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -46,6 +47,7 @@ const PAGES: Item[] = [
   { id: "p-mind", label: "Mindfulness", sub: "Page", href: "/mindfulness", icon: Flower2 },
   { id: "p-mood", label: "Mood", sub: "Page", href: "/mood", icon: SmilePlus },
   { id: "p-nudges", label: "Nudges", sub: "Page", href: "/nudges", icon: ListChecks },
+  { id: "p-subs", label: "Subscription", sub: "Page", href: "/subscriptions", icon: CreditCard },
   { id: "p-settings", label: "Settings", sub: "Page", href: "/settings", icon: Settings },
 ];
 
