@@ -4,6 +4,7 @@ import { TopNav, MobileNav, MobileHeader } from "@/components/app-nav";
 import { FreePlanBanner } from "@/components/free-plan-banner";
 import { CommandPalette } from "@/components/command-palette";
 import { DueReminder } from "@/components/due-reminder";
+import { AssistantFab } from "@/components/assistant-fab";
 
 export default async function AppLayout({
   children,
@@ -27,6 +28,7 @@ export default async function AppLayout({
         <div className="container max-w-6xl py-8 md:py-12">{children}</div>
       </main>
       <MobileNav email={user.email ?? "you@example.com"} userId={user.id} />
+      <AssistantFab />
       <CommandPalette />
       <DueReminder />
     </div>

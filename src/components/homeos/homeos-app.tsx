@@ -24,7 +24,7 @@ export function HomeOSShell({
   return (
     <HomeOSProvider userId={userId}>
       <ProGate
-        tier="Pro"
+        tier="Plus"
         feature="HomeOS"
         userId={userId}
         blurb="Run your whole home — subscriptions, deliveries, rooms, devices and documents — in one operational command centre."

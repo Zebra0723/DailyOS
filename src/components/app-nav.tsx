@@ -119,8 +119,9 @@ function activeCategory(pathname: string) {
 export function TopNav({ email, userId }: { email: string; userId?: string }) {
   const pathname = usePathname();
   const { tier } = usePlan(userId);
-  const vaultLocked = tier === "free";
-  const homeLocked = tier !== "pro";
+  const vaultLocked = tier === "free"; // Vault & Build My Day (Plus+)
+  const homeLocked = tier === "free"; // HomeOS is now Plus+
+  const askLocked = tier !== "pro"; // Ask DailyOS is Pro
 
   const current = activeCategory(pathname);
 
@@ -228,8 +229,8 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
               const locked =
                 ((l.href === "/vault" || l.href === "/build-day") &&
                   vaultLocked) ||
-                ((l.href === "/homeos" || l.href === "/assistant") &&
-                  homeLocked);
+                (l.href === "/homeos" && homeLocked) ||
+                (l.href === "/assistant" && askLocked);
               return (
                 <Link
                   key={l.href}
@@ -264,8 +265,9 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
 export function MobileNav({ email, userId }: { email?: string; userId?: string }) {
   const pathname = usePathname();
   const { tier } = usePlan(userId);
-  const vaultLocked = tier === "free";
-  const homeLocked = tier !== "pro";
+  const vaultLocked = tier === "free"; // Vault & Build My Day (Plus+)
+  const homeLocked = tier === "free"; // HomeOS is now Plus+
+  const askLocked = tier !== "pro"; // Ask DailyOS is Pro
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -349,7 +351,8 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
                     const active = isActive(pathname, l.href);
                     const locked =
                       ((l.href === "/vault" || l.href === "/build-day") && vaultLocked) ||
-                      ((l.href === "/homeos" || l.href === "/assistant") && homeLocked);
+                      (l.href === "/homeos" && homeLocked) ||
+                      (l.href === "/assistant" && askLocked);
                     return (
                       <Link
                         key={l.href}
