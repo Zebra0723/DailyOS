@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Plus, X, Search, Clock } from "lucide-react";
+import { Plus, X, Search, Clock, CalendarClock } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ymdInTz } from "@/lib/dates-tz";
 
 interface Zone {
   city: string;
@@ -169,6 +170,8 @@ export function WorldClock({ userId }: { userId: string }) {
         )}
       </div>
 
+      {cities && cities.length > 0 && <MeetingPlanner cities={cities} />}
+
       {cities === null ? null : cities.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-2 py-12 text-center text-sm text-muted-foreground">
@@ -214,6 +217,98 @@ export function WorldClock({ userId }: { userId: string }) {
 }
 
 /** An Aquanaut-inspired analogue watch (embossed grid dial, applied numerals). */
+function MeetingPlanner({ cities }: { cities: Zone[] }) {
+  const [open, setOpen] = React.useState(false);
+  const localTz = React.useMemo(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch {
+      return "UTC";
+    }
+  }, []);
+  const [time, setTime] = React.useState(() => {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  });
+
+  // The chosen time today, as an absolute instant in the user's own timezone
+  // (the browser parses the naive value in local time).
+  const instant = React.useMemo(() => {
+    const now = new Date();
+    const [h, m] = time.split(":").map(Number);
+    const d = new Date(now);
+    d.setHours(h || 0, m || 0, 0, 0);
+    return d;
+  }, [time]);
+
+  const baseDay = ymdInTz(instant, localTz);
+  const fmt = (zone: string) =>
+    instant.toLocaleTimeString("en-GB", {
+      timeZone: zone,
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  const dayDelta = (zone: string) => {
+    const a = Date.parse(`${ymdInTz(instant, zone)}T00:00:00Z`);
+    const b = Date.parse(`${baseDay}T00:00:00Z`);
+    const days = Math.round((a - b) / 86_400_000);
+    return days === 0 ? "" : days > 0 ? " (+1 day)" : " (−1 day)";
+  };
+
+  const rows = [
+    { zone: localTz, city: "You", you: true },
+    ...cities.filter((c) => c.zone !== localTz).map((c) => ({ ...c, you: false })),
+  ];
+
+  return (
+    <Card className="mb-6">
+      <CardContent className="pt-5">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="flex w-full items-center gap-2 text-left"
+        >
+          <CalendarClock className="size-4 text-primary" />
+          <span className="font-medium">Plan a meeting</span>
+          <span className="ml-auto text-sm text-muted-foreground">
+            {open ? "Hide" : "Pick a time"}
+          </span>
+        </button>
+
+        {open && (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Your time</span>
+              <Input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="w-32"
+              />
+              <span className="text-xs text-muted-foreground">today</span>
+            </div>
+            <ul className="divide-y rounded-xl border">
+              {rows.map((r) => (
+                <li
+                  key={r.zone}
+                  className="flex items-center justify-between gap-2 px-3 py-2 text-sm"
+                >
+                  <span className={r.you ? "font-medium" : ""}>
+                    {r.you ? "You" : cityFromZone(r.zone)}
+                  </span>
+                  <span className="tabular-nums">
+                    {fmt(r.zone)}
+                    <span className="text-muted-foreground">{dayDelta(r.zone)}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function PatekWatch({
   h,
   m,
