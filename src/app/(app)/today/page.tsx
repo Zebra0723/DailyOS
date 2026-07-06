@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { ymdInTz, addDaysYmd } from "@/lib/dates-tz";
+import { ymdInTz, addDaysYmd, nowFloatingInTz } from "@/lib/dates-tz";
 import { TZ_COOKIE } from "@/components/timezone-sync";
 import { LiveClock } from "@/components/live-clock";
 import { TaskItem } from "@/components/task-item";
@@ -25,7 +25,7 @@ import { StatusBadge } from "@/components/badges";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
-import { cn, formatDateTime, relativeDay } from "@/lib/utils";
+import { cn, formatFloating, relativeDay } from "@/lib/utils";
 import { isOnboarding, tailoredIntro } from "@/lib/onboarding";
 import { HomeOSTodayActions } from "@/components/homeos/today-home-actions";
 import { RewardCodeNudge } from "@/components/reward-code-nudge";
@@ -40,7 +40,6 @@ export default async function TodayPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const nowIso = new Date().toISOString();
   // Compute "today" / "tomorrow" in the user's own timezone (captured in a
   // cookie), so due-date counts don't drift by a day for anyone outside UTC.
   const tz = cookies().get(TZ_COOKIE)?.value
@@ -48,6 +47,8 @@ export default async function TodayPage() {
     : "UTC";
   const todayStr = ymdInTz(new Date(), tz);
   const tomorrowStr = addDaysYmd(todayStr, 1);
+  // "Now" as a floating time in the user's timezone, to match event times.
+  const nowFloating = nowFloatingInTz(tz);
 
   const [tasksRes, eventsRes, recentRes, reviewRes, tomorrowRes] =
     await Promise.all([
@@ -60,7 +61,7 @@ export default async function TodayPage() {
       supabase
         .from("calendar_events")
         .select("*")
-        .gte("start_time", nowIso)
+        .gte("start_time", nowFloating)
         .order("start_time", { ascending: true })
         .limit(5),
       supabase
@@ -256,7 +257,7 @@ export default async function TodayPage() {
                       <div className="flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground">
                         <span className="inline-flex items-center gap-1">
                           <Clock className="size-3" />
-                          {formatDateTime(e.start_time)}
+                          {formatFloating(e.start_time)}
                         </span>
                         {e.location && (
                           <span className="inline-flex items-center gap-1">

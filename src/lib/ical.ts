@@ -23,13 +23,23 @@ function esc(s: string): string {
     .replace(/\r?\n/g, "\\n");
 }
 
-/** ISO datetime → UTC iCal stamp, e.g. 20260703T140000Z */
+/** ISO datetime → UTC iCal stamp, e.g. 20260703T140000Z (used for DTSTAMP). */
 function dtUtc(iso: string): string {
   const d = new Date(iso);
   return `${d
     .toISOString()
     .replace(/[-:]/g, "")
     .replace(/\.\d{3}/, "")}`;
+}
+
+/**
+ * ISO datetime → floating iCal stamp with NO trailing Z, e.g. 20260703T140000.
+ * Event times are stored as floating wall-clock, so we emit them as floating
+ * (local, no timezone): a 2pm event shows 2pm in whatever calendar subscribes,
+ * regardless of the viewer's timezone.
+ */
+function dtFloating(iso: string): string {
+  return iso.slice(0, 19).replace(/[-:]/g, "");
 }
 
 /** YYYY-MM-DD → YYYYMMDD (all-day) */
@@ -55,9 +65,9 @@ export function buildICS(events: FeedEvent[], tasks: FeedTask[]): string {
       "BEGIN:VEVENT",
       `UID:evt-${e.id}@dailyos`,
       `DTSTAMP:${now}`,
-      `DTSTART:${dtUtc(e.start_time)}`,
+      `DTSTART:${dtFloating(e.start_time)}`,
     );
-    if (e.end_time) lines.push(`DTEND:${dtUtc(e.end_time)}`);
+    if (e.end_time) lines.push(`DTEND:${dtFloating(e.end_time)}`);
     lines.push(`SUMMARY:${esc(e.title)}`);
     if (e.location) lines.push(`LOCATION:${esc(e.location)}`);
     if (e.description) lines.push(`DESCRIPTION:${esc(e.description)}`);

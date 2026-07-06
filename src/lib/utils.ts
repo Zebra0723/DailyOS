@@ -40,6 +40,24 @@ export function formatDateTime(value?: string | null): string {
   });
 }
 
+/**
+ * Format a floating event time (stored as wall-clock, e.g. "2026-07-10T14:00:00Z")
+ * literally, in UTC, so it reads the same in any timezone — a 2pm event stays
+ * "2pm" after you travel. Use this for event start/end times.
+ */
+export function formatFloating(value?: string | null): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleString("en-GB", {
+    timeZone: "UTC",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 /** "in 3 days", "today", "2 days ago" style relative label for a date. */
 export function relativeDay(value?: string | null): string {
   if (!value) return "";

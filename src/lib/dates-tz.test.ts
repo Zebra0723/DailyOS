@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { ymdInTz, addDaysYmd, addMonthsYmd } from "./dates-tz";
+import {
+  ymdInTz,
+  addDaysYmd,
+  addMonthsYmd,
+  wallClockToStored,
+  storedToInput,
+} from "./dates-tz";
+import { formatFloating } from "./utils";
 
 describe("ymdInTz — the user's local calendar day", () => {
   // 02:00 UTC on 5 Jul is still the evening of 4 Jul in New York.
@@ -39,5 +46,25 @@ describe("addMonthsYmd — clamps to real month lengths", () => {
   it("keeps the day when the month is long enough, and rolls the year", () => {
     expect(addMonthsYmd("2026-07-15", 1)).toBe("2026-08-15");
     expect(addMonthsYmd("2026-12-15", 1)).toBe("2027-01-15");
+  });
+});
+
+describe("floating event times — 2pm stays 2pm after you travel", () => {
+  it("stores the picked wall-clock literally as UTC", () => {
+    expect(wallClockToStored("2026-07-10T14:00")).toBe("2026-07-10T14:00:00Z");
+    // seconds from the input are dropped to the minute
+    expect(wallClockToStored("2026-07-10T14:00:45")).toBe("2026-07-10T14:00:00Z");
+  });
+
+  it("round-trips back into the datetime-local input value", () => {
+    expect(storedToInput("2026-07-10T14:00:00Z")).toBe("2026-07-10T14:00");
+    expect(storedToInput("2026-07-10T14:00:00.000Z")).toBe("2026-07-10T14:00");
+    expect(storedToInput(null)).toBe("");
+  });
+
+  it("displays the same literal time no matter the viewer's timezone", () => {
+    // formatFloating renders in UTC, so the stored wall-clock is shown as-is.
+    expect(formatFloating("2026-07-10T14:00:00Z")).toContain("14:00");
+    expect(formatFloating("2026-07-10T14:00:00Z")).toMatch(/10 Jul/);
   });
 });

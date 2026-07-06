@@ -15,7 +15,7 @@ import { EventDialog } from "@/components/event-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { cn, formatDateTime } from "@/lib/utils";
+import { cn, formatFloating } from "@/lib/utils";
 import { readHomeOSData } from "@/lib/homeos/store";
 import { getCalendarEvents } from "@/lib/homeos/calculations";
 import type { CalendarEvent } from "@/lib/types";
@@ -83,11 +83,13 @@ export function CalendarView({
     const life: Disp[] = events.map((e) => ({
       id: `life-${e.id}`,
       title: e.title,
-      dayKey: ymd(new Date(e.start_time)),
+      // Group by the event's own (floating) calendar day and show its literal
+      // time, so travelling never moves an event to a different day or hour.
+      dayKey: e.start_time.slice(0, 10),
       ts: new Date(e.start_time).getTime(),
       source: "life",
       life: e,
-      timeLabel: formatDateTime(e.start_time),
+      timeLabel: formatFloating(e.start_time),
       location: e.location,
     }));
     return [...life, ...homeEvents];

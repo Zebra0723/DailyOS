@@ -40,6 +40,7 @@ import {
   type VaultCategory,
 } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
+import { storedToInput, wallClockToStored } from "@/lib/dates-tz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,18 +66,13 @@ interface EventDraft {
   location: string | null;
 }
 
-/** Convert an ISO string into the value a datetime-local input expects. */
+// Event times are stored as floating wall-clock (see dates-tz), so they never
+// shift when viewed from another timezone.
 function toLocalInput(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const off = d.getTimezoneOffset();
-  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
+  return storedToInput(iso);
 }
 function fromLocalInput(value: string): string | null {
-  if (!value) return null;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  return value ? wallClockToStored(value) : null;
 }
 
 export function ItemReview({
@@ -201,13 +197,8 @@ export function ItemReview({
   // --- Review / approved editor ---------------------------------------------
   async function onApprove() {
     setBusy(true);
-    // Normalise datetimes to proper ISO (browser tz) so stored times match
-    // what the user sees in the editor.
-    const toIso = (v: string | null) => {
-      if (!v) return null;
-      const d = new Date(v);
-      return Number.isNaN(d.getTime()) ? null : d.toISOString();
-    };
+    // Store event times as floating wall-clock (what the user sees in the
+    // editor), so they never shift when viewed from another timezone.
     const res = await approveInboxItem(item.id, {
       summary,
       itemType,
@@ -217,8 +208,8 @@ export function ItemReview({
         .filter((e) => e.title.trim() && e.start_time)
         .map((e) => ({
           ...e,
-          start_time: toIso(e.start_time),
-          end_time: toIso(e.end_time),
+          start_time: fromLocalInput(e.start_time ?? ""),
+          end_time: fromLocalInput(e.end_time ?? ""),
         })),
     });
     setBusy(false);
@@ -402,7 +393,12 @@ export function ItemReview({
                 {
                   title: "",
                   description: null,
-                  start_time: new Date().toISOString(),
+                  // Local wall-clock "now", stored as a floating time.
+                  start_time: wallClockToStored(
+                    new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+                      .toISOString()
+                      .slice(0, 16),
+                  ),
                   end_time: null,
                   location: null,
                 },

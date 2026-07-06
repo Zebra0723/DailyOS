@@ -26,6 +26,51 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
+// ---- Floating event times ---------------------------------------------------
+// Event times are stored as "floating" wall-clock: the time you picked, kept
+// literally, so a 2pm event still reads 2pm after you travel to another
+// timezone. We store the wall-clock as a UTC-literal ("...T14:00:00Z") and
+// always render/compare it in UTC, so no timezone conversion ever shifts it.
+
+/** A datetime-local value ("YYYY-MM-DDTHH:MM") → the stored floating form. */
+export function wallClockToStored(localInput: string): string {
+  return `${localInput.slice(0, 16)}:00Z`;
+}
+
+/** A stored floating time → the "YYYY-MM-DDTHH:MM" a datetime-local input wants. */
+export function storedToInput(iso: string | null | undefined): string {
+  return iso ? iso.slice(0, 16) : "";
+}
+
+/** "Now" as a floating time in the user's timezone, comparable to stored event
+ *  times (e.g. to decide what's still upcoming). */
+export function nowFloatingInTz(tz: string): string {
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: tz,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }).formatToParts(new Date());
+    const g = (t: string) => parts.find((p) => p.type === t)?.value;
+    const y = g("year");
+    const mo = g("month");
+    const d = g("day");
+    let h = g("hour");
+    const mi = g("minute");
+    const s = g("second");
+    if (h === "24") h = "00"; // some engines report midnight as 24
+    if (y && mo && d && h && mi && s) return `${y}-${mo}-${d}T${h}:${mi}:${s}Z`;
+  } catch {
+    /* invalid tz — fall back to real UTC now */
+  }
+  return new Date().toISOString();
+}
+
 /** Add whole days to a YYYY-MM-DD, rolling over months/years correctly. */
 export function addDaysYmd(ymd: string, n: number): string {
   const [y, m, d] = ymd.split("-").map(Number);

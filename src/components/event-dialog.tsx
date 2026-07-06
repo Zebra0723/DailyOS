@@ -13,15 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
+import { wallClockToStored, storedToInput } from "@/lib/dates-tz";
 import type { CalendarEvent } from "@/lib/types";
-
-function toLocalInput(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const off = d.getTimezoneOffset();
-  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
-}
 
 export function EventDialog({
   event,
@@ -38,10 +31,10 @@ export function EventDialog({
 
   const [title, setTitle] = React.useState(event?.title ?? "");
   const [start, setStart] = React.useState(
-    toLocalInput(event?.start_time ?? null) ||
+    storedToInput(event?.start_time) ||
       (defaultDate ? `${defaultDate}T09:00` : ""),
   );
-  const [end, setEnd] = React.useState(toLocalInput(event?.end_time ?? null));
+  const [end, setEnd] = React.useState(storedToInput(event?.end_time));
   const [location, setLocation] = React.useState(event?.location ?? "");
   const [description, setDescription] = React.useState(event?.description ?? "");
   const [busy, setBusy] = React.useState(false);
@@ -56,8 +49,10 @@ export function EventDialog({
     const payload = {
       title,
       description: description || null,
-      start_time: new Date(start).toISOString(),
-      end_time: end ? new Date(end).toISOString() : null,
+      // Store the wall-clock you picked as a floating time, so it never shifts
+      // when you (or anyone) view it from another timezone.
+      start_time: wallClockToStored(start),
+      end_time: end ? wallClockToStored(end) : null,
       location: location || null,
     };
 
