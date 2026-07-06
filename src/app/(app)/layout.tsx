@@ -5,6 +5,7 @@ import { FreePlanBanner } from "@/components/free-plan-banner";
 import { CommandPalette } from "@/components/command-palette";
 import { DueReminder } from "@/components/due-reminder";
 import { AssistantFab } from "@/components/assistant-fab";
+import { TimezoneSync } from "@/components/timezone-sync";
 
 export default async function AppLayout({
   children,
@@ -31,6 +32,7 @@ export default async function AppLayout({
       <AssistantFab />
       <CommandPalette />
       <DueReminder />
+      <TimezoneSync />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { addDaysYmd, addMonthsYmd } from "@/lib/dates-tz";
 import type { Priority, Recurrence, TaskStatus } from "@/lib/types";
 
 async function requireUser() {
@@ -13,13 +14,17 @@ async function requireUser() {
   return { supabase, user };
 }
 
-/** The next due date for a recurring task, based on its current due date. */
+/**
+ * The next due date for a recurring task. Uses calendar-correct helpers so
+ * month lengths and leap years are respected (a monthly task due Jan 31 next
+ * falls due Feb 28, or Feb 29 in a leap year — never spilling into March) and
+ * there's no timezone day-shift.
+ */
 function nextDue(due: string, rec: Recurrence): string {
-  const d = new Date(`${due}T00:00:00`);
-  if (rec === "daily") d.setDate(d.getDate() + 1);
-  else if (rec === "weekly") d.setDate(d.getDate() + 7);
-  else if (rec === "monthly") d.setMonth(d.getMonth() + 1);
-  return d.toISOString().slice(0, 10);
+  if (rec === "daily") return addDaysYmd(due, 1);
+  if (rec === "weekly") return addDaysYmd(due, 7);
+  if (rec === "monthly") return addMonthsYmd(due, 1);
+  return due;
 }
 
 /** True if the error looks like the recurrence column not being migrated yet. */

@@ -15,7 +15,10 @@ import {
   StickyNote,
   CalendarClock,
 } from "lucide-react";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { ymdInTz, addDaysYmd } from "@/lib/dates-tz";
+import { TZ_COOKIE } from "@/components/timezone-sync";
 import { LiveClock } from "@/components/live-clock";
 import { TaskItem } from "@/components/task-item";
 import { StatusBadge } from "@/components/badges";
@@ -38,9 +41,13 @@ export default async function TodayPage() {
   } = await supabase.auth.getUser();
 
   const nowIso = new Date().toISOString();
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+  // Compute "today" / "tomorrow" in the user's own timezone (captured in a
+  // cookie), so due-date counts don't drift by a day for anyone outside UTC.
+  const tz = cookies().get(TZ_COOKIE)?.value
+    ? decodeURIComponent(cookies().get(TZ_COOKIE)!.value)
+    : "UTC";
+  const todayStr = ymdInTz(new Date(), tz);
+  const tomorrowStr = addDaysYmd(todayStr, 1);
 
   const [tasksRes, eventsRes, recentRes, reviewRes, tomorrowRes] =
     await Promise.all([
@@ -48,7 +55,7 @@ export default async function TodayPage() {
         .from("extracted_tasks")
         .select("*")
         .eq("status", "pending")
-        .lte("due_date", new Date().toISOString().slice(0, 10))
+        .lte("due_date", todayStr)
         .order("priority", { ascending: false }),
       supabase
         .from("calendar_events")
