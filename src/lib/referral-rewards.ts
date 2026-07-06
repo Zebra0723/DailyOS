@@ -31,6 +31,16 @@ export function milestoneAt(count: number): Milestone | undefined {
   return MILESTONES.find((m) => m.count === count);
 }
 
+/** Reward codes lapse this many days after they're issued. */
+export const REWARD_CODE_TTL_DAYS = 60;
+
+/** True once a code has passed its 2-month window. */
+export function rewardCodeExpired(createdAtISO: string, now: number): boolean {
+  const created = Date.parse(createdAtISO);
+  if (!Number.isFinite(created)) return false;
+  return now > created + REWARD_CODE_TTL_DAYS * 86_400_000;
+}
+
 /** A plain-English name for a reward, e.g. for toasts and emails. */
 export function describeReward(reward: Reward): string {
   if (reward.kind === "discount") return `${reward.percent}% off your next plan`;

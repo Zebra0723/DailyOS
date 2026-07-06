@@ -1,13 +1,23 @@
 "use server";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { describeReward, type Reward } from "@/lib/referral-rewards";
+import {
+  describeReward,
+  rewardCodeExpired,
+  REWARD_CODE_TTL_DAYS,
+  type Reward,
+} from "@/lib/referral-rewards";
 
 type RedeemResult =
   | { ok: true; reward: Reward; label: string }
-  | { ok: false; reason: "invalid" | "used" | "not-active" | "no-user" };
+  | { ok: false; reason: "invalid" | "used" | "expired" | "not-active" | "no-user" };
 
-export type MyRewardCode = { code: string; label: string; used: boolean };
+export type MyRewardCode = {
+  code: string;
+  label: string;
+  used: boolean;
+  expired: boolean;
+};
 
 /** The reward codes issued to the signed-in user, newest first. Lets people see
  *  and redeem their codes in-app without depending on email. */
@@ -23,6 +33,7 @@ export async function getMyRewardCodes(): Promise<MyRewardCode[]> {
       .select("code,kind,percent,plan_tier,plan_days,used,created_at")
       .eq("recipient_id", user.id)
       .order("created_at", { ascending: false });
+    const now = Date.now();
     return (data ?? []).map((r) => {
       const reward: Reward =
         r.kind === "plan"
@@ -32,11 +43,26 @@ export async function getMyRewardCodes(): Promise<MyRewardCode[]> {
               days: r.plan_days ?? 0,
             }
           : { kind: "discount", percent: r.percent ?? 10 };
-      return { code: r.code, label: describeReward(reward), used: r.used };
+      return {
+        code: r.code,
+        label: describeReward(reward),
+        used: r.used,
+        expired: rewardCodeExpired(r.created_at, now),
+      };
     });
   } catch {
     return [];
   }
+}
+
+/** Unclaimed, non-expired codes for the Today heads-up. */
+export async function getClaimableRewardCodes(): Promise<
+  { code: string; label: string }[]
+> {
+  const all = await getMyRewardCodes();
+  return all
+    .filter((c) => !c.used && !c.expired)
+    .map(({ code, label }) => ({ code, label }));
 }
 
 /**
@@ -57,6 +83,9 @@ export async function redeemRewardCode(raw: string): Promise<RedeemResult> {
   if (!user) return { ok: false, reason: "no-user" };
 
   const admin = createServiceClient();
+  const cutoff = new Date(
+    Date.now() - REWARD_CODE_TTL_DAYS * 86_400_000,
+  ).toISOString();
   try {
     const { data, error } = await admin
       .from("reward_codes")
@@ -67,18 +96,24 @@ export async function redeemRewardCode(raw: string): Promise<RedeemResult> {
       })
       .eq("code", code)
       .eq("used", false)
+      .gte("created_at", cutoff) // only claim codes still inside their 2-month window
       .select("kind,percent,plan_tier,plan_days")
       .maybeSingle();
 
     if (error) return { ok: false, reason: "not-active" };
     if (!data) {
-      // No row updated: either the code doesn't exist or it's already spent.
-      const { data: exists } = await admin
+      // No row updated: doesn't exist, already spent, or lapsed. Distinguish so
+      // the message is right.
+      const { data: existing } = await admin
         .from("reward_codes")
-        .select("code")
+        .select("used,created_at")
         .eq("code", code)
         .maybeSingle();
-      return { ok: false, reason: exists ? "used" : "invalid" };
+      if (!existing) return { ok: false, reason: "invalid" };
+      if (existing.used) return { ok: false, reason: "used" };
+      if (rewardCodeExpired(existing.created_at, Date.now()))
+        return { ok: false, reason: "expired" };
+      return { ok: false, reason: "invalid" };
     }
 
     const reward: Reward =

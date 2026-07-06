@@ -71,8 +71,9 @@ function rewardEmail(opts: {
       <div style="font-size:24px;font-weight:700;letter-spacing:.05em;margin-top:6px">${opts.code}</div>
     </div>
     <p style="font-size:14px;line-height:1.5;color:#5b544b;margin:20px 0 0">
-      Enter it on the Subscriptions page. It's your own one-time code — it only
-      works once, so keep it to yourself.
+      Redeem it on the Subscriptions page — in DailyOS, that's the top nav →
+      Account → Subscription. It's your own one-time code, so keep it to yourself.
+      Codes expire two months after they're issued.
     </p>
     <a href="${SITE}/subscriptions" style="display:inline-block;margin-top:20px;background:#b4633a;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:11px 20px;border-radius:10px">
       Redeem in DailyOS

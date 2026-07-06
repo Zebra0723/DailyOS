@@ -140,6 +140,11 @@ export function PricingTable({
       {/* Promo code — always available so a code (e.g. the owner ARLEOPRO code)
           can be entered even after a plan is already unlocked. */}
       <div className="mx-auto mb-8 max-w-md">
+        <p className="mb-1 text-center text-sm font-medium">Have a code?</p>
+        <p className="mb-3 text-center text-xs text-muted-foreground">
+          Enter a promo or referral reward code here — this is the page to redeem
+          them.
+        </p>
         {unlocked && (
           <div className="mb-3 flex items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
             <Sparkles className="size-4" /> You&apos;re on{" "}

@@ -49,6 +49,10 @@ export function MyRewardCodes({ codes }: { codes: MyRewardCode[] }) {
               <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                 Used
               </span>
+            ) : c.expired ? (
+              <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                Expired
+              </span>
             ) : (
               <button
                 type="button"

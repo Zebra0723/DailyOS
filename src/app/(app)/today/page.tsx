@@ -25,6 +25,8 @@ import { EmptyState } from "@/components/empty-state";
 import { cn, formatDateTime, relativeDay } from "@/lib/utils";
 import { isOnboarding, tailoredIntro } from "@/lib/onboarding";
 import { HomeOSTodayActions } from "@/components/homeos/today-home-actions";
+import { RewardCodeNudge } from "@/components/reward-code-nudge";
+import { getClaimableRewardCodes } from "@/app/(app)/subscriptions/reward-code-actions";
 import type { CalendarEvent, ExtractedTask, InboxItem } from "@/lib/types";
 
 export const metadata = { title: "Today · DailyOS" };
@@ -36,36 +38,49 @@ export default async function TodayPage() {
   } = await supabase.auth.getUser();
 
   const nowIso = new Date().toISOString();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
 
-  const [tasksRes, eventsRes, recentRes, reviewRes] = await Promise.all([
-    supabase
-      .from("extracted_tasks")
-      .select("*")
-      .eq("status", "pending")
-      .lte("due_date", new Date().toISOString().slice(0, 10))
-      .order("priority", { ascending: false }),
-    supabase
-      .from("calendar_events")
-      .select("*")
-      .gte("start_time", nowIso)
-      .order("start_time", { ascending: true })
-      .limit(5),
-    supabase
-      .from("inbox_items")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("inbox_items")
-      .select("*")
-      .in("status", ["review", "failed"])
-      .order("created_at", { ascending: false }),
-  ]);
+  const [tasksRes, eventsRes, recentRes, reviewRes, tomorrowRes] =
+    await Promise.all([
+      supabase
+        .from("extracted_tasks")
+        .select("*")
+        .eq("status", "pending")
+        .lte("due_date", new Date().toISOString().slice(0, 10))
+        .order("priority", { ascending: false }),
+      supabase
+        .from("calendar_events")
+        .select("*")
+        .gte("start_time", nowIso)
+        .order("start_time", { ascending: true })
+        .limit(5),
+      supabase
+        .from("inbox_items")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5),
+      supabase
+        .from("inbox_items")
+        .select("*")
+        .in("status", ["review", "failed"])
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("extracted_tasks")
+        .select("*")
+        .eq("status", "pending")
+        .eq("due_date", tomorrowStr)
+        .order("priority", { ascending: false }),
+    ]);
 
   const dueTasks = (tasksRes.data ?? []) as ExtractedTask[];
   const events = (eventsRes.data ?? []) as CalendarEvent[];
   const recent = (recentRes.data ?? []) as InboxItem[];
   const needsReview = (reviewRes.data ?? []) as InboxItem[];
+  const tomorrowTasks = (tomorrowRes.data ?? []) as ExtractedTask[];
+
+  const claimableCodes = await getClaimableRewardCodes();
 
   const greeting = getGreeting();
   const name =
@@ -140,6 +155,9 @@ export default async function TodayPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Reward codes you've earned but not claimed yet */}
+      <RewardCodeNudge userId={user?.id} codes={claimableCodes} />
 
       {/* HomeOS actions pushed into Today */}
       {user && <HomeOSTodayActions userId={user.id} />}
@@ -248,6 +266,30 @@ export default async function TodayPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Heads-up: due tomorrow */}
+      {tomorrowTasks.length > 0 && (
+        <Card>
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <CalendarClock className="size-4 text-primary" /> Due tomorrow
+            </CardTitle>
+            <span className="text-sm text-muted-foreground">
+              {tomorrowTasks.length} task{tomorrowTasks.length > 1 ? "s" : ""}
+            </span>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-3 text-sm text-muted-foreground">
+              A gentle heads-up so tomorrow doesn&apos;t sneak up on you.
+            </p>
+            <div className="grid gap-2">
+              {tomorrowTasks.map((t) => (
+                <TaskItem key={t.id} task={t} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Explore your DailyOS */}
       <div>
