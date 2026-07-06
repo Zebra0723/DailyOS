@@ -3,7 +3,7 @@ import { Inbox as InboxIcon, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
-import { InboxRow } from "@/components/inbox-row";
+import { InboxList } from "@/components/inbox-list";
 import { Button } from "@/components/ui/button";
 import type { InboxItem } from "@/lib/types";
 
@@ -42,11 +42,7 @@ export default async function InboxPage() {
           actionHref="/inbox/new"
         />
       ) : (
-        <div className="grid gap-3">
-          {items.map((item) => (
-            <InboxRow key={item.id} item={item} />
-          ))}
-        </div>
+        <InboxList items={items} />
       )}
     </div>
   );

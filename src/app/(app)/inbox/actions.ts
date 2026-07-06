@@ -238,4 +238,33 @@ export async function deleteInboxItem(id: string) {
   return { ok: true as const };
 }
 
+/** Delete several inbox items at once. Tasks/events they created are kept (see
+ *  deleteInboxItem). Returns how many were removed. */
+export async function bulkDeleteInbox(ids: string[]) {
+  const { supabase } = await requireUser();
+  if (!ids.length) return { ok: true as const, count: 0 };
+  const { error } = await supabase.from("inbox_items").delete().in("id", ids);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/inbox");
+  revalidatePath("/today");
+  revalidatePath("/tasks");
+  revalidatePath("/calendar");
+  revalidatePath("/vault");
+  return { ok: true as const, count: ids.length };
+}
+
+/** Mark several inbox items handled / not handled at once. */
+export async function bulkSetInboxHandled(ids: string[], handled: boolean) {
+  const { supabase } = await requireUser();
+  if (!ids.length) return { ok: true as const, count: 0 };
+  const { error } = await supabase
+    .from("inbox_items")
+    .update({ handled })
+    .in("id", ids);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/inbox");
+  revalidatePath("/today");
+  return { ok: true as const, count: ids.length };
+}
+
 export type { ExtractionResult };
