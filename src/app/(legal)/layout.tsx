@@ -40,6 +40,9 @@ export default function LegalLayout({
             <Link href="/terms" className="hover:text-foreground">
               Terms
             </Link>
+            <Link href="/contact" className="hover:text-foreground">
+              Contact
+            </Link>
           </div>
         </div>
       </footer>

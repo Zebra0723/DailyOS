@@ -221,6 +221,11 @@ when done)._
 - ⏸️ **Google / Apple Calendar two-way sync (OAuth)** — one-way *subscribe* (the
   read-only feed) is live. Importing events back needs Google/Apple OAuth
   credentials you set up.
+- ⛔ **Make the contact email inboxes** — create a **support** address and a
+  **general enquiries** address (e.g. support@ and hello@ your domain), then put
+  them in `src/lib/contact.ts` (`SUPPORT_EMAIL`, `ENQUIRIES_EMAIL`). The Contact
+  page (`/contact`) shows "coming soon" slots until they're filled, and the legal
+  pages point people to it. (Also lets Resend send from a verified address.)
 
 - ⏸️ **Live account connections for OrganizerOS** — _Arjun (parked)_
   - **Gmail** — possible, but needs a real OAuth backend (Google Cloud project,

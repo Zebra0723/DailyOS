@@ -1,34 +1,25 @@
 export const metadata = { title: "Terms of Service · DailyOS" };
 
-function Todo({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded bg-amber-100 px-1 py-0.5 text-[13px] font-medium text-amber-800 dark:bg-amber-500/20 dark:text-amber-200">
-      {children}
-    </span>
-  );
-}
-
 export default function TermsPage() {
   return (
     <>
       <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
-        <strong>Draft — pending legal review.</strong> These terms are structured
-        to meet UK consumer and e-commerce requirements, but items shown{" "}
-        <Todo>like this</Todo> must be completed, and the whole document reviewed
-        by a UK solicitor, before launch.
+        <strong>Draft — pending legal review.</strong> These terms reflect how
+        DailyOS works today and follow UK consumer and e-commerce structure. They
+        should still be reviewed by a UK solicitor before launch, and updated if
+        DailyOS is incorporated as a company or starts charging.
       </div>
 
       <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
         Terms of Service
       </h1>
-      <p className="text-sm text-muted-foreground">Last updated: 3 July 2026</p>
+      <p className="text-sm text-muted-foreground">Last updated: 6 July 2026</p>
 
       <h2>1. Who we are</h2>
       <ul>
         <li>Trading name: <strong>DailyOS</strong>.</li>
-        <li>Operated by: <Todo>[legal entity name]</Todo>, company no. <Todo>[number]</Todo>, registered in <Todo>[England and Wales]</Todo>.</li>
-        <li>Registered office: <Todo>[address]</Todo>. VAT: <Todo>[VAT number, if registered]</Todo>.</li>
-        <li>Contact: <Todo>[contact email — to be added]</Todo>.</li>
+        <li>Operated by: the DailyOS team, currently as an individual based in the United Kingdom rather than a registered company. VAT: not registered. If DailyOS is later incorporated, we&rsquo;ll update these details.</li>
+        <li>Contact: through our <a href="/contact">contact page</a>.</li>
       </ul>
 
       <h2>2. Acceptance</h2>
@@ -42,9 +33,10 @@ export default function TermsPage() {
 
       <h2>3. Eligibility &amp; age</h2>
       <p>
-        You must be at least 18 (or <Todo>[minimum age]</Todo>) to use DailyOS,
-        and legally able to enter into this agreement. You must provide accurate
-        account information. DailyOS is not intended for children under 13.
+        You must be at least 13 to use DailyOS. If you are under 18, you should use
+        DailyOS with a parent or guardian&rsquo;s permission, and they must agree to
+        these Terms on your behalf. You must provide accurate account information.
+        DailyOS is not intended for children under 13.
       </p>
 
       <h2>4. Your account</h2>
@@ -65,9 +57,9 @@ export default function TermsPage() {
       <h2>6. Plans, prices &amp; payment</h2>
       <p>When paid plans are live:</p>
       <ul>
-        <li>Prices are shown in <Todo>[GBP]</Todo>, and whether they include VAT will be stated at checkout.</li>
-        <li>Subscriptions are billed <Todo>[monthly/annually]</Todo> and, unless cancelled, <strong>renew automatically</strong>. You can cancel renewal at any time in Settings.</li>
-        <li>Payment is taken via <Todo>[payment processor, e.g. Stripe]</Todo> at the start of each period.</li>
+        <li>Prices are shown in <strong>GBP (£)</strong>, and whether they include VAT will be stated at checkout.</li>
+        <li>Subscriptions are billed <strong>monthly or annually</strong> (whichever you choose) and, unless cancelled, <strong>renew automatically</strong>. You can cancel renewal at any time in Settings.</li>
+        <li>Payment is taken via <strong>Stripe</strong> at the start of each period.</li>
         <li>We&rsquo;ll tell you before any price change; you can cancel if you disagree.</li>
         <li>Failed payments may lead to loss of paid features.</li>
       </ul>
@@ -86,8 +78,9 @@ export default function TermsPage() {
         immediately, if you ask us to start it during that period you acknowledge
         you may lose the right to cancel once it has begun. Nothing here affects
         your statutory rights. To cancel a subscription, use Settings; access
-        continues until the end of the paid period. <Todo>Confirm the refund
-        policy (pro-rata, none, etc.) with your solicitor.</Todo>
+        continues until the end of the paid period. We don&rsquo;t give refunds for
+        the unused part of a period once it has started, except where the law
+        requires it (for example if the service was faulty or not as described).
       </p>
 
       <h2>9. Your content</h2>
@@ -182,9 +175,9 @@ export default function TermsPage() {
 
       <h2>19. Governing law</h2>
       <p>
-        These Terms are governed by the law of <Todo>[England and Wales]</Todo>,
-        and the courts of <Todo>[England and Wales]</Todo> have jurisdiction.
-        Consumers may still benefit from mandatory rights in their own country.
+        These Terms are governed by the law of England and Wales, and the courts
+        of England and Wales have jurisdiction. Consumers may still benefit from
+        mandatory rights in their own country.
       </p>
 
       <h2>20. App stores</h2>
@@ -198,8 +191,8 @@ export default function TermsPage() {
       <h2>21. Changes &amp; contact</h2>
       <p>
         We may update these Terms; we&rsquo;ll notify you of material changes and
-        show a new &ldquo;last updated&rdquo; date. Questions or complaints:{" "}
-        <Todo>[contact email — to be added]</Todo>.
+        show a new &ldquo;last updated&rdquo; date. Questions or complaints: through
+        our <a href="/contact">contact page</a>.
       </p>
     </>
   );

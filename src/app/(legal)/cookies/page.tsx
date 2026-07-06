@@ -6,7 +6,7 @@ export default function CookiesPage() {
       <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
         Cookie Policy
       </h1>
-      <p className="text-sm text-muted-foreground">Last updated: 3 July 2026</p>
+      <p className="text-sm text-muted-foreground">Last updated: 6 July 2026</p>
 
       <p>
         This explains the cookies and similar technologies (like browser local
@@ -37,13 +37,23 @@ export default function CookiesPage() {
               <td>Strictly necessary</td>
             </tr>
             <tr>
+              <td>Session length (cookie: dailyos-session-deadline)</td>
+              <td>Remember how long to keep you signed in (your &ldquo;Remember me&rdquo; choice)</td>
+              <td>Strictly necessary</td>
+            </tr>
+            <tr>
+              <td>Timezone (cookie: dailyos-tz)</td>
+              <td>Show your dates and times in your own timezone</td>
+              <td>Strictly necessary</td>
+            </tr>
+            <tr>
               <td>Theme preference (local storage)</td>
               <td>Remember light / dark mode</td>
               <td>Strictly necessary</td>
             </tr>
             <tr>
               <td>App data (local storage)</td>
-              <td>Store some features (e.g. HomeOS) on your device</td>
+              <td>Store some features (e.g. HomeOS, plan status, wellbeing streaks) on your device</td>
               <td>Strictly necessary</td>
             </tr>
             <tr>
