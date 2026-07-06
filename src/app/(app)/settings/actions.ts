@@ -11,6 +11,28 @@ async function requireUser() {
   return { supabase, user };
 }
 
+/** Export everything the user has stored, as a plain JSON object they can
+ *  download. Read-only and RLS-scoped to their own rows. */
+export async function exportMyData() {
+  const { supabase, user } = await requireUser();
+  const [tasks, events, notes, inbox, vault] = await Promise.all([
+    supabase.from("extracted_tasks").select("*"),
+    supabase.from("calendar_events").select("*"),
+    supabase.from("notes").select("*"),
+    supabase.from("inbox_items").select("*"),
+    supabase.from("vault_items").select("*"),
+  ]);
+  return {
+    exported_at: new Date().toISOString(),
+    account: { id: user.id, email: user.email },
+    tasks: tasks.data ?? [],
+    calendar_events: events.data ?? [],
+    notes: notes.data ?? [],
+    inbox_items: inbox.data ?? [],
+    vault_items: vault.data ?? [],
+  };
+}
+
 /** Delete all of a user's content (keeps the account itself). */
 export async function deleteAllData() {
   const { supabase, user } = await requireUser();

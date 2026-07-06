@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Flower2, SmilePlus, ListChecks, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { WellbeingStreaks } from "@/components/wellbeing-streaks";
 import { Card } from "@/components/ui/card";
 
 export const metadata = { title: "Wellbeing · DailyOS" };
@@ -33,6 +34,7 @@ export default function WellbeingPage() {
         title="Wellbeing"
         description="Life admin's calmer when you are. A few small things, just for you."
       />
+      <WellbeingStreaks />
       <div className="grid gap-3">
         {SECTIONS.map((s) => (
           <Link key={s.href} href={s.href}>

@@ -2,6 +2,7 @@ import { User, CreditCard, ShieldAlert, Palette, AtSign } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
+import { ExportDataButton } from "@/components/export-data-button";
 import { SignOutButton } from "@/components/sign-out-button";
 import { InviteButton } from "@/components/invite-button";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -137,6 +138,13 @@ export default async function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">
+                Download a copy of everything — tasks, events, notes, inbox and
+                vault — as a JSON file.
+              </p>
+              <ExportDataButton />
+            </div>
             <SettingsDanger />
             <div className="flex gap-4 border-t pt-4 text-sm">
               <a href="/privacy" className="text-primary hover:underline">
