@@ -2,24 +2,53 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Check, Trash2, Link2, Repeat } from "lucide-react";
+import { Check, Trash2, Link2, Repeat, Pencil, Loader2 } from "lucide-react";
 import Link from "next/link";
 import {
   setTaskStatus,
   deleteTask,
   deleteRecurringTask,
+  updateTask,
 } from "@/app/(app)/tasks/actions";
 import { cn, formatDate, relativeDay } from "@/lib/utils";
 import { PriorityBadge } from "@/components/badges";
 import { Button } from "@/components/ui/button";
-import type { ExtractedTask } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { useToast } from "@/components/ui/toast";
+import type { ExtractedTask, Priority } from "@/lib/types";
 
 export function TaskItem({ task }: { task: ExtractedTask }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [pending, setPending] = React.useState(false);
   const [confirmRepeat, setConfirmRepeat] = React.useState(false);
+  const [editing, setEditing] = React.useState(false);
+  const [title, setTitle] = React.useState(task.title);
+  const [dueDate, setDueDate] = React.useState(task.due_date ?? "");
+  const [priority, setPriority] = React.useState<Priority>(
+    task.priority ?? "medium",
+  );
   const done = task.status === "completed";
   const repeats = !!task.recurrence && task.recurrence !== "none";
+
+  async function saveEdit() {
+    if (!title.trim()) return;
+    setPending(true);
+    const res = await updateTask(task.id, {
+      title: title.trim(),
+      due_date: dueDate || null,
+      priority,
+    });
+    if (res.ok) {
+      toast({ variant: "success", title: "Task updated" });
+      setEditing(false);
+      router.refresh();
+    } else {
+      toast({ variant: "error", title: "Couldn't update task" });
+    }
+    setPending(false);
+  }
 
   async function removeThisOnly() {
     setPending(true);
@@ -101,6 +130,22 @@ export function TaskItem({ task }: { task: ExtractedTask }) {
 
       <PriorityBadge priority={task.priority} />
 
+      {!done && (
+        <button
+          aria-label="Edit task"
+          disabled={pending}
+          onClick={() => {
+            setTitle(task.title);
+            setDueDate(task.due_date ?? "");
+            setPriority(task.priority ?? "medium");
+            setEditing(true);
+          }}
+          className="text-muted-foreground transition-colors hover:text-primary"
+        >
+          <Pencil className="size-4" />
+        </button>
+      )}
+
       <button
         aria-label="Delete task"
         disabled={pending}
@@ -118,6 +163,70 @@ export function TaskItem({ task }: { task: ExtractedTask }) {
       >
         <Trash2 className="size-4" />
       </button>
+
+      {editing && (
+        <div
+          className="fixed inset-0 z-[65] grid place-items-center bg-foreground/30 p-4 backdrop-blur-sm"
+          onClick={() => !pending && setEditing(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border bg-popover p-5 shadow-elevated"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="font-medium">Edit task</p>
+            <div className="mt-4 space-y-3">
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="What needs doing?"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") void saveEdit();
+                }}
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                />
+                <Select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value as Priority)}
+                >
+                  <option value="low">Low priority</option>
+                  <option value="medium">Medium priority</option>
+                  <option value="high">High priority</option>
+                </Select>
+              </div>
+              {repeats && (
+                <p className="text-xs text-muted-foreground">
+                  This task repeats {task.recurrence}. Edits apply to this
+                  occurrence.
+                </p>
+              )}
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditing(false)}
+                disabled={pending}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={saveEdit}
+                disabled={pending || !title.trim()}
+              >
+                {pending && <Loader2 className="size-4 animate-spin" />}
+                Save
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {confirmRepeat && (
         <div
