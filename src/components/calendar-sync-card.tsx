@@ -2,11 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CalendarClock, Copy, Check, Sparkles, Loader2 } from "lucide-react";
+import { CalendarClock, CalendarPlus, Copy, Check, Sparkles, Loader2 } from "lucide-react";
 import { usePlan, tierMeets } from "@/lib/use-pro";
 import { getCalendarFeedUrl } from "@/app/(app)/settings/calendar-actions";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -47,6 +46,13 @@ export function CalendarSyncCard({ userId }: { userId?: string }) {
     }
   }
 
+  // A webcal:// URL opens Apple Calendar's subscribe prompt straight away;
+  // Google's add-by-URL deep link does the same for Google Calendar.
+  const webcalUrl = feedUrl?.replace(/^https?:\/\//, "webcal://") ?? "";
+  const googleUrl = feedUrl
+    ? `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcalUrl)}`
+    : "";
+
   return (
     <Card>
       <CardHeader>
@@ -54,8 +60,8 @@ export function CalendarSyncCard({ userId }: { userId?: string }) {
           <CalendarClock className="size-4 text-primary" /> Calendar sync
         </CardTitle>
         <CardDescription>
-          Subscribe to your DailyOS events and due tasks in Apple Calendar,
-          Google Calendar or any calendar app.
+          Add your DailyOS events and due tasks to Apple Calendar, Google
+          Calendar or any calendar app — in one tap.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -80,29 +86,40 @@ export function CalendarSyncCard({ userId }: { userId?: string }) {
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Input readOnly value={feedUrl} className="text-xs" />
-              <Button type="button" variant="outline" size="icon" onClick={copy}>
-                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button asChild>
+                <a href={webcalUrl}>
+                  <CalendarPlus className="size-4" /> Add to Apple Calendar
+                </a>
+              </Button>
+              <Button asChild variant="outline">
+                <a href={googleUrl} target="_blank" rel="noreferrer">
+                  <CalendarPlus className="size-4" /> Add to Google Calendar
+                </a>
               </Button>
             </div>
-            <div className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">How to add it</p>
-              <ul className="mt-1 list-disc space-y-1 pl-5">
-                <li>
-                  <strong>iPhone / Apple:</strong> Calendar → Calendars → Add
-                  Calendar → <em>Add Subscription Calendar</em> → paste the link.
-                </li>
-                <li>
-                  <strong>Google Calendar:</strong> Other calendars → + → From
-                  URL → paste the link.
-                </li>
-              </ul>
-              <p className="mt-2 text-xs">
-                It updates automatically. Keep this link private — anyone with it
-                can see these events.
-              </p>
+
+            <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2">
+              <span className="text-xs text-muted-foreground">
+                Using another app? Copy the private link instead.
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={copy}
+                className="shrink-0"
+              >
+                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+                Copy link
+              </Button>
             </div>
+
+            <p className="text-xs text-muted-foreground">
+              Tap a button and confirm in your calendar app. It updates
+              automatically — keep the link private, as anyone with it can see
+              these events.
+            </p>
           </div>
         )}
       </CardContent>
