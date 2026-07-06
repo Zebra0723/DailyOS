@@ -8,12 +8,13 @@ import {
   Search,
   StickyNote,
   Trash2,
+  Pencil,
   Bell,
   Flower2,
   Check,
   X,
 } from "lucide-react";
-import { createNote, deleteNote } from "@/app/(app)/notes/actions";
+import { createNote, deleteNote, updateNote } from "@/app/(app)/notes/actions";
 import { createTask } from "@/app/(app)/tasks/actions";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,28 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
 
   const [query, setQuery] = React.useState("");
   const [category, setCategory] = React.useState<string>("all");
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editDraft, setEditDraft] = React.useState("");
+  const [savingEdit, setSavingEdit] = React.useState(false);
+
+  function startEdit(n: Note) {
+    setEditingId(n.id);
+    setEditDraft(n.content);
+  }
+
+  async function saveEdit(id: string) {
+    if (!editDraft.trim()) return;
+    setSavingEdit(true);
+    const res = await updateNote(id, editDraft);
+    setSavingEdit(false);
+    if (!res.ok) {
+      toast({ variant: "error", title: "Couldn't update", description: res.error });
+      return;
+    }
+    setNotes((prev) => prev.map((n) => (n.id === id ? res.note : n)));
+    setEditingId(null);
+    toast({ variant: "success", title: "Note updated" });
+  }
 
   const categories = React.useMemo(() => {
     const set = new Map<string, number>();
@@ -216,24 +239,64 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
         <div className="grid gap-2">
           {filtered.map((n) => (
             <Card key={n.id} className="p-4">
-              <div className="flex items-start justify-between gap-3">
-                <p className="whitespace-pre-wrap text-sm">{n.content}</p>
-                <button
-                  onClick={() => remove(n.id)}
-                  className="shrink-0 text-muted-foreground transition-colors hover:text-destructive"
-                  aria-label="Delete note"
-                >
-                  <Trash2 className="size-4" />
-                </button>
-              </div>
-              <div className="mt-2 flex items-center gap-2">
-                <Badge variant="secondary" className="capitalize">
-                  {n.category}
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {relativeDay(n.created_at)}
-                </span>
-              </div>
+              {editingId === n.id ? (
+                <div className="space-y-3">
+                  <Textarea
+                    value={editDraft}
+                    onChange={(e) => setEditDraft(e.target.value)}
+                    className="min-h-[80px]"
+                    autoFocus
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditingId(null)}
+                      disabled={savingEdit}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => saveEdit(n.id)}
+                      disabled={savingEdit || !editDraft.trim()}
+                    >
+                      {savingEdit && <Loader2 className="size-4 animate-spin" />}
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="whitespace-pre-wrap text-sm">{n.content}</p>
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        onClick={() => startEdit(n)}
+                        className="text-muted-foreground transition-colors hover:text-primary"
+                        aria-label="Edit note"
+                      >
+                        <Pencil className="size-4" />
+                      </button>
+                      <button
+                        onClick={() => remove(n.id)}
+                        className="text-muted-foreground transition-colors hover:text-destructive"
+                        aria-label="Delete note"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Badge variant="secondary" className="capitalize">
+                      {n.category}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {relativeDay(n.created_at)}
+                    </span>
+                  </div>
+                </>
+              )}
             </Card>
           ))}
         </div>

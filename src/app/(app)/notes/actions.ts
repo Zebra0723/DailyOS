@@ -39,6 +39,30 @@ export async function createNote(content: string): Promise<
   return { ok: true, note: data, analysis };
 }
 
+/** Edit a note's text, re-filing its category from the new content. */
+export async function updateNote(
+  id: string,
+  content: string,
+): Promise<{ ok: true; note: Note } | { ok: false; error: string }> {
+  const trimmed = content.trim();
+  if (!trimmed) return { ok: false, error: "Write something first." };
+
+  const { supabase } = await requireUser();
+  const analysis = analyzeNote(trimmed);
+  const { data, error } = await supabase
+    .from("notes")
+    .update({ content: trimmed, category: analysis.category })
+    .eq("id", id)
+    .select("*")
+    .single<Note>();
+
+  if (error || !data) {
+    return { ok: false, error: error?.message ?? "Could not update note." };
+  }
+  revalidatePath("/notes");
+  return { ok: true, note: data };
+}
+
 export async function deleteNote(id: string) {
   const { supabase } = await requireUser();
   const { error } = await supabase.from("notes").delete().eq("id", id);
