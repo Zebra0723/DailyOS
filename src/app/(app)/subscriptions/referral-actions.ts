@@ -1,11 +1,56 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { sendRewardEmail, emailConfigured } from "@/lib/email";
 import {
-  sendReferralRewards,
-  REFERRAL_REWARD_CODE,
-  emailConfigured,
-} from "@/lib/email";
+  milestoneAt,
+  describeReward,
+  type Reward,
+} from "@/lib/referral-rewards";
+
+type Admin = ReturnType<typeof createServiceClient>;
+
+/** A unique, human-ish reward code, e.g. "FRIEND-9F3A1C7E". */
+function generateFriendCode(): string {
+  return `FRIEND-${randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+}
+
+/** Issue a single-use reward code to someone. Returns the code, or null if the
+ *  reward_codes table isn't migrated yet (best-effort). */
+async function issueRewardCode(
+  admin: Admin,
+  opts: {
+    recipientId: string;
+    recipientEmail: string | null;
+    reward: Reward;
+    milestone: number;
+  },
+): Promise<string | null> {
+  for (let i = 0; i < 3; i++) {
+    const code = generateFriendCode();
+    const row =
+      opts.reward.kind === "plan"
+        ? {
+            kind: "plan",
+            plan_tier: opts.reward.tier,
+            plan_days: opts.reward.days,
+            percent: 0,
+          }
+        : { kind: "discount", percent: opts.reward.percent };
+    const { error } = await admin.from("reward_codes").insert({
+      code,
+      recipient_id: opts.recipientId,
+      recipient_email: opts.recipientEmail,
+      milestone: opts.milestone,
+      ...row,
+    });
+    if (!error) return code;
+    // 23505 = unique violation (code collision) — retry with a new code.
+    if (error.code !== "23505") return null;
+  }
+  return null;
+}
 
 /**
  * Mark the current user's referral as converted (they've landed on a paid plan)
@@ -62,7 +107,6 @@ export async function recordReferralConversion(): Promise<{
         .from("referrals")
         .update({
           status: "converted",
-          reward_code: REFERRAL_REWARD_CODE,
           converted_at: new Date().toISOString(),
           referred_email: user.email,
         })
@@ -73,24 +117,73 @@ export async function recordReferralConversion(): Promise<{
         referred_id: user.id,
         referred_email: user.email,
         status: "converted",
-        reward_code: REFERRAL_REWARD_CODE,
         converted_at: new Date().toISOString(),
       });
     }
   } catch {
-    // Table not migrated yet — still try to email so testing works day one.
+    // Table not migrated yet — still try to reward so testing works day one.
   }
 
   if (!firstConversion) return { ok: true, reason: "already-converted" };
 
-  const { referrer, referred } = await sendReferralRewards({
-    referrerEmail,
-    referredEmail: user.email,
+  // The referred friend's welcome reward: 10% off, as their own single-use code.
+  const friendReward: Reward = { kind: "discount", percent: 10 };
+  const friendCode = await issueRewardCode(admin, {
+    recipientId: user.id,
+    recipientEmail: user.email ?? null,
+    reward: friendReward,
+    milestone: 1,
   });
+
+  // The referrer's ladder reward for hitting this many converted friends.
+  let referrerCode: string | null = null;
+  let referrerLabel: string | null = null;
+  try {
+    const { count } = await admin
+      .from("referrals")
+      .select("id", { count: "exact", head: true })
+      .eq("referrer_id", referrerId)
+      .eq("status", "converted");
+    const ms = milestoneAt(count ?? 0);
+    if (ms) {
+      referrerCode = await issueRewardCode(admin, {
+        recipientId: referrerId,
+        recipientEmail: referrerEmail,
+        reward: ms.reward,
+        milestone: ms.count,
+      });
+      referrerLabel = ms.label;
+    }
+  } catch {
+    /* referrals table not migrated — skip the ladder reward */
+  }
+
+  const sends: Promise<{ ok: boolean }>[] = [];
+  if (user.email && friendCode) {
+    sends.push(
+      sendRewardEmail({
+        to: user.email,
+        audience: "friend",
+        code: friendCode,
+        rewardLabel: describeReward(friendReward),
+      }),
+    );
+  }
+  if (referrerEmail && referrerCode && referrerLabel) {
+    sends.push(
+      sendRewardEmail({
+        to: referrerEmail,
+        audience: "referrer",
+        code: referrerCode,
+        rewardLabel: referrerLabel,
+      }),
+    );
+  }
+  const results = await Promise.all(sends);
 
   return {
     ok: true,
-    emailed: referrer.ok || referred.ok,
+    emailed: results.some((r) => r.ok),
     reason: emailConfigured() ? undefined : "email-not-configured",
   };
 }

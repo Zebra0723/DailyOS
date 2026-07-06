@@ -212,8 +212,11 @@ when done)._
   sending domain → add `RESEND_API_KEY` and `EMAIL_FROM` in Vercel. Until then
   referrals still *count*, they just don't email.
 - ⛔ **Run `0005_referrals.sql`** in the Supabase SQL editor — turns on referral
-  tracking / the Invited·Subscribed counts. (Only outstanding migration; the rest
-  are done. `0002_subscriptions.sql` waits for Stripe.)
+  tracking / the Invited·Subscribed counts.
+- ⛔ **Run `0006_reward_codes.sql`** — turns on the single-use reward codes + the
+  prize ladder (1 friend → 10%, 5 → 3mo Plus, 7 → 1yr Pro, 10 → lifetime Plus,
+  25 → lifetime Pro). Until it's run, codes report "not active yet".
+  (`0002_subscriptions.sql` still waits for Stripe.)
 - ⏸️ **Payments (Stripe)** — gives a real "they paid" signal for referrals + true
   secure plan tiers (see the parked Stripe item below). Needs `0002_subscriptions.sql`
   + Stripe keys. For now a paid promo code (e.g. entering a code) stands in for payment.

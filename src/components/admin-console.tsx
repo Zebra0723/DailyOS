@@ -30,6 +30,7 @@ type Setup = {
   aiConfigured: boolean;
   emailConfigured: boolean;
   referralsReady: boolean;
+  rewardCodesReady: boolean;
   subscriptionsReady: boolean;
 };
 
@@ -255,6 +256,11 @@ export function AdminConsole({
               done={setup.referralsReady}
               title="Run migration 0005_referrals.sql"
               detail="Paste supabase/migrations/0005_referrals.sql into the Supabase SQL editor so referrals are stored and countable."
+            />
+            <SetupItem
+              done={setup.rewardCodesReady}
+              title="Run migration 0006_reward_codes.sql"
+              detail="Enables the single-use reward codes + the prize ladder (10% → 3mo Plus → 1yr Pro → lifetime). Until it's run, codes report 'not active yet'."
             />
             <SetupItem
               done={setup.subscriptionsReady}

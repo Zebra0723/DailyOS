@@ -6,6 +6,7 @@ import { Check, Sparkles, Tag } from "lucide-react";
 import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
 import { usePlan, setPlan, setAdmin, type Tier } from "@/lib/use-pro";
 import { recordReferralConversion } from "@/app/(app)/subscriptions/referral-actions";
+import { redeemRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -46,19 +47,11 @@ export function PricingTable({
       setError(false);
       return;
     }
-    // Referral discount: a percentage off at checkout, not a plan unlock. It
-    // takes effect once real paid plans (Stripe) are live.
-    if (entered === "DAILYOSFRIEND10") {
-      setError(false);
-      toast({
-        variant: "info",
-        title: "DAILYOSFRIEND10 — 10% off, applied at checkout once paid plans are live.",
-      });
-      return;
-    }
     const plan = CODE_PLANS[entered];
     if (!plan) {
-      setError(true);
+      // Not a plan code — try it as a single-use referral reward code.
+      setError(false);
+      void redeemFriendCode(entered);
       return;
     }
     setError(false);
@@ -81,9 +74,44 @@ export function PricingTable({
 
     // Landing on a paid plan is what "counts" a referral. Until Stripe is live,
     // a paid code stands in for a payment (e.g. a referred friend entering
-    // ARLEOPRO). If this account was referred, both parties get emailed the
-    // 10%-off code. No-ops safely for non-referred users.
+    // ARLEOPRO). If this account was referred, the reward codes get issued and
+    // emailed. No-ops safely for non-referred users.
     if (plan !== "free") void convertReferral();
+  }
+
+  // Redeem a single-use reward code: a discount claim, or a plan grant (which
+  // may be time-limited, e.g. 3 months of Plus). Reuse is blocked server-side.
+  async function redeemFriendCode(entered: string) {
+    try {
+      const res = await redeemRewardCode(entered);
+      if (res.ok) {
+        if (res.reward.kind === "plan") {
+          const expiresAt =
+            res.reward.days > 0
+              ? Date.now() + res.reward.days * 86_400_000
+              : null;
+          setJustTier(res.reward.tier);
+          void setPlan(res.reward.tier, userId, { expiresAt });
+          toast({ variant: "success", title: `Unlocked: ${res.label} 🎉` });
+        } else {
+          toast({
+            variant: "success",
+            title: `${res.reward.percent}% off claimed — it'll apply to your next paid plan.`,
+          });
+        }
+      } else if (res.reason === "used") {
+        toast({ variant: "error", title: "That code has already been used." });
+      } else if (entered === "DAILYOSFRIEND10") {
+        toast({
+          variant: "info",
+          title: "Personal codes now — check your email for your own one-time code.",
+        });
+      } else {
+        setError(true);
+      }
+    } catch {
+      setError(true);
+    }
   }
 
   async function convertReferral() {
@@ -93,7 +121,7 @@ export function PricingTable({
         if (res.emailed) {
           toast({
             variant: "success",
-            title: "Referral counted — 10% off is on its way to both inboxes.",
+            title: "Referral counted — the reward code is on its way by email.",
           });
         } else if (res.reason === "email-not-configured") {
           toast({

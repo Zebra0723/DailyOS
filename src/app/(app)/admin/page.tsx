@@ -26,10 +26,12 @@ export default async function AdminPage() {
   // Server-only: whether a real AI provider key is configured in this env.
   const aiConfigured = getAIProvider().isConfigured();
 
-  const [referralsReady, subscriptionsReady] = await Promise.all([
-    tableReady("referrals"),
-    tableReady("subscriptions"),
-  ]);
+  const [referralsReady, rewardCodesReady, subscriptionsReady] =
+    await Promise.all([
+      tableReady("referrals"),
+      tableReady("reward_codes"),
+      tableReady("subscriptions"),
+    ]);
 
   return (
     <AdminConsole
@@ -41,6 +43,7 @@ export default async function AdminPage() {
         aiConfigured,
         emailConfigured: emailConfigured(),
         referralsReady,
+        rewardCodesReady,
         subscriptionsReady,
       }}
     />

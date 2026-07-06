@@ -2,6 +2,7 @@ import { Sparkles, Gift } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PricingTable } from "@/components/pricing-table";
 import { InviteButton } from "@/components/invite-button";
+import { ReferralLadder } from "@/components/referral-ladder";
 import { getReferralSummary } from "@/app/(app)/subscriptions/referral-actions";
 
 export const metadata = { title: "Subscription · DailyOS" };
@@ -41,12 +42,13 @@ export default async function SubscriptionsPage() {
             </div>
             <div>
               <h2 className="font-display text-xl font-semibold tracking-tight">
-                Give 10%, get 10%
+                Refer friends, unlock rewards
               </h2>
               <p className="mt-1 max-w-md text-sm text-muted-foreground">
-                Share your one-of-a-kind link. When a friend subscribes, you
-                both get <strong className="text-foreground">10% off</strong> —
-                the code lands in both inboxes automatically.
+                Share your one-of-a-kind link. Your friend gets{" "}
+                <strong className="text-foreground">10% off</strong>, and the
+                more friends who subscribe, the bigger your reward — up to{" "}
+                <strong className="text-foreground">lifetime Pro</strong>.
               </p>
             </div>
           </div>
@@ -69,6 +71,8 @@ export default async function SubscriptionsPage() {
             </div>
           </div>
         )}
+
+        <ReferralLadder converted={referrals.converted} />
       </div>
     </div>
   );

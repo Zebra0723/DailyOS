@@ -12,12 +12,23 @@ export type Tier = "free" | "plus" | "pro";
 export const PRO_EVENT = "dailyos-pro";
 
 const tierKey = (userId: string) => `dailyos-tier:${userId}`;
+const tierExpKey = (userId: string) => `dailyos-tier-exp:${userId}`; // plan expiry (ms)
 const legacyProKey = (userId: string) => `dailyos-pro:${userId}`; // older "pro" flag
 const adminKey = (userId: string) => `dailyos-admin:${userId}`; // ARLEOPRO admin access
 
-/** Set the plan for an account. Pass userId (from the server) for a reliable flip. */
-export async function setPlan(tier: Tier, userId?: string) {
+/**
+ * Set the plan for an account. Pass userId (from the server) for a reliable
+ * flip. `opts.expiresAt` (ms timestamp) time-limits the plan — e.g. a 3-month
+ * referral reward — after which it reverts to free. Omit it for a lifetime plan
+ * (the default, so existing promo codes stay permanent).
+ */
+export async function setPlan(
+  tier: Tier,
+  userId?: string,
+  opts?: { expiresAt?: number | null },
+) {
   const supabase = createClient();
+  const expiresAt = opts?.expiresAt ?? null;
 
   let id = userId;
   if (!id) {
@@ -35,16 +46,25 @@ export async function setPlan(tier: Tier, userId?: string) {
     if (tier === "free") {
       localStorage.removeItem(tierKey(id));
       localStorage.removeItem(legacyProKey(id));
+      localStorage.removeItem(tierExpKey(id));
     } else {
       localStorage.setItem(tierKey(id), tier);
       if (tier === "pro") localStorage.setItem(legacyProKey(id), "1");
       else localStorage.removeItem(legacyProKey(id));
+      if (expiresAt) localStorage.setItem(tierExpKey(id), String(expiresAt));
+      else localStorage.removeItem(tierExpKey(id));
     }
     window.dispatchEvent(new Event(PRO_EVENT));
   }
 
   supabase.auth
-    .updateUser({ data: { plan: tier, pro: tier === "pro" } })
+    .updateUser({
+      data: {
+        plan: tier,
+        pro: tier === "pro",
+        plan_exp: tier === "free" ? null : expiresAt,
+      },
+    })
     .catch(() => {
       /* metadata write can fail offline; local flag still applies here */
     });
@@ -54,13 +74,29 @@ function readTierFor(
   id: string | undefined,
   metaPlan?: unknown,
   metaPro?: boolean,
+  metaExp?: unknown,
 ): Tier {
   if (id && typeof window !== "undefined") {
     const t = localStorage.getItem(tierKey(id));
-    if (t === "plus" || t === "pro") return t;
-    if (localStorage.getItem(legacyProKey(id)) === "1") return "pro";
+    if (t === "plus" || t === "pro") {
+      const exp = Number(localStorage.getItem(tierExpKey(id)) || 0);
+      if (exp && Date.now() > exp) {
+        // Time-limited plan has lapsed — clear it and fall through to free.
+        localStorage.removeItem(tierKey(id));
+        localStorage.removeItem(legacyProKey(id));
+        localStorage.removeItem(tierExpKey(id));
+      } else {
+        return t;
+      }
+    } else if (localStorage.getItem(legacyProKey(id)) === "1") {
+      return "pro";
+    }
   }
-  if (metaPlan === "plus" || metaPlan === "pro") return metaPlan;
+  if (metaPlan === "plus" || metaPlan === "pro") {
+    const exp = metaExp ? Number(metaExp) : 0;
+    if (exp && Date.now() > exp) return "free";
+    return metaPlan;
+  }
   if (metaPro === true) return "pro";
   return "free";
 }
@@ -148,6 +184,7 @@ export function usePlan(userId?: string): {
               userId ?? user.id,
               user.user_metadata?.plan,
               user.user_metadata?.pro === true,
+              user.user_metadata?.plan_exp,
             );
             admin = readAdminFor(
               userId ?? user.id,
