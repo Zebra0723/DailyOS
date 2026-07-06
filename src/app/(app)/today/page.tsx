@@ -29,6 +29,7 @@ import { cn, formatFloating, relativeDay } from "@/lib/utils";
 import { isOnboarding, tailoredIntro } from "@/lib/onboarding";
 import { HomeOSTodayActions } from "@/components/homeos/today-home-actions";
 import { RewardCodeNudge } from "@/components/reward-code-nudge";
+import { QuickAddTask } from "@/components/quick-add-task";
 import { getClaimableRewardCodes } from "@/app/(app)/subscriptions/reward-code-actions";
 import type { CalendarEvent, ExtractedTask, InboxItem } from "@/lib/types";
 
@@ -216,7 +217,8 @@ export default async function TodayPage() {
               All tasks
             </Link>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
+            <QuickAddTask dueDate={todayStr} />
             {dueTasks.length === 0 ? (
               <p className="py-4 text-center text-sm text-muted-foreground">
                 Nothing due today. Enjoy the calm.

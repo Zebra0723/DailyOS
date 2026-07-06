@@ -226,6 +226,10 @@ when done)._
   them in `src/lib/contact.ts` (`SUPPORT_EMAIL`, `ENQUIRIES_EMAIL`). The Contact
   page (`/contact`) shows "coming soon" slots until they're filled, and the legal
   pages point people to it. (Also lets Resend send from a verified address.)
+- 🔶 **Marketing (see MARKETING.md)** — a **short domain** + **QR code** for the
+  Hull KR billboards; approve the campaign offers so Leo can wire `HULLKR` /
+  `GALAXY` promo codes; agree the Galaxy Pizza cross-promo + box artwork; INR
+  pricing once Stripe is live.
 
 - ⏸️ **Live account connections for OrganizerOS** — _Arjun (parked)_
   - **Gmail** — possible, but needs a real OAuth backend (Google Cloud project,
