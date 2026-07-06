@@ -114,12 +114,12 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 7 | 🧩 Read the Map ✅ | Challenge — **skipped by Leo** (skip used) |
 | 8 | Landing Curator ✅ | Edit landing-page sections & marketing structure |
 | 9 | Small Settings ✅ | Make small, non-destructive settings/preference changes |
-| 10 | 🧩 Trace the Data ✅ **(CURRENT)** | Challenge — **jumped by Arjun** |
-| 11 | Component Crafter | Add new presentational UI components (visual only) |
-| 12 | State Designer | Own all empty / loading / error states |
-| 13 | 🧩 Spot the Bug | Diagnose a described issue correctly |
-| 14 | Feature Helper | Build small self-contained features (filters, sorts) with guidance |
-| 15 | Data Reader | Add read-only views/pages (no writing data) |
+| 10 | 🧩 Trace the Data ✅ | Challenge — **jumped by Arjun** |
+| 11 | Component Crafter ✅ | Add new presentational UI components (visual only) |
+| 12 | State Designer ✅ | Own all empty / loading / error states |
+| 13 | 🧩 Spot the Bug ✅ | Challenge — passed to level 15 by Arjun |
+| 14 | Feature Helper ✅ | Build small self-contained features (filters, sorts) with guidance |
+| 15 | Data Reader ✅ **(CURRENT)** | Add read-only views/pages (no writing data) |
 | 16 | 🧩 Schema Scholar | Explain the database tables & how RLS keeps data private |
 | 17 | Feature Builder | Build full features that write data (with review) |
 | 18 | Integrations Apprentice | Work on non-secret external config under guidance |
@@ -127,11 +127,12 @@ small copy tweaks for fun — they just don't move the promotion meter.
 | 20 | **Creator (Arjun status)** | Full powers, equal to Arjun (needs Arjun's OK) |
 
 ### Leo's progress
-- **Current level:** 10 (Trace the Data) 🎉 — **Arjun jumped him 8 → 10.**
-  Now holds Levels 8 & 9 too: editing the landing/marketing page + making
-  small, safe settings changes. (L10 is a gate, no new power of its own.)
-- **To reach Level 11 (Component Crafter):** capability level → 2–3 effective
-  changes. Unlocks: adding new visual UI components. **Progress: 0 / 3.**
+- **Current level:** 15 (Data Reader) — **demotion only took him to 15, not 10**
+  (set by Arjun). Holds Levels 11–15: adding new presentational UI components,
+  owning empty/loading/error states, small self-contained features (filters,
+  sorts), and read-only views/pages.
+- **To reach Level 16 (🧩 Schema Scholar):** a challenge — explain the database
+  tables & how RLS keeps data private.
 - **Challenge skips remaining: 0** (used on Level 7).
 - Leo's mindfulness idea is now considered **within his level** going forward.
 
