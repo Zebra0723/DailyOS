@@ -9,6 +9,7 @@ import {
   StickyNote,
   Trash2,
   Pencil,
+  Pin,
   Bell,
   Flower2,
   Check,
@@ -71,12 +72,37 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
     return Array.from(set.entries());
   }, [notes]);
 
-  const filtered = notes.filter((n) => {
-    if (category !== "all" && n.category !== category) return false;
-    if (query.trim() && !n.content.toLowerCase().includes(query.toLowerCase()))
-      return false;
-    return true;
-  });
+  // Pinned notes (kept on this device) float to the top of the list.
+  const [pinned, setPinned] = React.useState<Set<string>>(new Set());
+  React.useEffect(() => {
+    try {
+      setPinned(new Set(JSON.parse(localStorage.getItem("dailyos-pinned-notes") || "[]")));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  function togglePin(id: string) {
+    setPinned((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      try {
+        localStorage.setItem("dailyos-pinned-notes", JSON.stringify([...next]));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }
+
+  const filtered = notes
+    .filter((n) => {
+      if (category !== "all" && n.category !== category) return false;
+      if (query.trim() && !n.content.toLowerCase().includes(query.toLowerCase()))
+        return false;
+      return true;
+    })
+    .sort((a, b) => Number(pinned.has(b.id)) - Number(pinned.has(a.id)));
 
   async function save() {
     if (!draft.trim()) return;
@@ -277,6 +303,21 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
                   <div className="flex items-start justify-between gap-3">
                     <p className="whitespace-pre-wrap text-sm">{n.content}</p>
                     <div className="flex shrink-0 gap-2">
+                      <button
+                        onClick={() => togglePin(n.id)}
+                        className={cn(
+                          "transition-colors",
+                          pinned.has(n.id)
+                            ? "text-primary"
+                            : "text-muted-foreground hover:text-primary",
+                        )}
+                        aria-label={pinned.has(n.id) ? "Unpin note" : "Pin note"}
+                        title={pinned.has(n.id) ? "Unpin" : "Pin to top"}
+                      >
+                        <Pin
+                          className={cn("size-4", pinned.has(n.id) && "fill-current")}
+                        />
+                      </button>
                       <button
                         onClick={() => startEdit(n)}
                         className="text-muted-foreground transition-colors hover:text-primary"
