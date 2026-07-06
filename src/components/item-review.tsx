@@ -691,7 +691,7 @@ function DangerZone({ item }: { item: InboxItem }) {
       <Separator />
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Delete this item and anything created from it.
+          Delete this item. Tasks and events you approved from it are kept.
         </p>
         <Button
           variant="ghost"

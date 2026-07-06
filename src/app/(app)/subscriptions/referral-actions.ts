@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { sendRewardEmail, emailConfigured } from "@/lib/email";
 import {
-  milestoneAt,
+  MILESTONES,
   describeReward,
   type Reward,
 } from "@/lib/referral-rewards";
@@ -127,35 +127,46 @@ export async function recordReferralConversion(): Promise<{
   if (!firstConversion) return { ok: true, reason: "already-converted" };
 
   // The referred friend's welcome reward: 10% off, as their own single-use code.
+  // milestone 0 marks it as the friend's welcome, distinct from the referrer's
+  // rung-1 reward (also 10%) so the two never collide on (recipient, milestone).
   const friendReward: Reward = { kind: "discount", percent: 10 };
   const friendCode = await issueRewardCode(admin, {
     recipientId: user.id,
     recipientEmail: user.email ?? null,
     reward: friendReward,
-    milestone: 1,
+    milestone: 0,
   });
 
-  // The referrer's ladder reward for hitting this many converted friends.
-  let referrerCode: string | null = null;
-  let referrerLabel: string | null = null;
+  // The referrer's ladder: issue every rung they've now reached but haven't been
+  // given yet. Doing it by "reached but not issued" (rather than an exact count
+  // match) means a rung is never lost if two conversions land at once, and it's
+  // idempotent — an already-issued rung is skipped.
+  const referrerRewards: { code: string; label: string }[] = [];
   try {
     const { count } = await admin
       .from("referrals")
       .select("id", { count: "exact", head: true })
       .eq("referrer_id", referrerId)
       .eq("status", "converted");
-    const ms = milestoneAt(count ?? 0);
-    if (ms) {
-      referrerCode = await issueRewardCode(admin, {
+    const reached = MILESTONES.filter((m) => (count ?? 0) >= m.count);
+    for (const m of reached) {
+      const { data: already } = await admin
+        .from("reward_codes")
+        .select("code")
+        .eq("recipient_id", referrerId)
+        .eq("milestone", m.count)
+        .maybeSingle();
+      if (already) continue;
+      const code = await issueRewardCode(admin, {
         recipientId: referrerId,
         recipientEmail: referrerEmail,
-        reward: ms.reward,
-        milestone: ms.count,
+        reward: m.reward,
+        milestone: m.count,
       });
-      referrerLabel = ms.label;
+      if (code) referrerRewards.push({ code, label: m.label });
     }
   } catch {
-    /* referrals table not migrated — skip the ladder reward */
+    /* referrals table not migrated — skip the ladder rewards */
   }
 
   const sends: Promise<{ ok: boolean }>[] = [];
@@ -169,15 +180,17 @@ export async function recordReferralConversion(): Promise<{
       }),
     );
   }
-  if (referrerEmail && referrerCode && referrerLabel) {
-    sends.push(
-      sendRewardEmail({
-        to: referrerEmail,
-        audience: "referrer",
-        code: referrerCode,
-        rewardLabel: referrerLabel,
-      }),
-    );
+  if (referrerEmail) {
+    for (const r of referrerRewards) {
+      sends.push(
+        sendRewardEmail({
+          to: referrerEmail,
+          audience: "referrer",
+          code: r.code,
+          rewardLabel: r.label,
+        }),
+      );
+    }
   }
   const results = await Promise.all(sends);
 

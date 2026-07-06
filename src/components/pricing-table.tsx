@@ -4,7 +4,13 @@ import * as React from "react";
 import Link from "next/link";
 import { Check, Sparkles, Tag } from "lucide-react";
 import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
-import { usePlan, setPlan, setAdmin, type Tier } from "@/lib/use-pro";
+import {
+  usePlan,
+  setPlan,
+  setAdmin,
+  grantPlanReward,
+  type Tier,
+} from "@/lib/use-pro";
 import { recordReferralConversion } from "@/app/(app)/subscriptions/referral-actions";
 import { redeemRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
 import { Button } from "@/components/ui/button";
@@ -32,7 +38,7 @@ export function PricingTable({
   userId?: string;
 }) {
   const [annual, setAnnual] = React.useState(true);
-  const { tier } = usePlan(userId);
+  const { tier, planExp } = usePlan(userId);
   const { toast } = useToast();
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState(false);
@@ -91,7 +97,8 @@ export function PricingTable({
               ? Date.now() + res.reward.days * 86_400_000
               : null;
           setJustTier(res.reward.tier);
-          void setPlan(res.reward.tier, userId, { expiresAt });
+          // Merge so a gift never downgrades a better plan the user already has.
+          void grantPlanReward(res.reward.tier, userId, expiresAt);
           toast({ variant: "success", title: `Unlocked: ${res.label} 🎉` });
         } else {
           toast({
@@ -206,6 +213,7 @@ export function PricingTable({
             annual={annual}
             compact={compact}
             unlocked={currentTier === plan.key}
+            expiresAt={currentTier === plan.key ? planExp : null}
           />
         ))}
       </div>
@@ -246,14 +254,24 @@ function PlanCard({
   annual,
   compact,
   unlocked,
+  expiresAt,
 }: {
   plan: Plan;
   annual: boolean;
   compact: boolean;
   unlocked: boolean;
+  expiresAt?: number | null;
 }) {
   const free = plan.monthly === 0;
   const saving = annualSavingPct(plan);
+  const timeLimited = unlocked && !!expiresAt;
+  const untilLabel = expiresAt
+    ? new Date(expiresAt).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
 
   return (
     <div
@@ -265,7 +283,7 @@ function PlanCard({
     >
       {unlocked ? (
         <div className="absolute -top-3 left-6 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
-          Your plan · Lifetime
+          {timeLimited ? "Your plan" : "Your plan · Lifetime"}
         </div>
       ) : (
         plan.highlight && (
@@ -294,7 +312,9 @@ function PlanCard({
       </div>
       <p className="mt-1 h-5 text-xs text-muted-foreground">
         {unlocked
-          ? "Unlocked for life"
+          ? timeLimited
+            ? `Active until ${untilLabel}`
+            : "Unlocked for life"
           : free
             ? "Free forever"
             : annual

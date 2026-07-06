@@ -96,20 +96,22 @@ export async function redeemRewardCode(raw: string): Promise<RedeemResult> {
       })
       .eq("code", code)
       .eq("used", false)
+      .eq("recipient_id", user.id) // a code can only be claimed by the account it was issued to
       .gte("created_at", cutoff) // only claim codes still inside their 2-month window
       .select("kind,percent,plan_tier,plan_days")
       .maybeSingle();
 
     if (error) return { ok: false, reason: "not-active" };
     if (!data) {
-      // No row updated: doesn't exist, already spent, or lapsed. Distinguish so
-      // the message is right.
+      // No row updated: doesn't exist, isn't yours, already spent, or lapsed.
+      // Distinguish so the message is right.
       const { data: existing } = await admin
         .from("reward_codes")
-        .select("used,created_at")
+        .select("used,created_at,recipient_id")
         .eq("code", code)
         .maybeSingle();
-      if (!existing) return { ok: false, reason: "invalid" };
+      if (!existing || existing.recipient_id !== user.id)
+        return { ok: false, reason: "invalid" };
       if (existing.used) return { ok: false, reason: "used" };
       if (rewardCodeExpired(existing.created_at, Date.now()))
         return { ok: false, reason: "expired" };

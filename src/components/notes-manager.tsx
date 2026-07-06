@@ -117,9 +117,15 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
   }
 
   async function remove(id: string) {
+    const prevNotes = notes;
     setNotes((prev) => prev.filter((n) => n.id !== id));
     if (suggestion?.noteId === id) setSuggestion(null);
-    await deleteNote(id);
+    const res = await deleteNote(id);
+    if (!res.ok) {
+      // Put it back — the delete didn't actually happen.
+      setNotes(prevNotes);
+      toast({ variant: "error", title: "Couldn't delete note" });
+    }
   }
 
   return (

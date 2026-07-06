@@ -15,30 +15,48 @@ async function requireUser() {
  *  download. Read-only and RLS-scoped to their own rows. */
 export async function exportMyData() {
   const { supabase, user } = await requireUser();
+  // Fetch a whole table in pages so a heavy account isn't silently capped at
+  // PostgREST's default 1000-row limit.
+  async function all(table: string) {
+    const out: unknown[] = [];
+    const size = 1000;
+    for (let from = 0; ; from += size) {
+      const { data } = await supabase
+        .from(table)
+        .select("*")
+        .range(from, from + size - 1);
+      const rows = data ?? [];
+      out.push(...rows);
+      if (rows.length < size) break;
+    }
+    return out;
+  }
+
   const [tasks, events, notes, inbox, vault] = await Promise.all([
-    supabase.from("extracted_tasks").select("*"),
-    supabase.from("calendar_events").select("*"),
-    supabase.from("notes").select("*"),
-    supabase.from("inbox_items").select("*"),
-    supabase.from("vault_items").select("*"),
+    all("extracted_tasks"),
+    all("calendar_events"),
+    all("notes"),
+    all("inbox_items"),
+    all("vault_items"),
   ]);
   return {
     exported_at: new Date().toISOString(),
     account: { id: user.id, email: user.email },
-    tasks: tasks.data ?? [],
-    calendar_events: events.data ?? [],
-    notes: notes.data ?? [],
-    inbox_items: inbox.data ?? [],
-    vault_items: vault.data ?? [],
+    tasks,
+    calendar_events: events,
+    notes,
+    inbox_items: inbox,
+    vault_items: vault,
   };
 }
 
 /** Delete all of a user's content (keeps the account itself). */
 export async function deleteAllData() {
   const { supabase, user } = await requireUser();
-  // inbox_items cascades to vault/logs; clear standalone tasks/events too.
+  // inbox_items cascades to vault/logs; clear standalone tasks/events + notes.
   await supabase.from("extracted_tasks").delete().eq("user_id", user.id);
   await supabase.from("calendar_events").delete().eq("user_id", user.id);
+  await supabase.from("notes").delete().eq("user_id", user.id);
   await supabase.from("inbox_items").delete().eq("user_id", user.id);
 
   // Best-effort: remove stored files under the user's folder.

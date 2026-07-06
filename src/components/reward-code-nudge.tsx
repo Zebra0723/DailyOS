@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Gift, ArrowRight, Loader2 } from "lucide-react";
-import { setPlan } from "@/lib/use-pro";
+import { grantPlanReward } from "@/lib/use-pro";
 import { redeemRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,7 +65,7 @@ export function RewardCodeNudge({
         if (res.reward.kind === "plan") {
           const expiresAt =
             res.reward.days > 0 ? Date.now() + res.reward.days * 86_400_000 : null;
-          void setPlan(res.reward.tier, userId, { expiresAt });
+          void grantPlanReward(res.reward.tier, userId, expiresAt);
           toast({ variant: "success", title: `Unlocked: ${res.label} 🎉` });
         } else {
           toast({

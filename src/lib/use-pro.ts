@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { createClient } from "@/lib/supabase/client";
+import { mergeGrant } from "@/lib/plan-merge";
 
 // Plan tiers. Stored per-user (keyed by user id) so a plan never leaks
 // between accounts on the same browser. Source of truth without real billing:
@@ -101,6 +102,58 @@ function readTierFor(
   return "free";
 }
 
+/** The stored plan expiry (ms) for this account, or null for lifetime/none. */
+function localExp(id: string | undefined): number | null {
+  if (id && typeof window !== "undefined") {
+    const e = Number(localStorage.getItem(tierExpKey(id)) || 0);
+    return e || null;
+  }
+  return null;
+}
+
+/**
+ * Apply a plan reward without ever making the account worse off. Merges the
+ * grant with any existing plan (localStorage or metadata) via mergeGrant: never
+ * lowers the tier, never shortens access, and lifetime always beats a
+ * time-limited grant of the same tier. Use this for redeemed rewards instead of
+ * setPlan, so a gift can't accidentally downgrade a better plan.
+ */
+export async function grantPlanReward(
+  tier: Extract<Tier, "plus" | "pro">,
+  userId?: string,
+  expiresAt?: number | null,
+) {
+  const supabase = createClient();
+  let id = userId;
+  let metaPlan: unknown;
+  let metaPro = false;
+  let metaExp: unknown;
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    id = id ?? session?.user?.id;
+    metaPlan = session?.user?.user_metadata?.plan;
+    metaPro = session?.user?.user_metadata?.pro === true;
+    metaExp = session?.user?.user_metadata?.plan_exp;
+  } catch {
+    /* fall through with what we have */
+  }
+
+  const curTier = readTierFor(id, metaPlan, metaPro, metaExp);
+  const curExp =
+    curTier === "free"
+      ? null
+      : (localExp(id) ?? (metaExp ? Number(metaExp) : null));
+
+  const merged = mergeGrant(
+    { tier: curTier, exp: curExp },
+    { tier, exp: expiresAt ?? null },
+  );
+  await setPlan(merged.tier, id, { expiresAt: merged.exp });
+  return { tier: merged.tier, expiresAt: merged.exp };
+}
+
 function readAdminFor(id: string | undefined, metaAdmin?: boolean): boolean {
   if (id && typeof window !== "undefined") {
     if (localStorage.getItem(adminKey(id)) === "1") return true;
@@ -139,17 +192,21 @@ export function usePlan(userId?: string): {
   resolved: boolean;
   tier: Tier;
   admin: boolean;
+  /** Plan expiry (ms) for a time-limited grant, or null for lifetime/free. */
+  planExp: number | null;
 } {
   const [state, setState] = React.useState<{
     mounted: boolean;
     resolved: boolean;
     tier: Tier;
     admin: boolean;
+    planExp: number | null;
   }>({
     mounted: false,
     resolved: false,
     tier: "free",
     admin: false,
+    planExp: null,
   });
 
   React.useEffect(() => {
@@ -168,11 +225,13 @@ export function usePlan(userId?: string): {
       resolved: localResolved,
       tier: localTier,
       admin: localAdmin,
+      planExp: localTier === "free" ? null : localExp(userId),
     });
 
     const read = async () => {
       let tier = readTierFor(userId);
       let admin = readAdminFor(userId);
+      let exp = tier === "free" ? null : localExp(userId);
       if (tier === "free" || !admin) {
         try {
           const {
@@ -180,22 +239,28 @@ export function usePlan(userId?: string): {
           } = await supabase.auth.getSession();
           const user = session?.user;
           if (user) {
+            const uid = userId ?? user.id;
             tier = readTierFor(
-              userId ?? user.id,
+              uid,
               user.user_metadata?.plan,
               user.user_metadata?.pro === true,
               user.user_metadata?.plan_exp,
             );
-            admin = readAdminFor(
-              userId ?? user.id,
-              user.user_metadata?.admin === true,
-            );
+            admin = readAdminFor(uid, user.user_metadata?.admin === true);
+            exp =
+              tier === "free"
+                ? null
+                : (localExp(uid) ??
+                  (user.user_metadata?.plan_exp
+                    ? Number(user.user_metadata.plan_exp)
+                    : null));
           }
         } catch {
           /* fall through with free */
         }
       }
-      if (active) setState({ mounted: true, resolved: true, tier, admin });
+      if (active)
+        setState({ mounted: true, resolved: true, tier, admin, planExp: exp });
     };
 
     read();

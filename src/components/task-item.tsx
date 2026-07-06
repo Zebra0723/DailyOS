@@ -33,7 +33,7 @@ export function TaskItem({ task }: { task: ExtractedTask }) {
   const repeats = !!task.recurrence && task.recurrence !== "none";
 
   async function saveEdit() {
-    if (!title.trim()) return;
+    if (pending || !title.trim()) return;
     setPending(true);
     const res = await updateTask(task.id, {
       title: title.trim(),

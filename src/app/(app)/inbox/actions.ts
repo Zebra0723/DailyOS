@@ -224,12 +224,10 @@ export async function setInboxHandled(id: string, handled: boolean) {
 
 export async function deleteInboxItem(id: string) {
   const { supabase } = await requireUser();
-  // Remove everything created from this item first, so nothing is orphaned
-  // (tasks, calendar events, the vault entry, and the processing log).
-  await supabase.from("extracted_tasks").delete().eq("inbox_item_id", id);
-  await supabase.from("calendar_events").delete().eq("inbox_item_id", id);
-  await supabase.from("vault_items").delete().eq("inbox_item_id", id);
-  await supabase.from("processing_logs").delete().eq("inbox_item_id", id);
+  // Deleting the item lets the database do the right thing per its foreign keys:
+  // the vault entry and processing logs cascade away, while any tasks and
+  // calendar events you already approved are KEPT (their link is set null), so
+  // decluttering a handled item never silently deletes your to-dos or events.
   const { error } = await supabase.from("inbox_items").delete().eq("id", id);
   if (error) return { ok: false as const, error: error.message };
   revalidatePath("/inbox");

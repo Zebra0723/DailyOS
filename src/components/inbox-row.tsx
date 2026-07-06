@@ -23,7 +23,7 @@ export function InboxRow({ item }: { item: InboxItem }) {
     if (deleting) return;
     if (
       !window.confirm(
-        "Delete this item and anything created from it? This cannot be undone.",
+        "Delete this inbox item? Any tasks and events you approved from it will stay. This cannot be undone.",
       )
     )
       return;
