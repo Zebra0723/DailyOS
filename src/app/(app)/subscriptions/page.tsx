@@ -3,7 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { PricingTable } from "@/components/pricing-table";
 import { InviteButton } from "@/components/invite-button";
 import { ReferralLadder } from "@/components/referral-ladder";
+import { MyRewardCodes } from "@/components/my-reward-codes";
 import { getReferralSummary } from "@/app/(app)/subscriptions/referral-actions";
+import { getMyRewardCodes } from "@/app/(app)/subscriptions/reward-code-actions";
 
 export const metadata = { title: "Subscription · DailyOS" };
 
@@ -14,6 +16,7 @@ export default async function SubscriptionsPage() {
   } = await supabase.auth.getUser();
 
   const referrals = await getReferralSummary();
+  const rewardCodes = await getMyRewardCodes();
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -71,6 +74,8 @@ export default async function SubscriptionsPage() {
             </div>
           </div>
         )}
+
+        <MyRewardCodes codes={rewardCodes} />
 
         <ReferralLadder converted={referrals.converted} />
       </div>

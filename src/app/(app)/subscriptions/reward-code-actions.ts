@@ -7,6 +7,38 @@ type RedeemResult =
   | { ok: true; reward: Reward; label: string }
   | { ok: false; reason: "invalid" | "used" | "not-active" | "no-user" };
 
+export type MyRewardCode = { code: string; label: string; used: boolean };
+
+/** The reward codes issued to the signed-in user, newest first. Lets people see
+ *  and redeem their codes in-app without depending on email. */
+export async function getMyRewardCodes(): Promise<MyRewardCode[]> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+  try {
+    const { data } = await supabase
+      .from("reward_codes")
+      .select("code,kind,percent,plan_tier,plan_days,used,created_at")
+      .eq("recipient_id", user.id)
+      .order("created_at", { ascending: false });
+    return (data ?? []).map((r) => {
+      const reward: Reward =
+        r.kind === "plan"
+          ? {
+              kind: "plan",
+              tier: r.plan_tier === "pro" ? "pro" : "plus",
+              days: r.plan_days ?? 0,
+            }
+          : { kind: "discount", percent: r.percent ?? 10 };
+      return { code: r.code, label: describeReward(reward), used: r.used };
+    });
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Claim a single-use reward code. The claim is a single conditional UPDATE
  * (only matches while `used` is false), so a code can be redeemed exactly once
