@@ -3,6 +3,16 @@
 DailyOS is a web app / PWA. It doesn't need a rewrite to be in the stores — we
 wrap the live site. 🔶 = needs Arjun (paid account / submission / signing).
 
+## Cheapest path (recommended — start here)
+Apple's **$99/yr is not required** to reach iPhone users.
+- **Free — PWA install (iPhone + Android).** Already works: browser → "Add to Home
+  Screen" → real app icon, full-screen, £0. Covers everyone. Push this hard in
+  marketing.
+- **$25 one-time — Google Play.** A single fee (not annual) for a real Android
+  store listing. Best value; Android dominates most markets (India ≈ 95% Android).
+- **$99/yr — Apple App Store.** Defer it. iPhone users install the free PWA until
+  revenue makes the yearly fee a no-brainer.
+
 ## The plan (fastest first)
 1. **Google Play (easy, cheap).** Use **PWABuilder** (pwabuilder.com) → enter the
    live URL → download the **Android package** (a Trusted Web Activity). Needs a
