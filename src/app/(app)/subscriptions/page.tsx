@@ -53,6 +53,12 @@ export default async function SubscriptionsPage() {
                 more friends who subscribe, the bigger your reward — up to{" "}
                 <strong className="text-foreground">lifetime Pro</strong>.
               </p>
+              <a
+                href="#reward-codes"
+                className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+              >
+                See your reward codes →
+              </a>
             </div>
           </div>
           <div className="shrink-0">

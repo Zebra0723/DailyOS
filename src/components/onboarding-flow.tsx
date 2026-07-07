@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ArrowLeft, Loader2, Check, type LucideIcon } from "lucide-react";
+import { ArrowRight, ArrowLeft, Loader2, Check, Smartphone, type LucideIcon } from "lucide-react";
 import { saveOnboarding } from "@/app/onboarding/actions";
+import { InstallApp } from "@/components/install-app";
 import {
   PERSONAS,
   FOCUS_OPTIONS,
@@ -171,6 +172,20 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
               All set
             </Button>
           )}
+        </div>
+
+        {/* Install DailyOS — add it to the home screen while you're here */}
+        <div className="mt-8 rounded-xl border border-primary/30 bg-accent/20 p-4">
+          <div className="flex items-center gap-2">
+            <Smartphone className="size-4 text-primary" />
+            <p className="text-sm font-medium">Install DailyOS</p>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Add it to your home screen — full-screen, offline, and a tap away.
+          </p>
+          <div className="mt-2">
+            <InstallApp />
+          </div>
         </div>
       </div>
     </div>

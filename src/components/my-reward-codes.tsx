@@ -11,8 +11,6 @@ export function MyRewardCodes({ codes }: { codes: MyRewardCode[] }) {
   const { toast } = useToast();
   const [copied, setCopied] = React.useState<string | null>(null);
 
-  if (codes.length === 0) return null;
-
   async function copy(code: string) {
     try {
       await navigator.clipboard.writeText(code);
@@ -25,14 +23,22 @@ export function MyRewardCodes({ codes }: { codes: MyRewardCode[] }) {
   }
 
   return (
-    <div className="mt-6 border-t pt-5">
+    <div id="reward-codes" className="mt-6 scroll-mt-20 border-t pt-5">
       <div className="flex items-center gap-2">
         <Ticket className="size-4 text-primary" />
         <h3 className="text-sm font-medium">Your reward codes</h3>
       </div>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Enter one in the promo box above to redeem it. Each works once.
-      </p>
+      {codes.length === 0 ? (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Your codes show up here when you earn one — a 10% code lands when a
+          friend you invited subscribes, and bigger rewards as you refer more.
+          Redeem any code in the promo box above.
+        </p>
+      ) : (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Enter one in the promo box above to redeem it. Each works once.
+        </p>
+      )}
       <ul className="mt-3 space-y-2">
         {codes.map((c) => (
           <li
