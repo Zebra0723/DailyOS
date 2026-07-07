@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { Lock, Sparkles, Loader2, KeyRound } from "lucide-react";
 import { usePlan, tierMeets, setPlan, setAdmin } from "@/lib/use-pro";
@@ -28,6 +29,17 @@ export function ProGate({
   const { mounted, resolved, tier: userTier } = usePlan(userId);
   const { toast } = useToast();
 
+  // Give the plan a short moment to confirm (metadata read) before we commit to
+  // the lock screen — just long enough to avoid flashing the lock at a paying
+  // user whose plan lives only in account metadata. After it elapses we show the
+  // lock no matter what, so a slow/hung network can never leave a paid feature
+  // stuck on a spinner forever.
+  const [graceElapsed, setGraceElapsed] = React.useState(false);
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setGraceElapsed(true), 1500);
+    return () => window.clearTimeout(t);
+  }, []);
+
   function ownerUnlock() {
     // Owners (Arjun & Leo) are meant to have Pro — unlock this account in one
     // tap, no code typing. Grants Pro + admin, exactly like the ARLEOPRO code.
@@ -36,11 +48,12 @@ export function ProGate({
     toast({ variant: "success", title: `${feature} unlocked` });
   }
 
-  // Access granted → show content. Otherwise, while we're still confirming the
-  // plan (metadata read in flight) show a spinner rather than flashing the lock
-  // screen at a paying user. Only show the lock once the plan is resolved.
+  // Access granted → show content. Otherwise show the lock screen. We only hold
+  // a brief spinner while the plan is still confirming AND the grace window is
+  // open — so a paying user doesn't flash the lock, but a free user (or a hung
+  // network) always lands on the lock screen instead of an endless spinner.
   if (mounted && tierMeets(userTier, tier)) return <>{children}</>;
-  if (!mounted || !resolved) {
+  if (!mounted || (!resolved && !graceElapsed)) {
     return (
       <div className="grid place-items-center py-16 text-muted-foreground">
         <Loader2 className="size-5 animate-spin" />
@@ -73,7 +86,7 @@ export function ProGate({
         </p>
 
         <Button asChild className="mt-6 w-full">
-          <Link href="/settings">
+          <Link href="/subscriptions">
             <Sparkles className="size-4" /> See plans &amp; upgrade
           </Link>
         </Button>
