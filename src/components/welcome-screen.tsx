@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Inbox, Sparkles, CheckSquare, Archive } from "lucide-react";
+import { Inbox, Sparkles, CheckSquare, Archive, Smartphone } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import { InstallApp } from "@/components/install-app";
 
 const SECONDS = 10;
 
@@ -64,6 +65,20 @@ export function WelcomeScreen({ name }: { name: string }) {
               <p className="text-sm font-medium">{p.text}</p>
             </div>
           ))}
+        </div>
+
+        {/* Install DailyOS — add it to the home screen for the full app feel */}
+        <div className="mt-4 rounded-xl border border-primary/30 bg-accent/20 p-4 text-left">
+          <div className="flex items-center gap-2">
+            <Smartphone className="size-4 text-primary" />
+            <p className="text-sm font-medium">Install DailyOS</p>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Add it to your home screen — full-screen, offline, and a tap away.
+          </p>
+          <div className="mt-2">
+            <InstallApp />
+          </div>
         </div>
 
         <div className="mt-8 space-y-3">

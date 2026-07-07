@@ -6,6 +6,7 @@ import { CommandPalette } from "@/components/command-palette";
 import { DueReminder } from "@/components/due-reminder";
 import { AssistantFab } from "@/components/assistant-fab";
 import { TimezoneSync } from "@/components/timezone-sync";
+import { DeviceBackup } from "@/components/device-backup";
 
 export default async function AppLayout({
   children,
@@ -33,6 +34,7 @@ export default async function AppLayout({
       <CommandPalette />
       <DueReminder />
       <TimezoneSync />
+      <DeviceBackup />
     </div>
   );
 }
