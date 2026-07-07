@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
+import { PwaRegister } from "@/components/pwa-register";
 
 // Fraunces: a warm "old-style" serif — the editorial voice of the Almanac UI.
 const display = Fraunces({
@@ -60,6 +61,7 @@ export default function RootLayout({
       </head>
       <body>
         <ToastProvider>{children}</ToastProvider>
+        <PwaRegister />
       </body>
     </html>
   );

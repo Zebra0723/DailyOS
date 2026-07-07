@@ -1,4 +1,5 @@
-import { User, CreditCard, ShieldAlert, Palette, AtSign } from "lucide-react";
+import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone } from "lucide-react";
+import { InstallApp } from "@/components/install-app";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
@@ -102,6 +103,22 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <ModeToggle />
+          </CardContent>
+        </Card>
+
+        {/* Install app */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Smartphone className="size-4 text-primary" /> Install DailyOS
+            </CardTitle>
+            <CardDescription>
+              Add DailyOS to your home screen — it opens full-screen, works
+              offline, and feels like a native app.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <InstallApp />
           </CardContent>
         </Card>
 
