@@ -228,8 +228,9 @@ when done)._
   pages point people to it. (Also lets Resend send from a verified address.)
 - 🔶 **Marketing (see MARKETING.md)** — a **short domain** + **QR code** for the
   Hull KR billboards; approve the campaign offers so Leo can wire `HULLKR` /
-  `GALAXY` promo codes; agree the Galaxy Pizza cross-promo + box artwork; INR
-  pricing once Stripe is live.
+  `LAUNCH` promo codes; and tap the Galaxy Pizza founder's marketing skills
+  (content calendar + hyperlocal-launch checklist) — note: not a pizza promo,
+  just borrowing the know-how.
 
 - ⏸️ **Live account connections for OrganizerOS** — _Arjun (parked)_
   - **Gmail** — possible, but needs a real OAuth backend (Google Cloud project,
