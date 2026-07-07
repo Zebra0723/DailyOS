@@ -28,8 +28,12 @@ function ensureConfigured(): boolean {
     configured = false;
     return false;
   }
+  // VAPID "subject" is just a contact the push service can use. It must be a
+  // mailto: or an https: URL — we default to the site URL (no email needed).
   const subject =
-    process.env.VAPID_SUBJECT || "mailto:notifications@dailyos.app";
+    process.env.VAPID_SUBJECT ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://daily-os-lac.vercel.app";
   try {
     webpush.setVapidDetails(subject, publicKey, privateKey);
     configured = true;
