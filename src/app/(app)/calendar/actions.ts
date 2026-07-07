@@ -18,6 +18,8 @@ export interface EventInput {
   start_time: string;
   end_time?: string | null;
   location?: string | null;
+  /** Absolute UTC instant to send a reminder push, or null for none. */
+  remind_at?: string | null;
 }
 
 export async function createEvent(input: EventInput) {
@@ -29,6 +31,7 @@ export async function createEvent(input: EventInput) {
     start_time: input.start_time,
     end_time: input.end_time || null,
     location: input.location ?? null,
+    remind_at: input.remind_at ?? null,
   });
   if (error) return { ok: false as const, error: error.message };
   revalidatePath("/calendar");
@@ -46,6 +49,7 @@ export async function updateEvent(id: string, input: EventInput) {
       start_time: input.start_time,
       end_time: input.end_time || null,
       location: input.location ?? null,
+      remind_at: input.remind_at ?? null,
     })
     .eq("id", id);
   if (error) return { ok: false as const, error: error.message };

@@ -16,6 +16,46 @@ import { useToast } from "@/components/ui/toast";
 import { wallClockToStored, storedToInput } from "@/lib/dates-tz";
 import type { CalendarEvent } from "@/lib/types";
 
+// Reminder lead times, in minutes before the event start. null = no reminder.
+const REMINDER_OPTIONS: { label: string; minutes: number | null }[] = [
+  { label: "No reminder", minutes: null },
+  { label: "At start time", minutes: 0 },
+  { label: "10 minutes before", minutes: 10 },
+  { label: "30 minutes before", minutes: 30 },
+  { label: "1 hour before", minutes: 60 },
+  { label: "2 hours before", minutes: 120 },
+  { label: "1 day before", minutes: 1440 },
+];
+const KNOWN_MINUTES = REMINDER_OPTIONS.map((o) => o.minutes).filter(
+  (m): m is number => m != null,
+);
+
+/** Absolute UTC instant to fire the reminder: the picked wall-clock start read
+ *  in THIS device's real timezone, minus the lead time. null when off/invalid. */
+function computeRemindAt(startLocal: string, minutes: number | null): string | null {
+  if (minutes == null || !startLocal) return null;
+  const startMs = new Date(startLocal).getTime(); // datetime-local → local instant
+  if (!Number.isFinite(startMs)) return null;
+  return new Date(startMs - minutes * 60_000).toISOString();
+}
+
+/** Recover which lead-time option a stored remind_at corresponds to, for edits. */
+function deriveMinutes(
+  startLocal: string,
+  remindAt: string | null | undefined,
+): number | null {
+  if (!remindAt || !startLocal) return null;
+  const startMs = new Date(startLocal).getTime();
+  const remindMs = new Date(remindAt).getTime();
+  if (!Number.isFinite(startMs) || !Number.isFinite(remindMs)) return null;
+  const diff = Math.round((startMs - remindMs) / 60_000);
+  // Snap to the nearest known option so the dropdown shows a clean value.
+  return KNOWN_MINUTES.reduce(
+    (best, m) => (Math.abs(m - diff) < Math.abs(best - diff) ? m : best),
+    KNOWN_MINUTES[0],
+  );
+}
+
 export function EventDialog({
   event,
   defaultDate,
@@ -37,6 +77,12 @@ export function EventDialog({
   const [end, setEnd] = React.useState(storedToInput(event?.end_time));
   const [location, setLocation] = React.useState(event?.location ?? "");
   const [description, setDescription] = React.useState(event?.description ?? "");
+  // New events default to a 30-min heads-up; edits keep whatever was set.
+  const [remindMinutes, setRemindMinutes] = React.useState<number | null>(
+    event
+      ? deriveMinutes(storedToInput(event.start_time), event.remind_at)
+      : 30,
+  );
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -54,6 +100,9 @@ export function EventDialog({
       start_time: wallClockToStored(start),
       end_time: end ? wallClockToStored(end) : null,
       location: location || null,
+      // Absolute instant to notify — computed from the picked start in this
+      // device's real timezone, so the reminder fires at the right moment.
+      remind_at: computeRemindAt(start, remindMinutes),
     };
 
     const res = event
@@ -132,6 +181,32 @@ export function EventDialog({
                 onChange={(e) => setEnd(e.target.value)}
               />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="ev-remind">Reminder</Label>
+            <select
+              id="ev-remind"
+              value={remindMinutes == null ? "none" : String(remindMinutes)}
+              onChange={(e) =>
+                setRemindMinutes(
+                  e.target.value === "none" ? null : Number(e.target.value),
+                )
+              }
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              {REMINDER_OPTIONS.map((o) => (
+                <option
+                  key={o.label}
+                  value={o.minutes == null ? "none" : String(o.minutes)}
+                >
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground">
+              We&apos;ll send a notification then — if you&apos;ve turned
+              notifications on in Settings.
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="ev-loc">Location (optional)</Label>

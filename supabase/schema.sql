@@ -101,11 +101,18 @@ create table if not exists public.calendar_events (
   start_time timestamptz not null,
   end_time timestamptz,
   location text,
+  remind_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
+-- For projects created before per-event reminders existed:
+alter table public.calendar_events
+  add column if not exists remind_at timestamptz;
+
 create index if not exists events_user_idx on public.calendar_events(user_id, start_time);
+create index if not exists events_remind_idx on public.calendar_events(remind_at)
+  where remind_at is not null;
 
 drop trigger if exists trg_events_updated on public.calendar_events;
 create trigger trg_events_updated before update on public.calendar_events

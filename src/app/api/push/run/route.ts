@@ -65,8 +65,8 @@ export async function GET(req: Request) {
   const admin = createServiceClient();
   const now = Date.now();
   const todayYmd = new Date(now).toISOString().slice(0, 10);
-  const soonIso = new Date(now + DAY).toISOString();
-  const nowIso = new Date(now - DAY / 24).toISOString(); // ~1h grace for just-started
+  const nowIso = new Date(now).toISOString();
+  const graceIso = new Date(now - DAY).toISOString(); // don't fire reminders >24h late
 
   // Only users who actually opted in have subscriptions — process just those.
   const { data: subRows } = await admin
@@ -95,18 +95,19 @@ export async function GET(req: Request) {
       if (ok) sent++;
     }
 
-    // 2) Upcoming events — starting within the next 24 hours.
+    // 2) Event reminders — the user picked a lead time; remind_at is the exact
+    //    instant to fire. Window: due now, but skip ones we're >24h late on.
     const { data: events } = await admin
       .from("calendar_events")
-      .select("id,title,start_time")
+      .select("id,title,start_time,remind_at")
       .eq("user_id", uid)
-      .gte("start_time", nowIso)
-      .lte("start_time", soonIso);
+      .not("remind_at", "is", null)
+      .lte("remind_at", nowIso)
+      .gte("remind_at", graceIso);
     for (const e of events ?? []) {
-      const when = new Date(e.start_time as string);
-      const hhmm = when.toISOString().slice(11, 16); // floating wall-clock
-      const ok = await sendOnce(uid, `event-soon:${e.id}`, {
-        title: "Coming up",
+      const hhmm = (e.start_time as string).slice(11, 16); // floating wall-clock
+      const ok = await sendOnce(uid, `event-remind:${e.id}`, {
+        title: "Reminder",
         body: `${e.title as string} — ${hhmm}`,
         url: "/calendar",
         tag: `event-${e.id}`,

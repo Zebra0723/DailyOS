@@ -82,6 +82,8 @@ export interface CalendarEvent {
   start_time: string;
   end_time: string | null;
   location: string | null;
+  /** Absolute UTC instant to send a reminder push, or null for none. */
+  remind_at: string | null;
   created_at: string;
   updated_at: string;
 }

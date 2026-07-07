@@ -1,21 +1,24 @@
-// DailyOS service worker — a lightweight, professional offline layer.
+// DailyOS service worker — deliberately minimal and self-healing.
 //
-// Design goals:
-//  - Never serve a stale app HTML shell (deploys must land instantly), so we
-//    DON'T cache HTML. Navigations are network-first with an offline fallback.
-//  - Fast, offline-capable static assets: content-hashed JS/CSS/fonts/icons are
-//    cache-first (safe because their URLs change on every deploy).
-//  - Never touch cross-origin (Supabase) or same-origin API/data requests.
+// An earlier version cached JS/CSS "cache-first". On an installed PWA that can
+// serve a stale/broken chunk after a deploy, which shows up as a blank
+// "Application error: a client-side exception" — the whole app dead. To rule the
+// service worker out entirely, this version caches NOTHING from the app: every
+// request goes straight to the network, exactly as if there were no worker. The
+// only thing kept is a tiny offline page shown if a navigation truly can't reach
+// the network. On activate we delete every old cache, so any device stuck on the
+// old caching worker heals itself the moment this one takes over.
 
-const CACHE = "dailyos-static-v1";
+const OFFLINE_CACHE = "dailyos-offline-v2";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
-      .open(CACHE)
+      .open(OFFLINE_CACHE)
       .then((cache) => cache.add(OFFLINE_URL))
-      .then(() => self.skipWaiting()),
+      .then(() => self.skipWaiting())
+      .catch(() => self.skipWaiting()),
   );
 });
 
@@ -24,54 +27,30 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
+        // Purge everything except this version's offline cache — this is what
+        // rescues devices stuck on the old asset-caching worker.
+        Promise.all(
+          keys.filter((k) => k !== OFFLINE_CACHE).map((k) => caches.delete(k)),
+        ),
       )
       .then(() => self.clients.claim()),
   );
 });
 
-function isStaticAsset(pathname) {
-  return (
-    pathname.startsWith("/_next/static/") ||
-    /\.(?:js|css|svg|png|jpg|jpeg|gif|webp|ico|woff2?)$/.test(pathname)
-  );
-}
-
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
 
-  const url = new URL(req.url);
-  // Only handle our own origin — leave Supabase/API/data alone.
-  if (url.origin !== self.location.origin) return;
-
-  // Content-hashed static assets: cache-first, refresh in the background.
-  if (isStaticAsset(url.pathname)) {
-    event.respondWith(
-      caches.open(CACHE).then(async (cache) => {
-        const cached = await cache.match(req);
-        const network = fetch(req)
-          .then((res) => {
-            if (res && res.ok) cache.put(req, res.clone());
-            return res;
-          })
-          .catch(() => cached);
-        return cached || network;
-      }),
-    );
-    return;
-  }
-
-  // Page navigations: always try the network (so deploys land and auth stays
-  // correct); fall back to the offline page when there's no connection. HTML is
-  // never cached.
+  // Only provide an offline fallback for page navigations. Everything else
+  // (JS/CSS/assets, API, cross-origin) is left completely untouched — fetched
+  // fresh from the network every time, with no cache that could go stale.
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req).catch(() => caches.match(OFFLINE_URL)),
+      fetch(req).catch(() =>
+        caches.match(OFFLINE_URL).then((r) => r || Response.error()),
+      ),
     );
-    return;
   }
-  // Everything else (incl. same-origin API): network only, no caching.
 });
 
 // --- Web Push -------------------------------------------------------------
