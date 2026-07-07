@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ymdInTz } from "@/lib/dates-tz";
+import { loadRemote, saveRemote, debounce } from "@/lib/sync";
 
 interface Zone {
   city: string;
@@ -78,26 +79,52 @@ export function WorldClock({ userId }: { userId: string }) {
   const [, setTick] = React.useState(0);
 
   const zones = React.useMemo(() => allZones(), []);
+  // Debounced backup to the account (survives a move to a native app / new
+  // device); best-effort, falls back to local storage.
+  const saveDebounced = React.useMemo(
+    () => debounce((k: string, v: unknown) => void saveRemote(k, v), 800),
+    [],
+  );
 
-  // Load saved cities (seed a few classics on first ever visit).
+  // Load saved cities: prefer the account-synced copy, then local, then seed a
+  // few classics on first ever visit.
   React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw) {
-        setCities(JSON.parse(raw) as Zone[]);
-      } else {
-        const seed = ["Europe/London", "America/New_York", "Asia/Tokyo"].map((z) => ({
+    let active = true;
+    (async () => {
+      let initial: Zone[] | null = null;
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) initial = JSON.parse(raw) as Zone[];
+      } catch {
+        /* ignore */
+      }
+      const remote = await loadRemote<Zone[]>(key);
+      if (!active) return;
+      if (Array.isArray(remote)) {
+        initial = remote;
+        try {
+          localStorage.setItem(key, JSON.stringify(remote));
+        } catch {
+          /* ignore */
+        }
+      } else if (!initial) {
+        initial = ["Europe/London", "America/New_York", "Asia/Tokyo"].map((z) => ({
           zone: z,
           city: cityFromZone(z),
         }));
-        setCities(seed);
-        localStorage.setItem(key, JSON.stringify(seed));
+        try {
+          localStorage.setItem(key, JSON.stringify(initial));
+        } catch {
+          /* ignore */
+        }
+        void saveRemote(key, initial);
       }
-    } catch {
-      setCities([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      setCities(initial ?? []);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [key]);
 
   // Tick every second.
   React.useEffect(() => {
@@ -112,6 +139,7 @@ export function WorldClock({ userId }: { userId: string }) {
     } catch {
       /* ignore */
     }
+    saveDebounced(key, next);
   }
 
   const matches = React.useMemo(() => {
