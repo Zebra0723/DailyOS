@@ -12,6 +12,7 @@ import {
   type Tier,
 } from "@/lib/use-pro";
 import { recordReferralConversion } from "@/app/(app)/subscriptions/referral-actions";
+import { notifyAdminCodeUsed } from "@/app/(app)/subscriptions/admin-alert-actions";
 import { redeemRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,8 +76,12 @@ export function PricingTable({
     void setPlan(plan, userId);
     // ARLEOPRO grants admin; the free-reset code revokes it. Other codes leave
     // admin status untouched.
-    if (isAdmin) void setAdmin(true, userId);
-    else if (plan === "free") void setAdmin(false, userId);
+    if (isAdmin) {
+      void setAdmin(true, userId);
+      // Alert the owner (with a one-click suspend link) that the admin code was
+      // used on this account.
+      void notifyAdminCodeUsed();
+    } else if (plan === "free") void setAdmin(false, userId);
 
     // Landing on a paid plan is what "counts" a referral. Until Stripe is live,
     // a paid code stands in for a payment (e.g. a referred friend entering

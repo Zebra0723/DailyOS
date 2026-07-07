@@ -211,7 +211,8 @@ when done)._
   referred friend goes paid, both people get emailed the `DAILYOSFRIEND10` 10%-off
   code). Code is done & env-gated. **To turn on:** sign up at resend.com → verify a
   sending domain → add `RESEND_API_KEY` and `EMAIL_FROM` in Vercel. Until then
-  referrals still *count*, they just don't email.
+  referrals still *count*, they just don't email. **Also add `ADMIN_EMAIL`** (your
+  inbox) so the admin-code alert email (with the one-click suspend link) can send.
 - ✅ **`0005_referrals.sql`** — done (referral tracking + Invited·Subscribed counts).
 - ✅ **`0006_reward_codes.sql`** — done (single-use codes + prize ladder live).
   (`0002_subscriptions.sql` still waits for Stripe.)

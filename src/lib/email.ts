@@ -14,6 +14,44 @@ export function emailConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
 }
 
+/**
+ * Alert the owner that the admin code was entered on an account, with a
+ * one-click link to suspend it. Sends to ADMIN_EMAIL; a no-op (skipped) until
+ * ADMIN_EMAIL and the email provider are configured.
+ */
+export async function sendAdminCodeAlert(opts: {
+  userEmail: string;
+  userId: string;
+  suspendUrl: string;
+}): Promise<{ ok: boolean; skipped: boolean }> {
+  const to = process.env.ADMIN_EMAIL;
+  if (!to) return { ok: false, skipped: true };
+  const html = `
+  <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#1c1a17">
+    <h1 style="font-size:20px;margin:0 0 12px">⚠️ Admin code used on DailyOS</h1>
+    <p style="font-size:15px;line-height:1.5;color:#5b544b;margin:0 0 16px">
+      The admin code was just entered on this account:
+    </p>
+    <div style="border:1px solid #e6ddd0;border-radius:12px;padding:14px 16px;background:#faf6f0;font-size:14px">
+      <div><strong>Email:</strong> ${opts.userEmail}</div>
+      <div style="color:#8a8175;margin-top:4px"><strong>Account ID:</strong> ${opts.userId}</div>
+    </div>
+    <p style="font-size:14px;line-height:1.5;color:#5b544b;margin:16px 0 0">
+      If that wasn't expected, you can suspend the account. You'll be asked to
+      confirm on the next screen — nothing happens just from opening the link.
+    </p>
+    <a href="${opts.suspendUrl}" style="display:inline-block;margin-top:18px;background:#c0392b;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:11px 20px;border-radius:10px">
+      Suspend this account
+    </a>
+  </div>`;
+  const res = await sendEmail({
+    to,
+    subject: "⚠️ DailyOS admin code was used",
+    html,
+  });
+  return { ok: res.ok, skipped: res.skipped };
+}
+
 export async function sendEmail({
   to,
   subject,
