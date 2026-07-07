@@ -7,8 +7,11 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "DailyOS",
     description:
       "Drop in receipts, bookings, letters and reminders — DailyOS sorts them into tasks, calendar events and a searchable vault.",
+    id: "/",
     start_url: "/today",
     scope: "/",
+    lang: "en-GB",
+    dir: "ltr",
     display: "standalone",
     orientation: "portrait",
     background_color: "#f7f2e9",
@@ -26,6 +29,25 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: "512x512",
         type: "image/svg+xml",
         purpose: "maskable",
+      },
+    ],
+    // Long-press app-icon shortcuts (Android / desktop PWA).
+    shortcuts: [
+      {
+        name: "Add to Inbox",
+        short_name: "Add",
+        url: "/inbox/new",
+        icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
+      },
+      {
+        name: "Today",
+        url: "/today",
+        icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
+      },
+      {
+        name: "Ask DailyOS",
+        url: "/assistant",
+        icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
       },
     ],
   };

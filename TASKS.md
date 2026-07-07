@@ -227,6 +227,10 @@ when done)._
   them in `src/lib/contact.ts` (`SUPPORT_EMAIL`, `ENQUIRIES_EMAIL`). The Contact
   page (`/contact`) shows "coming soon" slots until they're filled, and the legal
   pages point people to it. (Also lets Resend send from a verified address.)
+- 🔶 **App stores (see APPSTORE.md)** — the PWA is store-ready. Create a **Google
+  Play** account ($25) and **Apple Developer** account ($99/yr), generate + sign
+  the packages via **PWABuilder** (Play is easy; iOS may need a Capacitor wrapper),
+  add screenshots, and submit. Store listing copy is drafted in APPSTORE.md.
 - 🔶 **Marketing (see MARKETING.md)** — a **short domain** + **QR code** for the
   Hull KR billboards; approve the campaign offers so Leo can wire `HULLKR` /
   `LAUNCH` promo codes; and tap the Galaxy Pizza founder's marketing skills
