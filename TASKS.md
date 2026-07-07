@@ -221,11 +221,12 @@ when done)._
      + `push_log`). 2. Add these env vars in Vercel (the keys are already generated —
      ask Leo, or run `node -e "console.log(require('web-push').generateVAPIDKeys())"`):
      `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and optionally
-     `VAPID_SUBJECT` (a `mailto:you@…`). 3. The daily cron (`vercel.json` →
-     `/api/push/run`) runs automatically once you deploy; Vercel auto-protects it
-     with `CRON_SECRET` (set that env too for safety). On the **Hobby** plan crons
-     run once/day — bump the schedule to `0 * * * *` (hourly) if you move to Pro, so
-     event reminders land closer to real time. Until the keys are set, the Settings
+     `VAPID_SUBJECT` (a `mailto:you@…`). 3. Timing is **free** on Vercel Hobby: a
+     **GitHub Actions** workflow (`.github/workflows/push-notify.yml`) pings
+     `/api/push/run` every ~15 min, so reminders land promptly — **no Vercel Pro
+     needed**. In the GitHub repo add an Actions secret **`CRON_SECRET`** (same
+     random string you put in Vercel's env). `vercel.json` also keeps a once-a-day
+     run as a backstop. Until the keys are set, the Settings
      toggle shows "not switched on yet" and nothing sends. **iPhone:** users must
      *install DailyOS to the home screen first* (Add to Home Screen), then open it
      and flip the toggle — iOS only allows push for installed PWAs.
