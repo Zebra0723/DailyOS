@@ -1,5 +1,6 @@
-import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone } from "lucide-react";
+import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell } from "lucide-react";
 import { InstallApp } from "@/components/install-app";
+import { PushToggle } from "@/components/push-toggle";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
@@ -103,6 +104,23 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <ModeToggle />
+          </CardContent>
+        </Card>
+
+        {/* Notifications — opt-in only */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Bell className="size-4 text-primary" /> Notifications
+            </CardTitle>
+            <CardDescription>
+              Get a nudge even when DailyOS is closed — for reminders you set,
+              upcoming events, and reward codes about to expire. Off until you
+              turn it on.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PushToggle />
           </CardContent>
         </Card>
 

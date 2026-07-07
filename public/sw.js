@@ -73,3 +73,45 @@ self.addEventListener("fetch", (event) => {
   }
   // Everything else (incl. same-origin API): network only, no caching.
 });
+
+// --- Web Push -------------------------------------------------------------
+// A push arrives from our server via the OS push service even when the app is
+// closed or the phone is locked. We show a notification; tapping it focuses (or
+// opens) DailyOS at the relevant page.
+
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { title: "DailyOS", body: event.data ? event.data.text() : "" };
+  }
+  const title = data.title || "DailyOS";
+  const options = {
+    body: data.body || "",
+    tag: data.tag || undefined,
+    // /apple-icon is a generated PNG endpoint — a real raster icon for Android.
+    icon: "/apple-icon",
+    data: { url: data.url || "/today" },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || "/today";
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        // Focus an existing DailyOS tab if there is one; otherwise open a new one.
+        for (const client of clientList) {
+          if ("focus" in client) {
+            client.navigate?.(target);
+            return client.focus();
+          }
+        }
+        return self.clients.openWindow(target);
+      }),
+  );
+});

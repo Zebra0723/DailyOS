@@ -216,6 +216,19 @@ when done)._
 - ✅ **`0005_referrals.sql`** — done (referral tracking + Invited·Subscribed counts).
 - ✅ **`0006_reward_codes.sql`** — done (single-use codes + prize ladder live).
   (`0002_subscriptions.sql` still waits for Stripe.)
+- ⛔ **Push notifications** — opt-in only; code is built & env-gated. **To turn on:**
+  1. Run **`0007_push.sql`** in the Supabase SQL editor (creates `push_subscriptions`
+     + `push_log`). 2. Add these env vars in Vercel (the keys are already generated —
+     ask Leo, or run `node -e "console.log(require('web-push').generateVAPIDKeys())"`):
+     `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and optionally
+     `VAPID_SUBJECT` (a `mailto:you@…`). 3. The daily cron (`vercel.json` →
+     `/api/push/run`) runs automatically once you deploy; Vercel auto-protects it
+     with `CRON_SECRET` (set that env too for safety). On the **Hobby** plan crons
+     run once/day — bump the schedule to `0 * * * *` (hourly) if you move to Pro, so
+     event reminders land closer to real time. Until the keys are set, the Settings
+     toggle shows "not switched on yet" and nothing sends. **iPhone:** users must
+     *install DailyOS to the home screen first* (Add to Home Screen), then open it
+     and flip the toggle — iOS only allows push for installed PWAs.
 - ⏸️ **Payments (Stripe)** — gives a real "they paid" signal for referrals + true
   secure plan tiers (see the parked Stripe item below). Needs `0002_subscriptions.sql`
   + Stripe keys. For now a paid promo code (e.g. entering a code) stands in for payment.
