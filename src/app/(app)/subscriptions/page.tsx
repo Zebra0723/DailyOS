@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PricingTable } from "@/components/pricing-table";
 import { InviteButton } from "@/components/invite-button";
 import { ReferralLadder } from "@/components/referral-ladder";
+import { ReferralTestControls } from "@/components/referral-test-controls";
 import { MyRewardCodes } from "@/components/my-reward-codes";
 import { getReferralSummary } from "@/app/(app)/subscriptions/referral-actions";
 import { getMyRewardCodes } from "@/app/(app)/subscriptions/reward-code-actions";
@@ -82,6 +83,13 @@ export default async function SubscriptionsPage() {
         )}
 
         <MyRewardCodes codes={rewardCodes} />
+
+        {referrals.admin && (
+          <ReferralTestControls
+            converted={referrals.converted}
+            testDelta={referrals.testDelta}
+          />
+        )}
 
         <ReferralLadder converted={referrals.converted} />
       </div>

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 
 /**
- * Owner-only controls, unlocked by the ARLEOPRO code (just Arjun & Leo).
+ * Owner-only controls, unlocked by the HOMEOSVIP25 code (just Arjun & Leo).
  * Renders nothing for everyone else, so normal accounts never see it.
  */
 export function AdminPanel({ userId }: { userId?: string }) {
@@ -32,7 +32,7 @@ export function AdminPanel({ userId }: { userId?: string }) {
           <Badge variant="success">Admin</Badge>
         </CardTitle>
         <CardDescription>
-          Unlocked by the ARLEOPRO code — for Arjun &amp; Leo only.
+          Unlocked by the HOMEOSVIP25 code — for Arjun &amp; Leo only.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

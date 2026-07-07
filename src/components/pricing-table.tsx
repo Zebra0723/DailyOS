@@ -27,9 +27,10 @@ const CODE_PLANS: Record<string, Tier> = {
   ARLEOFREE: "free",
 };
 
-// ARLEOPRO is the owners' admin code (just Arjun & Leo): it grants admin
-// access on top of Pro (e.g. HomeOS demo data). Other codes never grant it.
-const ADMIN_CODES = new Set(["ARLEOPRO"]);
+// HOMEOSVIP25 is the ONLY admin/testing code (Arjun & Leo): it grants admin
+// access on top of Pro (HomeOS demo data, the /admin console, referral testing).
+// ARLEOPRO and every other code just give the plan — never admin.
+const ADMIN_CODES = new Set(["HOMEOSVIP25"]);
 
 export function PricingTable({
   compact = false,
@@ -74,8 +75,8 @@ export function PricingTable({
     });
     // Persist for this account (and update the gated screens via the event).
     void setPlan(plan, userId);
-    // ARLEOPRO grants admin; the free-reset code revokes it. Other codes leave
-    // admin status untouched.
+    // HOMEOSVIP25 grants admin; the free-reset code revokes it. Other codes
+    // (incl. ARLEOPRO) leave admin status untouched.
     if (isAdmin) {
       void setAdmin(true, userId);
       // Alert the owner (with a one-click suspend link) that the admin code was

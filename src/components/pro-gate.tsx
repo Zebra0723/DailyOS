@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Lock, Sparkles, Loader2, KeyRound } from "lucide-react";
-import { usePlan, tierMeets, setPlan, setAdmin } from "@/lib/use-pro";
+import { usePlan, tierMeets, setPlan } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { useToast } from "@/components/ui/toast";
@@ -42,9 +42,9 @@ export function ProGate({
 
   function ownerUnlock() {
     // Owners (Arjun & Leo) are meant to have Pro — unlock this account in one
-    // tap, no code typing. Grants Pro + admin, exactly like the ARLEOPRO code.
+    // tap, no code typing. Grants Pro only; admin/testing is separate now and
+    // comes solely from the HOMEOSVIP25 code.
     void setPlan("pro", userId);
-    void setAdmin(true, userId);
     toast({ variant: "success", title: `${feature} unlocked` });
   }
 

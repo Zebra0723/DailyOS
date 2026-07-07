@@ -201,16 +201,30 @@ export async function recordReferralConversion(): Promise<{
   };
 }
 
-/** How many people this user has referred, and how many converted. */
+/**
+ * How many people this user has referred, and how many converted. For admins,
+ * a testing delta (see adminSetReferralTestDelta) is folded into the numbers so
+ * they can preview the prize ladder without real referrals. Non-admins never see
+ * a delta applied, even if a stale one is left in their metadata.
+ */
 export async function getReferralSummary(): Promise<{
   total: number;
   converted: number;
+  /** Simulated-referral offset applied for admins (0 for everyone else). */
+  testDelta: number;
+  /** Whether this account is an admin (controls the testing UI). */
+  admin: boolean;
 }> {
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { total: 0, converted: 0 };
+  if (!user) return { total: 0, converted: 0, testDelta: 0, admin: false };
+
+  const isAdmin = user.user_metadata?.admin === true;
+  const delta = isAdmin
+    ? Math.trunc(Number(user.user_metadata?.ref_test_delta ?? 0)) || 0
+    : 0;
 
   try {
     const { data } = await supabase
@@ -218,11 +232,36 @@ export async function getReferralSummary(): Promise<{
       .select("status")
       .eq("referrer_id", user.id);
     const rows = data ?? [];
-    return {
-      total: rows.length,
-      converted: rows.filter((r) => r.status === "converted").length,
-    };
+    const realConverted = rows.filter((r) => r.status === "converted").length;
+    const converted = Math.max(0, realConverted + delta);
+    const total = Math.max(rows.length + delta, converted, 0);
+    return { total, converted, testDelta: delta, admin: isAdmin };
   } catch {
-    return { total: 0, converted: 0 };
+    // Table not migrated — still let an admin simulate off a zero baseline.
+    const converted = Math.max(0, delta);
+    return { total: converted, converted, testDelta: delta, admin: isAdmin };
   }
+}
+
+/**
+ * Admin-only: set the simulated-referral delta on this account, for previewing
+ * the prize ladder. Gated server-side on the account's admin metadata, so a
+ * non-admin can't call it to fake rewards. Clamped to a sane range.
+ */
+export async function adminSetReferralTestDelta(
+  delta: number,
+): Promise<{ ok: boolean; delta?: number }> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+  if (user.user_metadata?.admin !== true) return { ok: false };
+
+  const clamped = Math.max(-100, Math.min(100, Math.trunc(Number(delta)) || 0));
+  const { error } = await supabase.auth.updateUser({
+    data: { ref_test_delta: clamped },
+  });
+  if (error) return { ok: false };
+  return { ok: true, delta: clamped };
 }

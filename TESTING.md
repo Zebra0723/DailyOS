@@ -11,8 +11,9 @@ Rules for that output:
 - Website-observable only (visible text, elements, behaviour).
 - Exclude anything owner/admin-only (the `/admin` console, "Owner? Unlock…" links, the
   admin promo code, HomeOS "Load/Reset demo data" buttons).
-- To reach paid tiers for testing, note: on `/subscriptions` enter `HOMEOSVIP25` (top level),
-  `ARLEOPLUS` (mid), `ARLEOFREE` (reset).
+- Codes on `/subscriptions`: `HOMEOSVIP25` = Pro **+ admin/testing** (the only admin code —
+  unlocks the `/admin` console and the admin referral-testing controls). `ARLEOPRO` = lifetime
+  Pro **only, no admin**. `ARLEOPLUS` = Plus. `ARLEOFREE` = reset to Free (also revokes admin).
 
 After delivering a "test" checklist, advance the baseline below to the current version/commit
 so the next "test" only covers what came after it.

@@ -62,7 +62,7 @@ export function AdminConsole({
         <FlaskConical className="mx-auto size-8 text-muted-foreground" />
         <h1 className="mt-4 text-xl font-semibold">Owner testing area</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          This is for admin accounts. Enter the ARLEOPRO code in Settings to
+          This is for admin accounts. Enter the HOMEOSVIP25 code in Settings to
           access it.
         </p>
         <Button asChild className="mt-5">
