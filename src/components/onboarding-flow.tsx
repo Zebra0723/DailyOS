@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, ArrowLeft, Loader2, Check, Smartphone, type LucideIcon } from "lucide-react";
 import { saveOnboarding } from "@/app/onboarding/actions";
 import { InstallApp } from "@/components/install-app";
+import { PushToggle } from "@/components/push-toggle";
 import {
   PERSONAS,
   FOCUS_OPTIONS,
@@ -26,12 +27,13 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
   const [tone, setTone] = React.useState<Tone | null>(null);
   const [saving, setSaving] = React.useState(false);
 
-  const steps = ["name", "persona", "focus", "tone"] as const;
+  const steps = ["name", "persona", "focus", "tone", "notify"] as const;
   const canNext =
     (step === 0) ||
     (step === 1 && persona) ||
     (step === 2) ||
-    (step === 3 && tone);
+    (step === 3 && tone) ||
+    (step === 4);
 
   function toggleFocus(key: string) {
     setFocus((f) => (f.includes(key) ? f.filter((x) => x !== key) : [...f, key]));
@@ -150,6 +152,21 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
               </div>
             </Step>
           )}
+
+          {step === 4 && (
+            <Step
+              title="Want a nudge when it matters?"
+              subtitle="Get notified about reminders you set, events coming up, and reward codes about to expire — even when DailyOS is closed. Totally optional, and you can change it any time in Settings."
+            >
+              <div className="rounded-xl border bg-card p-4">
+                <PushToggle />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Prefer to decide later? Just tap <strong>All set</strong> — no
+                notifications until you turn them on.
+              </p>
+            </Step>
+          )}
         </div>
 
         {/* Nav */}
@@ -162,7 +179,7 @@ export function OnboardingFlow({ initialName }: { initialName: string }) {
           >
             <ArrowLeft className="size-4" /> Back
           </Button>
-          {step < 3 ? (
+          {step < 4 ? (
             <Button onClick={() => setStep((s) => s + 1)} disabled={!canNext}>
               Continue <ArrowRight className="size-4" />
             </Button>
