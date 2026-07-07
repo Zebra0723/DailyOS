@@ -1,4 +1,12 @@
-# DailyOS — getting into the app stores
+# DailyOS — app stores (PARKED — we're PWA-only)
+
+> **Decision (Arjun): PWA only.** The free "Add to Home Screen" install covers
+> iPhone + Android at £0, works offline, and feels like a native app — so we're
+> not paying for app stores. The notes below are kept only in case we revisit.
+
+---
+
+# Getting into the app stores (reference)
 
 DailyOS is a web app / PWA. It doesn't need a rewrite to be in the stores — we
 wrap the live site. 🔶 = needs Arjun (paid account / submission / signing).

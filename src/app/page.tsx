@@ -226,6 +226,9 @@ export default function LandingPage() {
             <Link href="/contact" className="hover:text-foreground">
               Contact
             </Link>
+            <Link href="/help" className="hover:text-foreground">
+              Help
+            </Link>
           </div>
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} DailyOS. Life admin, handled.

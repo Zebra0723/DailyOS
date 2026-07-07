@@ -106,8 +106,8 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Install app */}
-        <Card>
+        {/* Install app — subtly accented so it's easy to spot */}
+        <Card className="border-primary/30 bg-accent/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Smartphone className="size-4 text-primary" /> Install DailyOS
@@ -163,7 +163,10 @@ export default async function SettingsPage() {
               <ExportDataButton />
             </div>
             <SettingsDanger />
-            <div className="flex gap-4 border-t pt-4 text-sm">
+            <div className="flex flex-wrap gap-4 border-t pt-4 text-sm">
+              <a href="/help" className="text-primary hover:underline">
+                Help &amp; FAQs
+              </a>
               <a href="/privacy" className="text-primary hover:underline">
                 Privacy Policy
               </a>

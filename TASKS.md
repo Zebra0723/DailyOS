@@ -227,11 +227,10 @@ when done)._
   them in `src/lib/contact.ts` (`SUPPORT_EMAIL`, `ENQUIRIES_EMAIL`). The Contact
   page (`/contact`) shows "coming soon" slots until they're filled, and the legal
   pages point people to it. (Also lets Resend send from a verified address.)
-- 🔶 **App stores (see APPSTORE.md)** — the PWA is store-ready. **Cheap path:** the
-  free "Add to Home Screen" PWA already covers iPhone + Android at £0; optionally
-  add **Google Play** ($25 one-time) via PWABuilder for an Android listing.
-  **Skip Apple's $99/yr** for now — iPhone users use the free PWA. Store listing
-  copy is drafted in APPSTORE.md.
+- ⏸️ **App stores — PARKED (PWA only, per Arjun).** We're going PWA-only: the free
+  "Add to Home Screen" install covers iPhone + Android at £0, works offline, and
+  feels like an app. APPSTORE.md keeps the Play/Apple packaging notes if we ever
+  revisit, but no store spend for now.
 - 🔶 **Marketing (see MARKETING.md)** — a **short domain** + **QR code** for the
   Hull KR billboards; approve the campaign offers so Leo can wire `HULLKR` /
   `LAUNCH` promo codes; and tap the Galaxy Pizza founder's marketing skills
