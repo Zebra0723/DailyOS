@@ -31,13 +31,17 @@ export function PricingTable({
   userId?: string;
 }) {
   const [annual, setAnnual] = React.useState(true);
-  const { tier, planExp } = usePlan(userId);
+  const { mounted, resolved, tier, planExp } = usePlan(userId);
   const { toast } = useToast();
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState(false);
   // Reflect a just-entered code instantly, without waiting on any async read.
   const [justTier, setJustTier] = React.useState<Tier | null>(null);
-  const currentTier = justTier ?? tier;
+  // Only treat someone as unlocked once their plan is CONFIRMED (resolved) or
+  // they just redeemed a code — never optimistically, so a free user is never
+  // shown "you're on Pro". Until confirmed we present as Free.
+  const confirmed = justTier !== null || (mounted && resolved);
+  const currentTier: Tier = confirmed ? (justTier ?? tier) : "free";
   const unlocked = currentTier !== "free";
 
   async function applyCode() {
