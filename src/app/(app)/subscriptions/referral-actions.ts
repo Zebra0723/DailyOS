@@ -61,7 +61,7 @@ async function issueRewardCode(
  * of throwing so the caller (the pricing table) never breaks.
  *
  * For testing before Stripe is live, "landed on a paid plan" simply means the
- * friend entered a paid code (e.g. ARLEOPRO) — the caller decides when to fire.
+ * friend entered a paid code — the caller decides when to fire.
  */
 export async function recordReferralConversion(): Promise<{
   ok: boolean;

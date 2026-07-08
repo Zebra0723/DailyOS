@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.07 · v144 (Push scan ~every minute via a looping GitHub Action)";
+export const APP_VERSION = "2026.07.07 · v145 (Private server-side codes; remove owner-unlock button; app footer with legal/help/contact)";

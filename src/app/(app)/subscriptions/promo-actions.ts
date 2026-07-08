@@ -1,0 +1,41 @@
+"use server";
+
+// Server-side promo/admin code validation. The actual code strings live ONLY in
+// environment variables (set in Vercel) — never in the repo or the client
+// bundle — so they stay private. The browser sends whatever was typed; we just
+// answer "which plan / admin does this unlock", or nothing. There is deliberately
+// NO hardcoded fallback: if the env codes aren't set, no plan/admin code works
+// (referral reward codes are separate and still work), so nothing secret ever
+// lives in the (public) source.
+//
+//   ADMIN_CODE  -> Pro + admin (the /admin console, testing tools)
+//   PRO_CODE    -> lifetime Pro
+//   PLUS_CODE   -> Plus
+//   FREE_CODE   -> reset to Free (also revokes admin)
+
+type PromoPlan = "free" | "plus" | "pro";
+
+export type PromoResult =
+  | { ok: true; plan: PromoPlan; admin: boolean }
+  | { ok: false };
+
+function norm(v: string | undefined): string {
+  return (v ?? "").trim().toUpperCase();
+}
+
+export async function redeemPromoCode(raw: string): Promise<PromoResult> {
+  const entered = norm(raw);
+  if (!entered) return { ok: false };
+
+  const adminCode = norm(process.env.ADMIN_CODE);
+  const proCode = norm(process.env.PRO_CODE);
+  const plusCode = norm(process.env.PLUS_CODE);
+  const freeCode = norm(process.env.FREE_CODE);
+
+  // Only a configured, matching code unlocks anything. Unset codes never match.
+  if (adminCode && entered === adminCode) return { ok: true, plan: "pro", admin: true };
+  if (proCode && entered === proCode) return { ok: true, plan: "pro", admin: false };
+  if (plusCode && entered === plusCode) return { ok: true, plan: "plus", admin: false };
+  if (freeCode && entered === freeCode) return { ok: true, plan: "free", admin: false };
+  return { ok: false };
+}

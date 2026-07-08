@@ -60,13 +60,12 @@ export function AdminConsole({
     return (
       <div className="mx-auto max-w-md py-16 text-center">
         <FlaskConical className="mx-auto size-8 text-muted-foreground" />
-        <h1 className="mt-4 text-xl font-semibold">Owner testing area</h1>
+        <h1 className="mt-4 text-xl font-semibold">Admin only</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          This is for admin accounts. Enter the HOMEOSVIP25 code in Settings to
-          access it.
+          This is an admin-only feature. Please return to the home page.
         </p>
         <Button asChild className="mt-5">
-          <Link href="/settings">Go to Settings</Link>
+          <Link href="/today">Back to home</Link>
         </Button>
       </div>
     );
@@ -265,7 +264,7 @@ export function AdminConsole({
             <SetupItem
               done={setup.subscriptionsReady}
               title="Payments (Stripe) — real 'pays' signal"
-              detail="Run 0002_subscriptions.sql and add Stripe keys so a real subscription triggers rewards. For now, a friend entering ARLEOPRO stands in for a payment."
+              detail="Run 0002_subscriptions.sql and add Stripe keys so a real subscription triggers rewards. For now, a friend entering a paid code stands in for a payment."
             />
             <SetupItem
               done={aiConfigured}

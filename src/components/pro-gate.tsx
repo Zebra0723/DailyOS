@@ -2,11 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Lock, Sparkles, Loader2, KeyRound } from "lucide-react";
-import { usePlan, tierMeets, setPlan } from "@/lib/use-pro";
+import { Lock, Sparkles, Loader2 } from "lucide-react";
+import { usePlan, tierMeets } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
-import { useToast } from "@/components/ui/toast";
 
 /**
  * Gates a Plus/Pro-only feature. Free users see a locked screen with a short
@@ -27,7 +26,6 @@ export function ProGate({
   children: React.ReactNode;
 }) {
   const { mounted, resolved, tier: userTier } = usePlan(userId);
-  const { toast } = useToast();
 
   // Give the plan a short moment to confirm (metadata read) before we commit to
   // the lock screen — just long enough to avoid flashing the lock at a paying
@@ -39,14 +37,6 @@ export function ProGate({
     const t = window.setTimeout(() => setGraceElapsed(true), 1500);
     return () => window.clearTimeout(t);
   }, []);
-
-  function ownerUnlock() {
-    // Owners (Arjun & Leo) are meant to have Pro — unlock this account in one
-    // tap, no code typing. Grants Pro only; admin/testing is separate now and
-    // comes solely from the HOMEOSVIP25 code.
-    void setPlan("pro", userId);
-    toast({ variant: "success", title: `${feature} unlocked` });
-  }
 
   // Access granted → show content. Otherwise show the lock screen. We only hold
   // a brief spinner while the plan is still confirming AND the grace window is
@@ -94,14 +84,6 @@ export function ProGate({
           {tier === "Pro" ? "Included on Pro" : "Included on Plus & Pro"} · or enter a
           code on the subscriptions page.
         </p>
-
-        {/* Owner unlock — one tap for Arjun & Leo, no code needed. */}
-        <button
-          onClick={ownerUnlock}
-          className="mx-auto mt-5 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
-        >
-          <KeyRound className="size-3.5" /> Owner? Unlock {feature} now
-        </button>
       </div>
     </div>
   );

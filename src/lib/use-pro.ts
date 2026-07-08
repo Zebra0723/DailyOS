@@ -15,7 +15,7 @@ export const PRO_EVENT = "dailyos-pro";
 const tierKey = (userId: string) => `dailyos-tier:${userId}`;
 const tierExpKey = (userId: string) => `dailyos-tier-exp:${userId}`; // plan expiry (ms)
 const legacyProKey = (userId: string) => `dailyos-pro:${userId}`; // older "pro" flag
-const adminKey = (userId: string) => `dailyos-admin:${userId}`; // ARLEOPRO admin access
+const adminKey = (userId: string) => `dailyos-admin:${userId}`; // admin access
 
 /**
  * Set the plan for an account. Pass userId (from the server) for a reliable
@@ -161,7 +161,7 @@ function readAdminFor(id: string | undefined, metaAdmin?: boolean): boolean {
   return metaAdmin === true;
 }
 
-/** Grant or revoke ARLEOPRO admin access for an account. */
+/** Grant or revoke admin access for an account. */
 export async function setAdmin(on: boolean, userId?: string) {
   const supabase = createClient();
   let id = userId;

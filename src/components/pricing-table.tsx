@@ -14,23 +14,14 @@ import {
 import { recordReferralConversion } from "@/app/(app)/subscriptions/referral-actions";
 import { notifyAdminCodeUsed } from "@/app/(app)/subscriptions/admin-alert-actions";
 import { redeemRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
+import { redeemPromoCode } from "@/app/(app)/subscriptions/promo-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
-// Promo codes → the plan they switch you to.
-const CODE_PLANS: Record<string, Tier> = {
-  ARLEOPRO: "pro",
-  HOMEOSVIP25: "pro",
-  ARLEOPLUS: "plus",
-  ARLEOFREE: "free",
-};
-
-// HOMEOSVIP25 is the ONLY admin/testing code (Arjun & Leo): it grants admin
-// access on top of Pro (HomeOS demo data, the /admin console, referral testing).
-// ARLEOPRO and every other code just give the plan — never admin.
-const ADMIN_CODES = new Set(["HOMEOSVIP25"]);
+// Promo/admin codes are validated server-side (see promo-actions.ts) so the
+// actual code strings never live in the client bundle or the public repo.
 
 export function PricingTable({
   compact = false,
@@ -49,25 +40,27 @@ export function PricingTable({
   const currentTier = justTier ?? tier;
   const unlocked = currentTier !== "free";
 
-  function applyCode() {
+  async function applyCode() {
     const entered = code.trim().toUpperCase();
     if (entered === "") {
       setError(false);
       return;
     }
-    const plan = CODE_PLANS[entered];
-    if (!plan) {
-      // Not a plan code — try it as a single-use referral reward code.
-      setError(false);
+    setError(false);
+
+    // Check it as a promo/admin code (validated on the server against private
+    // env codes — the code strings are never in the client).
+    const promo = await redeemPromoCode(entered);
+    if (!promo.ok) {
+      // Not a plan/admin code — try it as a single-use referral reward code.
       void redeemFriendCode(entered);
       return;
     }
-    setError(false);
+    const { plan, admin } = promo;
     setJustTier(plan);
-    const isAdmin = ADMIN_CODES.has(entered);
     toast({
       variant: plan === "free" ? "info" : "success",
-      title: isAdmin
+      title: admin
         ? "Admin access unlocked"
         : plan === "free"
           ? "Switched to Free"
@@ -75,9 +68,9 @@ export function PricingTable({
     });
     // Persist for this account (and update the gated screens via the event).
     void setPlan(plan, userId);
-    // HOMEOSVIP25 grants admin; the free-reset code revokes it. Other codes
-    // (incl. ARLEOPRO) leave admin status untouched.
-    if (isAdmin) {
+    // The admin code grants admin; the free-reset code revokes it. Other codes
+    // leave admin status untouched.
+    if (admin) {
       void setAdmin(true, userId);
       // Alert the owner (with a one-click suspend link) that the admin code was
       // used on this account.
@@ -85,9 +78,8 @@ export function PricingTable({
     } else if (plan === "free") void setAdmin(false, userId);
 
     // Landing on a paid plan is what "counts" a referral. Until Stripe is live,
-    // a paid code stands in for a payment (e.g. a referred friend entering
-    // ARLEOPRO). If this account was referred, the reward codes get issued and
-    // emailed. No-ops safely for non-referred users.
+    // a paid code stands in for a payment. If this account was referred, the
+    // reward codes get issued and emailed. No-ops safely for non-referred users.
     if (plan !== "free") void convertReferral();
   }
 
@@ -150,8 +142,8 @@ export function PricingTable({
 
   return (
     <div>
-      {/* Promo code — always available so a code (e.g. the owner ARLEOPRO code)
-          can be entered even after a plan is already unlocked. */}
+      {/* Promo code — always available so a code can be entered even after a
+          plan is already unlocked. */}
       <div className="mx-auto mb-8 max-w-md">
         <p className="mb-1 text-center text-sm font-medium">Have a code?</p>
         <p className="mb-3 text-center text-xs text-muted-foreground">
