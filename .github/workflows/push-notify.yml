@@ -1,28 +1,33 @@
-# Fires DailyOS push notifications on a schedule — for FREE.
+# Fires DailyOS push notifications ~every minute — for FREE.
 #
-# Vercel's Hobby (free) plan only runs a cron once per day, which is too slow for
-# reminders. GitHub Actions runs this every ~15 minutes at no cost and just pings
-# our send endpoint, which scans for due reminders / upcoming events / expiring
-# reward codes and pushes them. Every send is de-duped server-side, so pinging
-# often never causes double notifications.
+# Vercel's Hobby (free) plan only runs a cron once per day, too slow for
+# reminders. GitHub Actions is used instead. IMPORTANT: GitHub won't run a
+# *schedule* more often than every 5 minutes (it throttles anything faster and
+# skips runs under load). So to get true ~1-minute delivery, each run LOOPS
+# internally — it pings the send endpoint once a minute for ~5 minutes — and we
+# schedule it every 5 minutes so the pings are continuous. Every send is
+# de-duped server-side, so pinging often never causes double notifications.
 #
-# Setup (one time):
-#   1. In this repo: Settings → Secrets and variables → Actions → New repository
-#      secret, name it CRON_SECRET, value = the same string you set for
-#      CRON_SECRET in Vercel (any long random text). If you skip Vercel's
-#      CRON_SECRET the endpoint is open and this still works — but setting both
-#      is safer.
-#   2. If your site URL isn't the one below, add a repository *variable*
-#      SITE_URL with your deployed URL.
+# COST NOTE: because each run stays alive ~5 minutes, this uses Actions minutes
+# almost continuously. That's FREE on a public repo (unlimited Actions minutes).
+# On a PRIVATE repo the free tier is ~2,000 minutes/month, which this exceeds —
+# so if this repo is private, either make it public, or drop back to a plain
+# every-5-min schedule (remove the loop), or point a free external 1-minute cron
+# (e.g. cron-job.org) at /api/push/run instead.
+#
+# Setup (one time): in this repo → Settings → Secrets and variables → Actions,
+# add a secret CRON_SECRET matching Vercel's CRON_SECRET (any long random text).
+# If your site URL differs from the default below, add a repository *variable*
+# SITE_URL with your deployed URL.
 
 name: Push notifications
 
 on:
   schedule:
-    - cron: "*/15 * * * *" # every 15 min (GitHub may delay under load)
+    - cron: "*/5 * * * *" # every 5 min; each run then pings each minute within
   workflow_dispatch: {} # lets you run it on demand from the Actions tab
 
-# Don't pile up runs if one is slow.
+# Don't let runs pile up on top of each other.
 concurrency:
   group: push-notify
   cancel-in-progress: false
@@ -30,13 +35,18 @@ concurrency:
 jobs:
   notify:
     runs-on: ubuntu-latest
+    timeout-minutes: 6
     steps:
-      - name: Trigger DailyOS push scan
+      - name: Ping the send endpoint once a minute for ~5 minutes
         env:
           SITE_URL: ${{ vars.SITE_URL || 'https://daily-os-lac.vercel.app' }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          echo "Pinging $SITE_URL/api/push/run"
-          curl -sS -m 60 -X GET \
-            -H "Authorization: Bearer $CRON_SECRET" \
-            "$SITE_URL/api/push/run"
+          for i in 1 2 3 4 5; do
+            echo "ping $i/5 → $SITE_URL/api/push/run"
+            curl -sS -m 50 -X GET \
+              -H "Authorization: Bearer $CRON_SECRET" \
+              "$SITE_URL/api/push/run" || echo "ping $i failed (will retry next minute)"
+            # Sleep a minute between pings, but not after the last one.
+            if [ "$i" -lt 5 ]; then sleep 60; fi
+          done
