@@ -222,13 +222,40 @@ export async function setInboxHandled(id: string, handled: boolean) {
   return { ok: true as const };
 }
 
+/**
+ * Detach/clean up everything that points at these inbox items, then delete them.
+ * We do this explicitly rather than relying on the database's foreign-key rules,
+ * so deletion works no matter how an older database was set up:
+ *   - tasks & calendar events you approved are KEPT (their link is set to null),
+ *   - the vault entry and processing logs are removed.
+ * Scoped to the signed-in user (RLS also enforces this).
+ */
+async function purgeInboxItems(
+  supabase: Awaited<ReturnType<typeof requireUser>>["supabase"],
+  userId: string,
+  ids: string[],
+) {
+  // Keep the to-dos and events; just unlink them from the item being deleted.
+  await supabase
+    .from("extracted_tasks")
+    .update({ inbox_item_id: null })
+    .in("inbox_item_id", ids)
+    .eq("user_id", userId);
+  await supabase
+    .from("calendar_events")
+    .update({ inbox_item_id: null })
+    .in("inbox_item_id", ids)
+    .eq("user_id", userId);
+  // These belong to the item — remove them.
+  await supabase.from("vault_items").delete().in("inbox_item_id", ids).eq("user_id", userId);
+  await supabase.from("processing_logs").delete().in("inbox_item_id", ids).eq("user_id", userId);
+  // Finally the item itself.
+  return supabase.from("inbox_items").delete().in("id", ids).eq("user_id", userId);
+}
+
 export async function deleteInboxItem(id: string) {
-  const { supabase } = await requireUser();
-  // Deleting the item lets the database do the right thing per its foreign keys:
-  // the vault entry and processing logs cascade away, while any tasks and
-  // calendar events you already approved are KEPT (their link is set null), so
-  // decluttering a handled item never silently deletes your to-dos or events.
-  const { error } = await supabase.from("inbox_items").delete().eq("id", id);
+  const { supabase, user } = await requireUser();
+  const { error } = await purgeInboxItems(supabase, user.id, [id]);
   if (error) return { ok: false as const, error: error.message };
   revalidatePath("/inbox");
   revalidatePath("/today");
@@ -241,9 +268,9 @@ export async function deleteInboxItem(id: string) {
 /** Delete several inbox items at once. Tasks/events they created are kept (see
  *  deleteInboxItem). Returns how many were removed. */
 export async function bulkDeleteInbox(ids: string[]) {
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
   if (!ids.length) return { ok: true as const, count: 0 };
-  const { error } = await supabase.from("inbox_items").delete().in("id", ids);
+  const { error } = await purgeInboxItems(supabase, user.id, ids);
   if (error) return { ok: false as const, error: error.message };
   revalidatePath("/inbox");
   revalidatePath("/today");

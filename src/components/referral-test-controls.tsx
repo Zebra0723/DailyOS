@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FlaskConical, Minus, Plus, RotateCcw, Loader2 } from "lucide-react";
 import { MILESTONES } from "@/lib/referral-rewards";
 import { adminSetReferralTestDelta } from "@/app/(app)/subscriptions/referral-actions";
+import { usePlan } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 
@@ -13,16 +14,22 @@ import { useToast } from "@/components/ui/toast";
  * the prize ladder without actually referring anyone. The number is a delta
  * stored on your account and folded into the referral counts; the server action
  * re-checks admin, so this can't be abused from a normal account.
+ *
+ * Visibility is gated on the client admin flag (same as the rest of the app's
+ * owner tools), so any admin reliably sees it — it self-hides for everyone else.
  */
 export function ReferralTestControls({
+  userId,
   converted,
   testDelta,
 }: {
+  userId?: string;
   converted: number;
   testDelta: number;
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { mounted, admin } = usePlan(userId);
   const [busy, setBusy] = React.useState(false);
 
   async function setDelta(next: number) {
@@ -38,6 +45,8 @@ export function ReferralTestControls({
       setBusy(false);
     }
   }
+
+  if (!mounted || !admin) return null;
 
   return (
     <div className="mt-6 rounded-xl border border-dashed border-primary/40 bg-accent/20 p-4">

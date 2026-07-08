@@ -84,12 +84,12 @@ export default async function SubscriptionsPage() {
 
         <MyRewardCodes codes={rewardCodes} />
 
-        {referrals.admin && (
-          <ReferralTestControls
-            converted={referrals.converted}
-            testDelta={referrals.testDelta}
-          />
-        )}
+        {/* Renders only for admins (self-hides via the client admin flag). */}
+        <ReferralTestControls
+          userId={user?.id}
+          converted={referrals.converted}
+          testDelta={referrals.testDelta}
+        />
 
         <ReferralLadder converted={referrals.converted} />
       </div>
