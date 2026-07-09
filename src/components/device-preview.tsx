@@ -32,9 +32,6 @@ const ROUTES = [
   "/tasks",
   "/vault",
   "/homeos",
-  "/mindfulness",
-  "/mood",
-  "/nudges",
   "/settings",
 ];
 

@@ -11,7 +11,6 @@ import {
   Plus,
   Home,
   Heart,
-  Flower2,
   StickyNote,
   CalendarClock,
 } from "lucide-react";
@@ -310,7 +309,6 @@ export default async function TodayPage() {
           <BranchLink href="/build-day" icon={CalendarClock} title="Build My Day" desc="Plan a calm, productive day" />
           <BranchLink href="/homeos" icon={Home} title="HomeOS" desc="Run your home" />
           <BranchLink href="/interests" icon={Heart} title="Interests" desc="Live what you love" />
-          <BranchLink href="/wellbeing" icon={Flower2} title="Wellbeing" desc="A calmer you" />
           <BranchLink href="/notes" icon={StickyNote} title="Notes" desc="Quick capture" />
         </div>
       </div>

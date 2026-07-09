@@ -110,8 +110,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
+          name="email"
           type="email"
-          autoComplete="email"
+          // "username" pairs with "current-password" so password managers offer
+          // to fill a saved login (in the browser AND the installed PWA).
+          autoComplete={mode === "login" ? "username" : "email"}
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -132,6 +135,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         </div>
         <Input
           id="password"
+          name="password"
           type="password"
           autoComplete={mode === "signup" ? "new-password" : "current-password"}
           placeholder="••••••••"
@@ -149,12 +153,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           onChange={(e) => setRemember(e.target.checked)}
           className="size-4 shrink-0 accent-primary"
         />
-        <span>
-          Keep me logged in for 4 weeks
-          <span className="block text-xs text-muted-foreground/80">
-            Otherwise you&apos;ll be signed out after 3 days.
-          </span>
-        </span>
+        <span>Remember me</span>
       </label>
 
       {mode === "signup" && (

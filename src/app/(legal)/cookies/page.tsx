@@ -53,7 +53,7 @@ export default function CookiesPage() {
             </tr>
             <tr>
               <td>App data (local storage)</td>
-              <td>Store some features (e.g. HomeOS, plan status, wellbeing streaks) on your device</td>
+              <td>Store some features (e.g. HomeOS, plan status) on your device</td>
               <td>Strictly necessary</td>
             </tr>
             <tr>

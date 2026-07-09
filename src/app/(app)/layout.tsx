@@ -8,6 +8,7 @@ import { AssistantFab } from "@/components/assistant-fab";
 import { TimezoneSync } from "@/components/timezone-sync";
 import { DeviceBackup } from "@/components/device-backup";
 import { AppFooter } from "@/components/app-footer";
+import { PwaGate } from "@/components/pwa-gate";
 
 export default async function AppLayout({
   children,
@@ -23,20 +24,22 @@ export default async function AppLayout({
   if (!user) redirect("/login");
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
-      <MobileHeader />
-      <FreePlanBanner userId={user.id} />
-      <main className="flex-1 pb-20 md:pb-0">
-        <div className="container max-w-6xl py-8 md:py-12">{children}</div>
-        <AppFooter />
-      </main>
-      <MobileNav email={user.email ?? "you@example.com"} userId={user.id} />
-      <AssistantFab />
-      <CommandPalette />
-      <DueReminder />
-      <TimezoneSync />
-      <DeviceBackup />
-    </div>
+    <PwaGate>
+      <div className="flex min-h-screen flex-col bg-background">
+        <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
+        <MobileHeader />
+        <FreePlanBanner userId={user.id} />
+        <main className="flex-1 pb-20 md:pb-0">
+          <div className="container max-w-6xl py-8 md:py-12">{children}</div>
+          <AppFooter />
+        </main>
+        <MobileNav email={user.email ?? "you@example.com"} userId={user.id} />
+        <AssistantFab />
+        <CommandPalette />
+        <DueReminder />
+        <TimezoneSync />
+        <DeviceBackup />
+      </div>
+    </PwaGate>
   );
 }

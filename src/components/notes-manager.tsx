@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Loader2,
@@ -11,7 +10,6 @@ import {
   Pencil,
   Pin,
   Bell,
-  Flower2,
   Check,
   X,
 } from "lucide-react";
@@ -115,8 +113,8 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
     }
     setNotes((prev) => [res.note, ...prev]);
     setDraft("");
-    // Offer a smart reminder / wellbeing nudge if there's one.
-    if (res.analysis.suggested_task || res.analysis.wellbeing) {
+    // Offer a smart reminder if there's one.
+    if (res.analysis.suggested_task) {
       setSuggestion({ noteId: res.note.id, analysis: res.analysis });
     } else {
       setSuggestion(null);
@@ -196,33 +194,6 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
               </Button>
               <Button size="sm" onClick={confirmReminder}>
                 <Check className="size-4" /> Add reminder
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Wellbeing nudge */}
-      {suggestion?.analysis.wellbeing && !suggestion.analysis.suggested_task && (
-        <Card className="border-primary/20 bg-accent/40">
-          <CardContent className="flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3">
-              <Flower2 className="mt-0.5 size-5 shrink-0 text-primary" />
-              <div>
-                <p className="text-sm font-medium">Sounds like a lot on.</p>
-                <p className="text-sm text-muted-foreground">
-                  Take a minute for yourself with today&apos;s mindful moment.
-                </p>
-              </div>
-            </div>
-            <div className="flex shrink-0 gap-2">
-              <Button size="sm" variant="ghost" onClick={() => setSuggestion(null)}>
-                Later
-              </Button>
-              <Button size="sm" asChild>
-                <Link href="/mindfulness">
-                  <Flower2 className="size-4" /> Take a moment
-                </Link>
               </Button>
             </div>
           </CardContent>

@@ -15,7 +15,6 @@ import {
   Backpack,
   HeartPulse,
   Briefcase,
-  Waves,
   FolderKanban,
   Heart,
   Star,
@@ -45,7 +44,6 @@ export const FOCUS_OPTIONS: { key: string; label: string; icon: LucideIcon }[] =
   { key: "school", label: "School & kids", icon: Backpack },
   { key: "health", label: "Health & appointments", icon: HeartPulse },
   { key: "work", label: "Work & deadlines", icon: Briefcase },
-  { key: "wellbeing", label: "Staying calm", icon: Waves },
   { key: "organised", label: "Just getting organised", icon: FolderKanban },
 ];
 
@@ -61,7 +59,6 @@ const FOCUS_SUGGESTION: Record<string, { label: string; href: string }> = {
   school: { label: "Add a school letter", href: "/inbox/new" },
   health: { label: "Add an appointment", href: "/calendar" },
   work: { label: "Add a task", href: "/tasks" },
-  wellbeing: { label: "Take a mindful moment", href: "/mindfulness" },
   organised: { label: "Open your Inbox", href: "/inbox" },
 };
 

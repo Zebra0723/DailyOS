@@ -12,10 +12,7 @@ import {
   Settings,
   Plus,
   LogOut,
-  Flower2,
   StickyNote,
-  SmilePlus,
-  ListChecks,
   Lock,
   Home,
   CalendarClock,
@@ -70,15 +67,6 @@ const CATEGORIES: {
     items: [{ href: "/homeos", label: "HomeOS", icon: Home }],
   },
   {
-    key: "Wellbeing",
-    lead: "/mindfulness",
-    items: [
-      { href: "/mindfulness", label: "Mindfulness", icon: Flower2 },
-      { href: "/mood", label: "Mood", icon: SmilePlus },
-      { href: "/nudges", label: "Nudges", icon: ListChecks },
-    ],
-  },
-  {
     key: "Account",
     lead: "/subscriptions",
     items: [
@@ -106,7 +94,6 @@ const catByKey = (key: string) =>
 // Which top-level category owns the current route? Longest-prefix wins.
 function activeCategory(pathname: string) {
   if (pathname.startsWith("/homeos")) return catByKey("HomeOS");
-  if (pathname.startsWith("/wellbeing")) return catByKey("Wellbeing");
   let best = CATEGORIES[0];
   let bestLen = -1;
   for (const cat of CATEGORIES) {

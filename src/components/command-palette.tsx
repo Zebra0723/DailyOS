@@ -44,9 +44,6 @@ const PAGES: Item[] = [
   { id: "p-tasks", label: "Tasks", sub: "Page", href: "/tasks", icon: CheckSquare },
   { id: "p-vault", label: "Vault", sub: "Page", href: "/vault", icon: Archive },
   { id: "p-home", label: "HomeOS", sub: "Page", href: "/homeos", icon: Home },
-  { id: "p-mind", label: "Mindfulness", sub: "Page", href: "/mindfulness", icon: Flower2 },
-  { id: "p-mood", label: "Mood", sub: "Page", href: "/mood", icon: SmilePlus },
-  { id: "p-nudges", label: "Nudges", sub: "Page", href: "/nudges", icon: ListChecks },
   { id: "p-subs", label: "Subscription", sub: "Page", href: "/subscriptions", icon: CreditCard },
   { id: "p-settings", label: "Settings", sub: "Page", href: "/settings", icon: Settings },
 ];
@@ -55,7 +52,6 @@ const PAGE_KEYWORDS: Record<string, string> = {
   "p-add": "new capture receipt upload",
   "p-home": "home subscriptions devices rooms arrivals",
   "p-build": "plan schedule day",
-  "p-mind": "calm breathe wellbeing",
 };
 
 /** Search the user's real content across Supabase tables (RLS-scoped). */

@@ -49,7 +49,7 @@ export default function TermsPage() {
       <h2>5. The service</h2>
       <p>
         DailyOS is a personal life-admin assistant: capture (Life Inbox), tasks,
-        calendar, a searchable vault, day planning, interests, wellbeing tools,
+        calendar, a searchable vault, day planning, interests,
         HomeOS, and AI-assisted organisation. It is provided &ldquo;as is&rdquo;
         and is under active development; features may change, be added or removed.
       </p>

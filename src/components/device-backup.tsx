@@ -10,9 +10,6 @@ import { loadRemote, saveRemote } from "@/lib/sync";
 // session. (Plan, HomeOS, Interests and World Clock already sync on their own;
 // tasks/events/notes/inbox/vault live in Supabase directly.)
 const PREFIXES = [
-  "dailyos-mindful-",
-  "dailyos-mood-",
-  "dailyos-nudges-",
   "dailyos-pinned-notes",
   "dailyos-ignored-codes",
 ];
