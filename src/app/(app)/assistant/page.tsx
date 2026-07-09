@@ -3,8 +3,9 @@ import { AssistantChat } from "@/components/assistant-chat";
 import { ProGate } from "@/components/pro-gate";
 
 export const metadata = { title: "Ask DailyOS · DailyOS" };
-// The assistant's AI call can take a little longer than inbox extraction.
-export const maxDuration = 30;
+// The assistant's AI call can take a little longer than inbox extraction —
+// and longer still when it does a web search then answers (two model turns).
+export const maxDuration = 60;
 
 export default async function AssistantPage() {
   const supabase = createClient();

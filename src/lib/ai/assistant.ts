@@ -7,6 +7,7 @@
 import "server-only";
 import { z } from "zod";
 import { getAIProvider } from "./provider";
+import { searchWeb, formatResults } from "./web-search";
 
 export interface ChatTurn {
   role: "user" | "assistant";
@@ -48,6 +49,8 @@ const ActionSchema = z.object({
 const Schema = z.object({
   reply: z.string().default(""),
   actions: z.array(ActionSchema).default([]),
+  // When set, the model wants to look this up on the web before answering.
+  search: z.string().optional(),
 });
 
 function systemPrompt(context: string, today: string): string {
@@ -60,6 +63,8 @@ function systemPrompt(context: string, today: string): string {
     "- LifeOS: Today (daily brief); Ask DailyOS (you); The Drop (drop in receipts, letters, screenshots — AI turns them into tasks, events and vault entries); Build My Day (plan a calm schedule); Interests; World Clock; Notes; Calendar (shows ALL dates, including home ones); Tasks (support repeats); Vault (searchable store for files and documents).",
     "- HomeOS (a Pro area for running a home): Subscriptions (renewals, trials, spend), Arrivals (deliveries), Rooms, Devices (warranties, maintenance), a Home Vault (documents), Alerts, and a Home Control Score.",
     "Example: if they ask about a subscription or renewal, tell them it lives in HomeOS → Subscriptions.",
+    "",
+    "WEB SEARCH: you can look things up on the live internet. If answering well needs current, real-world or external information — news, prices, weather, sports, opening hours, product or place details, how-tos, or any fact you are not fully confident is current — then set \"search\" to a concise web query, and leave \"reply\" empty and \"actions\" empty. You will be given the results and asked again. Only search when it genuinely helps; for small talk, or questions about the user's own tasks/events/notes, just answer directly without searching.",
     "",
     "USE THEIR REAL DATA below to be specific: reference their actual tasks and events by name and date, give real counts, and flag anything overdue or clashing. Never invent data that isn't there. If they have none, say so and suggest a good first step.",
     "",
@@ -78,7 +83,7 @@ function systemPrompt(context: string, today: string): string {
     "THE USER'S CURRENT DATA:",
     context || "(no tasks, events or notes yet)",
     "",
-    'Respond as STRICT JSON: {"reply": string, "actions": Action[]}. Put your full written answer in "reply". No text outside the JSON.',
+    'Respond as STRICT JSON: {"reply": string, "actions": Action[], "search"?: string}. Put your full written answer in "reply". No text outside the JSON.',
   ].join("\n");
 }
 
@@ -105,16 +110,44 @@ export async function askDailyOS(
 
   if (provider.isConfigured()) {
     try {
+      const baseMessages = [
+        { role: "system" as const, content: systemPrompt(context, today) },
+        ...history.slice(-10).map((h) => ({ role: h.role, content: h.content })),
+      ];
+
       const raw = await provider.chat({
         json: true,
         temperature: 0.4,
-        timeoutMs: 20_000,
-        messages: [
-          { role: "system", content: systemPrompt(context, today) },
-          ...history.slice(-10).map((h) => ({ role: h.role, content: h.content })),
-        ],
+        timeoutMs: 18_000,
+        messages: baseMessages,
       });
-      const parsed = Schema.parse(JSON.parse(extractJson(raw)));
+      let parsed = Schema.parse(JSON.parse(extractJson(raw)));
+
+      // If the model asked to look something up, run the search and give it one
+      // more turn to answer using the results. Capped at a single round.
+      const wantsSearch = parsed.search?.trim();
+      if (wantsSearch && !parsed.reply.trim()) {
+        const results = await searchWeb(wantsSearch);
+        const grounding = results.length
+          ? formatResults(wantsSearch, results)
+          : `WEB SEARCH RESULTS for "${wantsSearch}": (no results found — answer as best you can and say the search came up empty.)`;
+        const raw2 = await provider.chat({
+          json: true,
+          temperature: 0.4,
+          timeoutMs: 18_000,
+          messages: [
+            ...baseMessages,
+            {
+              role: "system" as const,
+              content:
+                grounding +
+                "\n\nNow answer the user's question using these results. Weave in the relevant facts, and cite sources by site name inline (e.g. \"(bbc.com)\"). Do NOT set \"search\" again.",
+            },
+          ],
+        });
+        parsed = Schema.parse(JSON.parse(extractJson(raw2)));
+      }
+
       return {
         reply: parsed.reply.trim() || "Done.",
         actions: withLabels(parsed.actions as AssistantAction[]),
