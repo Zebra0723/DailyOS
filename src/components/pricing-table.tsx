@@ -37,11 +37,16 @@ export function PricingTable({
   const [error, setError] = React.useState(false);
   // Reflect a just-entered code instantly, without waiting on any async read.
   const [justTier, setJustTier] = React.useState<Tier | null>(null);
+  // The expiry that goes with a just-redeemed code (ms, or null for lifetime),
+  // so a time-limited grant (e.g. 3 months of Plus) never flashes "lifetime"
+  // while the real plan expiry is still loading.
+  const [justExp, setJustExp] = React.useState<number | null>(null);
   // Only treat someone as unlocked once their plan is CONFIRMED (resolved) or
   // they just redeemed a code — never optimistically, so a free user is never
   // shown "you're on Pro". Until confirmed we present as Free.
   const confirmed = justTier !== null || (mounted && resolved);
   const currentTier: Tier = confirmed ? (justTier ?? tier) : "free";
+  const currentExp = justTier !== null ? justExp : confirmed ? planExp : null;
   const unlocked = currentTier !== "free";
 
   async function applyCode() {
@@ -62,6 +67,7 @@ export function PricingTable({
     }
     const { plan, admin } = promo;
     setJustTier(plan);
+    setJustExp(null); // promo/admin codes are lifetime grants
     toast({
       variant: plan === "free" ? "info" : "success",
       title: admin
@@ -99,6 +105,7 @@ export function PricingTable({
               ? Date.now() + res.reward.days * 86_400_000
               : null;
           setJustTier(res.reward.tier);
+          setJustExp(expiresAt); // keep the time-limit so it doesn't show lifetime
           // Merge so a gift never downgrades a better plan the user already has.
           void grantPlanReward(res.reward.tier, userId, expiresAt);
           toast({ variant: "success", title: `Unlocked: ${res.label} 🎉` });
@@ -215,7 +222,7 @@ export function PricingTable({
             annual={annual}
             compact={compact}
             unlocked={currentTier === plan.key}
-            expiresAt={currentTier === plan.key ? planExp : null}
+            expiresAt={currentTier === plan.key ? currentExp : null}
           />
         ))}
       </div>

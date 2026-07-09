@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.08 · v154 (Referral simulator issues real reward codes; show-password toggle on login)";
+export const APP_VERSION = "2026.07.08 · v155 (Time-limited codes no longer say lifetime; PWA-only off so Safari autofill works)";
