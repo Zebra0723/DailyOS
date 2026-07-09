@@ -10,6 +10,10 @@ import {
   Sparkles,
   CheckCircle2,
   Lock,
+  CalendarDays,
+  Archive,
+  Home,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
@@ -44,6 +48,39 @@ const useCases = [
   { icon: ShieldCheck, from: "Warranty", to: "Expiry reminder" },
   { icon: GraduationCap, from: "School letter", to: "Event + task" },
   { icon: RefreshCw, from: "Subscription email", to: "Renewal reminder" },
+];
+
+const features = [
+  {
+    icon: Inbox,
+    title: "Life Inbox",
+    body: "One place to drop every receipt, letter, booking and screenshot.",
+  },
+  {
+    icon: CalendarDays,
+    title: "Smart calendar",
+    body: "Auto-filled from what you drop in — and syncs to your phone's calendar.",
+  },
+  {
+    icon: Archive,
+    title: "Searchable vault",
+    body: "Every document and detail, findable in seconds when you need it.",
+  },
+  {
+    icon: Home,
+    title: "HomeOS",
+    body: "Track subscriptions, deliveries, warranties, rooms and devices.",
+  },
+  {
+    icon: Sparkles,
+    title: "Ask DailyOS",
+    body: "An AI chief of staff that knows everything you've saved.",
+  },
+  {
+    icon: Bell,
+    title: "Reminders that reach you",
+    body: "Notifications for what's due — even when the app is closed.",
+  },
 ];
 
 export default function LandingPage() {
@@ -175,8 +212,33 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Features */}
       <section className="border-t bg-muted/30 py-20">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight">
+              Everything, in one calm place
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Not just an inbox — a whole personal chief of staff.
+            </p>
+          </div>
+          <div className="mx-auto mt-12 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((f) => (
+              <div key={f.title} className="rounded-2xl border bg-card p-6 shadow-card">
+                <div className="mb-4 grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <f.icon className="size-5" />
+                </div>
+                <h3 className="font-semibold">{f.title}</h3>
+                <p className="mt-1.5 text-sm text-muted-foreground">{f.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="border-t py-20">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight">
@@ -204,6 +266,32 @@ export default function LandingPage() {
               Your data is yours. Every item is locked to your account with
               row-level security, files are stored privately, and you can delete
               everything in one tap from Settings.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Closing CTA */}
+      <section className="border-t bg-muted/30 py-20">
+        <div className="container">
+          <div className="mx-auto max-w-2xl overflow-hidden rounded-3xl border bg-gradient-to-br from-primary/10 via-accent/40 to-background p-10 text-center shadow-elevated sm:p-14">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+              Ready to hand it over?
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-muted-foreground">
+              Start free in under a minute. Drop in your first receipt or booking
+              and watch it get handled.
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button size="lg" asChild className="h-12 px-7 text-base shadow-elevated">
+                <Link href="/signup">
+                  Start your Life Inbox
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            </div>
+            <p className="mt-5 text-sm text-muted-foreground">
+              Free to start · Works on your phone · Add it to your home screen
             </p>
           </div>
         </div>

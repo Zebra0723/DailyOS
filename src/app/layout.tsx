@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description:
     "Drop in receipts, bookings, school letters, screenshots, PDFs and reminders. DailyOS sorts them into tasks, calendar events and a searchable vault.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://daily-os-lac.vercel.app",
   ),
   applicationName: "DailyOS",
   manifest: "/manifest.webmanifest",
@@ -28,10 +28,28 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   formatDetection: { telephone: false },
+  keywords: [
+    "life admin",
+    "personal assistant",
+    "AI organizer",
+    "receipts to tasks",
+    "calendar",
+    "reminders",
+    "family organizer",
+  ],
   openGraph: {
     title: "DailyOS — Your life admin, finally handled.",
-    description: "DailyOS turns life admin into handled.",
+    description:
+      "Drop in receipts, bookings, letters and screenshots. DailyOS turns them into tasks, calendar events and a searchable vault — automatically.",
     type: "website",
+    siteName: "DailyOS",
+    locale: "en_GB",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DailyOS — Your life admin, finally handled.",
+    description:
+      "Drop in receipts, bookings, letters and screenshots. DailyOS turns them into tasks, calendar events and a searchable vault — automatically.",
   },
 };
 
