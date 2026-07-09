@@ -15,10 +15,10 @@ import {
 import { Logo } from "@/components/logo";
 import { InstallApp } from "@/components/install-app";
 
-// Flip to true to require the installed PWA (shows an install wall in a normal
-// browser). Currently OFF so the app + login autofill work in Safari, where
-// iOS password autofill is reliable (it's flaky inside a standalone PWA).
-const PWA_ONLY = false;
+// Require the installed PWA: a normal browser tab shows the install wall.
+// Login inside the PWA works via the magic-link ("Email me a sign-in link")
+// option, so we no longer depend on iOS autofill (which is flaky in a PWA).
+const PWA_ONLY = true;
 
 const POINTS = [
   {
