@@ -59,7 +59,13 @@ export function PricingTable({
 
     // Check it as a promo/admin code (validated on the server against private
     // env codes — the code strings are never in the client).
-    const promo = await redeemPromoCode(entered);
+    let promo;
+    try {
+      promo = await redeemPromoCode(entered);
+    } catch {
+      setError(true);
+      return;
+    }
     if (!promo.ok) {
       // Not a plan/admin code — try it as a single-use referral reward code.
       void redeemFriendCode(entered);

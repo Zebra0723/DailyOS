@@ -136,10 +136,16 @@ export function ItemReview({
                 disabled={busy || !missingText.trim()}
                 onClick={async () => {
                   setBusy(true);
-                  await updateInboxText(item.id, missingText.trim());
-                  await reprocessInboxItem(item.id);
-                  toast({ variant: "success", title: "Extracted — review ready" });
-                  router.refresh();
+                  try {
+                    await updateInboxText(item.id, missingText.trim());
+                    await reprocessInboxItem(item.id);
+                    toast({ variant: "success", title: "Extracted — review ready" });
+                    router.refresh();
+                  } catch {
+                    toast({ variant: "error", title: "Couldn't extract — try again" });
+                  } finally {
+                    setBusy(false);
+                  }
                 }}
               >
                 {busy ? (
@@ -178,9 +184,15 @@ export function ItemReview({
               disabled={busy}
               onClick={async () => {
                 setBusy(true);
-                await reprocessInboxItem(item.id);
-                toast({ variant: "info", title: "Retrying…" });
-                router.refresh();
+                try {
+                  await reprocessInboxItem(item.id);
+                  toast({ variant: "info", title: "Retrying…" });
+                  router.refresh();
+                } catch {
+                  toast({ variant: "error", title: "Still couldn't process it" });
+                } finally {
+                  setBusy(false);
+                }
               }}
             >
               {busy ? <Loader2 className="size-4 animate-spin" /> : <RotateCcw className="size-4" />}
@@ -508,9 +520,15 @@ export function ItemReview({
             disabled={busy}
             onClick={async () => {
               setBusy(true);
-              await reprocessInboxItem(item.id);
-              toast({ variant: "info", title: "Re-running AI…" });
-              router.refresh();
+              try {
+                await reprocessInboxItem(item.id);
+                toast({ variant: "info", title: "Re-running AI…" });
+                router.refresh();
+              } catch {
+                toast({ variant: "error", title: "Couldn't re-run — try again" });
+              } finally {
+                setBusy(false);
+              }
             }}
           >
             <RotateCcw className="size-4" /> Re-run

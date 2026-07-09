@@ -311,16 +311,21 @@ export function HomeAlerts() {
                         <Plus />
                         Add to Today
                       </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => deleteAlert(alert.id)}
-                      >
-                        <Trash2 />
-                        Delete
-                      </Button>
+                      {/* Only manual alerts can be deleted — an auto alert would
+                          just be regenerated from its source item, so we offer
+                          Resolve/Snooze for those instead. */}
+                      {alert.key.startsWith("manual:") && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => deleteAlert(alert.id)}
+                        >
+                          <Trash2 />
+                          Delete
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

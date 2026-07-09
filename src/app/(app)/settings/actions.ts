@@ -53,10 +53,13 @@ export async function exportMyData() {
 /** Delete all of a user's content (keeps the account itself). */
 export async function deleteAllData() {
   const { supabase, user } = await requireUser();
-  // inbox_items cascades to vault/logs; clear standalone tasks/events + notes.
+  // Delete every table explicitly rather than relying on a cascade, so nothing
+  // (e.g. a vault row not linked to an inbox item) can survive.
   await supabase.from("extracted_tasks").delete().eq("user_id", user.id);
   await supabase.from("calendar_events").delete().eq("user_id", user.id);
   await supabase.from("notes").delete().eq("user_id", user.id);
+  await supabase.from("vault_items").delete().eq("user_id", user.id);
+  await supabase.from("processing_logs").delete().eq("user_id", user.id);
   await supabase.from("inbox_items").delete().eq("user_id", user.id);
 
   // Best-effort: remove stored files under the user's folder.

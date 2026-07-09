@@ -407,7 +407,15 @@ function computeDrafts(data: HomeOSData, s: HomeOSSettings): DraftAlert[] {
     }
     if (s.alerts.maintenance) {
       const due = maintenanceDueDate(d);
-      if (due && (isToday(due) || isOverdue(due))) {
+      // Warn ahead of time per the "maintenance warning days" setting, as well
+      // as on/after the due date.
+      const warn = s.maintenanceWarningDays ?? 0;
+      if (
+        due &&
+        (isToday(due) ||
+          isOverdue(due) ||
+          (warn > 0 && isWithinDays(due, warn)))
+      ) {
         out.push({
           alertType: "maintenance-due",
           title: `${d.name} maintenance due`,

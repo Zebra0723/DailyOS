@@ -17,7 +17,7 @@ export function FreePlanBanner({ userId }: { userId?: string }) {
           15 life-admin updates &amp; 30 events a month, Vault locked.
         </span>
         <Link
-          href="/settings"
+          href="/subscriptions"
           className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
         >
           <Sparkles className="size-3.5" /> Upgrade

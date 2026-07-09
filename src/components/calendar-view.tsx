@@ -126,9 +126,11 @@ export function CalendarView({
   while (cells.length % 7 !== 0) cells.push(null);
 
   const todayKey = ymd(new Date());
-  const nowStart = new Date(new Date().toDateString()).getTime();
+  // Filter by calendar day (string compare on YYYY-MM-DD) rather than a
+  // timestamp, so a floating event near midnight isn't dropped by a timezone
+  // offset. Matches how the month grid buckets events.
   const upcoming = all
-    .filter((d) => d.ts >= nowStart)
+    .filter((d) => d.dayKey >= todayKey)
     .sort((a, b) => a.ts - b.ts)
     .slice(0, 8);
 

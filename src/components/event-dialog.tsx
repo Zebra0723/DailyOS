@@ -126,6 +126,8 @@ export function EventDialog({
       toast({ variant: "success", title: "Event deleted" });
       router.refresh();
       onClose();
+    } else {
+      toast({ variant: "error", title: "Couldn't delete", description: res.error });
     }
   }
 

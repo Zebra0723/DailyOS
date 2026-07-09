@@ -35,13 +35,18 @@ export function AuthForm({
   const [error, setError] = React.useState<string | null>(null);
   const [sentConfirmation, setSentConfirmation] = React.useState(false);
   const [agreed, setAgreed] = React.useState(false);
-  // Off by default: a plain login lasts 3 days; ticking it stretches to 4 weeks.
+  // Off by default: a plain login lasts 30 days; ticking it stretches to 1 year.
   const [remember, setRemember] = React.useState(false);
 
   // New sign-ups go through onboarding; logins land on the welcome screen.
-  // A `redirect` param (e.g. from a protected page) takes priority.
-  const redirect =
-    redirectTo || (mode === "signup" ? "/onboarding" : "/welcome");
+  // A `redirect` param (e.g. from a protected page) takes priority — but only if
+  // it's a same-origin path ("/…"), never an absolute/protocol-relative URL, so
+  // a crafted ?redirect=https://evil.com can't bounce you off-site after login.
+  const safe =
+    redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")
+      ? redirectTo
+      : null;
+  const redirect = safe || (mode === "signup" ? "/onboarding" : "/welcome");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

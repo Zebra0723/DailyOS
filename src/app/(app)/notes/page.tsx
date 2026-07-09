@@ -16,7 +16,7 @@ export default async function NotesPage() {
     <div>
       <PageHeader
         title="Notes"
-        description="Jot anything down. DailyOS files it — and offers a reminder or a breather when it spots one."
+        description="Jot anything down. DailyOS files it — and offers a reminder when it spots one."
       />
       <NotesManager notes={(data ?? []) as Note[]} />
     </div>
