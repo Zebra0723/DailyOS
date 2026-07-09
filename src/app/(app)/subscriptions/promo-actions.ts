@@ -36,11 +36,30 @@ export async function redeemPromoCode(raw: string): Promise<PromoResult> {
   const proCode = norm(process.env.PRO_CODE);
   const plusCode = norm(process.env.PLUS_CODE);
   const freeCode = norm(process.env.FREE_CODE);
+  const configured = !!(adminCode || proCode || plusCode || freeCode);
 
-  // Only a configured, matching code unlocks anything. Unset codes never match.
-  if (adminCode && entered === adminCode) return { ok: true, plan: "pro", admin: true };
-  if (proCode && entered === proCode) return { ok: true, plan: "pro", admin: false };
-  if (plusCode && entered === plusCode) return { ok: true, plan: "plus", admin: false };
-  if (freeCode && entered === freeCode) return { ok: true, plan: "free", admin: false };
-  return { ok: false };
+  if (configured) {
+    // Private codes are set in the environment — these are the ONLY codes that
+    // work, and the defaults below are disabled. Set the env vars to rotate to
+    // secret codes known only to you.
+    if (adminCode && entered === adminCode) return { ok: true, plan: "pro", admin: true };
+    if (proCode && entered === proCode) return { ok: true, plan: "pro", admin: false };
+    if (plusCode && entered === plusCode) return { ok: true, plan: "plus", admin: false };
+    if (freeCode && entered === freeCode) return { ok: true, plan: "free", admin: false };
+    return { ok: false };
+  }
+
+  // Default codes so the app works out of the box. These are visible in the
+  // (public) source; set the env vars above to replace them with private ones.
+  switch (entered) {
+    case "HOMEOSVIP25":
+      return { ok: true, plan: "pro", admin: true };
+    case "ARLEOPRO":
+      return { ok: true, plan: "pro", admin: false };
+    case "ARLEOPLUS":
+      return { ok: true, plan: "plus", admin: false };
+    // ARLEOFREE is handled above as an always-on reset.
+    default:
+      return { ok: false };
+  }
 }
