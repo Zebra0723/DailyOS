@@ -4,6 +4,7 @@ import { TopNav, MobileNav, MobileHeader } from "@/components/app-nav";
 import { FreePlanBanner } from "@/components/free-plan-banner";
 import { CommandPalette } from "@/components/command-palette";
 import { DueReminder } from "@/components/due-reminder";
+import { LocalReminders } from "@/components/local-reminders";
 import { AssistantFab } from "@/components/assistant-fab";
 import { TimezoneSync } from "@/components/timezone-sync";
 import { DeviceBackup } from "@/components/device-backup";
@@ -37,6 +38,7 @@ export default async function AppLayout({
         <AssistantFab />
         <CommandPalette />
         <DueReminder />
+        <LocalReminders />
         <TimezoneSync />
         <DeviceBackup />
       </div>
