@@ -280,6 +280,20 @@ export async function bulkDeleteInbox(ids: string[]) {
   return { ok: true as const, count: ids.length };
 }
 
+/** Bookmark / un-bookmark an inbox item so it shows (or stops showing) on Today. */
+export async function setInboxBookmarked(id: string, bookmarked: boolean) {
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase
+    .from("inbox_items")
+    .update({ bookmarked })
+    .eq("id", id)
+    .eq("user_id", user.id);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/inbox");
+  revalidatePath("/today");
+  return { ok: true as const };
+}
+
 /** Mark several inbox items handled / not handled at once. */
 export async function bulkSetInboxHandled(ids: string[], handled: boolean) {
   const { supabase } = await requireUser();

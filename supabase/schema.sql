@@ -59,6 +59,9 @@ create table if not exists public.inbox_items (
 -- For projects created before the "handled" column existed:
 alter table public.inbox_items
   add column if not exists handled boolean not null default false;
+-- Bookmark (pin) an item so it shows on Today:
+alter table public.inbox_items
+  add column if not exists bookmarked boolean not null default false;
 
 create index if not exists inbox_items_user_idx on public.inbox_items(user_id, created_at desc);
 create index if not exists inbox_items_status_idx on public.inbox_items(user_id, status);

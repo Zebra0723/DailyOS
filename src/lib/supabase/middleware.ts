@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   SESSION_DEADLINE_COOKIE,
   isSessionExpired,
+  deadlineFromNow,
+  sessionMaxAgeSeconds,
 } from "@/lib/session-expiry";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
@@ -71,19 +73,17 @@ export async function updateSession(request: NextRequest) {
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
   const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
 
-  // A logged-in session that has outlived its "Remember me" window (1 year) —
-  // or its default 30-day window — gets signed out. The deadline cookie is
-  // stamped at login and drops itself when it lapses; a missing one counts as
-  // expired, so pre-feature sessions are re-authenticated once. /auth/signout
-  // is already short-circuited above, so there's no redirect loop.
-  const sessionExpired =
+  // A logged-in session that has outlived its window gets signed out. Only sign
+  // out when the deadline cookie is PRESENT and in the past — a *missing* cookie
+  // is re-stamped below instead of logging you out, so a valid session that
+  // simply lost its deadline cookie (tab close, storage eviction) survives.
+  const deadlineVal = request.cookies.get(SESSION_DEADLINE_COOKIE)?.value;
+  const deadlineExpired =
     Boolean(user) &&
-    isSessionExpired(
-      request.cookies.get(SESSION_DEADLINE_COOKIE)?.value,
-      Date.now(),
-    );
+    deadlineVal !== undefined &&
+    isSessionExpired(deadlineVal, Date.now());
 
-  if (sessionExpired) {
+  if (deadlineExpired) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/signout";
     url.search = "";
@@ -102,6 +102,22 @@ export async function updateSession(request: NextRequest) {
     url.pathname = "/today";
     url.search = "";
     return NextResponse.redirect(url);
+  }
+
+  // Valid session but no deadline cookie (never set, or dropped by the browser)
+  // → re-stamp a fresh window rather than signing them out. Keeps people logged
+  // in across tab closes / storage quirks.
+  if (user && deadlineVal === undefined) {
+    supabaseResponse.cookies.set(
+      SESSION_DEADLINE_COOKIE,
+      String(deadlineFromNow(false, Date.now())),
+      {
+        path: "/",
+        maxAge: sessionMaxAgeSeconds(false),
+        sameSite: "lax",
+        secure: request.nextUrl.protocol === "https:",
+      },
+    );
   }
 
   // Never let the browser serve a stale HTML shell — that leaves old cached

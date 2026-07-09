@@ -37,6 +37,34 @@ function cityFromZone(zone: string): string {
   return zone.split("/").pop()!.replace(/_/g, " ");
 }
 
+// Common cities whose name doesn't match their IANA zone's last segment, so a
+// search for them (e.g. "Mumbai" → Asia/Kolkata) still finds a result.
+const CITY_ALIASES: Zone[] = [
+  { city: "Mumbai", zone: "Asia/Kolkata" },
+  { city: "Delhi", zone: "Asia/Kolkata" },
+  { city: "Bangalore", zone: "Asia/Kolkata" },
+  { city: "Beijing", zone: "Asia/Shanghai" },
+  { city: "Manchester", zone: "Europe/London" },
+  { city: "Birmingham", zone: "Europe/London" },
+  { city: "Edinburgh", zone: "Europe/London" },
+  { city: "Glasgow", zone: "Europe/London" },
+  { city: "Washington", zone: "America/New_York" },
+  { city: "Boston", zone: "America/New_York" },
+  { city: "Miami", zone: "America/New_York" },
+  { city: "Atlanta", zone: "America/New_York" },
+  { city: "San Francisco", zone: "America/Los_Angeles" },
+  { city: "Seattle", zone: "America/Los_Angeles" },
+  { city: "Las Vegas", zone: "America/Los_Angeles" },
+  { city: "Munich", zone: "Europe/Berlin" },
+  { city: "Frankfurt", zone: "Europe/Berlin" },
+  { city: "Geneva", zone: "Europe/Zurich" },
+  { city: "Milan", zone: "Europe/Rome" },
+  { city: "Barcelona", zone: "Europe/Madrid" },
+  { city: "Cape Town", zone: "Africa/Johannesburg" },
+  { city: "Abu Dhabi", zone: "Asia/Dubai" },
+  { city: "Melbourne", zone: "Australia/Melbourne" },
+];
+
 function allZones(): Zone[] {
   let zones: string[] = [];
   try {
@@ -47,7 +75,8 @@ function allZones(): Zone[] {
     zones = [];
   }
   if (!zones.length) zones = FALLBACK_ZONES;
-  return zones.map((z) => ({ zone: z, city: cityFromZone(z) }));
+  const base = zones.map((z) => ({ zone: z, city: cityFromZone(z) }));
+  return [...base, ...CITY_ALIASES];
 }
 
 function timeParts(zone: string, now: Date) {
@@ -151,8 +180,8 @@ export function WorldClock({ userId }: { userId: string }) {
   }, [query, zones]);
 
   function add(z: Zone) {
-    if (!cities) return;
-    if (!cities.some((c) => c.zone === z.zone)) persist([...cities, z]);
+    const cur = cities ?? [];
+    if (!cur.some((c) => c.zone === z.zone)) persist([...cur, z]);
     setQuery("");
   }
   function remove(zone: string) {

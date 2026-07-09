@@ -13,6 +13,7 @@ import {
   Heart,
   StickyNote,
   CalendarClock,
+  Bookmark,
 } from "lucide-react";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
@@ -50,7 +51,7 @@ export default async function TodayPage() {
   // "Now" as a floating time in the user's timezone, to match event times.
   const nowFloating = nowFloatingInTz(tz);
 
-  const [tasksRes, eventsRes, recentRes, reviewRes, tomorrowRes] =
+  const [tasksRes, eventsRes, recentRes, reviewRes, tomorrowRes, bookmarksRes] =
     await Promise.all([
       supabase
         .from("extracted_tasks")
@@ -80,6 +81,14 @@ export default async function TodayPage() {
         .eq("status", "pending")
         .eq("due_date", tomorrowStr)
         .order("priority", { ascending: false }),
+      // Bookmarked inbox items (pinned to Today). Degrades to empty if the
+      // `bookmarked` column isn't migrated yet.
+      supabase
+        .from("inbox_items")
+        .select("*")
+        .eq("bookmarked", true)
+        .order("created_at", { ascending: false })
+        .limit(12),
     ]);
 
   const dueTasks = (tasksRes.data ?? []) as ExtractedTask[];
@@ -87,6 +96,7 @@ export default async function TodayPage() {
   const recent = (recentRes.data ?? []) as InboxItem[];
   const needsReview = (reviewRes.data ?? []) as InboxItem[];
   const tomorrowTasks = (tomorrowRes.data ?? []) as ExtractedTask[];
+  const bookmarks = (bookmarksRes.data ?? []) as InboxItem[];
 
   const claimableCodes = await getClaimableRewardCodes();
 
@@ -169,6 +179,42 @@ export default async function TodayPage() {
 
       {/* HomeOS actions pushed into Today */}
       {user && <HomeOSTodayActions userId={user.id} />}
+
+      {/* Bookmarked inbox items — pinned here from your Inbox */}
+      {bookmarks.length > 0 && (
+        <Card className="border-primary/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Bookmark className="size-4 fill-primary text-primary" /> Bookmarks
+            </CardTitle>
+            <CardDescription>
+              Items you pinned from your Inbox, kept close.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-2">
+            {bookmarks.map((b) => (
+              <Link
+                key={b.id}
+                href={`/inbox/${b.id}`}
+                className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent/40"
+              >
+                <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
+                  <Bookmark className="size-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{b.title}</p>
+                  {b.summary && (
+                    <p className="truncate text-xs text-muted-foreground">
+                      {b.summary}
+                    </p>
+                  )}
+                </div>
+                <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Needs review banner */}
       {needsReview.length > 0 && (

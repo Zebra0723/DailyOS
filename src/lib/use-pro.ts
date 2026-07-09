@@ -229,36 +229,80 @@ export function usePlan(userId?: string): {
     });
 
     const read = async () => {
-      let tier = readTierFor(userId);
-      let admin = readAdminFor(userId);
-      let exp = tier === "free" ? null : localExp(userId);
-      if (tier === "free" || !admin) {
-        try {
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
-          const user = session?.user;
-          if (user) {
-            const uid = userId ?? user.id;
-            tier = readTierFor(
-              uid,
-              user.user_metadata?.plan,
-              user.user_metadata?.pro === true,
-              user.user_metadata?.plan_exp,
-            );
-            admin = readAdminFor(uid, user.user_metadata?.admin === true);
-            exp =
-              tier === "free"
-                ? null
-                : (localExp(uid) ??
-                  (user.user_metadata?.plan_exp
-                    ? Number(user.user_metadata.plan_exp)
-                    : null));
+      // Fast local values (localStorage only).
+      const localTier = readTierFor(userId);
+      const localAdmin = readAdminFor(userId);
+      const localE = localTier === "free" ? null : localExp(userId);
+
+      let tier = localTier;
+      let admin = localAdmin;
+      let exp = localE;
+
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const user = session?.user;
+        if (user) {
+          const uid = userId ?? user.id;
+          // Metadata-only view.
+          const metaTier = readTierFor(
+            undefined,
+            user.user_metadata?.plan,
+            user.user_metadata?.pro === true,
+            user.user_metadata?.plan_exp,
+          );
+          const metaExp = user.user_metadata?.plan_exp
+            ? Number(user.user_metadata.plan_exp)
+            : null;
+          const metaAdmin = user.user_metadata?.admin === true;
+
+          // Merge the two, never downgrading (lifetime beats time-limited).
+          const merged = mergeGrant(
+            { tier: readTierFor(uid), exp: localExp(uid) },
+            { tier: metaTier, exp: metaExp },
+          );
+          tier = merged.tier;
+          exp = merged.tier === "free" ? null : merged.exp;
+          admin = localAdmin || metaAdmin;
+
+          // Heal whichever store is behind so the plan survives logout/login and
+          // separate PWA/Safari storage. Write directly (no PRO_EVENT) to avoid
+          // re-triggering this read.
+          if (tier !== "free") {
+            const lsBehind =
+              readTierFor(uid) !== tier || localExp(uid) !== (exp ?? null);
+            if (lsBehind && typeof window !== "undefined") {
+              try {
+                localStorage.setItem(tierKey(uid), tier);
+                if (tier === "pro") localStorage.setItem(legacyProKey(uid), "1");
+                else localStorage.removeItem(legacyProKey(uid));
+                if (exp) localStorage.setItem(tierExpKey(uid), String(exp));
+                else localStorage.removeItem(tierExpKey(uid));
+              } catch {
+                /* ignore */
+              }
+            }
+            if (metaTier !== tier || metaExp !== (exp ?? null)) {
+              supabase.auth
+                .updateUser({
+                  data: {
+                    plan: tier,
+                    pro: tier === "pro",
+                    plan_exp: exp ?? null,
+                  },
+                })
+                .catch(() => {});
+            }
           }
-        } catch {
-          /* fall through with free */
+          if (admin && !metaAdmin) {
+            supabase.auth.updateUser({ data: { admin: true } }).catch(() => {});
+          }
         }
+      } catch {
+        /* fall through with local values */
       }
+
       if (active)
         setState({ mounted: true, resolved: true, tier, admin, planExp: exp });
     };

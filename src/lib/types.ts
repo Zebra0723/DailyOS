@@ -52,6 +52,7 @@ export interface InboxItem {
   raw_ai_json: ExtractionResult | null;
   needs_text_extraction: boolean;
   handled: boolean;
+  bookmarked?: boolean;
   created_at: string;
   updated_at: string;
 }

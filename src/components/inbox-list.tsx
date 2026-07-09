@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Check,
   ListChecks,
+  Bookmark,
   X,
 } from "lucide-react";
 import { StatusBadge } from "@/components/badges";
@@ -21,6 +22,7 @@ import {
   deleteInboxItem,
   bulkDeleteInbox,
   bulkSetInboxHandled,
+  setInboxBookmarked,
 } from "@/app/(app)/inbox/actions";
 import { relativeDay, cn } from "@/lib/utils";
 import type { InboxItem } from "@/lib/types";
@@ -175,11 +177,28 @@ function Row({
 }) {
   const { toast } = useToast();
   const [deleting, setDeleting] = React.useState(false);
+  const [bookmarked, setBookmarked] = React.useState(!!item.bookmarked);
+
+  async function toggleBookmark() {
+    const next = !bookmarked;
+    setBookmarked(next); // optimistic
+    const res = await setInboxBookmarked(item.id, next);
+    if (res.ok) {
+      toast({
+        variant: "success",
+        title: next ? "Bookmarked — it's on Today" : "Bookmark removed",
+      });
+      onDeleted(); // refreshes the list + Today
+    } else {
+      setBookmarked(!next); // revert
+      toast({ variant: "error", title: "Couldn't update bookmark" });
+    }
+  }
 
   const inner = (
     <Card
       className={cn(
-        "flex items-center gap-4 p-4 pr-14 transition-colors",
+        "flex items-center gap-4 p-4 pr-20 transition-colors",
         selecting ? "cursor-pointer" : "hover:bg-accent/40",
         selected && "border-primary bg-accent/40",
       )}
@@ -247,20 +266,36 @@ function Row({
       ) : (
         <>
           <Link href={`/inbox/${item.id}`}>{inner}</Link>
-          <button
-            type="button"
-            onClick={onDelete}
-            disabled={deleting}
-            aria-label="Delete item"
-            title="Delete item"
-            className="absolute right-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
-          >
-            {deleting ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Trash2 className="size-4" />
-            )}
-          </button>
+          <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+            <button
+              type="button"
+              onClick={toggleBookmark}
+              aria-label={bookmarked ? "Remove bookmark" : "Bookmark item"}
+              title={bookmarked ? "Bookmarked — showing on Today" : "Bookmark (show on Today)"}
+              className={cn(
+                "grid size-8 place-items-center rounded-lg transition-colors hover:bg-accent",
+                bookmarked
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Bookmark className={cn("size-4", bookmarked && "fill-current")} />
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              disabled={deleting}
+              aria-label="Delete item"
+              title="Delete item"
+              className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+            >
+              {deleting ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Trash2 className="size-4" />
+              )}
+            </button>
+          </div>
         </>
       )}
     </div>
