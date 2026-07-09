@@ -1,9 +1,12 @@
-import { Suspense } from "react";
 import { AuthForm } from "@/components/auth-form";
 
 export const metadata = { title: "Log in · DailyOS" };
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: { redirect?: string; ref?: string };
+}) {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -12,9 +15,11 @@ export default function LoginPage() {
           Log in to pick up where your life admin left off.
         </p>
       </div>
-      <Suspense>
-        <AuthForm mode="login" />
-      </Suspense>
+      <AuthForm
+        mode="login"
+        redirectTo={searchParams.redirect}
+        refCode={searchParams.ref}
+      />
     </div>
   );
 }

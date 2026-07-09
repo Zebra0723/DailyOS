@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { markSessionStart } from "@/lib/session-expiry";
@@ -11,8 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
-  const params = useSearchParams();
+export function AuthForm({
+  mode,
+  redirectTo,
+  refCode,
+}: {
+  mode: "login" | "signup";
+  redirectTo?: string;
+  refCode?: string;
+}) {
   const { toast } = useToast();
   const supabase = React.useMemo(() => createClient(), []);
 
@@ -32,7 +38,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   // New sign-ups go through onboarding; logins land on the welcome screen.
   // A `redirect` param (e.g. from a protected page) takes priority.
   const redirect =
-    params.get("redirect") || (mode === "signup" ? "/onboarding" : "/welcome");
+    redirectTo || (mode === "signup" ? "/onboarding" : "/welcome");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,7 +62,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     try {
       if (mode === "signup") {
         // Attribute the signup to a referrer if they arrived via a ?ref link.
-        const referredBy = params.get("ref");
+        const referredBy = refCode;
         const { data, error } = await supabase.auth.signUp({
           email: emailVal,
           password: passwordVal,
