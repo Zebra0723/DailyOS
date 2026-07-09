@@ -11,16 +11,16 @@ const DAY_MS = 86_400_000;
 const now = Date.parse("2026-07-05T12:00:00Z");
 
 describe("session expiry windows", () => {
-  it("remember-me is 4 weeks, default is 3 days", () => {
-    expect(REMEMBER_DAYS).toBe(28);
-    expect(SESSION_DAYS).toBe(3);
-    expect(sessionMaxAgeSeconds(true)).toBe(28 * 24 * 60 * 60);
-    expect(sessionMaxAgeSeconds(false)).toBe(3 * 24 * 60 * 60);
+  it("remember-me is 1 year, default is 30 days", () => {
+    expect(REMEMBER_DAYS).toBe(365);
+    expect(SESSION_DAYS).toBe(30);
+    expect(sessionMaxAgeSeconds(true)).toBe(365 * 24 * 60 * 60);
+    expect(sessionMaxAgeSeconds(false)).toBe(30 * 24 * 60 * 60);
   });
 
   it("deadlineFromNow adds the right window", () => {
-    expect(deadlineFromNow(true, now)).toBe(now + 28 * DAY_MS);
-    expect(deadlineFromNow(false, now)).toBe(now + 3 * DAY_MS);
+    expect(deadlineFromNow(true, now)).toBe(now + 365 * DAY_MS);
+    expect(deadlineFromNow(false, now)).toBe(now + 30 * DAY_MS);
   });
 
   it("a missing cookie counts as expired (pre-feature sessions re-auth once)", () => {

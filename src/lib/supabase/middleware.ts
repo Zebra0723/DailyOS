@@ -71,8 +71,8 @@ export async function updateSession(request: NextRequest) {
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
   const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
 
-  // A logged-in session that has outlived its "Remember me" window (4 weeks) —
-  // or its default 3-day window — gets signed out. The deadline cookie is
+  // A logged-in session that has outlived its "Remember me" window (1 year) —
+  // or its default 30-day window — gets signed out. The deadline cookie is
   // stamped at login and drops itself when it lapses; a missing one counts as
   // expired, so pre-feature sessions are re-authenticated once. /auth/signout
   // is already short-circuited above, so there's no redirect loop.

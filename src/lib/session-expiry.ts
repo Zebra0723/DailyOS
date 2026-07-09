@@ -4,16 +4,16 @@
 // logged in on a device indefinitely. We bound that with an absolute deadline
 // stamped at login time and enforced in middleware:
 //
-//   • "Remember me" ticked  → 4 weeks, then you're logged out.
-//   • left unticked         → 3 days,  then you're logged out.
+//   • "Remember me" ticked  → 1 year, then you're logged out.
+//   • left unticked         → 30 days, then you're logged out.
 //
 // The deadline lives in a plain cookie (readable by middleware) whose own
 // Max-Age matches, so the browser also drops it exactly when it lapses.
 
 export const SESSION_DEADLINE_COOKIE = "dailyos-session-deadline";
 
-export const REMEMBER_DAYS = 28; // "Remember me" → 4 weeks
-export const SESSION_DAYS = 3; //   default      → 3 days
+export const REMEMBER_DAYS = 365; // "Remember me" → 1 year
+export const SESSION_DAYS = 30; //   default      → 30 days
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
