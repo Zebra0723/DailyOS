@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { markSessionStart } from "@/lib/session-expiry";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,8 @@ export function AuthForm({
   const passwordRef = React.useRef<HTMLInputElement>(null);
   const [showPw, setShowPw] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [magicSent, setMagicSent] = React.useState(false);
+  const [magicLoading, setMagicLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [sentConfirmation, setSentConfirmation] = React.useState(false);
   const [agreed, setAgreed] = React.useState(false);
@@ -108,6 +110,52 @@ export function AuthForm({
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setLoading(false);
     }
+  }
+
+  // Passwordless sign-in: email a one-tap magic link. Great when password
+  // autofill won't cooperate — no password to type or fill at all.
+  async function sendMagicLink() {
+    const emailVal = (emailRef.current?.value || email).trim();
+    if (!emailVal) {
+      setError("Enter your email first, then tap the link button.");
+      return;
+    }
+    setError(null);
+    setMagicLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: emailVal,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}&remember=1`,
+        },
+      });
+      if (error) throw error;
+      setEmail(emailVal);
+      setMagicSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't send the link.");
+    } finally {
+      setMagicLoading(false);
+    }
+  }
+
+  if (magicSent) {
+    return (
+      <div className="space-y-4 text-center">
+        <div className="mx-auto grid size-12 place-items-center rounded-xl bg-accent text-accent-foreground">
+          <Mail className="size-6" />
+        </div>
+        <h2 className="text-lg font-semibold">Check your email</h2>
+        <p className="text-sm text-muted-foreground">
+          We sent a one-tap sign-in link to <strong>{email}</strong>. Open it on
+          this device to log in — no password needed.
+        </p>
+        <Button variant="outline" className="w-full" onClick={() => setMagicSent(false)}>
+          Back to log in
+        </Button>
+      </div>
+    );
   }
 
   if (sentConfirmation) {
@@ -252,6 +300,30 @@ export function AuthForm({
         {loading && <Loader2 className="size-4 animate-spin" />}
         {mode === "signup" ? "Create account" : "Log in"}
       </Button>
+
+      {mode === "login" && (
+        <>
+          <div className="flex items-center gap-3 py-1">
+            <span className="h-px flex-1 bg-border" />
+            <span className="text-xs text-muted-foreground">or</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={sendMagicLink}
+            disabled={magicLoading || loading}
+          >
+            {magicLoading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Mail className="size-4" />
+            )}
+            Email me a sign-in link (no password)
+          </Button>
+        </>
+      )}
 
       <p className="text-center text-sm text-muted-foreground">
         {mode === "signup" ? (

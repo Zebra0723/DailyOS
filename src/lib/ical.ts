@@ -15,6 +15,13 @@ export interface FeedTask {
   due_date: string;
 }
 
+/** A HomeOS-derived date (renewal, delivery, warranty, maintenance, …). */
+export interface FeedHomeEvent {
+  id: string;
+  title: string;
+  date: string;
+}
+
 function esc(s: string): string {
   return (s || "")
     .replace(/\\/g, "\\\\")
@@ -47,7 +54,11 @@ function dateOnly(value: string): string {
   return value.slice(0, 10).replace(/-/g, "");
 }
 
-export function buildICS(events: FeedEvent[], tasks: FeedTask[]): string {
+export function buildICS(
+  events: FeedEvent[],
+  tasks: FeedTask[],
+  homeEvents: FeedHomeEvent[] = [],
+): string {
   const now = dtUtc(new Date().toISOString());
   const lines: string[] = [
     "BEGIN:VCALENDAR",
@@ -82,6 +93,20 @@ export function buildICS(events: FeedEvent[], tasks: FeedTask[]): string {
       `DTSTAMP:${now}`,
       `DTSTART;VALUE=DATE:${dateOnly(t.due_date)}`,
       `SUMMARY:${esc(`Task: ${t.title}`)}`,
+      "END:VEVENT",
+    );
+  }
+
+  // HomeOS dates (renewals, deliveries, warranties, maintenance) as all-day.
+  for (const h of homeEvents) {
+    if (!h.date) continue;
+    const uid = String(h.id).replace(/[^a-zA-Z0-9]/g, "-");
+    lines.push(
+      "BEGIN:VEVENT",
+      `UID:home-${uid}@dailyos`,
+      `DTSTAMP:${now}`,
+      `DTSTART;VALUE=DATE:${dateOnly(h.date)}`,
+      `SUMMARY:${esc(h.title)}`,
       "END:VEVENT",
     );
   }
