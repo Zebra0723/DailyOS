@@ -19,10 +19,15 @@ const DAY = 86_400_000;
 
 function authorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
-  // If no secret is configured, allow it (dev / manual). Vercel Cron sends the
-  // secret as a Bearer token when CRON_SECRET is set.
+  // If no secret is configured, allow it (dev / manual).
   if (!secret) return true;
-  return req.headers.get("authorization") === `Bearer ${secret}`;
+  // Accept the secret two ways so any cron service can call it:
+  //   1. Authorization: Bearer <secret>  (Vercel Cron / GitHub Actions send this)
+  //   2. ?key=<secret> in the URL         (easiest for external crons — no header)
+  if (req.headers.get("authorization") === `Bearer ${secret}`) return true;
+  const url = new URL(req.url);
+  const key = url.searchParams.get("key") ?? url.searchParams.get("secret");
+  return key === secret;
 }
 
 /** The set of reward codes this user dismissed in the Today nudge (best-effort;
