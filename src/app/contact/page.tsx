@@ -8,6 +8,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { HomeButton } from "@/components/home-button";
 import { Button } from "@/components/ui/button";
 import { SUPPORT_EMAIL, ENQUIRIES_EMAIL } from "@/lib/contact";
 
@@ -19,10 +20,11 @@ export const metadata = {
 export default function ContactPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="container flex h-16 items-center">
-        <Link href="/">
+      <header className="container flex h-16 items-center justify-between">
+        <Link href="/today">
           <Logo tagline />
         </Link>
+        <HomeButton />
       </header>
 
       <main className="container flex-1 py-10 sm:py-14">

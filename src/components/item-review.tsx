@@ -40,7 +40,7 @@ import {
   type VaultCategory,
 } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
-import { storedToInput, wallClockToStored } from "@/lib/dates-tz";
+import { storedToInput, wallClockToStored, normalizeEventTime } from "@/lib/dates-tz";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -204,13 +204,16 @@ export function ItemReview({
       itemType,
       vaultCategory: category,
       tasks: tasks.filter((t) => t.title.trim()),
+      // Normalize FIRST (so any AI-suggested format becomes a valid floating
+      // time), THEN drop anything still without a title or a usable start — so a
+      // malformed time can never fail the insert and silently lose every event.
       events: events
-        .filter((e) => e.title.trim() && e.start_time)
         .map((e) => ({
           ...e,
-          start_time: fromLocalInput(e.start_time ?? ""),
-          end_time: fromLocalInput(e.end_time ?? ""),
-        })),
+          start_time: normalizeEventTime(e.start_time),
+          end_time: normalizeEventTime(e.end_time),
+        }))
+        .filter((e) => e.title.trim() && e.start_time),
     });
     setBusy(false);
     if (!res.ok) {

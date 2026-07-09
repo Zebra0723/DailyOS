@@ -37,6 +37,27 @@ export function wallClockToStored(localInput: string): string {
   return `${localInput.slice(0, 16)}:00Z`;
 }
 
+/**
+ * Normalize ANY event time we might receive — a datetime-local value, a full ISO
+ * (with or without Z, an offset, or milliseconds), or a bare date — into our
+ * stored floating form "YYYY-MM-DDTHH:MM:00Z". A missing time defaults to 09:00.
+ * Returns null when there isn't even a valid date, so a malformed value can never
+ * become a broken timestamp that fails the insert (dropping the event) or hides
+ * it from the calendar. Use this whenever the source of the string is uncertain
+ * (e.g. AI-suggested inbox events).
+ */
+export function normalizeEventTime(
+  value: string | null | undefined,
+): string | null {
+  if (!value) return null;
+  const m = String(value)
+    .trim()
+    .match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+  if (!m) return null;
+  const [, y, mo, d, hh, mi] = m;
+  return `${y}-${mo}-${d}T${hh ?? "09"}:${mi ?? "00"}:00Z`;
+}
+
 /** A stored floating time → the "YYYY-MM-DDTHH:MM" a datetime-local input wants. */
 export function storedToInput(iso: string | null | undefined): string {
   return iso ? iso.slice(0, 16) : "";

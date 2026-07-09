@@ -8,6 +8,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { HomeButton } from "@/components/home-button";
 import { InstallApp } from "@/components/install-app";
 
 export const metadata = {
@@ -53,10 +54,11 @@ const FAQS: { q: string; a: string }[] = [
 export default function HelpPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="container flex h-16 items-center">
-        <Link href="/">
+      <header className="container flex h-16 items-center justify-between">
+        <Link href="/today">
           <Logo tagline />
         </Link>
+        <HomeButton />
       </header>
 
       <main className="container flex-1 py-10 sm:py-14">

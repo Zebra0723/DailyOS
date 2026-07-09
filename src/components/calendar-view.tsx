@@ -80,18 +80,26 @@ export function CalendarView({
   }, [userId]);
 
   const all = React.useMemo<Disp[]>(() => {
-    const life: Disp[] = events.map((e) => ({
-      id: `life-${e.id}`,
-      title: e.title,
-      // Group by the event's own (floating) calendar day and show its literal
-      // time, so travelling never moves an event to a different day or hour.
-      dayKey: e.start_time.slice(0, 10),
-      ts: new Date(e.start_time).getTime(),
-      source: "life",
-      life: e,
-      timeLabel: formatFloating(e.start_time),
-      location: e.location,
-    }));
+    const life: Disp[] = events
+      // Never let one row with a missing/odd start_time break the whole grid.
+      .filter((e) => typeof e.start_time === "string" && e.start_time.length >= 10)
+      .map((e) => {
+        const parsed = new Date(e.start_time).getTime();
+        return {
+          id: `life-${e.id}`,
+          title: e.title,
+          // Group by the event's own (floating) calendar day and show its literal
+          // time, so travelling never moves an event to a different day or hour.
+          dayKey: e.start_time.slice(0, 10),
+          ts: Number.isNaN(parsed)
+            ? new Date(`${e.start_time.slice(0, 10)}T00:00:00Z`).getTime()
+            : parsed,
+          source: "life" as const,
+          life: e,
+          timeLabel: formatFloating(e.start_time),
+          location: e.location,
+        };
+      });
     return [...life, ...homeEvents];
   }, [events, homeEvents]);
 

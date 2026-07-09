@@ -11,11 +11,11 @@ export default function LegalLayout({
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container flex h-16 max-w-3xl items-center justify-between">
-          <Link href="/">
+          <Link href="/today">
             <Logo />
           </Link>
           <Link
-            href="/"
+            href="/today"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="size-4" /> Back to DailyOS

@@ -5,6 +5,7 @@ import {
   addMonthsYmd,
   wallClockToStored,
   storedToInput,
+  normalizeEventTime,
 } from "./dates-tz";
 import { formatFloating } from "./utils";
 
@@ -66,5 +67,26 @@ describe("floating event times — 2pm stays 2pm after you travel", () => {
     // formatFloating renders in UTC, so the stored wall-clock is shown as-is.
     expect(formatFloating("2026-07-10T14:00:00Z")).toContain("14:00");
     expect(formatFloating("2026-07-10T14:00:00Z")).toMatch(/10 Jul/);
+  });
+});
+
+describe("normalizeEventTime — any inbox/AI event time becomes valid", () => {
+  it("keeps a full local-AI datetime (no Z)", () => {
+    expect(normalizeEventTime("2026-07-10T09:00:00")).toBe("2026-07-10T09:00:00Z");
+  });
+  it("handles a datetime-local value", () => {
+    expect(normalizeEventTime("2026-07-10T14:30")).toBe("2026-07-10T14:30:00Z");
+  });
+  it("handles ISO with Z, milliseconds or an offset", () => {
+    expect(normalizeEventTime("2026-07-10T14:30:00.000Z")).toBe("2026-07-10T14:30:00Z");
+    expect(normalizeEventTime("2026-07-10T14:30:00+00:00")).toBe("2026-07-10T14:30:00Z");
+  });
+  it("defaults a bare date to 09:00 instead of producing garbage", () => {
+    expect(normalizeEventTime("2026-07-10")).toBe("2026-07-10T09:00:00Z");
+  });
+  it("returns null for empty/unusable input", () => {
+    expect(normalizeEventTime("")).toBeNull();
+    expect(normalizeEventTime(null)).toBeNull();
+    expect(normalizeEventTime("not a date")).toBeNull();
   });
 });

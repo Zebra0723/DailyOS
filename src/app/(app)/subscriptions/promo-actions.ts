@@ -27,6 +27,11 @@ export async function redeemPromoCode(raw: string): Promise<PromoResult> {
   const entered = norm(raw);
   if (!entered) return { ok: false };
 
+  // ARLEOFREE is always a valid RESET: back to Free and admin OFF. A reset only
+  // ever removes access, so it's safe to keep as a known code even though the
+  // unlock codes are private. (A custom FREE_CODE below also works.)
+  if (entered === "ARLEOFREE") return { ok: true, plan: "free", admin: false };
+
   const adminCode = norm(process.env.ADMIN_CODE);
   const proCode = norm(process.env.PRO_CODE);
   const plusCode = norm(process.env.PLUS_CODE);
