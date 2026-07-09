@@ -23,7 +23,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How do I add something?",
-    a: "Use 'Add to Inbox' — paste text or upload a photo/PDF. DailyOS pulls out the dates and to-dos, and nothing is saved until you review and approve it.",
+    a: "Use 'Add to the Drop' — paste text or upload a photo/PDF. DailyOS pulls out the dates and to-dos, and nothing is saved until you review and approve it.",
   },
   {
     q: "Is my data private?",

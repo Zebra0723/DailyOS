@@ -11,7 +11,7 @@ export default function SignupPage({
     <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">
-          Start your Life Inbox
+          Start your Drop
         </h1>
         <p className="text-sm text-muted-foreground">
           Create a free account and turn your life admin into handled.

@@ -8,6 +8,7 @@ import {
   isSubscribed,
   enablePush,
   disablePush,
+  syncSubscription,
   type PushSupport,
 } from "@/lib/push";
 import { sendTestPush } from "@/app/(app)/settings/push-actions";
@@ -32,7 +33,12 @@ export function PushToggle() {
   const refresh = React.useCallback(async () => {
     setSupport(pushSupport());
     setPermission(notificationPermission());
-    setOn(await isSubscribed());
+    const subscribed = await isSubscribed();
+    setOn(subscribed);
+    // If this device looks subscribed, make sure the server actually has our
+    // live endpoint. Heals silent endpoint drift so a test can't say "no
+    // active device" while the toggle shows on.
+    if (subscribed) void syncSubscription();
   }, []);
 
   React.useEffect(() => {
@@ -74,6 +80,9 @@ export function PushToggle() {
   async function test() {
     setTesting(true);
     try {
+      // Re-sync our live subscription first so the server can't be pointing at a
+      // stale endpoint — this is what makes the test reliable without an off/on.
+      await syncSubscription();
       const res = await sendTestPush();
       if (res.ok) {
         toast({ variant: "success", title: "Test sent — watch for it!" });

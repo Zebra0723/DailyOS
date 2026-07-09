@@ -16,7 +16,7 @@ export function SettingsDanger() {
   async function clearData() {
     if (
       !confirm(
-        "Delete ALL your inbox items, tasks, events and files? This cannot be undone.",
+        "Delete ALL your Drop items, tasks, events and files? This cannot be undone.",
       )
     )
       return;
@@ -61,7 +61,7 @@ export function SettingsDanger() {
         <div>
           <p className="font-medium">Delete all data</p>
           <p className="text-sm text-muted-foreground">
-            Wipe every inbox item, task, event and uploaded file. Keeps your login.
+            Wipe every Drop item, task, event and uploaded file. Keeps your login.
           </p>
         </div>
         <Button

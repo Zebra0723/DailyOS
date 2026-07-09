@@ -51,7 +51,7 @@ const CATEGORIES: {
     items: [
       { href: "/today", label: "Today", icon: Sun },
       { href: "/assistant", label: "Ask DailyOS", icon: Sparkles },
-      { href: "/inbox", label: "Inbox", icon: Inbox },
+      { href: "/inbox", label: "The Drop", icon: Inbox },
       { href: "/build-day", label: "Build My Day", icon: CalendarClock },
       { href: "/interests", label: "Interests", icon: Heart },
       { href: "/world-clock", label: "World Clock", icon: Globe },
@@ -80,7 +80,7 @@ const CATEGORIES: {
 const BOTTOM = [
   { href: "/today", label: "Today", icon: Sun },
   { href: "/assistant", label: "Ask", icon: Sparkles },
-  { href: "/inbox", label: "Inbox", icon: Inbox },
+  { href: "/inbox", label: "Drop", icon: Inbox },
   { href: "/calendar", label: "Calendar", icon: Calendar },
 ];
 
@@ -327,7 +327,7 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
             <div className="px-4 py-3">
               <Button asChild className="w-full justify-start">
                 <Link href="/inbox/new" onClick={() => setMenuOpen(false)}>
-                  <Plus className="size-4" /> Add to Inbox
+                  <Plus className="size-4" /> Add to the Drop
                 </Link>
               </Button>
             </div>

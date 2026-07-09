@@ -53,7 +53,7 @@ const useCases = [
 const features = [
   {
     icon: Inbox,
-    title: "Life Inbox",
+    title: "The Drop",
     body: "One place to drop every receipt, letter, booking and screenshot.",
   },
   {
@@ -132,7 +132,7 @@ export default function LandingPage() {
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" asChild className="h-12 px-7 text-base shadow-elevated">
                 <Link href="/signup">
-                  Start your Life Inbox
+                  Get started free
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
@@ -220,7 +220,7 @@ export default function LandingPage() {
               Everything, in one calm place
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Not just an inbox — a whole personal chief of staff.
+              More than a drop box — a whole personal chief of staff.
             </p>
           </div>
           <div className="mx-auto mt-12 grid max-w-5xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -285,7 +285,7 @@ export default function LandingPage() {
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" asChild className="h-12 px-7 text-base shadow-elevated">
                 <Link href="/signup">
-                  Start your Life Inbox
+                  Get started free
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>

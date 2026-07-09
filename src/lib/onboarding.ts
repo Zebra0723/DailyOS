@@ -59,7 +59,7 @@ const FOCUS_SUGGESTION: Record<string, { label: string; href: string }> = {
   school: { label: "Add a school letter", href: "/inbox/new" },
   health: { label: "Add an appointment", href: "/calendar" },
   work: { label: "Add a task", href: "/tasks" },
-  organised: { label: "Open your Inbox", href: "/inbox" },
+  organised: { label: "Open the Drop", href: "/inbox" },
 };
 
 /** A tailored headline + a few suggested first actions from the answers. */

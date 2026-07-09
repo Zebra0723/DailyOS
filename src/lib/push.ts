@@ -119,6 +119,39 @@ export async function enablePush(): Promise<
   }
 }
 
+/**
+ * Re-save this device's CURRENT push subscription to the server. Browsers and
+ * push services can silently rotate a subscription's endpoint, and the server
+ * prunes any endpoint a push service reports as gone (404/410). Either one
+ * leaves the browser still holding a subscription object (so the UI reads
+ * "notifications on") while the server has no matching row — sends then reach
+ * nobody and a test says "no active device". Calling this on every app load
+ * (and right before a test) keeps the stored endpoint in step with the live
+ * one, so notifications keep working without a manual off/on.
+ *
+ * A no-op — returns false — if this device has no subscription at all.
+ */
+export async function syncSubscription(): Promise<boolean> {
+  try {
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
+      return false;
+    }
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return false;
+    const json = sub.toJSON();
+    if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) return false;
+    const res = await savePushSubscription({
+      endpoint: json.endpoint,
+      p256dh: json.keys.p256dh,
+      auth: json.keys.auth,
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 /** Unsubscribe this device and forget it server-side. */
 export async function disablePush(): Promise<void> {
   try {

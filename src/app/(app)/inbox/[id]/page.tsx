@@ -44,7 +44,7 @@ export default async function InboxItemPage({
         className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" />
-        Back to Inbox
+        Back to the Drop
       </Link>
 
       <ItemReview

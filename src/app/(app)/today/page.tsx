@@ -139,7 +139,7 @@ export default async function TodayPage() {
           <div className="flex shrink-0 gap-2">
             <Button asChild>
               <Link href="/inbox/new">
-                <Plus className="size-4" /> Add to Inbox
+                <Plus className="size-4" /> Add to the Drop
               </Link>
             </Button>
             <Button variant="outline" asChild>
@@ -188,7 +188,7 @@ export default async function TodayPage() {
               <Bookmark className="size-4 fill-primary text-primary" /> Bookmarks
             </CardTitle>
             <CardDescription>
-              Items you pinned from your Inbox, kept close.
+              Items you pinned from the Drop, kept close.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
@@ -248,7 +248,7 @@ export default async function TodayPage() {
         <StatTile href="/tasks" label="Due today" value={dueTasks.length} hint="tasks" icon={CheckSquare} tone={dueTasks.length ? "primary" : "default"} />
         <StatTile href="/calendar" label="Upcoming" value={events.length} hint="events" icon={CalendarDays} />
         <StatTile href={needsReview.length ? `/inbox/${needsReview[0].id}` : "/inbox"} label="To review" value={needsReview.length} hint="items" icon={AlertTriangle} tone={needsReview.length ? "amber" : "default"} />
-        <StatTile href="/inbox" label="In your inbox" value={recent.length} hint="recent" icon={InboxIcon} />
+        <StatTile href="/inbox" label="In the Drop" value={recent.length} hint="recent" icon={InboxIcon} />
       </div>
 
       {/* Due today + Upcoming */}
@@ -371,7 +371,7 @@ export default async function TodayPage() {
             </CardDescription>
           </div>
           <Link href="/inbox" className="shrink-0 text-sm text-muted-foreground hover:text-foreground">
-            View inbox
+            View the Drop
           </Link>
         </CardHeader>
         <CardContent>
@@ -379,7 +379,7 @@ export default async function TodayPage() {
             <EmptyState
               icon={Sun}
               title="Let's get started"
-              description="Drop your first receipt, booking or screenshot into the Life Inbox and watch DailyOS handle it."
+              description="Drop your first receipt, booking or screenshot into the Drop and watch DailyOS handle it."
               actionLabel="Add your first item"
               actionHref="/inbox/new"
             />

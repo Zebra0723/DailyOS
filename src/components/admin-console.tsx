@@ -219,7 +219,7 @@ export function AdminConsole({
               <Badge variant="success">v1 · 23 Jun 2026</Badge>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
-              The day the whole thing first stood up: the Life Inbox, AI that
+              The day the whole thing first stood up: the Drop, AI that
               read receipts and letters, and tasks, calendar and the Vault to
               catch what it found. Rough around the edges, but it worked — and
               everything since grew from here.
@@ -269,7 +269,7 @@ export function AdminConsole({
             <SetupItem
               done={aiConfigured}
               title="AI provider key"
-              detail="Add the AI provider key in Vercel for real inbox parsing and Ask DailyOS answers."
+              detail="Add the AI provider key in Vercel for real Drop parsing and Ask DailyOS answers."
             />
             <SetupItem
               done={false}

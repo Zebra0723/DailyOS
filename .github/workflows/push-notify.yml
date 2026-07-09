@@ -24,7 +24,10 @@ name: Push notifications
 
 on:
   schedule:
-    - cron: "*/5 * * * *" # every 5 min; each run then pings each minute within
+    # GitHub throttles schedules faster than every 5 min, so we schedule every 5
+    # and each run pings the endpoint once a minute (with overlap) to get true
+    # ~1-minute delivery. This is as close to "every minute" as GitHub allows.
+    - cron: "*/5 * * * *"
   workflow_dispatch: {} # lets you run it on demand from the Actions tab
 
 # Don't let runs pile up on top of each other.
@@ -35,18 +38,22 @@ concurrency:
 jobs:
   notify:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 7
     steps:
-      - name: Ping the send endpoint once a minute for ~5 minutes
+      - name: Ping the send endpoint once a minute for ~6 minutes
         env:
           SITE_URL: ${{ vars.SITE_URL || 'https://daily-os-lac.vercel.app' }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          for i in 1 2 3 4 5; do
-            echo "ping $i/5 → $SITE_URL/api/push/run"
+          # 6 pings on a 5-minute schedule = ~1 minute of overlap, so even when
+          # GitHub delays the next scheduled run there's never a gap: a due
+          # reminder is always caught within a minute. Sends are de-duped
+          # server-side, so the overlap never double-fires.
+          for i in 1 2 3 4 5 6; do
+            echo "ping $i/6 → $SITE_URL/api/push/run"
             curl -sS -m 50 -X GET \
               -H "Authorization: Bearer $CRON_SECRET" \
               "$SITE_URL/api/push/run" || echo "ping $i failed (will retry next minute)"
             # Sleep a minute between pings, but not after the last one.
-            if [ "$i" -lt 5 ]; then sleep 60; fi
+            if [ "$i" -lt 6 ]; then sleep 60; fi
           done

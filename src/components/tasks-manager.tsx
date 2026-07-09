@@ -180,8 +180,8 @@ export function TasksManager({ tasks }: { tasks: ExtractedTask[] }) {
           <EmptyState
             icon={CheckSquare}
             title="No tasks yet"
-            description="Add a task manually, or approve an inbox item to turn its to-dos into tasks automatically."
-            actionLabel="Add to Inbox"
+            description="Add a task manually, or approve an item in the Drop to turn its to-dos into tasks automatically."
+            actionLabel="Add to the Drop"
             actionHref="/inbox/new"
           />
         ) : (

@@ -24,7 +24,7 @@ const POINTS = [
   {
     icon: Inbox,
     title: "Drop anything in",
-    desc: "Receipts, letters, bookings, screenshots — straight into your Life Inbox.",
+    desc: "Receipts, letters, bookings, screenshots — straight into the Drop.",
   },
   {
     icon: Sparkles,

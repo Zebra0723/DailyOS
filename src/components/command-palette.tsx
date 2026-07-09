@@ -32,10 +32,10 @@ type Icon = React.ComponentType<{ className?: string }>;
 type Item = { id: string; label: string; sub: string; href: string; icon: Icon };
 
 const PAGES: Item[] = [
-  { id: "p-add", label: "Add to Inbox", sub: "Page", href: "/inbox/new", icon: Plus },
+  { id: "p-add", label: "Add to the Drop", sub: "Page", href: "/inbox/new", icon: Plus },
   { id: "p-today", label: "Today", sub: "Page", href: "/today", icon: Sun },
   { id: "p-ask", label: "Ask DailyOS", sub: "Page", href: "/assistant", icon: Sparkles },
-  { id: "p-inbox", label: "Inbox", sub: "Page", href: "/inbox", icon: Inbox },
+  { id: "p-inbox", label: "The Drop", sub: "Page", href: "/inbox", icon: Inbox },
   { id: "p-build", label: "Build My Day", sub: "Page", href: "/build-day", icon: CalendarClock },
   { id: "p-interests", label: "Interests", sub: "Page", href: "/interests", icon: Heart },
   { id: "p-clock", label: "World Clock", sub: "Page", href: "/world-clock", icon: Globe },
@@ -69,7 +69,7 @@ async function searchContent(raw: string): Promise<Item[]> {
       supabase.from("vault_items").select("id,title,summary").or(`title.ilike.${like},summary.ilike.${like}`).limit(4),
     ]);
     const out: Item[] = [];
-    for (const r of inbox.data ?? []) out.push({ id: `i-${r.id}`, label: r.title || "Inbox item", sub: "Inbox", href: `/inbox/${r.id}`, icon: Inbox });
+    for (const r of inbox.data ?? []) out.push({ id: `i-${r.id}`, label: r.title || "Drop item", sub: "The Drop", href: `/inbox/${r.id}`, icon: Inbox });
     for (const r of tasks.data ?? []) out.push({ id: `t-${r.id}`, label: r.title, sub: "Task", href: "/tasks", icon: CheckSquare });
     for (const r of events.data ?? []) out.push({ id: `e-${r.id}`, label: r.title, sub: "Event", href: "/calendar", icon: Calendar });
     for (const r of notes.data ?? []) out.push({ id: `n-${r.id}`, label: (r.content || "Note").slice(0, 64), sub: "Note", href: "/notes", icon: StickyNote });

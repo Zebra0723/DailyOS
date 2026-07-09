@@ -43,7 +43,7 @@ export default function PrivacyPage() {
       <h2>3. What we collect</h2>
       <ul>
         <li><strong>Account information</strong> — email address, username, and login credentials (passwords are handled by our authentication provider and never stored by us in plain text).</li>
-        <li><strong>Your content</strong> — tasks, notes, reminders, calendar events, routines, goals, preferences, Life Inbox entries, uploaded files, and anything you type into DailyOS.</li>
+        <li><strong>Your content</strong> — tasks, notes, reminders, calendar events, routines, goals, preferences, Drop entries, uploaded files, and anything you type into DailyOS.</li>
         <li><strong>Usage data</strong> — features used, interactions, session times, device and browser type, IP address (and approximate location derived from it), error logs and performance data.</li>
         <li><strong>Payment &amp; subscription data</strong> (when billing is live) — plan type, billing status, transaction and payment-processor customer IDs, and receipts. Full card numbers are handled by the payment processor, not by us.</li>
         <li><strong>Support &amp; communications</strong> — messages, feedback, bug reports and survey responses you send us.</li>
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
 
       <h2>6. AI features</h2>
       <p>
-        Some features (organising your Life Inbox, planning your day, suggesting
+        Some features (organising your Drop, planning your day, suggesting
         ideas) use AI. When AI is enabled, only the specific text needed for that
         request is sent to a third-party, OpenAI-compatible model provider to
         extract details or generate suggestions.

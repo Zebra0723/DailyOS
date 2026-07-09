@@ -34,7 +34,7 @@ export default function manifest(): MetadataRoute.Manifest {
     // Long-press app-icon shortcuts (Android / desktop PWA).
     shortcuts: [
       {
-        name: "Add to Inbox",
+        name: "Add to the Drop",
         short_name: "Add",
         url: "/inbox/new",
         icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],

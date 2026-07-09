@@ -95,8 +95,8 @@ export function VaultBrowser({ items }: { items: VaultRow[] }) {
       <EmptyState
         icon={Archive}
         title="Your vault is empty"
-        description="Approved inbox items land here, neatly filed by category and fully searchable. Process something in your inbox to get started."
-        actionLabel="Add to Inbox"
+        description="Approved items from the Drop land here, neatly filed by category and fully searchable. Process something in the Drop to get started."
+        actionLabel="Add to the Drop"
         actionHref="/inbox/new"
       />
     );

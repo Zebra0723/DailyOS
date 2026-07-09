@@ -261,7 +261,7 @@ export function CalendarView({
           <EmptyState
             icon={CalendarDays}
             title="Nothing on the horizon"
-            description="Add an event manually, or approve an inbox item to drop bookings and appointments straight onto your calendar."
+            description="Add an event manually, or approve an item in the Drop to put bookings and appointments straight onto your calendar."
           />
         ) : (
           <div className="grid gap-2">

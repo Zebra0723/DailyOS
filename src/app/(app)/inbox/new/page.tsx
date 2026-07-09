@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { CaptureForm } from "@/components/capture-form";
 
-export const metadata = { title: "Add to Inbox · DailyOS" };
+export const metadata = { title: "Add to the Drop · DailyOS" };
 // Safety ceiling for the add action (the AI call itself is capped at 10s in the
 // provider, then falls back to local extraction).
 export const maxDuration = 30;
@@ -19,7 +19,7 @@ export default async function NewInboxPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader
-        title="Add to Inbox"
+        title="Add to the Drop"
         description="Paste text or upload a file. DailyOS will read it and suggest tasks, events and where it should live."
       />
       <Card>

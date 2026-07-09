@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { syncSubscription } from "@/lib/push";
 
 /** Registers the service worker (production only) so DailyOS works offline and
  *  feels like a real installed app. Renders nothing. */
@@ -33,6 +34,11 @@ export function PwaRegister() {
         .catch(() => {
           /* offline is a progressive enhancement — ignore failures */
         });
+      // Heal any push-subscription drift: browsers/push services can rotate a
+      // subscription's endpoint out from under us, so re-save the live one to
+      // the server on every load. No-op if this device never opted in. This is
+      // what stops "notifications are on" but a test finding "no active device".
+      void syncSubscription();
     };
     if (document.readyState === "complete") register();
     else window.addEventListener("load", register);

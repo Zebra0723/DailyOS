@@ -175,8 +175,8 @@ export default async function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
-                Download a copy of everything — tasks, events, notes, inbox and
-                vault — as a JSON file.
+                Download a copy of everything — tasks, events, notes, the Drop
+                and vault — as a JSON file.
               </p>
               <ExportDataButton />
             </div>
