@@ -18,6 +18,10 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  // Read straight from the inputs at submit so browser/password-manager autofill
+  // is always captured — iOS/Safari don't reliably fire React's onChange on fill.
+  const emailRef = React.useRef<HTMLInputElement>(null);
+  const passwordRef = React.useRef<HTMLInputElement>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [sentConfirmation, setSentConfirmation] = React.useState(false);
@@ -36,6 +40,16 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       setError("Please agree to the Terms of Service and Privacy Policy.");
       return;
     }
+    // Prefer the live DOM value (catches autofill), fall back to React state.
+    const emailVal = (emailRef.current?.value || email).trim();
+    const passwordVal = passwordRef.current?.value || password;
+    if (!emailVal || !passwordVal) {
+      setError("Please enter your email and password.");
+      return;
+    }
+    // Keep React state in sync with whatever autofill put in the fields.
+    setEmail(emailVal);
+    setPassword(passwordVal);
     setLoading(true);
     setError(null);
 
@@ -44,8 +58,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         // Attribute the signup to a referrer if they arrived via a ?ref link.
         const referredBy = params.get("ref");
         const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: emailVal,
+          password: passwordVal,
           options: {
             data: referredBy ? { referred_by: referredBy } : undefined,
             // Carry the "Remember me" choice through the email-confirmation link
@@ -67,8 +81,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+          email: emailVal,
+          password: passwordVal,
         });
         if (error) throw error;
       }
@@ -105,16 +119,20 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4" autoComplete="on">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
+          ref={emailRef}
           id="email"
           name="email"
           type="email"
           // "username" pairs with "current-password" so password managers offer
           // to fill a saved login (in the browser AND the installed PWA).
           autoComplete={mode === "login" ? "username" : "email"}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -134,6 +152,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           )}
         </div>
         <Input
+          ref={passwordRef}
           id="password"
           name="password"
           type="password"

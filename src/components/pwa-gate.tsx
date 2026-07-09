@@ -1,12 +1,45 @@
 "use client";
 
 import * as React from "react";
-import { Smartphone, Share, Plus } from "lucide-react";
+import {
+  Smartphone,
+  Share,
+  Plus,
+  Inbox,
+  Sparkles,
+  CalendarCheck,
+  Archive,
+  WifiOff,
+  BellRing,
+} from "lucide-react";
 import { Logo } from "@/components/logo";
 import { InstallApp } from "@/components/install-app";
 
 // Flip to false to allow the app in a normal browser again (one line).
 const PWA_ONLY = true;
+
+const POINTS = [
+  {
+    icon: Inbox,
+    title: "Drop anything in",
+    desc: "Receipts, letters, bookings, screenshots — straight into your Life Inbox.",
+  },
+  {
+    icon: Sparkles,
+    title: "DailyOS reads it",
+    desc: "It pulls out the dates, tasks and details that matter — automatically.",
+  },
+  {
+    icon: CalendarCheck,
+    title: "It becomes handled",
+    desc: "Turned into tasks, calendar events and reminders you won't miss.",
+  },
+  {
+    icon: Archive,
+    title: "Filed for later",
+    desc: "Everything kept in a calm, searchable vault you actually trust.",
+  },
+];
 
 function isStandalone(): boolean {
   if (typeof window === "undefined") return true;
@@ -25,10 +58,10 @@ function isIos(): boolean {
 }
 
 /**
- * Gates the app to the installed PWA. In a normal browser tab it shows an
- * install wall instead of the app; once DailyOS is opened from the home screen
- * (standalone display mode) the real app renders. Auth/marketing pages are NOT
- * wrapped in this, so people can still sign up and install first.
+ * Gates the app to the installed PWA. In a normal browser tab it shows a
+ * welcome/overview + install wall instead of the app; once DailyOS is opened
+ * from the home screen (standalone) the real app renders. Auth/marketing pages
+ * are NOT wrapped in this, so people can still sign up and install first.
  */
 export function PwaGate({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
@@ -45,65 +78,111 @@ export function PwaGate({ children }: { children: React.ReactNode }) {
   if (!PWA_ONLY || !mounted || standalone) return <>{children}</>;
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 py-12 text-center">
-      <div className="absolute inset-0 bg-grid opacity-50 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
-      <div className="relative w-full max-w-md">
-        <Logo className="mx-auto" />
-
-        <div className="mx-auto mt-8 grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-primary to-primary/75 text-primary-foreground shadow-lg shadow-primary/30">
-          <Smartphone className="size-8" />
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
+      <div className="relative mx-auto max-w-xl px-6 py-12">
+        {/* Hero */}
+        <div className="flex justify-center">
+          <Logo tagline />
+        </div>
+        <div className="mt-8 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-accent/40 px-3 py-1 text-xs font-semibold text-primary">
+            <Smartphone className="size-3.5" /> Install to use
+          </span>
+          <h1 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+            Life admin, handled.
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-muted-foreground">
+            DailyOS turns the messy pile of receipts, letters, bookings and
+            reminders into tasks, events and a tidy vault — so nothing slips.
+          </p>
         </div>
 
-        <h1 className="mt-6 text-2xl font-bold tracking-tight">
-          Add DailyOS to your home screen
-        </h1>
-        <p className="mx-auto mt-2 max-w-sm text-muted-foreground">
-          DailyOS runs as an app, not a website. Install it once and open it from
-          your home screen — it&apos;s full-screen, works offline, and can send you
-          reminders.
-        </p>
-
-        <div className="mt-6 rounded-2xl border bg-card p-5 text-left shadow-card">
-          {ios ? (
-            <ol className="space-y-3 text-sm">
-              <li className="flex items-center gap-3">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold">
-                  1
-                </span>
-                Tap the <Share className="mx-1 inline size-4 align-text-bottom" />
-                <strong>Share</strong> button in the browser bar.
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold">
-                  2
-                </span>
-                Choose{" "}
-                <Plus className="mx-1 inline size-4 align-text-bottom" />
-                <strong>Add to Home Screen</strong>.
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold">
-                  3
-                </span>
-                Open <strong>DailyOS</strong> from your home screen.
-              </li>
-            </ol>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Tap below to install, or use your browser menu →{" "}
-                <strong>Install app</strong> / <strong>Add to Home screen</strong>,
-                then open DailyOS from your home screen.
-              </p>
-              <InstallApp />
+        {/* What it does */}
+        <div className="mt-8 grid gap-3">
+          {POINTS.map((p) => (
+            <div
+              key={p.title}
+              className="flex items-start gap-3 rounded-xl border bg-card p-4 shadow-card"
+            >
+              <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
+                <p.icon className="size-5" />
+              </div>
+              <div>
+                <p className="font-medium">{p.title}</p>
+                <p className="text-sm text-muted-foreground">{p.desc}</p>
+              </div>
             </div>
-          )}
+          ))}
         </div>
 
-        <p className="mt-4 text-xs text-muted-foreground">
+        {/* Install callout */}
+        <div className="mt-8 rounded-2xl border border-primary/30 bg-gradient-to-b from-accent/50 to-accent/20 p-6 shadow-elevated">
+          <h2 className="text-lg font-bold">Add DailyOS to your home screen</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            DailyOS runs as an app, not a website — so it opens full-screen, works
+            offline and can send you reminders. It&apos;s only usable once
+            installed and opened from your home screen.
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <Smartphone className="size-4 text-primary" /> Full-screen app
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <WifiOff className="size-4 text-primary" /> Works offline
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <BellRing className="size-4 text-primary" /> Reminders
+            </span>
+          </div>
+
+          <div className="mt-5 rounded-xl border bg-card p-4">
+            {ios ? (
+              <ol className="space-y-3 text-sm">
+                <li className="flex items-center gap-3">
+                  <Step n={1} />
+                  Tap the{" "}
+                  <Share className="mx-1 inline size-4 align-text-bottom" />
+                  <strong>Share</strong> button in the browser bar.
+                </li>
+                <li className="flex items-center gap-3">
+                  <Step n={2} />
+                  Choose{" "}
+                  <Plus className="mx-1 inline size-4 align-text-bottom" />
+                  <strong>Add to Home Screen</strong>.
+                </li>
+                <li className="flex items-center gap-3">
+                  <Step n={3} />
+                  Open <strong>DailyOS</strong> from your home screen.
+                </li>
+              </ol>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Tap below to install, or use your browser menu →{" "}
+                  <strong>Install app</strong> /{" "}
+                  <strong>Add to Home screen</strong>, then open DailyOS from your
+                  home screen.
+                </p>
+                <InstallApp />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <p className="mt-5 text-center text-xs text-muted-foreground">
           Already installed? Open DailyOS from your home-screen icon.
         </p>
       </div>
     </div>
+  );
+}
+
+function Step({ n }: { n: number }) {
+  return (
+    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold">
+      {n}
+    </span>
   );
 }
