@@ -189,11 +189,11 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
             <>
               <Field label="Name"><Input value={form.name ?? ""} onChange={set("name")} /></Field>
               <Field label="Provider"><Input value={form.provider ?? ""} onChange={set("provider")} /></Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Monthly £"><Input type="number" value={form.monthlyCost ?? ""} onChange={set("monthlyCost")} /></Field>
                 <Field label="Annual £"><Input type="number" value={form.annualCost ?? ""} onChange={set("annualCost")} /></Field>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Billing cycle"><Select value={form.billingCycle ?? "Monthly"} onChange={set("billingCycle")}>{["Monthly","Annual","Weekly","Quarterly","Trial","Other"].map((o)=><option key={o}>{o}</option>)}</Select></Field>
                 <Field label="Status"><Select value={form.status ?? "Active"} onChange={set("status")}>{SUBSCRIPTION_STATUSES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
               </div>
@@ -206,11 +206,11 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
           {kind === "arrival" && (
             <>
               <Field label="Title"><Input value={form.title ?? ""} onChange={set("title")} /></Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Type"><Select value={form.type ?? "Package"} onChange={set("type")}>{ARRIVAL_TYPES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
                 <Field label="Status"><Select value={form.status ?? "Scheduled"} onChange={set("status")}>{ARRIVAL_STATUSES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Expected date"><Input type="date" value={form.expectedDate ?? ""} onChange={set("expectedDate")} /></Field>
                 <Field label="Time window"><Input value={form.timeWindow ?? ""} onChange={set("timeWindow")} placeholder="9–12" /></Field>
               </div>
@@ -223,15 +223,15 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
           {kind === "room" && (
             <>
               <Field label="Name"><Input value={form.name ?? ""} onChange={set("name")} /></Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Room"><Select value={form.room ?? "Living Room"} onChange={set("room")}>{ROOMS.map((o)=><option key={o}>{o}</option>)}</Select></Field>
                 <Field label="Status"><Select value={form.status ?? "Idea"} onChange={set("status")}>{ROOM_ITEM_STATUSES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Retailer"><Input value={form.retailer ?? ""} onChange={set("retailer")} /></Field>
                 <Field label="Price £"><Input type="number" value={form.price ?? ""} onChange={set("price")} /></Field>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Assembly?"><Select value={form.assembly ?? "no"} onChange={set("assembly")}><option value="no">No</option><option value="yes">Yes</option></Select></Field>
                 <Field label="Installer?"><Select value={form.installer ?? "no"} onChange={set("installer")}><option value="no">No</option><option value="yes">Yes</option></Select></Field>
               </div>
@@ -241,12 +241,12 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
           {kind === "device" && (
             <>
               <Field label="Name"><Input value={form.name ?? ""} onChange={set("name")} /></Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Room"><Select value={form.room ?? "Living Room"} onChange={set("room")}>{ROOMS.map((o)=><option key={o}>{o}</option>)}</Select></Field>
                 <Field label="Type"><Select value={form.type ?? "Appliance"} onChange={set("type")}>{DEVICE_TYPES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
               </div>
               <Field label="Status"><Select value={form.status ?? "Working"} onChange={set("status")}>{DEVICE_STATUSES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Brand"><Input value={form.brand ?? ""} onChange={set("brand")} /></Field>
                 <Field label="Model"><Input value={form.model ?? ""} onChange={set("model")} /></Field>
               </div>
@@ -259,7 +259,7 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
               <Field label="Title"><Input value={form.title ?? ""} onChange={set("title")} /></Field>
               <Field label="Type"><Select value={form.type ?? "Receipt"} onChange={set("type")}>{DOCUMENT_TYPES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
               <Field label="Provider"><Input value={form.provider ?? ""} onChange={set("provider")} /></Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Date"><Input type="date" value={form.date ?? ""} onChange={set("date")} /></Field>
                 <Field label="Expiry"><Input type="date" value={form.expiryDate ?? ""} onChange={set("expiryDate")} /></Field>
               </div>
@@ -271,7 +271,7 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
             <>
               <Field label="Title"><Input value={form.title ?? ""} onChange={set("title")} /></Field>
               <Field label="Message"><Textarea value={form.message ?? ""} onChange={set("message")} /></Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Severity"><Select value={form.severity ?? "Info"} onChange={set("severity")}>{["Critical","Warning","Info"].map((o)=><option key={o}>{o}</option>)}</Select></Field>
                 <Field label="Module"><Select value={form.module ?? "HomeOS"} onChange={set("module")}>{HOME_MODULES.map((o)=><option key={o} value={o}>{MODULE_LABEL[o]}</option>)}</Select></Field>
               </div>

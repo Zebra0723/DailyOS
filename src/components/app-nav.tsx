@@ -277,7 +277,7 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
   return (
     <>
       {/* Bottom bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 pb-safe backdrop-blur md:hidden">
         {BOTTOM.map((l) => (
           <Link
             key={l.href}
@@ -392,7 +392,7 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
 
 export function MobileHeader() {
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b bg-background/90 px-4 backdrop-blur md:hidden">
+    <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-2 border-b bg-background/90 px-4 pt-safe backdrop-blur md:hidden">
       <Link href="/today">
         <Logo />
       </Link>

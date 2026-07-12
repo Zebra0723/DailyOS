@@ -83,7 +83,7 @@ export function TaskItem({ task }: { task: ExtractedTask }) {
           setPending(false);
         }}
         className={cn(
-          "grid size-6 shrink-0 place-items-center rounded-full border transition-colors",
+          "grid size-7 shrink-0 place-items-center rounded-full border transition-colors",
           done
             ? "border-primary bg-primary text-primary-foreground"
             : "border-input hover:border-primary",

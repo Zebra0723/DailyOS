@@ -54,6 +54,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Fill the whole screen on notched phones; we pad for the notch / home
+  // indicator ourselves with env(safe-area-inset-*) so nothing is obscured.
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f7f2e9" },
     { media: "(prefers-color-scheme: dark)", color: "#17130f" },

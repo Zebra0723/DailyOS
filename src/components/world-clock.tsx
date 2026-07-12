@@ -248,10 +248,10 @@ export function WorldClock({ userId }: { userId: string }) {
               <div key={c.zone} className="group relative flex flex-col items-center gap-2">
                 <button
                   onClick={() => remove(c.zone)}
-                  className="absolute right-1 top-1 z-10 grid size-6 place-items-center rounded-full bg-background/80 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+                  className="absolute right-1 top-1 z-10 grid size-8 place-items-center rounded-full border bg-background/80 text-muted-foreground transition-opacity hover:text-foreground sm:size-7 sm:border-0 sm:opacity-0 sm:group-hover:opacity-100"
                   aria-label={`Remove ${c.city}`}
                 >
-                  <X className="size-3.5" />
+                  <X className="size-4 sm:size-3.5" />
                 </button>
                 <PatekWatch h={h} m={m} s={s} city={c.city} dateNum={dayNum} />
                 <div className="text-center">

@@ -105,6 +105,23 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* iOS safe-area helpers (notch / home indicator). Because we use
+     viewport-fit=cover, we pad UI that hugs the screen edges ourselves. */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .h-safe-bottom {
+    height: env(safe-area-inset-bottom);
+  }
+  /* The mobile bottom nav's own height (content) + the home-indicator inset.
+     Content areas pad by this so nothing hides behind the bar. */
+  .pb-bottomnav {
+    padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
+  }
   /* Calming animated wavy-blue wash for the Mindfulness "done" state. */
   @keyframes wavy {
     0% {

@@ -134,7 +134,7 @@ export function InboxList({ items }: { items: InboxItem[] }) {
 
       {/* Sticky bulk action bar */}
       {selecting && (
-        <div className="sticky bottom-4 z-30 mt-4 flex items-center gap-2 rounded-2xl border bg-popover/95 p-2 shadow-elevated backdrop-blur">
+        <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 mt-4 flex items-center gap-2 rounded-2xl border bg-popover/95 p-2 shadow-elevated backdrop-blur md:bottom-4">
           <Button
             size="sm"
             variant="outline"

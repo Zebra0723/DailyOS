@@ -232,23 +232,27 @@ export function BuildMyDay() {
               </p>
               <div className="space-y-2">
                 {fixed.map((r, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Input type="time" value={r.start} onChange={(e) => setRow(i, { start: e.target.value })} className="w-28" />
-                    <span className="text-muted-foreground">–</span>
-                    <Input type="time" value={r.end} onChange={(e) => setRow(i, { end: e.target.value })} className="w-28" />
-                    <Input
-                      value={r.label}
-                      onChange={(e) => setRow(i, { label: e.target.value })}
-                      placeholder="What is it?"
-                      className="flex-1"
-                    />
-                    <button
-                      onClick={() => removeRow(i)}
-                      className="shrink-0 text-muted-foreground hover:text-foreground"
-                      aria-label="Remove"
-                    >
-                      <X className="size-4" />
-                    </button>
+                  <div key={i} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <div className="flex items-center gap-2">
+                      <Input type="time" value={r.start} onChange={(e) => setRow(i, { start: e.target.value })} className="w-full sm:w-28" />
+                      <span className="text-muted-foreground">–</span>
+                      <Input type="time" value={r.end} onChange={(e) => setRow(i, { end: e.target.value })} className="w-full sm:w-28" />
+                    </div>
+                    <div className="flex flex-1 items-center gap-2">
+                      <Input
+                        value={r.label}
+                        onChange={(e) => setRow(i, { label: e.target.value })}
+                        placeholder="What is it?"
+                        className="flex-1"
+                      />
+                      <button
+                        onClick={() => removeRow(i)}
+                        className="grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
+                        aria-label="Remove"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

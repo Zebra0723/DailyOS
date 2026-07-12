@@ -30,7 +30,7 @@ export default async function AppLayout({
         <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
         <MobileHeader />
         <FreePlanBanner userId={user.id} />
-        <main className="flex-1 pb-20 md:pb-0">
+        <main className="flex-1 pb-bottomnav md:pb-0">
           <div className="container max-w-6xl py-8 md:py-12">{children}</div>
           <AppFooter />
         </main>

@@ -199,7 +199,7 @@ export function CalendarView({
               <div
                 key={key}
                 className={cn(
-                  "min-h-20 border-b border-r p-1.5 last:border-r-0 sm:min-h-28",
+                  "min-h-16 border-b border-r p-1 last:border-r-0 sm:min-h-28 sm:p-1.5",
                   !date && "bg-muted/20",
                   date && "cursor-pointer transition-colors hover:bg-accent/40",
                   (i + 1) % 7 === 0 && "border-r-0",
@@ -220,7 +220,23 @@ export function CalendarView({
                     >
                       {date.getDate()}
                     </div>
-                    <div className="space-y-1">
+                    {/* Phones: compact dots (pills are unreadable at ~45px).
+                        Details live in the Upcoming list below. */}
+                    {dayEvents.length > 0 && (
+                      <div className="flex flex-wrap gap-1 sm:hidden">
+                        {dayEvents.slice(0, 4).map((e) => (
+                          <span
+                            key={e.id}
+                            className={cn(
+                              "size-1.5 rounded-full",
+                              e.source === "home" ? "bg-amber-500" : "bg-primary",
+                            )}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {/* sm and up: full event pills */}
+                    <div className="hidden space-y-1 sm:block">
                       {dayEvents.slice(0, 3).map((e) => (
                         <button
                           key={e.id}
