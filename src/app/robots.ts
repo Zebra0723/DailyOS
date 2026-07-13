@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
         "/homeos",
         "/build-day",
         "/interests",
+        "/mindfulness",
         "/world-clock",
         "/notes",
         "/calendar",

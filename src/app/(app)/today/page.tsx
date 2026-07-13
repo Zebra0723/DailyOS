@@ -13,6 +13,7 @@ import {
   Heart,
   StickyNote,
   CalendarClock,
+  Wind,
   Bookmark,
 } from "lucide-react";
 import { cookies } from "next/headers";
@@ -359,6 +360,7 @@ export default async function TodayPage() {
           <BranchLink href="/build-day" icon={CalendarClock} title="Build My Day" desc="Plan a calm, productive day" />
           <BranchLink href="/homeos" icon={Home} title="HomeOS" desc="Run your home" />
           <BranchLink href="/interests" icon={Heart} title="Interests" desc="Live what you love" />
+          <BranchLink href="/mindfulness" icon={Wind} title="Mindfulness" desc="A minute of calm" />
           <BranchLink href="/notes" icon={StickyNote} title="Notes" desc="Quick capture" />
         </div>
       </div>
