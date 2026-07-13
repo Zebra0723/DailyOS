@@ -67,6 +67,39 @@ export function parseDuckDuckGo(html: string): WebResult[] {
   return out;
 }
 
+/**
+ * Cheap heuristic: does this user message likely need a live web lookup? Used to
+ * search the internet PRE-EMPTIVELY and hand the model results, so it can't fall
+ * back to "I can't check real-time info" instead of searching. Generous by
+ * design (an unnecessary search is cheap; a missed one breaks the feature), but
+ * skips messages that are clearly about the user's own tasks/day.
+ */
+export function looksLikeWebLookup(message: string): boolean {
+  const m = message.toLowerCase().trim();
+  if (m.length < 3) return false;
+
+  // Clearly about the user's own data/app — don't waste a search.
+  const personalOnly =
+    /^(what'?s|show|list|tell me)?\s*(my |on my |about my )/.test(m) ||
+    /\b(overdue|clashing|on my plate|plan my (day|afternoon|morning|evening|week)|my (tasks|to-?dos|schedule|notes|day|diary))\b/.test(
+      m,
+    );
+
+  // Asking to add/schedule something into the calendar → probably needs a real
+  // date/time looked up. Checked BEFORE the personal filter, since "put X in my
+  // diary" mentions "my diary" but is a scheduling request, not a data query.
+  const scheduleReal =
+    /\b(add|put|schedule|book|create|set up)\b/.test(m) &&
+    /\b(calendar|diary|schedule|event|reminder)\b/.test(m);
+  if (scheduleReal) return true;
+  if (personalOnly) return false;
+
+  // Signals that external / current / real-world info is needed.
+  return /\b(when|what time|what date|which day|next|upcoming|latest|current|recent|today'?s|tonight|this (week|weekend|month|year)|score|results?|fixtures?|match|game|kick.?off|final|league|cup|championship|showtimes?|screening|release|out now|premiere?|holiday|bank holiday|weather|forecast|temperature|price|cost|how much|who (won|is|are|plays)|opening hours|deadline|clocks (change|go)|vs?\.?)\b/.test(
+    m,
+  );
+}
+
 /** Render results as a compact block for the model's context. */
 export function formatResults(query: string, results: WebResult[]): string {
   const lines = results.map(

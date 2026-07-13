@@ -21,11 +21,12 @@ import {
   stripTags,
   clip,
   formatResults,
+  looksLikeWebLookup,
   type WebResult,
 } from "./web-search-parse";
 
 export type { WebResult };
-export { formatResults };
+export { formatResults, looksLikeWebLookup };
 
 const UA =
   "Mozilla/5.0 (compatible; DailyOS/1.0; +https://daily-os-lac.vercel.app)";

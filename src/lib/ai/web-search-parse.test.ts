@@ -5,6 +5,7 @@ import {
   decodeDdgHref,
   parseDuckDuckGo,
   formatResults,
+  looksLikeWebLookup,
 } from "./web-search-parse";
 
 describe("stripTags", () => {
@@ -71,6 +72,27 @@ describe("parseDuckDuckGo", () => {
 
   it("returns [] for html with no results", () => {
     expect(parseDuckDuckGo("<html><body>nothing here</body></html>")).toEqual([]);
+  });
+});
+
+describe("looksLikeWebLookup", () => {
+  it("fires for scheduling a real-world event", () => {
+    expect(looksLikeWebLookup("add england v argentina to my calendar")).toBe(true);
+    expect(looksLikeWebLookup("put the next Dune film release in my diary")).toBe(true);
+    expect(looksLikeWebLookup("schedule the Arsenal match this weekend")).toBe(true);
+  });
+
+  it("fires for current/factual questions", () => {
+    expect(looksLikeWebLookup("when is the next UK bank holiday")).toBe(true);
+    expect(looksLikeWebLookup("what's the weather in Paris tomorrow")).toBe(true);
+    expect(looksLikeWebLookup("who won the game last night")).toBe(true);
+  });
+
+  it("does NOT fire for the user's own data / app queries", () => {
+    expect(looksLikeWebLookup("what's on my plate today")).toBe(false);
+    expect(looksLikeWebLookup("plan my afternoon")).toBe(false);
+    expect(looksLikeWebLookup("anything overdue or clashing?")).toBe(false);
+    expect(looksLikeWebLookup("remind me to take the bins out every Tuesday")).toBe(false);
   });
 });
 

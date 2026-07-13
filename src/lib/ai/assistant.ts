@@ -7,7 +7,7 @@
 import "server-only";
 import { z } from "zod";
 import { getAIProvider } from "./provider";
-import { searchWeb, formatResults } from "./web-search";
+import { searchWeb, formatResults, looksLikeWebLookup } from "./web-search";
 
 export interface ChatTurn {
   role: "user" | "assistant";
@@ -64,6 +64,7 @@ function systemPrompt(context: string, today: string): string {
     "- HomeOS (a Pro area for running a home): Subscriptions (renewals, trials, spend), Arrivals (deliveries), Rooms, Devices (warranties, maintenance), a Home Vault (documents), Alerts, and a Home Control Score.",
     "Example: if they ask about a subscription or renewal, tell them it lives in HomeOS → Subscriptions.",
     "",
+    "You DO have live web access through search — NEVER tell the user you can't browse the internet, access real-time data, or check current information. If you need something current, search for it.",
     "WEB SEARCH: you can look things up on the live internet. If answering well needs current, real-world or external information — news, prices, weather, sports fixtures, showtimes, opening hours, holidays, release dates, product or place details, how-tos, or any fact you are not fully confident is current — then set \"search\" to a concise web query, and leave \"reply\" empty and \"actions\" empty. You will be given the results and asked again. Only search when it genuinely helps; for small talk, or questions about the user's own tasks/events/notes, just answer directly without searching.",
     "SEARCH → CALENDAR: when the user asks you to add something to their calendar (or set a reminder/to-do) that depends on a real date or time you don't know — e.g. \"add the next Arsenal home game\", \"put the new Dune film's release in my calendar\", \"when do the clocks change, add it\" — SEARCH for it first. Then, using the results, propose an `event` action with the actual date and time in start_time (and a `task` if they asked for a to-do). Only use dates/times you found or the user gave — never guess one. If the search doesn't reveal a date, say so instead of inventing one.",
     "",
@@ -111,8 +112,30 @@ export async function askDailyOS(
 
   if (provider.isConfigured()) {
     try {
+      // Pre-emptive web search: if the latest message clearly needs a real-world
+      // lookup, search NOW and hand the model the results, so it answers from
+      // facts instead of falling back to "I can't check real-time info". The
+      // model-requested search below still covers anything this misses.
+      const latestUser =
+        [...history].reverse().find((h) => h.role === "user")?.content ?? "";
+      let presearch = "";
+      if (looksLikeWebLookup(latestUser)) {
+        const results = await searchWeb(latestUser);
+        if (results.length) presearch = formatResults(latestUser, results);
+      }
+
       const baseMessages = [
         { role: "system" as const, content: systemPrompt(context, today) },
+        ...(presearch
+          ? [
+              {
+                role: "system" as const,
+                content:
+                  presearch +
+                  "\n\nThese are live web results for the user's latest message. Use them to answer with real facts, and if they asked to add something to their calendar or tasks, include the matching event/task action using the real date and time from these results. You DO have web access — never tell the user you can't browse or check real-time information.",
+              },
+            ]
+          : []),
         ...history.slice(-10).map((h) => ({ role: h.role, content: h.content })),
       ];
 
