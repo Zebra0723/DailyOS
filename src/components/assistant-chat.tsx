@@ -21,6 +21,7 @@ import {
 } from "@/app/(app)/tasks/actions";
 import { createEvent } from "@/app/(app)/calendar/actions";
 import { createNote } from "@/app/(app)/notes/actions";
+import { normalizeEventTime } from "@/lib/dates-tz";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { useToast } from "@/components/ui/toast";
@@ -34,7 +35,7 @@ type Msg = {
 
 const STARTERS = [
   "What's on my plate today?",
-  "Plan my afternoon.",
+  "Find the next UK bank holiday and add it to my calendar.",
   "Remind me to take the bins out every Tuesday.",
   "Anything overdue or clashing?",
 ];
@@ -104,7 +105,10 @@ export function AssistantChat() {
       } else if (a.type === "event") {
         res = await createEvent({
           title: a.title || a.label || "Event",
-          start_time: a.start_time || `${today}T09:00:00`,
+          // Normalize whatever date/time the model gave (it may have looked it up
+          // on the web) into our stored floating form, so it lands on the right
+          // day/time in the calendar. Falls back to 9am today if it's unusable.
+          start_time: normalizeEventTime(a.start_time) ?? `${today}T09:00:00Z`,
           location: a.location ?? null,
         });
         done = "Added to Calendar";
@@ -155,8 +159,9 @@ export function AssistantChat() {
               Ask DailyOS
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Your chief of staff. Ask about your day, or just tell me what&apos;s
-              happening and I&apos;ll file it in the right place.
+              Your chief of staff. Ask about your day, look things up on the web,
+              or tell me what&apos;s happening and I&apos;ll file it — even adding
+              what I find straight to your calendar.
             </p>
             <div className="mt-5 grid gap-2 text-left">
               {STARTERS.map((s) => (

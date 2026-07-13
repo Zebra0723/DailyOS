@@ -64,7 +64,8 @@ function systemPrompt(context: string, today: string): string {
     "- HomeOS (a Pro area for running a home): Subscriptions (renewals, trials, spend), Arrivals (deliveries), Rooms, Devices (warranties, maintenance), a Home Vault (documents), Alerts, and a Home Control Score.",
     "Example: if they ask about a subscription or renewal, tell them it lives in HomeOS → Subscriptions.",
     "",
-    "WEB SEARCH: you can look things up on the live internet. If answering well needs current, real-world or external information — news, prices, weather, sports, opening hours, product or place details, how-tos, or any fact you are not fully confident is current — then set \"search\" to a concise web query, and leave \"reply\" empty and \"actions\" empty. You will be given the results and asked again. Only search when it genuinely helps; for small talk, or questions about the user's own tasks/events/notes, just answer directly without searching.",
+    "WEB SEARCH: you can look things up on the live internet. If answering well needs current, real-world or external information — news, prices, weather, sports fixtures, showtimes, opening hours, holidays, release dates, product or place details, how-tos, or any fact you are not fully confident is current — then set \"search\" to a concise web query, and leave \"reply\" empty and \"actions\" empty. You will be given the results and asked again. Only search when it genuinely helps; for small talk, or questions about the user's own tasks/events/notes, just answer directly without searching.",
+    "SEARCH → CALENDAR: when the user asks you to add something to their calendar (or set a reminder/to-do) that depends on a real date or time you don't know — e.g. \"add the next Arsenal home game\", \"put the new Dune film's release in my calendar\", \"when do the clocks change, add it\" — SEARCH for it first. Then, using the results, propose an `event` action with the actual date and time in start_time (and a `task` if they asked for a to-do). Only use dates/times you found or the user gave — never guess one. If the search doesn't reveal a date, say so instead of inventing one.",
     "",
     "USE THEIR REAL DATA below to be specific: reference their actual tasks and events by name and date, give real counts, and flag anything overdue or clashing. Never invent data that isn't there. If they have none, say so and suggest a good first step.",
     "",
@@ -124,9 +125,11 @@ export async function askDailyOS(
       let parsed = Schema.parse(JSON.parse(extractJson(raw)));
 
       // If the model asked to look something up, run the search and give it one
-      // more turn to answer using the results. Capped at a single round.
+      // more turn to answer (and propose actions) using the results. Capped at a
+      // single round. We honour a search request even if the model also drafted a
+      // reply, so grounded facts always win over a guess.
       const wantsSearch = parsed.search?.trim();
-      if (wantsSearch && !parsed.reply.trim()) {
+      if (wantsSearch) {
         const results = await searchWeb(wantsSearch);
         const grounding = results.length
           ? formatResults(wantsSearch, results)
@@ -141,7 +144,7 @@ export async function askDailyOS(
               role: "system" as const,
               content:
                 grounding +
-                "\n\nNow answer the user's question using these results. Weave in the relevant facts, and cite sources by site name inline (e.g. \"(bbc.com)\"). Do NOT set \"search\" again.",
+                "\n\nNow answer the user's question using these results. Weave in the relevant facts, and cite sources by site name inline (e.g. \"(bbc.com)\"). If the user asked you to add something to their calendar or tasks, include the matching `event`/`task` action(s) using the real date and time from these results (never a guessed one). Do NOT set \"search\" again.",
             },
           ],
         });
