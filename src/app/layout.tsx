@@ -56,6 +56,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // Lock the zoom so the layout can't be pinched out to reveal empty space,
+  // and so an accidental double-tap doesn't zoom the app like a web page.
+  maximumScale: 1,
+  userScalable: false,
   // Fill the whole screen on notched phones; we pad for the notch / home
   // indicator ourselves with env(safe-area-inset-*) so nothing is obscured.
   viewportFit: "cover",

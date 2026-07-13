@@ -78,6 +78,15 @@
     font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
     -webkit-font-smoothing: antialiased;
   }
+  /* Never let the page scroll sideways. A stray wide element (e.g. long
+     un-truncated text) must be clipped, not turn the whole app into a
+     horizontally-draggable canvas. `clip` (not `hidden`) leaves vertical
+     scrolling and sticky headers working. */
+  html,
+  body {
+    overflow-x: clip;
+    max-width: 100%;
+  }
   h1,
   h2,
   h3,

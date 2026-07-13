@@ -195,7 +195,7 @@ export default async function TodayPage() {
               Items you pinned from the Drop, kept close.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-2">
+          <CardContent className="grid grid-cols-1 gap-2">
             {bookmarks.map((b) => (
               <Link
                 key={b.id}
@@ -273,7 +273,7 @@ export default async function TodayPage() {
                 Nothing due today. Enjoy the calm.
               </p>
             ) : (
-              <div className="grid gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {dueTasks.map((t) => (
                   <TaskItem key={t.id} task={t} />
                 ))}
@@ -297,7 +297,7 @@ export default async function TodayPage() {
                 No upcoming events.
               </p>
             ) : (
-              <div className="grid gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {events.map((e) => (
                   <div key={e.id} className="flex items-center gap-3 rounded-lg border p-3">
                     <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
@@ -341,7 +341,7 @@ export default async function TodayPage() {
             <p className="mb-3 text-sm text-muted-foreground">
               A gentle heads-up so tomorrow doesn&apos;t sneak up on you.
             </p>
-            <div className="grid gap-2">
+            <div className="grid grid-cols-1 gap-2">
               {tomorrowTasks.map((t) => (
                 <TaskItem key={t.id} task={t} />
               ))}
@@ -388,7 +388,7 @@ export default async function TodayPage() {
               actionHref="/inbox/new"
             />
           ) : (
-            <div className="grid gap-2">
+            <div className="grid grid-cols-1 gap-2">
               {recent.map((item) => (
                 <Link
                   key={item.id}

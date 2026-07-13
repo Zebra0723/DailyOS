@@ -280,7 +280,7 @@ export function CalendarView({
             description="Add an event manually, or approve an item in the Drop to put bookings and appointments straight onto your calendar."
           />
         ) : (
-          <div className="grid gap-2">
+          <div className="grid grid-cols-1 gap-2">
             {upcoming.map((e) => (
               <button
                 key={e.id}

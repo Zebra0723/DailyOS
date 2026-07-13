@@ -119,7 +119,7 @@ export function InboxList({ items }: { items: InboxItem[] }) {
         )}
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {items.map((item) => (
           <Row
             key={item.id}
@@ -265,7 +265,7 @@ function Row({
         </button>
       ) : (
         <>
-          <Link href={`/inbox/${item.id}`}>{inner}</Link>
+          <Link href={`/inbox/${item.id}`} className="block">{inner}</Link>
           <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
             <button
               type="button"

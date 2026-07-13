@@ -65,7 +65,7 @@ export function HomeOSTodayActions({ userId }: { userId: string }) {
           Open HomeOS <ArrowRight className="size-3.5" />
         </Link>
       </CardHeader>
-      <CardContent className="grid gap-2">
+      <CardContent className="grid grid-cols-1 gap-2">
         {actions.map((a) => {
           const done = a.status === "Done";
           return (

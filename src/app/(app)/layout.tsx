@@ -26,7 +26,7 @@ export default async function AppLayout({
 
   return (
     <PwaGate>
-      <div className="flex min-h-screen flex-col bg-background">
+      <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-background">
         <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
         <MobileHeader />
         <FreePlanBanner userId={user.id} />

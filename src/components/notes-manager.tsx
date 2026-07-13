@@ -239,7 +239,7 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
           Nothing matches that.
         </p>
       ) : (
-        <div className="grid gap-2">
+        <div className="grid grid-cols-1 gap-2">
           {filtered.map((n) => (
             <Card key={n.id} className="p-4">
               {editingId === n.id ? (

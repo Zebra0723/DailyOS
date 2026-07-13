@@ -190,7 +190,7 @@ export function TasksManager({ tasks }: { tasks: ExtractedTask[] }) {
           </p>
         )
       ) : (
-        <div className="grid gap-2">
+        <div className="grid grid-cols-1 gap-2">
           {filtered.map((t) => (
             <TaskItem key={t.id} task={t} />
           ))}
