@@ -10,6 +10,7 @@ import { TimezoneSync } from "@/components/timezone-sync";
 import { DeviceBackup } from "@/components/device-backup";
 import { AppFooter } from "@/components/app-footer";
 import { PwaGate } from "@/components/pwa-gate";
+import { OfflineBanner } from "@/components/offline-banner";
 
 export default async function AppLayout({
   children,
@@ -27,6 +28,7 @@ export default async function AppLayout({
   return (
     <PwaGate>
       <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-background">
+        <OfflineBanner />
         <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
         <MobileHeader />
         <FreePlanBanner userId={user.id} />
