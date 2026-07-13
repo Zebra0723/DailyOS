@@ -54,12 +54,28 @@ function actionVerb(type: AssistantAction["type"]): string {
   return "Add";
 }
 
+/** Content signature so the same proposed action can't be applied twice (e.g. if
+ *  the model lists an event more than once), which would duplicate it. */
+function actionSig(a: AssistantAction): string {
+  return [
+    a.type,
+    (a.title ?? "").trim().toLowerCase(),
+    (a.content ?? "").trim().toLowerCase(),
+    a.start_time ?? "",
+    a.due_date ?? "",
+    a.id ?? "",
+  ].join("|");
+}
+
 export function AssistantChat() {
   const { toast } = useToast();
   const [messages, setMessages] = React.useState<Msg[]>([]);
   const [input, setInput] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const [added, setAdded] = React.useState<Record<string, boolean>>({});
+  // Track applied actions by content signature, so an identical action (even a
+  // duplicate card, or the same event proposed in a later reply) can't be added
+  // twice and duplicate the calendar entry.
+  const [addedSigs, setAddedSigs] = React.useState<Set<string>>(new Set());
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -87,9 +103,12 @@ export function AssistantChat() {
     }
   }
 
-  async function addAction(mi: number, ai: number, a: AssistantAction) {
-    const key = `${mi}-${ai}`;
-    if (added[key]) return;
+  async function addAction(a: AssistantAction) {
+    const sig = actionSig(a);
+    if (addedSigs.has(sig)) return;
+    // Reserve the signature immediately so a fast double-tap (or a duplicate
+    // card) can't fire a second create before state settles.
+    setAddedSigs((p) => new Set(p).add(sig));
     const today = new Date().toISOString().slice(0, 10);
     try {
       let res: { ok: boolean } = { ok: false };
@@ -123,19 +142,29 @@ export function AssistantChat() {
         done = "Task rescheduled";
       }
       if (res.ok) {
-        setAdded((p) => ({ ...p, [key]: true }));
         toast({ variant: "success", title: done });
       } else {
+        // Failed — release the reservation so the user can retry.
+        setAddedSigs((p) => {
+          const n = new Set(p);
+          n.delete(sig);
+          return n;
+        });
         toast({ variant: "error", title: "Couldn't do that" });
       }
     } catch {
+      setAddedSigs((p) => {
+        const n = new Set(p);
+        n.delete(sig);
+        return n;
+      });
       toast({ variant: "error", title: "Couldn't do that" });
     }
   }
 
   function reset() {
     setMessages([]);
-    setAdded({});
+    setAddedSigs(new Set());
     setInput("");
   }
 
@@ -201,8 +230,7 @@ export function AssistantChat() {
                 <div className="mt-2 grid gap-2">
                   {m.actions.map((a, ai) => {
                     const Icon = ACTION_ICON[a.type] ?? Plus;
-                    const key = `${mi}-${ai}`;
-                    const isAdded = added[key];
+                    const isAdded = addedSigs.has(actionSig(a));
                     return (
                       <div
                         key={ai}
@@ -216,7 +244,7 @@ export function AssistantChat() {
                           size="sm"
                           variant={isAdded ? "secondary" : "default"}
                           disabled={isAdded}
-                          onClick={() => addAction(mi, ai, a)}
+                          onClick={() => addAction(a)}
                         >
                           {isAdded ? (
                             <>

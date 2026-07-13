@@ -103,6 +103,33 @@ function withLabels(actions: AssistantAction[]): AssistantAction[] {
   });
 }
 
+/** A content signature for an action, used to drop duplicates the model
+ *  sometimes emits (e.g. the same event proposed twice), which otherwise show
+ *  as two identical cards and get added twice. */
+export function actionSignature(a: AssistantAction): string {
+  return [
+    a.type,
+    (a.title ?? "").trim().toLowerCase(),
+    (a.content ?? "").trim().toLowerCase(),
+    a.start_time ?? "",
+    a.due_date ?? "",
+    a.id ?? "",
+  ].join("|");
+}
+
+/** Remove duplicate actions, keeping the first of each. */
+export function dedupeActions(actions: AssistantAction[]): AssistantAction[] {
+  const seen = new Set<string>();
+  const out: AssistantAction[] = [];
+  for (const a of actions) {
+    const key = actionSignature(a);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(a);
+  }
+  return out;
+}
+
 export async function askDailyOS(
   history: ChatTurn[],
   context: string,
@@ -176,7 +203,7 @@ export async function askDailyOS(
 
       return {
         reply: parsed.reply.trim() || "Done.",
-        actions: withLabels(parsed.actions as AssistantAction[]),
+        actions: withLabels(dedupeActions(parsed.actions as AssistantAction[])),
         usedAI: true,
       };
     } catch {
