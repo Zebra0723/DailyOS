@@ -3,8 +3,6 @@
 import * as React from "react";
 import {
   Smartphone,
-  Share,
-  Plus,
   Inbox,
   Sparkles,
   CalendarCheck,
@@ -51,14 +49,6 @@ function isStandalone(): boolean {
   );
 }
 
-function isIos(): boolean {
-  if (typeof navigator === "undefined") return false;
-  return (
-    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
-  );
-}
-
 /**
  * Gates the app to the installed PWA. In a normal browser tab it shows a
  * welcome/overview + install wall instead of the app; once DailyOS is opened
@@ -68,12 +58,10 @@ function isIos(): boolean {
 export function PwaGate({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
   const [standalone, setStandalone] = React.useState(true);
-  const [ios, setIos] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
     setStandalone(isStandalone());
-    setIos(isIos());
   }, []);
 
   // Render the app during SSR / until we can check, and whenever it's installed.
@@ -140,36 +128,11 @@ export function PwaGate({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="mt-5 rounded-xl border bg-card p-4">
-            {ios ? (
-              <ol className="space-y-3 text-sm">
-                <li className="flex items-center gap-3">
-                  <Step n={1} />
-                  Tap the{" "}
-                  <Share className="mx-1 inline size-4 align-text-bottom" />
-                  <strong>Share</strong> button in the browser bar.
-                </li>
-                <li className="flex items-center gap-3">
-                  <Step n={2} />
-                  Choose{" "}
-                  <Plus className="mx-1 inline size-4 align-text-bottom" />
-                  <strong>Add to Home Screen</strong>.
-                </li>
-                <li className="flex items-center gap-3">
-                  <Step n={3} />
-                  Open <strong>DailyOS</strong> from your home screen.
-                </li>
-              </ol>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Tap below to install, or use your browser menu →{" "}
-                  <strong>Install app</strong> /{" "}
-                  <strong>Add to Home screen</strong>, then open DailyOS from your
-                  home screen.
-                </p>
-                <InstallApp />
-              </div>
-            )}
+            <p className="mb-3 text-sm text-muted-foreground">
+              Works on iPhone, iPad, Android, Mac and Windows. Here&apos;s how on
+              your device:
+            </p>
+            <InstallApp />
           </div>
         </div>
 
@@ -178,13 +141,5 @@ export function PwaGate({ children }: { children: React.ReactNode }) {
         </p>
       </div>
     </div>
-  );
-}
-
-function Step({ n }: { n: number }) {
-  return (
-    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold">
-      {n}
-    </span>
   );
 }

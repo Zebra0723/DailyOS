@@ -143,7 +143,7 @@ export function buildExportHtml(data: ExportData): string {
     { n: tasks.length, label: "Tasks" },
     { n: events.length, label: "Events" },
     { n: notes.length, label: "Notes" },
-    { n: inbox.length, label: "Inbox" },
+    { n: inbox.length, label: "The Drop" },
     { n: vault.length, label: "Vault" },
   ]
     .map(
@@ -232,7 +232,7 @@ export function buildExportHtml(data: ExportData): string {
     ${section("Tasks", tasks.length, "No tasks.", tasksHtml)}
     ${section("Calendar events", events.length, "No events.", eventsHtml)}
     ${section("Notes", notes.length, "No notes.", notesHtml)}
-    ${section("Life Inbox", inbox.length, "Nothing in the inbox.", inboxHtml)}
+    ${section("The Drop", inbox.length, "Nothing in the Drop.", inboxHtml)}
     ${section("Vault", vault.length, "The vault is empty.", vaultHtml)}
 
     <footer>

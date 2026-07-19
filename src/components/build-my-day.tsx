@@ -115,7 +115,13 @@ export function BuildMyDay() {
       const j = i + dir;
       if (j < 0 || j >= p.blocks.length) return p;
       const next = [...p.blocks];
-      [next[i], next[j]] = [next[j], next[i]];
+      // Swap the two blocks' CONTENT but keep each time slot where it is, so the
+      // schedule stays in chronological order — the activity just moves earlier
+      // or later, taking on that slot's time.
+      const a = next[i];
+      const b = next[j];
+      next[i] = { ...b, start: a.start, end: a.end };
+      next[j] = { ...a, start: b.start, end: b.end };
       return { ...p, blocks: next };
     });
     setEditing(null);

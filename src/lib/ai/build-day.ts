@@ -84,7 +84,13 @@ export async function buildDayPlan(input: BuildDayInput): Promise<DayPlan> {
 
 const SYSTEM = [
   "You are a calm, practical day planner. Build a schedule that is productive but unhurried.",
-  "Rules: keep all FIXED commitments exactly at their times; fill the rest with the user's goals as focus blocks;",
+  "INTERPRET each goal — don't just echo it. Understand what the goal actually IS and schedule it accordingly:",
+  "- A sport, workout or activity (e.g. 'tennis', 'gym', 'run', 'yoga') → an activity block titled naturally (e.g. 'Tennis'), type 'wellbeing', with a fitting length (a sport is usually 60–90 min, not a 'focus' slot), and a note like 'Warm up, then play.' NEVER write 'Work on tennis'.",
+  "- Deep/creative work or study (e.g. 'finish the report', 'revise biology') → 'focus', note how to protect it.",
+  "- Errands, admin, calls, chores (e.g. 'call mum', 'email', 'laundry') → 'admin', batched sensibly.",
+  "- Meals/food → 'meal'.",
+  "Title every block as the real activity in natural language (e.g. 'Tennis', 'Finish the report', 'Call Mum') — never prefix with 'Work on'. Give each a short, specific, helpful note.",
+  "Rules: keep all FIXED commitments exactly at their times; give each goal a sensibly-sized block matched to what it is;",
   "add a short break after long focus blocks; include lunch; include at least one short wellbeing/reset moment;",
   "never overpack — leave a little buffer; cover the day from start to end in order with no overlaps.",
   'Respond as strict JSON: {"blocks": [{"start":"HH:MM","end":"HH:MM","title":string,"type":"fixed|focus|admin|break|meal|wellbeing|buffer","note":string}], "summary": string}',
@@ -122,6 +128,44 @@ function fmt(min: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
+/**
+ * Understand a goal without an AI key: infer what kind of thing it is from
+ * keywords so "tennis" becomes an activity block, not "work on tennis". Returns
+ * a natural title, the right block type, a fitting note and an ideal length.
+ */
+function interpretGoal(goal: string): {
+  title: string;
+  type: BlockType;
+  note: string;
+  mins: number;
+} {
+  const g = goal.toLowerCase();
+  const title = goal.charAt(0).toUpperCase() + goal.slice(1);
+  const has = (...words: string[]) => words.some((w) => g.includes(w));
+
+  if (
+    has("gym","run","jog","walk","yoga","swim","tennis","football","soccer","basketball","workout","work out","exercise","cycle","bike","pilates","stretch","climb","boxing","pad el","padel","golf","sport","hike","dance")
+  ) {
+    return { title, type: "wellbeing", note: "Warm up, then enjoy it — leave work behind.", mins: 75 };
+  }
+  if (has("lunch","dinner","breakfast","brunch","eat","meal","cook","food")) {
+    return { title, type: "meal", note: "Step away from the screen.", mins: 45 };
+  }
+  if (has("call","phone","ring ","meet","catch up","coffee with","see ","visit")) {
+    return { title, type: "admin", note: "Be present — give them your attention.", mins: 30 };
+  }
+  if (has("email","admin","tidy","clean","laundry","errand","shop","buy","pay ","bills","book ","organise","organize","sort ")) {
+    return { title, type: "admin", note: "Batch the little jobs together.", mins: 30 };
+  }
+  if (has("read","study","revise","learn","research","practise","practice","memoris","memoriz")) {
+    return { title, type: "focus", note: "One topic, notifications off.", mins: 50 };
+  }
+  if (has("rest","relax","nap","unwind","meditat","breathe","break")) {
+    return { title, type: "wellbeing", note: "Genuinely switch off for a bit.", mins: 20 };
+  }
+  return { title, type: "focus", note: "Single task, notifications off.", mins: 0 };
+}
+
 function localBuild(input: BuildDayInput): DayPlan {
   const start = toMin(input.dayStart);
   const end = toMin(input.dayEnd);
@@ -149,14 +193,18 @@ function localBuild(input: BuildDayInput): DayPlan {
         lunched = true;
         continue;
       }
-      const len = Math.min(focusLen, to - c);
       const goal = goals.shift();
+      const interp = goal ? interpretGoal(goal) : null;
+      // Use the activity's ideal length when we have one, capped to the gap and
+      // the pace's block length so nothing runs absurdly long.
+      const ideal = interp && interp.mins > 0 ? interp.mins : focusLen;
+      const len = Math.min(ideal, to - c);
       blocks.push({
         start: fmt(c),
         end: fmt(c + len),
-        title: goal ?? "Focus / catch-up",
-        type: goal ? "focus" : "buffer",
-        note: goal ? "Single task, notifications off." : "Open time — use it or rest.",
+        title: interp?.title ?? "Focus / catch-up",
+        type: interp?.type ?? "buffer",
+        note: interp?.note ?? "Open time — use it or rest.",
       });
       c += len;
       // Break after focus, if there's room.

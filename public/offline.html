@@ -46,9 +46,17 @@
         font-size: 15px; font-weight: 600;
         padding: 12px 22px; border-radius: 12px;
       }
+      .close {
+        position: absolute; top: 16px; right: 16px;
+        width: 40px; height: 40px; display: grid; place-items: center;
+        background: transparent; color: inherit; opacity: 0.55;
+        font-size: 24px; line-height: 1; border-radius: 10px; padding: 0;
+      }
+      .close:hover { opacity: 1; background: rgba(0,0,0,0.06); }
     </style>
   </head>
   <body>
+    <a class="close" href="/today" aria-label="Close">&times;</a>
     <div class="card">
       <div class="mark">◐</div>
       <h1>You're offline</h1>
