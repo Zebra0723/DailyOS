@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { requestAdminLink } from "./actions";
+import { checkAdminEmail } from "./actions";
+import { createClient } from "@/lib/supabase/client";
 
 type State = "idle" | "sending" | "sent" | "denied" | "error";
 
@@ -15,13 +16,21 @@ export default function VerifyPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
+    const clean = email.trim().toLowerCase();
+    if (!clean) return;
     setState("sending");
     try {
-      const res = await requestAdminLink(email);
-      if (res.ok) setState("sent");
-      else if ("denied" in res) setState("denied");
-      else setState("error");
+      const { allowed } = await checkAdminEmail(clean);
+      if (!allowed) {
+        setState("denied");
+        return;
+      }
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email: clean,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      });
+      setState(error ? "error" : "sent");
     } catch {
       setState("error");
     }
