@@ -52,11 +52,11 @@ export async function processInboxItem(
     return { ok: false, status: "failed", message: "Item not found." };
   }
 
-  await logStatus(itemId, item.user_id, "processing", "Started extraction");
-  await supabase
-    .from("inbox_items")
-    .update({ status: "processing" })
-    .eq("id", itemId);
+  // Log + flip to "processing" are independent — run together.
+  await Promise.all([
+    logStatus(itemId, item.user_id, "processing", "Started extraction"),
+    supabase.from("inbox_items").update({ status: "processing" }).eq("id", itemId),
+  ]);
 
   try {
     const provider = getAIProvider();

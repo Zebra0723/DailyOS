@@ -10,5 +10,3 @@
 
 export const SUPPORT_EMAIL = "";
 export const ENQUIRIES_EMAIL = "";
-
-export const CONTACT_PATH = "/contact";

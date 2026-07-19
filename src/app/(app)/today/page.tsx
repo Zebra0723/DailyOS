@@ -52,8 +52,15 @@ export default async function TodayPage() {
   // "Now" as a floating time in the user's timezone, to match event times.
   const nowFloating = nowFloatingInTz(tz);
 
-  const [tasksRes, eventsRes, recentRes, reviewRes, tomorrowRes, bookmarksRes] =
-    await Promise.all([
+  const [
+    tasksRes,
+    eventsRes,
+    recentRes,
+    reviewRes,
+    tomorrowRes,
+    bookmarksRes,
+    claimableCodes,
+  ] = await Promise.all([
       supabase
         .from("extracted_tasks")
         .select("*")
@@ -90,6 +97,8 @@ export default async function TodayPage() {
         .eq("bookmarked", true)
         .order("created_at", { ascending: false })
         .limit(12),
+      // Reward codes earned but not yet claimed — independent, so fetch alongside.
+      getClaimableRewardCodes(),
     ]);
 
   const dueTasks = (tasksRes.data ?? []) as ExtractedTask[];
@@ -98,8 +107,6 @@ export default async function TodayPage() {
   const needsReview = (reviewRes.data ?? []) as InboxItem[];
   const tomorrowTasks = (tomorrowRes.data ?? []) as ExtractedTask[];
   const bookmarks = (bookmarksRes.data ?? []) as InboxItem[];
-
-  const claimableCodes = await getClaimableRewardCodes();
 
   const greeting = getGreeting();
   const name =

@@ -8,6 +8,7 @@ import "server-only";
 import { z } from "zod";
 import { getAIProvider } from "./provider";
 import { searchWeb, formatResults, looksLikeWebLookup } from "./web-search";
+import { extractJson } from "@/lib/utils";
 
 export interface ChatTurn {
   role: "user" | "assistant";
@@ -87,12 +88,6 @@ function systemPrompt(context: string, today: string): string {
     "",
     'Respond as STRICT JSON: {"reply": string, "actions": Action[], "search"?: string}. Put your full written answer in "reply". No text outside the JSON.',
   ].join("\n");
-}
-
-function extractJson(raw: string): string {
-  const s = raw.indexOf("{");
-  const e = raw.lastIndexOf("}");
-  return s >= 0 && e > s ? raw.slice(s, e + 1) : raw;
 }
 
 function withLabels(actions: AssistantAction[]): AssistantAction[] {

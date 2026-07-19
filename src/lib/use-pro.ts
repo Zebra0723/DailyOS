@@ -330,13 +330,3 @@ export function tierMeets(tier: Tier, required: "Plus" | "Pro"): boolean {
   return false;
 }
 
-// ---- Back-compat helpers (treat any paid tier as "pro") --------------------
-
-export function usePro(userId?: string): { mounted: boolean; pro: boolean } {
-  const { mounted, tier } = usePlan(userId);
-  return { mounted, pro: tier !== "free" };
-}
-
-export async function setPro(on: boolean, userId?: string) {
-  return setPlan(on ? "pro" : "free", userId);
-}

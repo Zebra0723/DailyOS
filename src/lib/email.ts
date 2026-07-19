@@ -87,10 +87,6 @@ export async function sendEmail({
   }
 }
 
-/** Legacy shared code — kept only as a fallback label if the reward_codes
- *  table hasn't been migrated yet. New rewards use unique single-use codes. */
-export const REFERRAL_REWARD_CODE = "DAILYOSFRIEND10";
-
 const SITE =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://daily-os-lac.vercel.app";
 

@@ -62,24 +62,6 @@ export async function saveRemote(key: string, value: unknown): Promise<void> {
   }
 }
 
-/** Remove a synced value for the current user. */
-export async function clearRemote(key: string): Promise<void> {
-  try {
-    const supabase = createClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase
-      .from("user_state")
-      .delete()
-      .eq("user_id", session.user.id)
-      .eq("key", key);
-  } catch {
-    /* ignore */
-  }
-}
-
 /** A small debouncer so rapid edits don't hammer the network. */
 export function debounce<A extends unknown[]>(
   fn: (...args: A) => void,

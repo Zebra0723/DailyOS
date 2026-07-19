@@ -9,6 +9,7 @@
 import "server-only";
 import { z } from "zod";
 import { getAIProvider } from "./provider";
+import { extractJson } from "@/lib/utils";
 
 export interface InterestIdeas {
   /** One-line framing of why leaning into this is worth it. */
@@ -60,11 +61,6 @@ export async function suggestForInterest(interest: string): Promise<InterestIdea
   return localIdeas(interest);
 }
 
-function extractJson(raw: string): string {
-  const s = raw.indexOf("{");
-  const e = raw.lastIndexOf("}");
-  return s >= 0 && e > s ? raw.slice(s, e + 1) : raw;
-}
 
 function defaultIntro(interest: string): string {
   return `A little structure turns "${interest}" from a someday wish into something you actually do — here's a plan.`;

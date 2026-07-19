@@ -8,6 +8,7 @@
 import "server-only";
 import { z } from "zod";
 import { getAIProvider } from "./provider";
+import { extractJson } from "@/lib/utils";
 
 export type BlockType =
   | "fixed"
@@ -110,11 +111,6 @@ function userPrompt(input: BuildDayInput): string {
   ].join("\n\n");
 }
 
-function extractJson(raw: string): string {
-  const s = raw.indexOf("{");
-  const e = raw.lastIndexOf("}");
-  return s >= 0 && e > s ? raw.slice(s, e + 1) : raw;
-}
 
 // ---- Local heuristic planner ----------------------------------------------
 

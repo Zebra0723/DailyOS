@@ -122,21 +122,27 @@ export interface ApprovePayload {
 export async function approveInboxItem(id: string, payload: ApprovePayload) {
   const { supabase, user } = await requireUser();
 
-  // Update the item itself.
-  const { error: itemErr } = await supabase
+  // Update the item itself, and read its title back in the same round-trip for
+  // the vault entry below.
+  const { data: updated, error: itemErr } = await supabase
     .from("inbox_items")
     .update({
       status: "approved",
       summary: payload.summary,
       item_type: payload.itemType,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .select("title")
+    .single();
   if (itemErr) return { ok: false as const, error: itemErr.message };
 
   // Clear any previously-approved children so re-approving doesn't duplicate.
-  await supabase.from("extracted_tasks").delete().eq("inbox_item_id", id);
-  await supabase.from("calendar_events").delete().eq("inbox_item_id", id);
-  await supabase.from("vault_items").delete().eq("inbox_item_id", id);
+  // Independent of each other — run in parallel.
+  await Promise.all([
+    supabase.from("extracted_tasks").delete().eq("inbox_item_id", id),
+    supabase.from("calendar_events").delete().eq("inbox_item_id", id),
+    supabase.from("vault_items").delete().eq("inbox_item_id", id),
+  ]);
 
   const cleanTasks = payload.tasks.filter((t) => t.title.trim());
   if (cleanTasks.length) {
@@ -175,7 +181,7 @@ export async function approveInboxItem(id: string, payload: ApprovePayload) {
     user_id: user.id,
     inbox_item_id: id,
     category: payload.vaultCategory,
-    title: (await getTitle(supabase, id)) ?? "Untitled",
+    title: (updated?.title as string | undefined) ?? "Untitled",
     summary: payload.summary,
   });
   if (vaultErr) return { ok: false as const, error: `Vault: ${vaultErr.message}` };
@@ -194,18 +200,6 @@ export async function approveInboxItem(id: string, payload: ApprovePayload) {
   revalidatePath("/vault");
 
   return { ok: true as const };
-}
-
-async function getTitle(
-  supabase: Awaited<ReturnType<typeof requireUser>>["supabase"],
-  id: string,
-) {
-  const { data } = await supabase
-    .from("inbox_items")
-    .select("title")
-    .eq("id", id)
-    .single();
-  return data?.title as string | undefined;
 }
 
 /** Flip the "handled" flag (set after the user has actioned the report). */
@@ -235,20 +229,23 @@ async function purgeInboxItems(
   userId: string,
   ids: string[],
 ) {
-  // Keep the to-dos and events; just unlink them from the item being deleted.
-  await supabase
-    .from("extracted_tasks")
-    .update({ inbox_item_id: null })
-    .in("inbox_item_id", ids)
-    .eq("user_id", userId);
-  await supabase
-    .from("calendar_events")
-    .update({ inbox_item_id: null })
-    .in("inbox_item_id", ids)
-    .eq("user_id", userId);
-  // These belong to the item — remove them.
-  await supabase.from("vault_items").delete().in("inbox_item_id", ids).eq("user_id", userId);
-  await supabase.from("processing_logs").delete().in("inbox_item_id", ids).eq("user_id", userId);
+  // Unlink kept children + delete owned rows — all independent, so run together.
+  await Promise.all([
+    // Keep the to-dos and events; just unlink them from the item being deleted.
+    supabase
+      .from("extracted_tasks")
+      .update({ inbox_item_id: null })
+      .in("inbox_item_id", ids)
+      .eq("user_id", userId),
+    supabase
+      .from("calendar_events")
+      .update({ inbox_item_id: null })
+      .in("inbox_item_id", ids)
+      .eq("user_id", userId),
+    // These belong to the item — remove them.
+    supabase.from("vault_items").delete().in("inbox_item_id", ids).eq("user_id", userId),
+    supabase.from("processing_logs").delete().in("inbox_item_id", ids).eq("user_id", userId),
+  ]);
   // Finally the item itself.
   return supabase.from("inbox_items").delete().in("id", ids).eq("user_id", userId);
 }

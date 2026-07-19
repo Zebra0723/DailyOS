@@ -41,21 +41,23 @@ export function TasksManager({ tasks }: { tasks: ExtractedTask[] }) {
   const [recurrence, setRecurrence] = React.useState<Recurrence>("none");
   const [saving, setSaving] = React.useState(false);
 
-  const filtered = tasks.filter((t) => {
-    if (status === "active" && t.status !== "pending") return false;
-    if (status === "completed" && t.status !== "completed") return false;
-    if (priority !== "all" && t.priority !== priority) return false;
-    if (due !== "all") {
-      if (due === "none") return !t.due_date;
-      if (!t.due_date) return false;
-      const today = new Date(new Date().toDateString());
-      const d = new Date(t.due_date);
-      if (due === "today") return d.getTime() === today.getTime();
-      if (due === "week") return withinDays(t.due_date, 7);
-      if (due === "overdue") return d < today;
-    }
-    return true;
-  });
+  const filtered = React.useMemo(() => {
+    const today = new Date(new Date().toDateString());
+    return tasks.filter((t) => {
+      if (status === "active" && t.status !== "pending") return false;
+      if (status === "completed" && t.status !== "completed") return false;
+      if (priority !== "all" && t.priority !== priority) return false;
+      if (due !== "all") {
+        if (due === "none") return !t.due_date;
+        if (!t.due_date) return false;
+        const d = new Date(t.due_date);
+        if (due === "today") return d.getTime() === today.getTime();
+        if (due === "week") return withinDays(t.due_date, 7);
+        if (due === "overdue") return d < today;
+      }
+      return true;
+    });
+  }, [tasks, status, priority, due]);
 
   async function add() {
     if (!title.trim()) return;

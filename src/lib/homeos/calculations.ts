@@ -155,10 +155,6 @@ export function getRoomCompletion(items: RoomItem[], room?: Room): RoomCompletio
   };
 }
 
-export function getRoomCompletionPercentage(items: RoomItem[], room?: Room): number {
-  return getRoomCompletion(items, room).percentage;
-}
-
 export interface DeviceHealth {
   total: number;
   working: number;

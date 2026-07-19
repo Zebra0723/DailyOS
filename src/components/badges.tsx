@@ -1,9 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import {
-  ITEM_TYPE_LABELS,
   VAULT_CATEGORY_LABELS,
   type InboxStatus,
-  type ItemType,
   type Priority,
   type VaultCategory,
 } from "@/lib/types";
@@ -21,11 +19,6 @@ export function StatusBadge({ status }: { status: InboxStatus }) {
   };
   const { label, variant } = map[status];
   return <Badge variant={variant}>{label}</Badge>;
-}
-
-export function ItemTypeBadge({ type }: { type: ItemType | null }) {
-  if (!type) return null;
-  return <Badge variant="secondary">{ITEM_TYPE_LABELS[type] ?? type}</Badge>;
 }
 
 export function CategoryBadge({ category }: { category: VaultCategory }) {

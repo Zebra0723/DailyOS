@@ -129,10 +129,14 @@ export function CalendarView({
   // Filter by calendar day (string compare on YYYY-MM-DD) rather than a
   // timestamp, so a floating event near midnight isn't dropped by a timezone
   // offset. Matches how the month grid buckets events.
-  const upcoming = all
-    .filter((d) => d.dayKey >= todayKey)
-    .sort((a, b) => a.ts - b.ts)
-    .slice(0, 8);
+  const upcoming = React.useMemo(
+    () =>
+      all
+        .filter((d) => d.dayKey >= todayKey)
+        .sort((a, b) => a.ts - b.ts)
+        .slice(0, 8),
+    [all, todayKey],
+  );
 
   function openDisp(d: Disp) {
     if (d.source === "life" && d.life) setDialog({ event: d.life });

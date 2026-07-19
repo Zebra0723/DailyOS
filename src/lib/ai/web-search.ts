@@ -31,11 +31,6 @@ export { formatResults, looksLikeWebLookup };
 const UA =
   "Mozilla/5.0 (compatible; DailyOS/1.0; +https://daily-os-lac.vercel.app)";
 
-/** True when any real web-search backend can run (keyed or keyless). */
-export function webSearchAvailable(): boolean {
-  return true; // DuckDuckGo works with no key, so search is always possible.
-}
-
 /**
  * Search the web and return up to 5 results. Never throws — returns [] on any
  * failure, timeout, or empty query.

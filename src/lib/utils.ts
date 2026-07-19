@@ -5,6 +5,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Slice the first {...} object out of a possibly-noisy LLM response. */
+export function extractJson(raw: string): string {
+  const s = raw.indexOf("{");
+  const e = raw.lastIndexOf("}");
+  return s >= 0 && e > s ? raw.slice(s, e + 1) : raw;
+}
+
 /**
  * Parse a date value. A bare "YYYY-MM-DD" is parsed as *local* midnight (not
  * UTC), so relative-day counts and formatting don't drift by a day in non-UTC

@@ -401,18 +401,6 @@ export function useHomeOS(): HomeOSContextValue {
   return ctx;
 }
 
-/** Read HomeOS Today actions outside the provider (e.g. on the DailyOS Today page). */
-export function readHomeOSTodayActions(userId?: string | null): DailyOSTodayAction[] {
-  try {
-    const raw = localStorage.getItem(storageKeyFor(userId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as HomeOSData;
-    return Array.isArray(parsed.todayActions) ? parsed.todayActions : [];
-  } catch {
-    return [];
-  }
-}
-
 /** Read the full HomeOS data blob outside the provider (best-effort). */
 export function readHomeOSData(userId?: string | null): HomeOSData | null {
   try {

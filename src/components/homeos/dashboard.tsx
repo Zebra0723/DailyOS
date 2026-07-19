@@ -36,27 +36,46 @@ export function HomeOSDashboard() {
   const router = useRouter();
   const go = (seg: string) => router.push(homeHref(seg));
 
-  const openConcerns = (data.concerns ?? []).filter((c) => !c.resolved);
-
-  const itemCount =
-    data.subscriptions.length +
-    data.arrivals.length +
-    data.roomItems.length +
-    data.devices.length +
-    data.documents.length;
-  const isEmpty = itemCount === 0;
-
-  const score = getHomeControlScore(data);
-  const monthly = getMonthlySubscriptionTotal(data.subscriptions);
-  const savings = getPotentialSavings(data.subscriptions);
-  const alertCounts = getOpenAlertCounts(data.alerts);
-  const today = getArrivalsToday(data.arrivals);
-  const upcoming = getUpcomingArrivals(data.arrivals, 14);
-  const recommended = getRecommendedTodayActions(data);
-  const decisions =
-    data.subscriptions.filter(
-      (s) => s.status === "Reviewing" || s.status === "Cancel Soon" || s.status === "Trial",
-    ).length + recommended.length;
+  // All of these derive purely from `data`, and the HomeOS context value changes
+  // on every mutation — memoize so unrelated re-renders don't recompute them.
+  const {
+    openConcerns,
+    itemCount,
+    isEmpty,
+    score,
+    monthly,
+    savings,
+    alertCounts,
+    today,
+    upcoming,
+    recommended,
+    decisions,
+  } = React.useMemo(() => {
+    const openConcerns = (data.concerns ?? []).filter((c) => !c.resolved);
+    const itemCount =
+      data.subscriptions.length +
+      data.arrivals.length +
+      data.roomItems.length +
+      data.devices.length +
+      data.documents.length;
+    const recommended = getRecommendedTodayActions(data);
+    return {
+      openConcerns,
+      itemCount,
+      isEmpty: itemCount === 0,
+      score: getHomeControlScore(data),
+      monthly: getMonthlySubscriptionTotal(data.subscriptions),
+      savings: getPotentialSavings(data.subscriptions),
+      alertCounts: getOpenAlertCounts(data.alerts),
+      today: getArrivalsToday(data.arrivals),
+      upcoming: getUpcomingArrivals(data.arrivals, 14),
+      recommended,
+      decisions:
+        data.subscriptions.filter(
+          (s) => s.status === "Reviewing" || s.status === "Cancel Soon" || s.status === "Trial",
+        ).length + recommended.length,
+    };
+  }, [data]);
 
   const scoreTone =
     score.score >= 75 ? "green" : score.score >= 55 ? "amber" : "red";

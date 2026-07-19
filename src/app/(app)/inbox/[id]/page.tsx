@@ -14,19 +14,17 @@ export default async function InboxItemPage({
 }) {
   const supabase = createClient();
 
-  const { data: item } = await supabase
-    .from("inbox_items")
-    .select("*")
-    .eq("id", params.id)
-    .single<InboxItem>();
+  // Item and its logs are independent — fetch together.
+  const [{ data: item }, { data: logs }] = await Promise.all([
+    supabase.from("inbox_items").select("*").eq("id", params.id).single<InboxItem>(),
+    supabase
+      .from("processing_logs")
+      .select("*")
+      .eq("inbox_item_id", params.id)
+      .order("created_at", { ascending: false }),
+  ]);
 
   if (!item) notFound();
-
-  const { data: logs } = await supabase
-    .from("processing_logs")
-    .select("*")
-    .eq("inbox_item_id", params.id)
-    .order("created_at", { ascending: false });
 
   // Private bucket → mint a short-lived signed URL for the original file.
   let signedUrl: string | null = null;
