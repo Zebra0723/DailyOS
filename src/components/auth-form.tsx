@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Loader2, Eye, EyeOff, Mail } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { markSessionStart } from "@/lib/session-expiry";
 import { Button } from "@/components/ui/button";
@@ -30,18 +30,11 @@ export function AuthForm({
   const passwordRef = React.useRef<HTMLInputElement>(null);
   const [showPw, setShowPw] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [magicSent, setMagicSent] = React.useState(false);
-  const [magicLoading, setMagicLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [sentConfirmation, setSentConfirmation] = React.useState(false);
   const [agreed, setAgreed] = React.useState(false);
   // Off by default: a plain login lasts 30 days; ticking it stretches to 1 year.
   const [remember, setRemember] = React.useState(false);
-  // Code entry: the emailed link opens in the browser, not the installed app,
-  // so we also let people type the 6-digit code straight into the app (verifies
-  // in this context, so the PWA actually gets signed in).
-  const [code, setCode] = React.useState("");
-  const [verifying, setVerifying] = React.useState(false);
 
   // New sign-ups go through onboarding; logins land on the welcome screen.
   // A `redirect` param (e.g. from a protected page) takes priority — but only if
@@ -120,103 +113,6 @@ export function AuthForm({
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setLoading(false);
     }
-  }
-
-  // Passwordless sign-in: email a one-tap magic link. Great when password
-  // autofill won't cooperate — no password to type or fill at all.
-  async function sendMagicLink() {
-    const emailVal = (emailRef.current?.value || email).trim();
-    if (!emailVal) {
-      setError("Enter your email first, then tap the link button.");
-      return;
-    }
-    setError(null);
-    setMagicLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: emailVal,
-        options: {
-          shouldCreateUser: false,
-          emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}&remember=1`,
-        },
-      });
-      if (error) throw error;
-      setEmail(emailVal);
-      setMagicSent(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't send the link.");
-    } finally {
-      setMagicLoading(false);
-    }
-  }
-
-  // Verify the 6-digit code from the email IN THIS APP. This is what makes
-  // sign-in work in the installed PWA, where the emailed link would otherwise
-  // open in the browser and never reach the app.
-  async function verifyCode() {
-    const token = code.replace(/\s/g, "");
-    if (token.length < 6) {
-      setError("Enter the 6-digit code from your email.");
-      return;
-    }
-    setError(null);
-    setVerifying(true);
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token,
-        type: "email",
-      });
-      if (error) throw error;
-      markSessionStart(remember);
-      window.location.assign(redirect);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "That code didn't work — check it and try again.",
-      );
-      setVerifying(false);
-    }
-  }
-
-  if (magicSent) {
-    return (
-      <div className="space-y-4">
-        <div className="text-center">
-          <div className="mx-auto grid size-12 place-items-center rounded-xl bg-accent text-accent-foreground">
-            <Mail className="size-6" />
-          </div>
-          <h2 className="mt-3 text-lg font-semibold">Check your email</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            We sent a sign-in code to <strong>{email}</strong>. Enter the 6-digit
-            code below — that works even in the installed app.
-          </p>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="otp">6-digit code</Label>
-          <Input
-            id="otp"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            placeholder="123456"
-            maxLength={6}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ""))}
-            className="text-center text-lg tracking-[0.4em]"
-          />
-        </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        <Button className="w-full" onClick={verifyCode} disabled={verifying}>
-          {verifying ? <Loader2 className="size-4 animate-spin" /> : null}
-          Verify &amp; sign in
-        </Button>
-        <p className="text-center text-xs text-muted-foreground">
-          Or tap the link in the email if you&apos;re in a browser.
-        </p>
-        <Button variant="ghost" className="w-full" onClick={() => { setMagicSent(false); setCode(""); }}>
-          Back to log in
-        </Button>
-      </div>
-    );
   }
 
   if (sentConfirmation) {
@@ -361,30 +257,6 @@ export function AuthForm({
         {loading && <Loader2 className="size-4 animate-spin" />}
         {mode === "signup" ? "Create account" : "Log in"}
       </Button>
-
-      {mode === "login" && (
-        <>
-          <div className="flex items-center gap-3 py-1">
-            <span className="h-px flex-1 bg-border" />
-            <span className="text-xs text-muted-foreground">or</span>
-            <span className="h-px flex-1 bg-border" />
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={sendMagicLink}
-            disabled={magicLoading || loading}
-          >
-            {magicLoading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Mail className="size-4" />
-            )}
-            Email me a sign-in link (no password)
-          </Button>
-        </>
-      )}
 
       <p className="text-center text-sm text-muted-foreground">
         {mode === "signup" ? (
