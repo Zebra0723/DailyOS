@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { checkAdminEmail, adminSignIn } from "./actions";
+import { checkAdminEmail } from "./actions";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
@@ -17,63 +17,27 @@ const field: React.CSSProperties = {
 
 export default function VerifyPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [state, setState] = useState<State>("idle");
-  const [msg, setMsg] = useState("");
 
-  async function gate(): Promise<boolean> {
-    const clean = email.trim().toLowerCase();
-    if (!clean) return false;
-    const { allowed } = await checkAdminEmail(clean);
-    if (!allowed) {
-      setState("denied");
-      return false;
-    }
-    return true;
-  }
-
-  async function signIn(e: React.FormEvent) {
+  async function sendLink(e: React.FormEvent) {
     e.preventDefault();
-    if (!password) return;
+    const clean = email.trim().toLowerCase();
+    if (!clean) return;
     setState("working");
-    setMsg("");
     try {
-      const res = await adminSignIn(email.trim().toLowerCase(), password);
-      if (res.ok) {
-        window.location.href = "/admin";
-        return;
-      }
-      if (res.denied) {
+      const { allowed } = await checkAdminEmail(clean);
+      if (!allowed) {
         setState("denied");
         return;
       }
-      setState("error");
-      setMsg("Wrong email or password. First time here? Use the email link below to get in, then set a password under Account.");
-    } catch {
-      setState("error");
-      setMsg("Something went wrong. Try again.");
-    }
-  }
-
-  async function sendLink() {
-    setState("working");
-    setMsg("");
-    try {
-      if (!(await gate())) return;
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim().toLowerCase(),
+        email: clean,
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
-      if (error) {
-        setState("error");
-        setMsg("Couldn't send the link.");
-        return;
-      }
-      setState("sent");
+      setState(error ? "error" : "sent");
     } catch {
       setState("error");
-      setMsg("Something went wrong. Try again.");
     }
   }
 
@@ -81,7 +45,7 @@ export default function VerifyPage() {
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
       <div style={{ width: "100%", maxWidth: 380 }}>
         <div style={{ marginBottom: 6 }}><Logo tagline /></div>
-        <p style={{ color: "#6b6157", fontSize: 14, margin: "0 0 20px" }}>Sign in to the backend.</p>
+        <p style={{ color: "#6b6157", fontSize: 14, margin: "0 0 20px" }}>Verify your email to access the backend.</p>
 
         {state === "denied" ? (
           <div style={box("#fbe9e7", "#f0c4bd")}>
@@ -93,16 +57,11 @@ export default function VerifyPage() {
             Check your inbox &mdash; we&apos;ve emailed you a secure sign-in link.
           </div>
         ) : (
-          <form onSubmit={signIn} style={{ display: "grid", gap: 10 }}>
+          <form onSubmit={sendLink} style={{ display: "grid", gap: 10 }}>
             <input type="email" required autoFocus placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={field} autoComplete="username" />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={field} autoComplete="current-password" />
             <button type="submit" disabled={state === "working"} style={{ ...field, height: 44, border: 0, background: "#bf502b", color: "#fff", fontWeight: 600, cursor: "pointer", opacity: state === "working" ? 0.6 : 1 }}>
-              {state === "working" ? "Signing in…" : "Sign in"}
+              {state === "working" ? "Sending…" : "Email me a sign-in link"}
             </button>
-            <button type="button" onClick={sendLink} disabled={state === "working"} style={{ background: "none", border: 0, color: "#6b6157", fontSize: 13, cursor: "pointer", textDecoration: "underline", padding: 4 }}>
-              Email me a sign-in link instead
-            </button>
-            {msg && <p style={{ color: "#b23b2b", fontSize: 13, margin: 0 }}>{msg}</p>}
           </form>
         )}
       </div>
