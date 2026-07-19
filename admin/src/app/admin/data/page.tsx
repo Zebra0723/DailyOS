@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { DATA_TABLES, type DataTable } from "./actions";
+import { DATA_TABLES, type DataTable } from "./tables";
 import { DeleteButton } from "./delete-button";
 
 export const dynamic = "force-dynamic";

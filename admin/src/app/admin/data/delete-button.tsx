@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { deleteRow, type DataTable } from "./actions";
+import { deleteRow } from "./actions";
+import { type DataTable } from "./tables";
 
 export function DeleteButton({ table, id }: { table: DataTable; id: string }) {
   const [pending, start] = useTransition();
