@@ -11,6 +11,7 @@ import { DeviceBackup } from "@/components/device-backup";
 import { AppFooter } from "@/components/app-footer";
 import { PwaGate } from "@/components/pwa-gate";
 import { OfflineBanner } from "@/components/offline-banner";
+import { AnnouncementBanner } from "@/components/announcement-banner";
 
 export default async function AppLayout({
   children,
@@ -25,10 +26,43 @@ export default async function AppLayout({
   // Middleware already guards these routes, but double-check on the server.
   if (!user) redirect("/login");
 
+  // App-wide config set from the admin backend (announcement + maintenance).
+  // Degrades to nothing if the app_config table isn't set up.
+  let announcement = "";
+  let maintenance = false;
+  try {
+    const { data: cfg } = await supabase
+      .from("app_config")
+      .select("value")
+      .eq("key", "global")
+      .maybeSingle();
+    const v = (cfg?.value ?? {}) as { announcement?: string; maintenance?: boolean };
+    announcement = v.announcement ?? "";
+    maintenance = Boolean(v.maintenance);
+  } catch {
+    /* ignore */
+  }
+  const isAdmin = Boolean(user.user_metadata?.admin);
+
+  if (maintenance && !isAdmin) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background px-6 text-center">
+        <div className="max-w-sm">
+          <h1 className="font-display text-3xl font-bold">Back soon</h1>
+          <p className="mt-3 text-muted-foreground">
+            DailyOS is down for a quick bit of maintenance. Your data is safe —
+            please check back in a little while.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <PwaGate>
       <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-background">
         <OfflineBanner />
+        <AnnouncementBanner text={announcement} />
         <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
         <MobileHeader />
         <FreePlanBanner userId={user.id} />

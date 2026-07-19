@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createServiceClient } from "@/lib/supabase/service";
 import { RevokeButton } from "./revoke-button";
+import { IssueCode } from "./issue-form";
 import { Warning } from "@/components/warning";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export default async function CodesPage() {
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px" }}>Reward codes</h1>
       <Warning>Revoking a code deletes a reward that may belong to a real user.</Warning>
+      <IssueCode />
       <p style={{ color: "#6b6157", fontSize: 14, margin: "0 0 20px" }}>
         {codes.length} code{codes.length === 1 ? "" : "s"}. Revoke to delete one.
       </p>
