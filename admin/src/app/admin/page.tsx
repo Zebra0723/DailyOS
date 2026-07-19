@@ -12,7 +12,6 @@ const TABLES: { table: string; label: string }[] = [
   { table: "push_subscriptions", label: "Push devices" },
   { table: "reward_codes", label: "Reward codes" },
 ];
-
 const ACTIVITY: { table: string; label: string }[] = [
   { table: "inbox_items", label: "Drop" },
   { table: "extracted_tasks", label: "Task" },
@@ -26,7 +25,6 @@ async function countRows(admin: Client, table: string): Promise<number> {
   const { count } = await admin.from(table).select("*", { count: "exact", head: true });
   return count ?? 0;
 }
-
 async function recentFrom(admin: Client, table: string, label: string) {
   const { data } = await admin.from(table).select("*").order("created_at", { ascending: false }).limit(6);
   return (data ?? []).map((r: Record<string, unknown>) => ({
@@ -38,7 +36,6 @@ async function recentFrom(admin: Client, table: string, label: string) {
 
 export default async function DashboardPage() {
   const admin = createServiceClient();
-
   const [{ data: userData }, counts, activityLists] = await Promise.all([
     admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
     Promise.all(TABLES.map((t) => countRows(admin, t.table).catch(() => 0))),
@@ -48,20 +45,47 @@ export default async function DashboardPage() {
   const users = (userData?.users ?? []).slice().sort((a, b) =>
     (b.created_at ?? "").localeCompare(a.created_at ?? ""),
   );
-  const recentUsers = users.slice(0, 6);
 
-  const activity = activityLists
-    .flat()
-    .filter((x) => x.at)
-    .sort((a, b) => b.at.localeCompare(a.at))
-    .slice(0, 10);
+  // Analytics derived from the user list.
+  const DAY = 86_400_000;
+  const now = new Date(users[0]?.created_at ?? "").getTime() || 0;
+  const nowMs = Math.max(now, ...users.map((u) => new Date(u.created_at ?? 0).getTime()), Date.now());
+  const plans = { free: 0, plus: 0, pro: 0 };
+  let signups7 = 0, signups30 = 0, suspended = 0;
+  for (const u of users) {
+    const tier = (u.user_metadata?.tier as string) ?? (u.user_metadata?.plan as string) ?? "free";
+    if (tier === "pro") plans.pro++; else if (tier === "plus") plans.plus++; else plans.free++;
+    const created = new Date(u.created_at ?? 0).getTime();
+    if (nowMs - created < 7 * DAY) signups7++;
+    if (nowMs - created < 30 * DAY) signups30++;
+    const banned = (u as { banned_until?: string }).banned_until;
+    if (banned && new Date(banned).getTime() > Date.now()) suspended++;
+  }
+  const paid = plans.plus + plans.pro;
+
+  const activity = activityLists.flat().filter((x) => x.at).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 10);
+  const recentUsers = users.slice(0, 6);
 
   const tiles = [
     { label: "Users", value: users.length },
     ...TABLES.map((t, i) => ({ label: t.label, value: counts[i] })),
   ];
-
   const card: React.CSSProperties = { border: "1px solid #e6ded2", borderRadius: 14, padding: 16, background: "#fffdf9" };
+
+  const planBar = (label: string, n: number, color: string) => {
+    const pct = users.length ? Math.round((n / users.length) * 100) : 0;
+    return (
+      <div key={label} style={{ marginBottom: 8 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 3 }}>
+          <span style={{ fontWeight: 600 }}>{label}</span>
+          <span style={{ color: "#6b6157" }}>{n} · {pct}%</span>
+        </div>
+        <div style={{ height: 8, borderRadius: 6, background: "#efe6d8", overflow: "hidden" }}>
+          <div style={{ width: `${pct}%`, height: "100%", background: color }} />
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div style={{ display: "grid", gap: 24 }}>
@@ -70,6 +94,22 @@ export default async function DashboardPage() {
         <p style={{ color: "#6b6157", fontSize: 14, margin: 0 }}>Live across the DailyOS database.</p>
       </div>
 
+      {/* Growth strip */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))", gap: 12 }}>
+        {[
+          { label: "New · 7 days", value: signups7 },
+          { label: "New · 30 days", value: signups30 },
+          { label: "Paid users", value: paid },
+          { label: "Suspended", value: suspended },
+        ].map((t) => (
+          <div key={t.label} style={{ ...card, borderColor: "#eabf95", background: "#fdf3e8" }}>
+            <div style={{ fontSize: 26, fontWeight: 700, color: "#9a3412" }}>{t.value}</div>
+            <div style={{ fontSize: 12, color: "#6b6157", marginTop: 2 }}>{t.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Counts */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))", gap: 12 }}>
         {tiles.map((t) => (
           <div key={t.label} style={card}>
@@ -79,7 +119,14 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
+      <div style={{ display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+        <section style={card}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 12px" }}>Plan breakdown</h2>
+          {planBar("Free", plans.free, "#a8a29e")}
+          {planBar("Plus", plans.plus, "#c98a1a")}
+          {planBar("Pro", plans.pro, "#bf502b")}
+        </section>
+
         <section style={card}>
           <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 12px" }}>New sign-ups</h2>
           {recentUsers.length === 0 ? (
@@ -89,9 +136,7 @@ export default async function DashboardPage() {
               {recentUsers.map((u) => (
                 <Link key={u.id} href={`/admin/users/${u.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 10, textDecoration: "none", fontSize: 13 }}>
                   <span style={{ color: "#bf502b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.email}</span>
-                  <span style={{ color: "#8a8073", whiteSpace: "nowrap" }}>
-                    {u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}
-                  </span>
+                  <span style={{ color: "#8a8073", whiteSpace: "nowrap" }}>{u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}</span>
                 </Link>
               ))}
             </div>
