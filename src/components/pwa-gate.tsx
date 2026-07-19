@@ -13,10 +13,12 @@ import {
 import { Logo } from "@/components/logo";
 import { InstallApp } from "@/components/install-app";
 
-// Require the installed PWA: a normal browser tab shows the install wall.
-// Login inside the PWA works via the magic-link ("Email me a sign-in link")
-// option, so we no longer depend on iOS autofill (which is flaky in a PWA).
-const PWA_ONLY = true;
+// When true, a normal browser tab shows the install wall and only the
+// installed PWA (opened from the home screen) can use the app. When false,
+// DailyOS also works straight in the browser — no install required.
+// TEMPORARY: flipped to false so people can use it on the web for now.
+// TODO(Leo): set this back to `true` to make DailyOS PWA-only again.
+const PWA_ONLY = false;
 
 const POINTS = [
   {
