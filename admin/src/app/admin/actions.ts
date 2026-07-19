@@ -32,6 +32,18 @@ export async function setUserAdmin(userId: string, makeAdmin: boolean) {
   return { ok: true as const };
 }
 
+/** Suspend (ban) or un-suspend an account. A suspended user can't sign in. */
+export async function setUserSuspended(userId: string, suspend: boolean) {
+  await requireAdminUser();
+  const admin = createServiceClient();
+  await admin.auth.admin.updateUserById(userId, {
+    // ~100 years to suspend; "none" lifts it.
+    ban_duration: suspend ? "876000h" : "none",
+  });
+  revalidatePath("/admin/users");
+  return { ok: true as const };
+}
+
 /** Permanently delete a user account. */
 export async function deleteUser(userId: string) {
   await requireAdminUser();
