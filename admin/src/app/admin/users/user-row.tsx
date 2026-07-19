@@ -22,7 +22,7 @@ export function UserRow({
   const [plan, setPlan] = useState<string>(tier);
   const [admin, setAdmin] = useState(isAdmin);
 
-  const cell: React.CSSProperties = { padding: "8px 10px", borderTop: "1px solid #2a251f" };
+  const cell: React.CSSProperties = { padding: "8px 10px", borderTop: "1px solid #eee6da" };
 
   return (
     <tr style={{ opacity: pending ? 0.5 : 1 }}>
@@ -36,7 +36,7 @@ export function UserRow({
             setPlan(next);
             start(() => { void setUserPlan(id, next); });
           }}
-          style={{ background: "#201b15", color: "inherit", border: "1px solid #3a322a", borderRadius: 8, padding: "4px 8px" }}
+          style={{ background: "#fff", color: "inherit", border: "1px solid #d9d2c6", borderRadius: 8, padding: "4px 8px" }}
         >
           <option value="free">free</option>
           <option value="plus">plus</option>
@@ -51,7 +51,7 @@ export function UserRow({
             setAdmin(next);
             start(() => { void setUserAdmin(id, next); });
           }}
-          style={{ background: admin ? "#2f6a4c" : "#3a322a", color: "#fff", border: 0, borderRadius: 8, padding: "4px 10px", cursor: "pointer" }}
+          style={{ background: admin ? "#2f8f5f" : "#eae3d7", color: admin ? "#fff" : "#1c1a17", border: 0, borderRadius: 8, padding: "4px 10px", cursor: "pointer" }}
         >
           {admin ? "Yes" : "No"}
         </button>
@@ -65,7 +65,7 @@ export function UserRow({
               start(() => { void deleteUser(id); });
             }
           }}
-          style={{ background: "#6a2f2f", color: "#fff", border: 0, borderRadius: 8, padding: "4px 10px", cursor: "pointer" }}
+          style={{ background: "#c0392b", color: "#fff", border: 0, borderRadius: 8, padding: "4px 10px", cursor: "pointer" }}
         >
           Delete
         </button>

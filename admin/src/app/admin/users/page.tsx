@@ -13,13 +13,13 @@ export default async function UsersPage() {
   return (
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px" }}>Users</h1>
-      <p style={{ color: "#a99f92", fontSize: 14, margin: "0 0 20px" }}>
+      <p style={{ color: "#6b6157", fontSize: 14, margin: "0 0 20px" }}>
         {users.length} account{users.length === 1 ? "" : "s"}. Set a plan, toggle admin, or delete.
       </p>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", fontSize: 14 }}>
           <thead>
-            <tr style={{ textAlign: "left", color: "#a99f92", fontSize: 12 }}>
+            <tr style={{ textAlign: "left", color: "#6b6157", fontSize: 12 }}>
               <th style={th}>Email</th>
               <th style={th}>Plan</th>
               <th style={th}>Admin</th>

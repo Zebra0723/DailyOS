@@ -31,16 +31,16 @@ export default function VerifyPage() {
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
       <div style={{ width: "100%", maxWidth: 380 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 6px" }}>DailyOS Admin</h1>
-        <p style={{ color: "#a99f92", fontSize: 14, margin: "0 0 20px" }}>
+        <p style={{ color: "#6b6157", fontSize: 14, margin: "0 0 20px" }}>
           Verify your email to access the backend.
         </p>
 
         {state === "sent" ? (
-          <div style={box("#173a2a", "#2f6a4c")}>
+          <div style={box("#e7f5ec", "#b6ddc3")}>
             Check your inbox &mdash; we&apos;ve emailed you a secure sign-in link.
           </div>
         ) : state === "denied" ? (
-          <div style={box("#3a1717", "#6a2f2f")}>
+          <div style={box("#fbe9e7", "#f0c4bd")}>
             You do not have admin access. Please check with the DailyOS dev team or
             leave the website.
           </div>
@@ -53,7 +53,7 @@ export default function VerifyPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              style={{ height: 44, borderRadius: 10, border: "1px solid #3a322a", background: "#201b15", color: "inherit", padding: "0 14px", fontSize: 15 }}
+              style={{ height: 44, borderRadius: 10, border: "1px solid #d9d2c6", background: "#fff", color: "inherit", padding: "0 14px", fontSize: 15 }}
             />
             <button
               type="submit"
@@ -63,7 +63,7 @@ export default function VerifyPage() {
               {state === "sending" ? "Sending..." : "Email me a sign-in link"}
             </button>
             {state === "error" && (
-              <p style={{ color: "#e0796b", fontSize: 13, margin: 0 }}>Something went wrong. Try again.</p>
+              <p style={{ color: "#b23b2b", fontSize: 13, margin: 0 }}>Something went wrong. Try again.</p>
             )}
           </form>
         )}
