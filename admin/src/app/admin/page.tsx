@@ -51,16 +51,19 @@ export default async function DashboardPage() {
   const now = new Date(users[0]?.created_at ?? "").getTime() || 0;
   const nowMs = Math.max(now, ...users.map((u) => new Date(u.created_at ?? 0).getTime()), Date.now());
   const plans = { free: 0, plus: 0, pro: 0 };
-  let signups7 = 0, signups30 = 0, suspended = 0;
+  let signups7 = 0, signups30 = 0, suspended = 0, admins = 0;
   for (const u of users) {
-    const tier = (u.user_metadata?.tier as string) ?? (u.user_metadata?.plan as string) ?? "free";
-    if (tier === "pro") plans.pro++; else if (tier === "plus") plans.plus++; else plans.free++;
     const created = new Date(u.created_at ?? 0).getTime();
     if (nowMs - created < 7 * DAY) signups7++;
     if (nowMs - created < 30 * DAY) signups30++;
     const banned = (u as { banned_until?: string }).banned_until;
     if (banned && new Date(banned).getTime() > Date.now()) suspended++;
+    // Admins are counted on their own — never as free/paid customers.
+    if (u.user_metadata?.admin) { admins++; continue; }
+    const tier = (u.user_metadata?.tier as string) ?? (u.user_metadata?.plan as string) ?? "free";
+    if (tier === "pro") plans.pro++; else if (tier === "plus") plans.plus++; else plans.free++;
   }
+  const customers = Math.max(0, users.length - admins);
   const paid = plans.plus + plans.pro;
 
   const activity = activityLists.flat().filter((x) => x.at).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 10);
@@ -73,7 +76,7 @@ export default async function DashboardPage() {
   const card: React.CSSProperties = { border: "1px solid #e6ded2", borderRadius: 14, padding: 16, background: "#fffdf9" };
 
   const planBar = (label: string, n: number, color: string) => {
-    const pct = users.length ? Math.round((n / users.length) * 100) : 0;
+    const pct = customers ? Math.round((n / customers) * 100) : 0;
     return (
       <div key={label} style={{ marginBottom: 8 }}>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 3 }}>
@@ -99,7 +102,8 @@ export default async function DashboardPage() {
         {[
           { label: "New · 7 days", value: signups7 },
           { label: "New · 30 days", value: signups30 },
-          { label: "Paid users", value: paid },
+          { label: "Paid customers", value: paid },
+          { label: "Admins", value: admins },
           { label: "Suspended", value: suspended },
         ].map((t) => (
           <div key={t.label} style={{ ...card, borderColor: "#eabf95", background: "#fdf3e8" }}>
@@ -121,7 +125,8 @@ export default async function DashboardPage() {
 
       <div style={{ display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
         <section style={card}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 12px" }}>Plan breakdown</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 2px" }}>Plan breakdown</h2>
+          <p style={{ fontSize: 12, color: "#8a8073", margin: "0 0 12px" }}>{customers} customers · {admins} admin{admins === 1 ? "" : "s"} counted separately</p>
           {planBar("Free", plans.free, "#a8a29e")}
           {planBar("Plus", plans.plus, "#c98a1a")}
           {planBar("Pro", plans.pro, "#bf502b")}
