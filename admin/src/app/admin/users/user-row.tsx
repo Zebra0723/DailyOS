@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { setUserPlan, setUserAdmin, setUserSuspended, deleteUser } from "../actions";
 
@@ -32,7 +33,9 @@ export function UserRow({
 
   return (
     <tr style={{ opacity: pending ? 0.5 : 1 }}>
-      <td style={{ ...cell, whiteSpace: "normal" }}>{email}</td>
+      <td style={{ ...cell, whiteSpace: "normal" }}>
+        <Link href={`/admin/users/${id}`} style={{ color: "#bf502b", textDecoration: "none" }}>{email}</Link>
+      </td>
       <td style={cell}>
         <span
           style={{
