@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { checkAdminEmail } from "./actions";
+import { checkAdminEmail, adminSignIn } from "./actions";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
@@ -38,18 +38,17 @@ export default function VerifyPage() {
     setState("working");
     setMsg("");
     try {
-      if (!(await gate())) return;
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password,
-      });
-      if (error) {
-        setState("error");
-        setMsg("Wrong email or password. First time here? Use the email link below to get in, then set a password under Account.");
+      const res = await adminSignIn(email.trim().toLowerCase(), password);
+      if (res.ok) {
+        window.location.href = "/admin";
         return;
       }
-      window.location.href = "/admin";
+      if (res.denied) {
+        setState("denied");
+        return;
+      }
+      setState("error");
+      setMsg("Wrong email or password. First time here? Use the email link below to get in, then set a password under Account.");
     } catch {
       setState("error");
       setMsg("Something went wrong. Try again.");
