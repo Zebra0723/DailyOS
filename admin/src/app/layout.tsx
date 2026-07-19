@@ -17,7 +17,13 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   applicationName: "DailyOS Admin",
   appleWebApp: { capable: true, title: "DOS Admin", statusBarStyle: "default" },
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  icons: {
+    icon: [
+      { url: "/favicon-32.png?v=2", sizes: "32x32", type: "image/png" },
+      { url: "/icon.svg?v=2", type: "image/svg+xml" },
+    ],
+    apple: "/apple-icon.png?v=2",
+  },
   robots: { index: false, follow: false },
 };
 
