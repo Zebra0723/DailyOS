@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addReminder, toggleReminder, deleteReminder } from "./actions";
+import { ConfirmButton } from "@/components/confirm-button";
 
 export type Reminder = {
   id: string;
@@ -62,12 +63,14 @@ export function ReminderList({ initial }: { initial: Reminder[] }) {
                   {r.created_by ?? "admin"} · {new Date(r.created_at).toLocaleDateString()}
                 </p>
               </div>
-              <button
-                onClick={() => start(async () => { await deleteReminder(r.id); router.refresh(); })}
+              <ConfirmButton
+                label="Delete"
                 style={{ background: "none", border: 0, color: "#b23b2b", cursor: "pointer", fontSize: 13 }}
-              >
-                Delete
-              </button>
+                title="Delete this reminder?"
+                message="It will be removed for both you and Leo."
+                confirmLabel="Delete"
+                onConfirm={async () => { await deleteReminder(r.id); router.refresh(); }}
+              />
             </div>
           ))}
         </div>

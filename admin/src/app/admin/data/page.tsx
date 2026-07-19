@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createServiceClient } from "@/lib/supabase/service";
 import { DATA_TABLES, type DataTable } from "./tables";
 import { DeleteButton } from "./delete-button";
+import { Warning } from "@/components/warning";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,7 @@ export default async function DataPage({
   return (
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px" }}>Data</h1>
+      <Warning>Deleting a row permanently removes real user content — it can&apos;t be recovered.</Warning>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
         {DATA_TABLES.map((t) => (
           <a key={t} href={`/admin/data?table=${t}`} style={{ fontSize: 13, padding: "5px 10px", borderRadius: 999, textDecoration: "none", border: "1px solid #e6ded2", background: t === table ? "#bf502b" : "#fffdf9", color: t === table ? "#fff" : "#1c1a17" }}>

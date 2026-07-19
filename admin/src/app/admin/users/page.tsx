@@ -1,6 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import { createServiceClient } from "@/lib/supabase/service";
 import { UserRow } from "./user-row";
+import { Warning } from "@/components/warning";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,8 @@ export default async function UsersPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 4px" }}>Users</h1>
+      <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px" }}>Users</h1>
+      <Warning>Suspending or deleting here locks out or erases that person&apos;s account for good.</Warning>
       <p style={{ color: "#6b6157", fontSize: 14, margin: "0 0 20px" }}>
         {users.length} account{users.length === 1 ? "" : "s"}. Set a plan, toggle admin, suspend, or delete.
       </p>

@@ -11,9 +11,11 @@
       </td></tr>
       <tr><td style="padding:18px 32px 4px;">
         <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:24px;margin:0 0 10px;">Your sign-in link</h1>
-        <p style="font-size:15px;line-height:1.55;color:#57534e;margin:0 0 22px;">
-          Tap below to sign in to DailyOS &mdash; no password needed. This link works once and expires in 60&nbsp;minutes.
+        <p style="font-size:15px;line-height:1.55;color:#57534e;margin:0 0 18px;">
+          Enter this code in the DailyOS app to sign in &mdash; no password needed. It expires in 60&nbsp;minutes.
         </p>
+        <div style="font-size:34px;font-weight:700;letter-spacing:0.28em;color:#bf502b;background:#f7f2e9;border:1px solid #e7ddcc;border-radius:12px;padding:16px 8px;text-align:center;margin:0 0 22px;">{{ .Token }}</div>
+        <p style="font-size:13px;line-height:1.55;color:#78716c;margin:0 0 12px;">Or, if you&rsquo;re in a web browser, tap the button:</p>
         <table role="presentation" cellpadding="0" cellspacing="0"><tr>
           <td style="border-radius:10px;background:#bf502b;">
             <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:12px 24px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:10px;">Sign in to DailyOS</a>
