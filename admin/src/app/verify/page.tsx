@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { checkAdminEmail } from "./actions";
 import { createClient } from "@/lib/supabase/client";
+import { Logo } from "@/components/logo";
 
 type State = "idle" | "working" | "sent" | "denied" | "error";
 
@@ -80,7 +81,7 @@ export default function VerifyPage() {
   return (
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
       <div style={{ width: "100%", maxWidth: 380 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 6px" }}>DailyOS Admin</h1>
+        <div style={{ marginBottom: 6 }}><Logo tagline /></div>
         <p style={{ color: "#6b6157", fontSize: 14, margin: "0 0 20px" }}>Sign in to the backend.</p>
 
         {state === "denied" ? (
