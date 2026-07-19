@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createServiceClient } from "@/lib/supabase/service";
+import { effectiveTier } from "@/lib/plan";
 
 export const dynamic = "force-dynamic";
 
@@ -60,11 +61,27 @@ export default async function DashboardPage() {
     if (banned && new Date(banned).getTime() > Date.now()) suspended++;
     // Admins are counted on their own — never as free/paid customers.
     if (u.user_metadata?.admin) { admins++; continue; }
-    const tier = (u.user_metadata?.tier as string) ?? (u.user_metadata?.plan as string) ?? "free";
+    const tier = effectiveTier(u);
     if (tier === "pro") plans.pro++; else if (tier === "plus") plans.plus++; else plans.free++;
   }
   const customers = Math.max(0, users.length - admins);
   const paid = plans.plus + plans.pro;
+  // Rough monthly revenue: Plus £4/mo, Pro £8/mo.
+  const mrr = plans.plus * 4 + plans.pro * 8;
+
+  // Daily sign-ups over the last 30 days (oldest → newest).
+  const DAYS = 30;
+  const buckets = new Array(DAYS).fill(0) as number[];
+  const startToday = new Date();
+  startToday.setHours(0, 0, 0, 0);
+  for (const u of users) {
+    const d = new Date(u.created_at ?? 0);
+    if (isNaN(d.getTime())) continue;
+    d.setHours(0, 0, 0, 0);
+    const idx = Math.round((startToday.getTime() - d.getTime()) / DAY);
+    if (idx >= 0 && idx < DAYS) buckets[DAYS - 1 - idx]++;
+  }
+  const maxB = Math.max(1, ...buckets);
 
   const activity = activityLists.flat().filter((x) => x.at).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 10);
   const recentUsers = users.slice(0, 6);
@@ -103,6 +120,7 @@ export default async function DashboardPage() {
           { label: "New · 7 days", value: signups7 },
           { label: "New · 30 days", value: signups30 },
           { label: "Paid customers", value: paid },
+          { label: "Est. MRR", value: `£${mrr}` },
           { label: "Admins", value: admins },
           { label: "Suspended", value: suspended },
         ].map((t) => (
@@ -112,6 +130,20 @@ export default async function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* Sign-ups chart */}
+      <section style={card}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 12px" }}>Sign-ups · last 30 days</h2>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 90 }}>
+          {buckets.map((b, i) => (
+            <div
+              key={i}
+              title={`${b} on ${new Date(startToday.getTime() - (DAYS - 1 - i) * DAY).toLocaleDateString()}`}
+              style={{ flex: 1, height: `${Math.round((b / maxB) * 100)}%`, minHeight: b ? 6 : 2, background: b ? "#bf502b" : "#efe6d8", borderRadius: 3 }}
+            />
+          ))}
+        </div>
+      </section>
 
       {/* Counts */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))", gap: 12 }}>

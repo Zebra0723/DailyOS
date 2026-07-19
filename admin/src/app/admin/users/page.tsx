@@ -1,6 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import { createServiceClient } from "@/lib/supabase/service";
 import { UsersTable, type UserRowData } from "./users-table";
+import { effectiveTier } from "@/lib/plan";
 import { Warning } from "@/components/warning";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +32,7 @@ export default async function UsersPage() {
     .map((u) => ({
       id: u.id,
       email: u.email ?? "(no email)",
-      tier: (u.user_metadata?.tier as string) ?? (u.user_metadata?.plan as string) ?? "free",
+      tier: effectiveTier(u),
       isAdmin: Boolean(u.user_metadata?.admin),
       suspended: isSuspended(u),
       createdAt: u.created_at ?? "",

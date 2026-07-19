@@ -52,9 +52,10 @@ export default async function DataPage({
           </a>
         ))}
       </div>
-      <p style={{ color: "#6b6157", fontSize: 13, margin: "0 0 12px" }}>
-        {rows.length} most recent row{rows.length === 1 ? "" : "s"} in {table}.
-      </p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, margin: "0 0 12px" }}>
+        <p style={{ color: "#6b6157", fontSize: 13, margin: 0 }}>{rows.length} most recent row{rows.length === 1 ? "" : "s"} in {table}.</p>
+        <a href={`/admin/data/export?table=${table}`} style={{ fontSize: 13, fontWeight: 600, textDecoration: "none", border: "1px solid #d9d2c6", background: "#fffdf9", color: "#1c1a17", borderRadius: 10, padding: "6px 11px" }}>Export CSV</a>
+      </div>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%" }}>
           <thead>

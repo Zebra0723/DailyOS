@@ -73,3 +73,19 @@ export async function sendUserPush(userId: string, title: string, body: string):
   await logAudit(user.email, "push-user", `${userId} → ${sent} device(s)`);
   return { ok: true, sent };
 }
+
+/** Comp a user a plan for a fixed duration (0 days = lifetime). Writes plan_exp
+ *  which the main app already honours. */
+export async function grantTimedPlan(userId: string, tier: "plus" | "pro", days: number) {
+  const user = await requireAdminUser();
+  const admin = createServiceClient();
+  const { data } = await admin.auth.admin.getUserById(userId);
+  const meta = data.user?.user_metadata ?? {};
+  const expiresAt = days > 0 ? Date.now() + days * 86_400_000 : null;
+  await admin.auth.admin.updateUserById(userId, {
+    user_metadata: { ...meta, tier, plan: tier, pro: tier === "pro", plan_exp: expiresAt },
+  });
+  await logAudit(user.email, "comp-plan", `${data.user?.email ?? userId} → ${tier} for ${days > 0 ? days + " days" : "lifetime"}`);
+  revalidatePath("/admin/users");
+  return { ok: true as const };
+}
