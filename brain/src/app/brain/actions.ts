@@ -2,13 +2,16 @@
 
 import { requireAdminUser } from "@/lib/admin-server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { runChat, testChat, aiInfo, type ChatResult } from "@/lib/ai";
+import { runChat, runChatMessages, listModels, testChat, aiInfo, type ChatResult, type ChatMessage, type ModelListResult } from "@/lib/ai";
+
+export type Preset = { name: string; text: string };
 
 export type AIConfig = {
   systemPromptOverride: string;
   model: string;
   temperature: number;
   baseUrl: string;
+  presets: Preset[];
 };
 
 /** Raw stored blob (any subset of AIConfig may be present). */
@@ -48,6 +51,31 @@ export async function runPlaygroundAction(prompt: string, temperature: number): 
   });
 }
 
+/** Multi-turn playground call: sends the whole conversation history plus the
+ *  current system-prompt override so the reply previews the real assistant. */
+export async function runChatAction(
+  messages: ChatMessage[],
+  temperature: number,
+  system: string,
+): Promise<ChatResult> {
+  await requireAdminUser();
+  const cfg = await getAIConfig();
+  return runChatMessages({
+    messages,
+    system: system?.trim() || undefined,
+    temperature,
+    model: cfg.model,
+    baseUrl: cfg.baseUrl,
+  });
+}
+
+/** Fetch the model ids the configured provider exposes (GET /models). */
+export async function listModelsAction(): Promise<ModelListResult> {
+  await requireAdminUser();
+  const cfg = await getAIConfig();
+  return listModels(cfg.baseUrl);
+}
+
 /** Effective config: stored override value, falling back to the env defaults. */
 export async function getAIConfig(): Promise<AIConfig> {
   const v = await readConfig();
@@ -57,7 +85,34 @@ export async function getAIConfig(): Promise<AIConfig> {
     model: v.model ?? info.model,
     temperature: typeof v.temperature === "number" ? v.temperature : info.defaultTemperature,
     baseUrl: v.baseUrl ?? info.baseUrl,
+    presets: Array.isArray(v.presets) ? v.presets.filter((p): p is Preset => Boolean(p && typeof p.name === "string" && typeof p.text === "string")) : [],
   };
+}
+
+/** Save the current override text as a named preset (upsert by name), merged
+ *  into ai_config.presets without clobbering the rest of the JSON. */
+export async function savePresetAction(name: string, text: string): Promise<{ ok: boolean; error?: string; presets?: Preset[] }> {
+  await requireAdminUser();
+  const n = name.trim();
+  if (!n) return { ok: false, error: "Preset name is required." };
+  const current = await readConfig();
+  const existing = Array.isArray(current.presets) ? current.presets.filter((p): p is Preset => Boolean(p && typeof p.name === "string" && typeof p.text === "string")) : [];
+  const next = [...existing.filter((p) => p.name !== n), { name: n, text }];
+  next.sort((a, b) => a.name.localeCompare(b.name));
+  const error = await writeConfig({ presets: next });
+  if (error) return { ok: false, error };
+  return { ok: true, presets: next };
+}
+
+/** Delete a named preset from ai_config.presets. */
+export async function deletePresetAction(name: string): Promise<{ ok: boolean; error?: string; presets?: Preset[] }> {
+  await requireAdminUser();
+  const current = await readConfig();
+  const existing = Array.isArray(current.presets) ? current.presets.filter((p): p is Preset => Boolean(p && typeof p.name === "string" && typeof p.text === "string")) : [];
+  const next = existing.filter((p) => p.name !== name);
+  const error = await writeConfig({ presets: next });
+  if (error) return { ok: false, error };
+  return { ok: true, presets: next };
 }
 
 /** Save an extra instruction the DailyOS assistant will follow (stored in
