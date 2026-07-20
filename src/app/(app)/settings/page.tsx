@@ -1,4 +1,5 @@
-import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell } from "lucide-react";
+import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell, MessageSquare } from "lucide-react";
+import { FeedbackForm } from "@/components/feedback-form";
 import { InstallApp } from "@/components/install-app";
 import { PushToggle } from "@/components/push-toggle";
 import { DailyBriefToggle } from "@/components/daily-brief-toggle";
@@ -143,6 +144,21 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <InstallApp />
+          </CardContent>
+        </Card>
+
+        {/* Feedback → DailyOS Support */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <MessageSquare className="size-4 text-primary" /> Send feedback
+            </CardTitle>
+            <CardDescription>
+              Spotted a bug or have an idea? We read every message.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FeedbackForm />
           </CardContent>
         </Card>
 

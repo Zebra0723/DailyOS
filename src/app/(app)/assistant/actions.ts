@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { askDailyOS, type ChatTurn, type AssistantReply } from "@/lib/ai/assistant";
 import { formatDate } from "@/lib/utils";
 
@@ -89,6 +89,21 @@ export async function askAssistant(
   if (!user) {
     return { reply: "Please sign in to chat.", actions: [], usedAI: false };
   }
-  const context = await buildContext(supabase);
+  let context = await buildContext(supabase);
+  // An admin can steer the assistant from DailyOS Brain (app_config.ai_config).
+  try {
+    const admin = createServiceClient();
+    const { data } = await admin
+      .from("app_config")
+      .select("value")
+      .eq("key", "ai_config")
+      .maybeSingle();
+    const override = (data?.value as { systemPromptOverride?: string })?.systemPromptOverride;
+    if (override && override.trim()) {
+      context = `ADMIN INSTRUCTION (follow this closely): ${override.trim()}\n\n${context}`;
+    }
+  } catch {
+    /* no override configured */
+  }
   return askDailyOS(history, context);
 }
