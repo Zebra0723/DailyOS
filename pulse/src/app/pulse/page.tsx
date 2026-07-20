@@ -1,7 +1,9 @@
-import { CheckCircle2, XCircle, Activity, BellRing, Send, Database, Gauge } from "lucide-react";
+import { CheckCircle2, XCircle, Activity, BellRing, Send, Database, Gauge, BarChart3 } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/service";
 import { fetchVersion, measureLatency, cronConfigured, MAIN_APP_URL } from "@/lib/main";
 import { OpsControls } from "@/components/ops-controls";
+import { AutoRefresh } from "@/components/auto-refresh";
+import { StatusReportButton } from "@/components/status-report-button";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +64,41 @@ async function recentActivity(admin: Admin): Promise<ActivityRow[] | null> {
       const row = r as { dedupe_key?: string; user_id?: string; created_at?: string };
       return { label: row.dedupe_key || row.user_id || "push", iso: row.created_at ?? null };
     });
+  } catch {
+    return null;
+  }
+}
+
+type Bar = { label: string; count: number };
+
+/** Build a 24-bucket hourly histogram of push_log rows over the last 24h,
+ *  oldest bucket first. Returns null if push_log is unavailable. */
+async function activityHistogram(admin: Admin): Promise<Bar[] | null> {
+  const HOURS = 24;
+  const since = new Date(Date.now() - HOURS * 3_600_000);
+  try {
+    const { data, error } = await admin
+      .from("push_log")
+      .select("created_at")
+      .gte("created_at", since.toISOString())
+      .limit(10_000);
+    if (error || !data) return null;
+
+    const bars: Bar[] = [];
+    for (let i = HOURS - 1; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 3_600_000);
+      bars.push({ label: `${String(d.getHours()).padStart(2, "0")}h`, count: 0 });
+    }
+    const now = Date.now();
+    for (const r of data as Array<{ created_at?: string }>) {
+      if (!r.created_at) continue;
+      const t = new Date(r.created_at).getTime();
+      if (Number.isNaN(t)) continue;
+      const hoursAgo = Math.floor((now - t) / 3_600_000);
+      const idx = HOURS - 1 - hoursAgo;
+      if (idx >= 0 && idx < HOURS) bars[idx].count += 1;
+    }
+    return bars;
   } catch {
     return null;
   }
@@ -164,7 +201,7 @@ export default async function PulsePage() {
   const admin = createServiceClient();
   const dayAgo = new Date(Date.now() - 86_400_000).toISOString();
 
-  const [version, latency, userList, subs, pendingPush, recentFires, global, tableCounts, activity, dueReminders, upcoming] =
+  const [version, latency, userList, subs, pendingPush, recentFires, global, tableCounts, activity, histogram, dueReminders, upcoming] =
     await Promise.all([
       fetchVersion(),
       measureLatency(),
@@ -175,6 +212,7 @@ export default async function PulsePage() {
       readGlobal(admin),
       Promise.all(HEALTH_TABLES.map((t) => count(admin, t))),
       recentActivity(admin),
+      activityHistogram(admin),
       remindersDueSoon(admin),
       upcomingPushes(admin),
     ]);
@@ -191,11 +229,46 @@ export default async function PulsePage() {
     { label: "Maintenance mode", ok: !global.maintenance, value: global.maintenance ? "ON" : "off" },
   ];
 
+  const peakBar = histogram ? Math.max(1, ...histogram.map((b) => b.count)) : 1;
+  const histTotal = histogram ? histogram.reduce((s, b) => s + b.count, 0) : null;
+
+  // Plain-text status summary for the copy button.
+  const reportLines = [
+    `DailyOS Pulse — status report`,
+    `Generated: ${new Date().toISOString()}`,
+    `Target: ${MAIN_APP_URL}`,
+    ``,
+    `App version:     ${version ?? "unreachable"}`,
+    `Response time:   ${latency.ms !== null ? `${latency.ms} ms` : "—"}`,
+    `Database:        ${dbOk ? "reachable" : "unreachable"}`,
+    `Maintenance:     ${global.maintenance ? "ON" : "off"}`,
+    ``,
+    `Users:           ${userList ?? "—"}`,
+    `Push devices:    ${subs ?? "—"}`,
+    `Scheduled push:  ${pendingPush ?? "—"}`,
+    `Fired (24h):     ${recentFires ?? "—"}`,
+    ``,
+    `Table row counts:`,
+    ...HEALTH_TABLES.map((t, i) => `  ${t.padEnd(20)} ${tableCounts[i] ?? "—"}`),
+    ``,
+    `Reminders due soon (${dueReminders?.length ?? "—"}):`,
+    ...(dueReminders && dueReminders.length
+      ? dueReminders.map((r) => `  • ${r.text} (${rel(r.iso)})`)
+      : ["  (none)"]),
+  ];
+  const report = reportLines.join("\n");
+
   return (
     <div className="grid gap-5">
-      <div>
-        <h1 className="text-2xl font-bold">Status</h1>
-        <p className="text-sm text-[#6b6157]">Live health of DailyOS at {MAIN_APP_URL.replace(/^https?:\/\//, "")}.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Status</h1>
+          <p className="text-sm text-[#6b6157]">Live health of DailyOS at {MAIN_APP_URL.replace(/^https?:\/\//, "")}.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <StatusReportButton report={report} />
+          <AutoRefresh intervalSec={30} />
+        </div>
       </div>
 
       {/* Status band */}
@@ -287,6 +360,43 @@ export default async function PulsePage() {
           )}
         </section>
       </div>
+
+      {/* Activity timeline (24h histogram) */}
+      <section className={card}>
+        <div className="flex items-center gap-2">
+          <BarChart3 className="size-4" style={{ color: "#bf502b" }} />
+          <h2 className="text-base font-bold">Push activity (24h)</h2>
+          <span className="ml-auto rounded-full bg-[#f2e6da] px-2 py-0.5 text-xs font-bold" style={{ color: "#bf502b" }}>
+            {histTotal ?? "—"}
+          </span>
+        </div>
+        {histogram === null ? (
+          <p className="mt-3 text-sm text-[#8a8073]">—</p>
+        ) : histTotal === 0 ? (
+          <p className="mt-3 text-sm text-[#8a8073]">No pushes in the last 24 hours.</p>
+        ) : (
+          <div className="mt-4">
+            <div className="flex h-28 items-end gap-[3px]">
+              {histogram.map((b, i) => (
+                <div key={i} className="group relative flex flex-1 items-end" title={`${b.label} — ${b.count} push${b.count === 1 ? "" : "es"}`}>
+                  <div
+                    className="w-full rounded-t-sm transition-colors"
+                    style={{
+                      height: `${Math.max(b.count > 0 ? 6 : 2, Math.round((b.count / peakBar) * 100))}%`,
+                      background: b.count > 0 ? "#bf502b" : "#efe7db",
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-1.5 flex justify-between text-[10px] text-[#8a8073]">
+              <span>{histogram[0]?.label}</span>
+              <span>{histogram[Math.floor(histogram.length / 2)]?.label}</span>
+              <span>now</span>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* Recent activity */}
       <section className={card}>
