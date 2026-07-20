@@ -96,6 +96,41 @@ export async function sendToUser(
 }
 
 /**
+ * Broadcast a notification to EVERY subscribed device (all users). Used for
+ * admin-scheduled broadcasts. Returns the number delivered; prunes dead endpoints.
+ */
+export async function broadcastToAll(payload: PushPayload): Promise<number> {
+  if (!ensureConfigured()) return 0;
+  const admin = createServiceClient();
+  const { data: subs } = await admin
+    .from("push_subscriptions")
+    .select("endpoint,p256dh,auth");
+  if (!subs || subs.length === 0) return 0;
+
+  const body = JSON.stringify(payload);
+  let delivered = 0;
+  const dead: string[] = [];
+  await Promise.all(
+    (subs as SubRow[]).map(async (s) => {
+      try {
+        await webpush.sendNotification(
+          { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+          body,
+        );
+        delivered++;
+      } catch (err: unknown) {
+        const code = (err as { statusCode?: number })?.statusCode;
+        if (code === 404 || code === 410) dead.push(s.endpoint);
+      }
+    }),
+  );
+  if (dead.length > 0) {
+    await admin.from("push_subscriptions").delete().in("endpoint", dead);
+  }
+  return delivered;
+}
+
+/**
  * Send a notification to a user only once, ever, for a given dedupe key. Uses
  * the push_log ledger: we INSERT first and only send if the row was new, so a
  * cron running every hour can't send the same nudge twice. Returns true if it

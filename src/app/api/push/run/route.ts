@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
-import { pushConfigured, sendOnce } from "@/lib/push-server";
+import { pushConfigured, sendOnce, broadcastToAll } from "@/lib/push-server";
 import { REWARD_CODE_TTL_DAYS, describeReward } from "@/lib/referral-rewards";
 
 // Runs on a schedule (Vercel Cron, see vercel.json) and pushes the day's nudges:
@@ -240,5 +240,33 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, users: userIds.length, sent });
+  // Admin-scheduled broadcasts that are now due. Claim each row first (flip
+  // sent=true and confirm we won the update) so a concurrent run can't double-send.
+  let broadcasts = 0;
+  try {
+    const { data: due } = await admin
+      .from("scheduled_pushes")
+      .select("id,title,body,url")
+      .eq("sent", false)
+      .lte("send_at", nowIso);
+    for (const b of due ?? []) {
+      const { data: claimed } = await admin
+        .from("scheduled_pushes")
+        .update({ sent: true })
+        .eq("id", b.id)
+        .eq("sent", false)
+        .select("id");
+      if (!claimed || claimed.length === 0) continue; // another run claimed it
+      broadcasts += await broadcastToAll({
+        title: (b.title as string) || "DailyOS",
+        body: (b.body as string) || "",
+        url: (b.url as string) || "/today",
+        tag: `sched-${b.id}`,
+      });
+    }
+  } catch {
+    /* scheduled_pushes table not set up yet — skip */
+  }
+
+  return NextResponse.json({ ok: true, users: userIds.length, sent, broadcasts });
 }
