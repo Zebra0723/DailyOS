@@ -50,6 +50,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { StatusBadge } from "@/components/badges";
 import { useToast } from "@/components/ui/toast";
+import { useConfirm } from "@/components/ui/confirm";
+import { DatePicker, DateTimePicker } from "@/components/ui/date-picker";
 
 interface TaskDraft {
   title: string;
@@ -361,13 +363,12 @@ export function ItemReview({
                 </p>
               )}
               <div className="grid gap-2 sm:grid-cols-2">
-                <Input
-                  type="date"
+                <DatePicker
                   value={t.due_date ?? ""}
-                  onChange={(e) =>
+                  onChange={(v) =>
                     setTasks((arr) =>
                       arr.map((x, j) =>
-                        j === i ? { ...x, due_date: e.target.value || null } : x,
+                        j === i ? { ...x, due_date: v || null } : x,
                       ),
                     )
                   }
@@ -453,13 +454,12 @@ export function ItemReview({
               <div className="grid gap-2 sm:grid-cols-2">
                 <div className="space-y-1">
                   <Label className="text-xs text-muted-foreground">Starts</Label>
-                  <Input
-                    type="datetime-local"
+                  <DateTimePicker
                     value={toLocalInput(ev.start_time)}
-                    onChange={(e) =>
+                    onChange={(v) =>
                       setEvents((arr) =>
                         arr.map((x, j) =>
-                          j === i ? { ...x, start_time: fromLocalInput(e.target.value) } : x,
+                          j === i ? { ...x, start_time: fromLocalInput(v) } : x,
                         ),
                       )
                     }
@@ -467,13 +467,12 @@ export function ItemReview({
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-muted-foreground">Ends (optional)</Label>
-                  <Input
-                    type="datetime-local"
+                  <DateTimePicker
                     value={toLocalInput(ev.end_time)}
-                    onChange={(e) =>
+                    onChange={(v) =>
                       setEvents((arr) =>
                         arr.map((x, j) =>
-                          j === i ? { ...x, end_time: fromLocalInput(e.target.value) } : x,
+                          j === i ? { ...x, end_time: fromLocalInput(v) } : x,
                         ),
                       )
                     }
@@ -701,6 +700,7 @@ function ProcessingTimeline({ logs }: { logs: ProcessingLog[] }) {
 function DangerZone({ item }: { item: InboxItem }) {
   const router = useRouter();
   const { toast } = useToast();
+  const confirm = useConfirm();
   const [busy, setBusy] = React.useState(false);
 
   return (
@@ -715,7 +715,15 @@ function DangerZone({ item }: { item: InboxItem }) {
           className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           disabled={busy}
           onClick={async () => {
-            if (!confirm("Delete this item? This cannot be undone.")) return;
+            if (
+              !(await confirm({
+                title: "Delete this item?",
+                description:
+                  "Tasks and events you approved from it are kept.",
+                destructive: true,
+              }))
+            )
+              return;
             setBusy(true);
             const res = await deleteInboxItem(item.id);
             if (res.ok) {

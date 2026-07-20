@@ -18,6 +18,7 @@ import { StatusBadge } from "@/components/badges";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { useConfirm } from "@/components/ui/confirm";
 import {
   deleteInboxItem,
   bulkDeleteInbox,
@@ -30,6 +31,7 @@ import type { InboxItem } from "@/lib/types";
 export function InboxList({ items }: { items: InboxItem[] }) {
   const router = useRouter();
   const { toast } = useToast();
+  const confirm = useConfirm();
   const [selecting, setSelecting] = React.useState(false);
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [busy, setBusy] = React.useState(false);
@@ -54,9 +56,12 @@ export function InboxList({ items }: { items: InboxItem[] }) {
     const ids = [...selected];
     if (!ids.length) return;
     if (
-      !window.confirm(
-        `Delete ${ids.length} item${ids.length > 1 ? "s" : ""}? Tasks and events you approved from them are kept. This cannot be undone.`,
-      )
+      !(await confirm({
+        title: `Delete ${ids.length} item${ids.length > 1 ? "s" : ""}?`,
+        description:
+          "Tasks and events you approved from them are kept.",
+        destructive: true,
+      }))
     )
       return;
     setBusy(true);
@@ -176,6 +181,7 @@ function Row({
   onDeleted: () => void;
 }) {
   const { toast } = useToast();
+  const confirm = useConfirm();
   const [deleting, setDeleting] = React.useState(false);
   const [bookmarked, setBookmarked] = React.useState(!!item.bookmarked);
 
@@ -241,9 +247,12 @@ function Row({
   async function onDelete() {
     if (deleting) return;
     if (
-      !window.confirm(
-        "Delete this inbox item? Any tasks and events you approved from it will stay. This cannot be undone.",
-      )
+      !(await confirm({
+        title: "Delete this item?",
+        description:
+          "Any tasks and events you approved from it will stay.",
+        destructive: true,
+      }))
     )
       return;
     setDeleting(true);

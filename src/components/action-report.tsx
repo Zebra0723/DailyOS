@@ -16,7 +16,7 @@ import { formatDate } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/components/ui/toast";
 
 function ConfidenceBadge({ value }: { value: ExtractionResult["confidence"] }) {
@@ -234,10 +234,9 @@ export function ReminderSuggestions({
           })}
         </div>
         <div className="flex items-center gap-2 pt-1">
-          <Input
-            type="date"
+          <DatePicker
             value={custom}
-            onChange={(e) => setCustom(e.target.value)}
+            onChange={setCustom}
             className="max-w-[180px]"
           />
           <Button

@@ -14,6 +14,7 @@ import { cn, formatDate, relativeDay } from "@/lib/utils";
 import { PriorityBadge } from "@/components/badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import type { ExtractedTask, Priority } from "@/lib/types";
@@ -185,11 +186,7 @@ export function TaskItem({ task }: { task: ExtractedTask }) {
                 }}
               />
               <div className="grid grid-cols-2 gap-2">
-                <Input
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                />
+                <DatePicker value={dueDate} onChange={setDueDate} />
                 <Select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value as Priority)}

@@ -19,6 +19,7 @@ import {
 } from "@/lib/homeos/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Modal, Field } from "@/components/homeos/ui";
@@ -50,6 +51,9 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
+  // Value-based setter for controls (like the date picker) that emit a string.
+  const setVal = (k: string) => (v: string) =>
+    setForm((f) => ({ ...f, [k]: v }));
 
   const num = (v?: string) => {
     const n = parseFloat(v ?? "");
@@ -198,7 +202,7 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
                 <Field label="Status"><Select value={form.status ?? "Active"} onChange={set("status")}>{SUBSCRIPTION_STATUSES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
               </div>
               <Field label="Category"><Select value={form.category ?? "Other"} onChange={set("category")}>{SUBSCRIPTION_CATEGORIES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
-              <Field label="Renewal date"><Input type="date" value={form.renewalDate ?? ""} onChange={set("renewalDate")} /></Field>
+              <Field label="Renewal date"><DatePicker value={form.renewalDate ?? ""} onChange={setVal("renewalDate")} /></Field>
               <Field label="Owner"><Input value={form.owner ?? ""} onChange={set("owner")} /></Field>
             </>
           )}
@@ -211,7 +215,7 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
                 <Field label="Status"><Select value={form.status ?? "Scheduled"} onChange={set("status")}>{ARRIVAL_STATUSES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label="Expected date"><Input type="date" value={form.expectedDate ?? ""} onChange={set("expectedDate")} /></Field>
+                <Field label="Expected date"><DatePicker value={form.expectedDate ?? ""} onChange={setVal("expectedDate")} /></Field>
                 <Field label="Time window"><Input value={form.timeWindow ?? ""} onChange={set("timeWindow")} placeholder="9–12" /></Field>
               </div>
               <Field label="Company"><Input value={form.company ?? ""} onChange={set("company")} placeholder="e.g. Royal Mail" /></Field>
@@ -260,8 +264,8 @@ export function AddItemModal({ open, onClose }: { open: boolean; onClose: () => 
               <Field label="Type"><Select value={form.type ?? "Receipt"} onChange={set("type")}>{DOCUMENT_TYPES.map((o)=><option key={o}>{o}</option>)}</Select></Field>
               <Field label="Provider"><Input value={form.provider ?? ""} onChange={set("provider")} /></Field>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label="Date"><Input type="date" value={form.date ?? ""} onChange={set("date")} /></Field>
-                <Field label="Expiry"><Input type="date" value={form.expiryDate ?? ""} onChange={set("expiryDate")} /></Field>
+                <Field label="Date"><DatePicker value={form.date ?? ""} onChange={setVal("date")} /></Field>
+                <Field label="Expiry"><DatePicker value={form.expiryDate ?? ""} onChange={setVal("expiryDate")} /></Field>
               </div>
               <Field label="File URL / name"><Input value={form.fileUrl ?? ""} onChange={set("fileUrl")} placeholder="receipt.pdf" /></Field>
             </>

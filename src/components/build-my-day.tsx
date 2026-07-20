@@ -25,6 +25,7 @@ import type { DayPlan, DayBlock, BlockType, Pace } from "@/lib/ai/build-day";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TimePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -201,11 +202,11 @@ export function BuildMyDay() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="ds">My day starts</Label>
-                <Input id="ds" type="time" value={dayStart} onChange={(e) => setDayStart(e.target.value)} />
+                <TimePicker id="ds" value={dayStart} onChange={setDayStart} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="de">…and ends</Label>
-                <Input id="de" type="time" value={dayEnd} onChange={(e) => setDayEnd(e.target.value)} />
+                <TimePicker id="de" value={dayEnd} onChange={setDayEnd} />
               </div>
             </div>
 
@@ -240,9 +241,9 @@ export function BuildMyDay() {
                 {fixed.map((r, i) => (
                   <div key={i} className="flex flex-col gap-2 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-2">
-                      <Input type="time" value={r.start} onChange={(e) => setRow(i, { start: e.target.value })} className="w-full sm:w-28" />
+                      <TimePicker value={r.start} onChange={(v) => setRow(i, { start: v })} className="w-full sm:w-28" />
                       <span className="text-muted-foreground">–</span>
-                      <Input type="time" value={r.end} onChange={(e) => setRow(i, { end: e.target.value })} className="w-full sm:w-28" />
+                      <TimePicker value={r.end} onChange={(v) => setRow(i, { end: v })} className="w-full sm:w-28" />
                     </div>
                     <div className="flex flex-1 items-center gap-2">
                       <Input
@@ -372,17 +373,15 @@ export function BuildMyDay() {
                           className="h-9"
                         />
                         <div className="flex items-center gap-2">
-                          <Input
-                            type="time"
+                          <TimePicker
                             value={b.start}
-                            onChange={(e) => patchBlock(i, { start: e.target.value })}
+                            onChange={(v) => patchBlock(i, { start: v })}
                             className="h-9 w-28"
                           />
                           <span className="text-muted-foreground">–</span>
-                          <Input
-                            type="time"
+                          <TimePicker
                             value={b.end}
-                            onChange={(e) => patchBlock(i, { end: e.target.value })}
+                            onChange={(v) => patchBlock(i, { end: v })}
                             className="h-9 w-28"
                           />
                           <select

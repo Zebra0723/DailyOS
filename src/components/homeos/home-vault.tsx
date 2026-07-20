@@ -28,6 +28,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
+import { useConfirm } from "@/components/ui/confirm";
 import { cn } from "@/lib/utils";
 
 type NewDocument = Omit<HomeDocument, "id" | "createdAt" | "updatedAt">;
@@ -113,6 +115,7 @@ export function HomeVault() {
     updateDocument,
     deleteDocument,
   } = useHomeOS();
+  const confirm = useConfirm();
 
   const [search, setSearch] = React.useState("");
   const [typeFilter, setTypeFilter] = React.useState<DocumentType | "all">(
@@ -255,10 +258,13 @@ export function HomeVault() {
     closeModal();
   }
 
-  function handleDelete(doc: HomeDocument) {
+  async function handleDelete(doc: HomeDocument) {
     if (
-      typeof window !== "undefined" &&
-      !window.confirm(`Delete "${doc.title}"? This can't be undone.`)
+      !(await confirm({
+        title: "Delete this document?",
+        description: doc.title,
+        destructive: true,
+      }))
     ) {
       return;
     }
@@ -512,18 +518,16 @@ export function HomeVault() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Date">
-              <Input
-                type="date"
+              <DatePicker
                 value={form.date}
-                onChange={(e) => patch("date", e.target.value)}
+                onChange={(v) => patch("date", v)}
               />
             </Field>
 
             <Field label="Expiry date">
-              <Input
-                type="date"
+              <DatePicker
                 value={form.expiryDate}
-                onChange={(e) => patch("expiryDate", e.target.value)}
+                onChange={(v) => patch("expiryDate", v)}
               />
             </Field>
           </div>

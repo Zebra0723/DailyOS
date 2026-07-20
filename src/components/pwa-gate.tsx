@@ -16,9 +16,7 @@ import { InstallApp } from "@/components/install-app";
 // When true, a normal browser tab shows the install wall and only the
 // installed PWA (opened from the home screen) can use the app. When false,
 // DailyOS also works straight in the browser — no install required.
-// TEMPORARY: flipped to false so people can use it on the web for now.
-// TODO(Leo): set this back to `true` to make DailyOS PWA-only again.
-const PWA_ONLY = false;
+const PWA_ONLY = true;
 
 const POINTS = [
   {

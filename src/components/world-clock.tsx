@@ -4,6 +4,7 @@ import * as React from "react";
 import { Plus, X, Search, Clock, CalendarClock } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Input } from "@/components/ui/input";
+import { TimePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ymdInTz } from "@/lib/dates-tz";
@@ -335,10 +336,9 @@ function MeetingPlanner({ cities }: { cities: Zone[] }) {
           <div className="mt-4 space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Your time</span>
-              <Input
-                type="time"
+              <TimePicker
                 value={time}
-                onChange={(e) => setTime(e.target.value)}
+                onChange={setTime}
                 className="w-32"
               />
               <span className="text-xs text-muted-foreground">today</span>

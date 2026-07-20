@@ -7,17 +7,23 @@ import { createClient } from "@/lib/supabase/client";
 import { deleteAllData, deleteAccount } from "@/app/(app)/settings/actions";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { useConfirm } from "@/components/ui/confirm";
 
 export function SettingsDanger() {
   const router = useRouter();
   const { toast } = useToast();
+  const confirm = useConfirm();
   const [busy, setBusy] = React.useState<"data" | "account" | null>(null);
 
   async function clearData() {
     if (
-      !confirm(
-        "Delete ALL your Drop items, tasks, events and files? This cannot be undone.",
-      )
+      !(await confirm({
+        title: "Delete all your data?",
+        description:
+          "Every Drop item, task, event and uploaded file. Your login is kept.",
+        confirmText: "Delete everything",
+        destructive: true,
+      }))
     )
       return;
     setBusy("data");
@@ -33,9 +39,12 @@ export function SettingsDanger() {
 
   async function removeAccount() {
     if (
-      !confirm(
-        "Permanently delete your account and everything in it? This cannot be undone.",
-      )
+      !(await confirm({
+        title: "Permanently delete your account?",
+        description: "Your account and everything in it will be removed.",
+        confirmText: "Delete account",
+        destructive: true,
+      }))
     )
       return;
     setBusy("account");

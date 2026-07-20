@@ -8,6 +8,7 @@ import { TaskItem } from "@/components/task-item";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Select } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
@@ -96,11 +97,7 @@ export function TasksManager({ tasks }: { tasks: ExtractedTask[] }) {
               onKeyDown={(e) => e.key === "Enter" && add()}
             />
             <div className="grid gap-3 sm:grid-cols-2">
-              <Input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-              />
+              <DatePicker value={dueDate} onChange={setDueDate} />
               <Select
                 value={newPriority}
                 onChange={(e) => setNewPriority(e.target.value as Priority)}

@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.19 · v179 (Temporarily usable in the browser — PWA install no longer required)";
+export const APP_VERSION = "2026.07.20 · v181 (Branded DailyOS date & time pickers + confirm dialogs — no more native Apple popups)";

@@ -23,6 +23,7 @@ import { CategoryBadge } from "@/components/badges";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
+import { useConfirm } from "@/components/ui/confirm";
 import { deleteVaultItem } from "@/app/(app)/vault/actions";
 import { cn, formatDate } from "@/lib/utils";
 import {
@@ -50,13 +51,19 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
 export function VaultBrowser({ items }: { items: VaultRow[] }) {
   const router = useRouter();
   const { toast } = useToast();
+  const confirm = useConfirm();
   const [query, setQuery] = React.useState("");
   const [category, setCategory] = React.useState<VaultCategory | "all">("all");
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
   async function onDelete(id: string) {
     if (deletingId) return;
-    if (!window.confirm("Remove this from your vault? This cannot be undone."))
+    if (
+      !(await confirm({
+        title: "Remove this from your vault?",
+        destructive: true,
+      }))
+    )
       return;
     setDeletingId(id);
     try {

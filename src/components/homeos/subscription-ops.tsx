@@ -56,6 +56,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useConfirm } from "@/components/ui/confirm";
 import { cn } from "@/lib/utils";
 
 // ---- Helpers ---------------------------------------------------------------
@@ -596,6 +597,7 @@ function SubscriptionDrawer({
   deleteSubscription: (id: string) => void;
   addTodayAction: ReturnType<typeof useHomeOS>["addTodayAction"];
 }) {
+  const confirm = useConfirm();
   const [note, setNote] = React.useState("");
 
   // Editable inline fields, seeded from the selected subscription.
@@ -641,8 +643,14 @@ function SubscriptionDrawer({
 
   const saveNote = () => updateSubscription(sub.id, { notes: note });
 
-  const onDelete = () => {
-    if (window.confirm(`Delete "${sub.name}"? This can't be undone.`)) {
+  const onDelete = async () => {
+    if (
+      await confirm({
+        title: "Delete this subscription?",
+        description: sub.name,
+        destructive: true,
+      })
+    ) {
       deleteSubscription(sub.id);
     }
   };

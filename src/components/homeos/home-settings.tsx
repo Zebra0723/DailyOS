@@ -17,6 +17,7 @@ import { Section } from "@/components/homeos/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useConfirm } from "@/components/ui/confirm";
 import {
   Card,
   CardContent,
@@ -164,6 +165,7 @@ export function HomeSettings() {
     importHomeOSJSON,
   } = useHomeOS();
   const { admin } = usePlan();
+  const confirm = useConfirm();
 
   const { homeProfile, settings } = data;
 
@@ -218,14 +220,27 @@ export function HomeSettings() {
     setImportResult(importHomeOSJSON(importText));
   }
 
-  function handleReset() {
-    if (window.confirm("Reset HomeOS to demo data? This replaces your current data.")) {
+  async function handleReset() {
+    if (
+      await confirm({
+        title: "Reset HomeOS to demo data?",
+        description: "This replaces your current data.",
+        confirmText: "Reset",
+        destructive: true,
+      })
+    ) {
       resetDemoData();
     }
   }
 
-  function handleClear() {
-    if (window.confirm("Clear all HomeOS data? This cannot be undone.")) {
+  async function handleClear() {
+    if (
+      await confirm({
+        title: "Clear all HomeOS data?",
+        confirmText: "Clear data",
+        destructive: true,
+      })
+    ) {
       clearHomeOSData();
     }
   }

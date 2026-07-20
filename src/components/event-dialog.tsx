@@ -12,7 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { DateTimePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/components/ui/toast";
+import { useConfirm } from "@/components/ui/confirm";
 import { wallClockToStored, storedToInput } from "@/lib/dates-tz";
 import type { CalendarEvent } from "@/lib/types";
 
@@ -67,6 +69,7 @@ export function EventDialog({
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const confirm = useConfirm();
   const editing = Boolean(event);
 
   const [title, setTitle] = React.useState(event?.title ?? "");
@@ -118,7 +121,14 @@ export function EventDialog({
 
   async function remove() {
     if (!event) return;
-    if (!confirm("Delete this event?")) return;
+    if (
+      !(await confirm({
+        title: "Delete this event?",
+        description: event.title,
+        destructive: true,
+      }))
+    )
+      return;
     setBusy(true);
     const res = await deleteEvent(event.id);
     setBusy(false);
@@ -167,20 +177,18 @@ export function EventDialog({
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="ev-start">Starts</Label>
-              <Input
+              <DateTimePicker
                 id="ev-start"
-                type="datetime-local"
                 value={start}
-                onChange={(e) => setStart(e.target.value)}
+                onChange={setStart}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="ev-end">Ends (optional)</Label>
-              <Input
+              <DateTimePicker
                 id="ev-end"
-                type="datetime-local"
                 value={end}
-                onChange={(e) => setEnd(e.target.value)}
+                onChange={setEnd}
               />
             </div>
           </div>
