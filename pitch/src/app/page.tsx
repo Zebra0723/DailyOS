@@ -7,14 +7,19 @@ import {
   MessageCircleQuestion,
   RefreshCw,
   BellRing,
-  Coffee,
-  ShieldCheck,
-  TrendingUp,
-  Share2,
   Wallet,
   ArrowRight,
   Check,
   PenLine,
+  Brain,
+  AlarmClockOff,
+  FolderX,
+  CreditCard,
+  Users,
+  Lock,
+  Smartphone,
+  Heart,
+  ShieldCheck,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { LogoMark } from "@/components/logo-mark";
@@ -22,14 +27,37 @@ import { LogoMark } from "@/components/logo-mark";
 const APP_URL = "https://daily-os-lac.vercel.app";
 
 const NAV = [
-  { href: "#who", label: "Who we are" },
-  { href: "#features", label: "What it does" },
-  { href: "#pitch", label: "The pitch" },
-  { href: "#social", label: "Why social" },
-  { href: "#safety", label: "Safety" },
+  { href: "#problem", label: "The problem" },
+  { href: "#solution", label: "The solution" },
+  { href: "#how", label: "How it works" },
+  { href: "#matters", label: "Why it matters" },
+  { href: "#ask", label: "The ask" },
 ];
 
-const FEATURES = [
+const PROBLEMS = [
+  {
+    icon: FolderX,
+    title: "It's scattered everywhere",
+    desc: "A letter in a bag, a receipt in an inbox, a booking in a text. Life admin lives in a hundred places at once.",
+  },
+  {
+    icon: AlarmClockOff,
+    title: "Things slip through",
+    desc: "The form you meant to return, the appointment you half-remembered — the important stuff quietly falls off the edge.",
+  },
+  {
+    icon: CreditCard,
+    title: "Money leaks quietly",
+    desc: "Subscriptions renew on their own. Small fees and deadlines pile up while nobody's watching.",
+  },
+  {
+    icon: Brain,
+    title: "It never leaves your head",
+    desc: "Even when you're resting, the mental list keeps running. The load follows you into every quiet moment.",
+  },
+];
+
+const SOLUTION = [
   {
     icon: Inbox,
     title: "The Drop",
@@ -90,21 +118,26 @@ const STEPS = [
   },
 ];
 
-const BENEFITS = [
+const MATTERS = [
   {
-    icon: Wallet,
-    title: "It costs nothing",
-    desc: "No stadium banners, no billboards. Social media is free — the only investment is a little time.",
+    icon: Users,
+    label: "Built for real families",
+    desc: "Designed around busy parents and the everyday admin that actually piles up.",
   },
   {
-    icon: Share2,
-    title: "Real reach",
-    desc: "Introduce DailyOS to the right creators and their audiences, and the right people find us fast.",
+    icon: Lock,
+    label: "Private by design",
+    desc: "Your documents and details stay yours. Nothing about you is put on display.",
   },
   {
-    icon: TrendingUp,
-    title: "Actual users & revenue",
-    desc: "Awareness turns into sign-ups. Sign-ups turn into the first real revenue for everything we've built.",
+    icon: Smartphone,
+    label: "Works on every device",
+    desc: "Phone, tablet or laptop — it installs like an app and travels with you.",
+  },
+  {
+    icon: Heart,
+    label: "Made to give time back",
+    desc: "The whole point is a lighter head and a few more calm moments in the day.",
   },
 ];
 
@@ -157,23 +190,23 @@ export default function PitchPage() {
               <span className="text-primary">handled.</span>
             </h1>
             <p className="mt-5 max-w-md text-lg text-muted-foreground">
-              We built DailyOS to give people their time back. Now we want the
-              world to know it exists — and this is how.
+              DailyOS turns the chaos of everyday life admin into tasks, events
+              and reminders that just get handled — so you get your time back.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#who"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-colors hover:bg-primary/90"
-              >
-                Read the pitch <ArrowRight className="size-4" />
-              </a>
               <a
                 href={APP_URL}
                 target="_blank"
                 rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-colors hover:bg-primary/90"
+              >
+                Try the live app <ArrowRight className="size-4" />
+              </a>
+              <a
+                href="#problem"
                 className="inline-flex items-center gap-1.5 rounded-lg border bg-card px-5 py-3 text-sm font-semibold shadow-sm transition-colors hover:bg-accent/50"
               >
-                See the app
+                Read the pitch
               </a>
             </div>
             <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card px-3.5 py-1.5 text-sm font-medium text-foreground shadow-sm">
@@ -226,198 +259,157 @@ export default function PitchPage() {
         </div>
       </section>
 
-      {/* -------------------------------------------------------------- Stats */}
-      <section className="border-b bg-card/60">
-        <div className="container grid grid-cols-2 gap-6 py-10 md:grid-cols-4">
-          {[
-            { big: "1", small: "app, fully built & live" },
-            { big: "£0", small: "cost to reach people" },
-            { big: "8+", small: "ways it handles admin" },
-            { big: "24/7", small: "working behind the scenes" },
-          ].map((s) => (
-            <div key={s.small} className="text-center">
-              <div className="font-display text-3xl font-bold text-primary md:text-4xl">
-                {s.big}
+      {/* ------------------------------------------------------------ Problem */}
+      <Section
+        id="problem"
+        eyebrow="The problem"
+        title="Life admin is quietly exhausting"
+        subtitle="Nobody signs up for it, but it never stops arriving. Here's what it actually feels like."
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PROBLEMS.map((p) => (
+            <div
+              key={p.title}
+              className="rounded-2xl border bg-card p-5 shadow-card"
+            >
+              <div className="grid size-11 place-items-center rounded-xl bg-accent text-accent-foreground">
+                <p.icon className="size-5" />
               </div>
-              <div className="mt-1 text-sm text-muted-foreground">{s.small}</div>
+              <h3 className="mt-4 font-semibold">{p.title}</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">{p.desc}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------- Who we are */}
-      <Section id="who" eyebrow="Who are we?" title="An organisation built to handle life's admin">
-        <div className="grid gap-8 md:grid-cols-2 md:items-center">
-          <p className="text-lg leading-relaxed text-muted-foreground">
-            We are <strong className="text-foreground">DailyOS</strong>, an
-            organisation dedicated to helping people organise or handle natural
-            life admin. We work to stop the subscriptions that quietly renew and
-            organise events that always seem to come so quickly.
-          </p>
-          <div className="rounded-2xl border bg-card p-6 shadow-card">
-            <Coffee className="size-7 text-primary" />
-            <p className="mt-3 font-display text-xl font-semibold">
-              &ldquo;DailyOS is made to give you some time.&rdquo;
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              It works tirelessly behind the scenes while you enjoy a coffee, or
-              just a break from an action-packed life.
-            </p>
-          </div>
         </div>
       </Section>
 
-      {/* --------------------------------------------------------------- Our goal */}
-      <section className="border-y bg-accent/25">
+      {/* ----------------------------------------------------------- Solution */}
+      <section id="solution" className="border-y bg-accent/25">
         <div className="container py-16 md:py-20">
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            Our goal
+            The solution
           </p>
           <h2 className="mt-2 max-w-3xl font-display text-3xl font-bold tracking-tight md:text-4xl">
-            To organise your life.
+            Drop the mess in. Get it back handled.
           </h2>
-          <p className="mt-5 max-w-3xl text-lg leading-relaxed text-muted-foreground">
-            Think of it like this: you are a busy parent and you constantly have
-            to manage everything from birthday RSVPs to your own personal life
-            which is filled with endless activities and you can never find that
-            blissful rest period. DailyOS is made to give you some time. It
-            organises anything and works tirelessly behind the scenes whilst you
-            enjoy a coffee or just a break from an action-packed life.
+          <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
+            DailyOS takes the scattered pile of life admin and turns it into
+            clear tasks, real calendar events and a searchable vault — all on its
+            own. Everything below already works today. It&apos;s a real, finished
+            product, not an idea.
           </p>
-        </div>
-      </section>
 
-      {/* -------------------------------------------------------------- Features */}
-      <Section
-        id="features"
-        eyebrow="What it does"
-        title="A quick look at DailyOS"
-        subtitle="Everything below already works today. It's a real, finished product — not an idea."
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="group rounded-2xl border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-elevated"
-            >
-              <div className="grid size-11 place-items-center rounded-xl bg-accent text-accent-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                <f.icon className="size-5" />
-              </div>
-              <h3 className="mt-4 font-semibold">{f.title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* How it works */}
-        <div className="mt-14">
-          <h3 className="text-center font-display text-2xl font-bold">
-            Drop it in. Get on with your day.
-          </h3>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {STEPS.map((s) => (
-              <div key={s.n} className="relative rounded-2xl border bg-card p-6 shadow-card">
-                <span className="grid size-10 place-items-center rounded-full bg-primary font-display text-lg font-bold text-primary-foreground">
-                  {s.n}
-                </span>
-                <h4 className="mt-4 text-lg font-semibold">{s.title}</h4>
-                <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {SOLUTION.map((f) => (
+              <div
+                key={f.title}
+                className="group rounded-2xl border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-elevated"
+              >
+                <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                  <f.icon className="size-5" />
+                </div>
+                <h3 className="mt-4 font-semibold">{f.title}</h3>
+                <p className="mt-1.5 text-sm text-muted-foreground">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
-      </Section>
-
-      {/* ------------------------------------------------------ The goal of the pitch */}
-      <section id="pitch" className="border-y bg-foreground text-background">
-        <div className="container py-16 md:py-24">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary-foreground/70">
-            The goal of this pitch
-          </p>
-          <h2 className="mt-2 max-w-3xl font-display text-3xl font-bold tracking-tight md:text-5xl">
-            One thing is holding us back. Marketing.
-          </h2>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-background/70">
-            With this pitch, we want to expose DailyOS to the world. We want to
-            help. But one thing is holding us back from global success:
-            marketing. As of now, nobody is aware of DailyOS&apos;s existence,
-            which means our services will not be used and we will not generate a
-            single penny in revenue after hours of tireless work to build and
-            perfect DailyOS.
-          </p>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-background/70">
-            For an app like ours, we don&apos;t need advertisements at a sports
-            stadium or a giant billboard.{" "}
-            <span className="font-semibold text-primary">
-              We need social media.
-            </span>
-          </p>
-        </div>
       </section>
 
-      {/* ------------------------------------------------------- Benefits of social */}
+      {/* --------------------------------------------------------- How it works */}
       <Section
-        id="social"
-        eyebrow="Benefits of social media"
-        title="How we actually reach people"
-        subtitle="By introducing DailyOS to various influencers and their viewers, we believe sales will skyrocket and we will start to produce some revenue. Social media comes at no cost and it will actually get people to use what we've made."
+        id="how"
+        eyebrow="How it works"
+        title="Three steps, then it's off your plate"
+        subtitle="No setup rituals, no learning curve. If it's life admin, it goes in the Drop."
       >
-        <div className="grid gap-4 md:grid-cols-3">
-          {BENEFITS.map((b) => (
-            <div key={b.title} className="rounded-2xl border bg-card p-6 shadow-card">
-              <div className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
-                <b.icon className="size-5" />
-              </div>
-              <h3 className="mt-4 text-lg font-semibold">{b.title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{b.desc}</p>
+        <div className="grid gap-6 md:grid-cols-3">
+          {STEPS.map((s) => (
+            <div key={s.n} className="relative rounded-2xl border bg-card p-6 shadow-card">
+              <span className="grid size-10 place-items-center rounded-full bg-primary font-display text-lg font-bold text-primary-foreground">
+                {s.n}
+              </span>
+              <h4 className="mt-4 text-lg font-semibold">{s.title}</h4>
+              <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
             </div>
           ))}
         </div>
       </Section>
 
-      {/* -------------------------------------------------------------- Safety */}
-      <section id="safety" className="border-y bg-accent/25">
-        <div className="container py-16 md:py-20">
-          <div className="grid gap-10 md:grid-cols-2 md:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                Safety
-              </p>
-              <h2 className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl">
-                I know the real concern is safety.
-              </h2>
-              <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
-                Social media can be dangerous, even I understand that. But
-                don&apos;t forget that using social media for{" "}
-                <strong className="text-foreground">DailyOS</strong> is definitely
-                not the same as using it for myself. No personal information will
-                ever be shared and no identities will be revealed. Also, I
-                won&apos;t even be looking at other people&apos;s posts — I would
-                use it only for DailyOS.
-              </p>
-            </div>
-            <div className="rounded-2xl border bg-card p-6 shadow-card">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="size-6 text-primary" />
-                <span className="font-semibold">The ground rules</span>
+      {/* ------------------------------------------------------- Why it matters */}
+      <section id="matters" className="border-y bg-foreground text-background">
+        <div className="container py-16 md:py-24">
+          <p className="text-sm font-semibold uppercase tracking-wider text-primary-foreground/70">
+            Why it matters
+          </p>
+          <h2 className="mt-2 max-w-3xl font-display text-3xl font-bold tracking-tight md:text-5xl">
+            What we&apos;re building it to be
+          </h2>
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-background/70">
+            These aren&apos;t vanity numbers — they&apos;re the promises DailyOS
+            is built around. This is the bar we hold ourselves to.
+          </p>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {MATTERS.map((m) => (
+              <div
+                key={m.label}
+                className="rounded-2xl border border-background/15 bg-background/5 p-6"
+              >
+                <div className="grid size-11 place-items-center rounded-xl bg-primary/20 text-primary-foreground">
+                  <m.icon className="size-5" />
+                </div>
+                <h3 className="mt-4 font-display text-lg font-semibold">
+                  {m.label}
+                </h3>
+                <p className="mt-1.5 text-sm text-background/70">{m.desc}</p>
               </div>
-              <ul className="mt-4 space-y-3">
-                {SAFETY.map((s) => (
-                  <li key={s} className="flex items-start gap-3 text-sm">
-                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-                      <Check className="size-3.5" />
-                    </span>
-                    <span className="text-muted-foreground">{s}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* -------------------------------------------------------------- The ask */}
+      <section id="ask" className="container py-16 md:py-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+            What I&apos;m asking for
+          </p>
+          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl">
+            Just one thing: let DailyOS go on social media.
+          </h2>
+          <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
+            I&apos;ve built the whole app. The only thing standing between DailyOS
+            and the families it could help is that nobody knows it exists yet. An
+            app like this doesn&apos;t need billboards or expensive ads — it needs
+            a few social-media accounts so the right people can find it. It costs
+            nothing but a little time, and it&apos;s how we turn hours of work into
+            real users.
+          </p>
+        </div>
+
+        <div className="mx-auto mt-10 max-w-3xl rounded-2xl border bg-card p-6 shadow-card md:p-8">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="size-6 text-primary" />
+            <span className="font-semibold">And I know the real worry is safety</span>
+          </div>
+          <p className="mt-3 text-muted-foreground">
+            Running accounts for a brand is not the same as being on social media
+            myself. Here are the ground rules I&apos;ll stick to:
+          </p>
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            {SAFETY.map((s) => (
+              <li key={s} className="flex items-start gap-3 text-sm">
+                <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                  <Check className="size-3.5" />
+                </span>
+                <span className="text-muted-foreground">{s}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* ----------------------------------------------------------- Closing CTA */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden border-t">
         <div className="absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" />
         <div className="container relative py-20 text-center md:py-28">
           <Logo className="text-2xl" />
@@ -461,7 +453,7 @@ export default function PitchPage() {
                 · Life admin, handled.
               </span>
             </div>
-            <p>&copy; {new Date().getFullYear()} DailyOS. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} DailyOS. Made with care.</p>
           </div>
         </div>
       </footer>
