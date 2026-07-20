@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   ),
   applicationName: "DailyOS",
   manifest: "/manifest.webmanifest",
+  // apple-touch-icon is dynamic so a user's custom home-screen icon is used
+  // when they Add to Home Screen on iOS; falls back to the default DailyOS icon.
+  icons: {
+    icon: "/icon.svg",
+    apple: "/app-icon",
+  },
   appleWebApp: {
     capable: true,
     title: "DailyOS",

@@ -1,5 +1,6 @@
 import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell } from "lucide-react";
 import { InstallApp } from "@/components/install-app";
+import { AppIconUploader } from "@/components/app-icon-uploader";
 import { PushToggle } from "@/components/push-toggle";
 import { DailyBriefToggle } from "@/components/daily-brief-toggle";
 import { createClient } from "@/lib/supabase/server";
@@ -137,8 +138,11 @@ export default async function SettingsPage() {
               offline, and feels like a native app.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-5">
             <InstallApp />
+            <div className="border-t pt-5">
+              <AppIconUploader />
+            </div>
           </CardContent>
         </Card>
 
