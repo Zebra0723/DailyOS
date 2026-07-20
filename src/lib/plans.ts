@@ -64,7 +64,6 @@ export const PLANS: Plan[] = [
       "Calendar sync — Apple & Google Calendar",
       "Unlimited life-admin updates",
       "Priority AI processing",
-      "Family sharing (coming soon)",
     ],
   },
 ];

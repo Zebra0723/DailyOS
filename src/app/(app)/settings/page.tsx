@@ -1,6 +1,7 @@
 import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell } from "lucide-react";
 import { InstallApp } from "@/components/install-app";
 import { PushToggle } from "@/components/push-toggle";
+import { DailyBriefToggle } from "@/components/daily-brief-toggle";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
@@ -121,6 +122,7 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <PushToggle />
+            <DailyBriefToggle />
           </CardContent>
         </Card>
 

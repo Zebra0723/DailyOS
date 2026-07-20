@@ -4,6 +4,7 @@ import { pushConfigured, sendOnce } from "@/lib/push-server";
 import { REWARD_CODE_TTL_DAYS, describeReward } from "@/lib/referral-rewards";
 
 // Runs on a schedule (Vercel Cron, see vercel.json) and pushes the day's nudges:
+//   • a morning daily brief — today's events + tasks, fired in the user's 7am
 //   • reminders you set — tasks due today or overdue
 //   • upcoming events — anything starting in the next 24 hours
 //   • reward codes about to expire — unless you ignored them in Today
@@ -16,6 +17,24 @@ export const maxDuration = 60;
 // How soon before a reward code lapses we start nudging.
 const CODE_WARN_DAYS = 7;
 const DAY = 86_400_000;
+// The local hour to send the morning brief at (24h).
+const BRIEF_HOUR = 7;
+
+/** The user's local calendar day + hour, in their IANA timezone. */
+function localDayHour(tz: string, nowMs: number): { ymd: string; hour: number } {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(nowMs));
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  // en-GB gives hour "24" for midnight in some engines — normalise to 0.
+  const hour = Number(get("hour")) % 24;
+  return { ymd: `${get("year")}-${get("month")}-${get("day")}`, hour };
+}
 
 function authorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
@@ -79,9 +98,78 @@ export async function GET(req: Request) {
     .select("user_id");
   const userIds = Array.from(new Set((subRows ?? []).map((r) => r.user_id)));
 
+  // Per-user timezone + notification prefs (for the morning brief). Best-effort:
+  // if user_state isn't set up, everyone falls back to Europe/London + brief on.
+  const tzByUser = new Map<string, string>();
+  const briefOff = new Set<string>();
+  try {
+    const { data: stateRows } = await admin
+      .from("user_state")
+      .select("user_id,key,value")
+      .in("key", ["timezone", "prefs"]);
+    for (const r of stateRows ?? []) {
+      if (r.key === "timezone" && typeof r.value === "string") {
+        tzByUser.set(r.user_id, r.value);
+      } else if (r.key === "prefs") {
+        const v = (r.value ?? {}) as { dailyBrief?: boolean };
+        if (v.dailyBrief === false) briefOff.add(r.user_id);
+      }
+    }
+  } catch {
+    /* user_state not set up — brief still fires on the London fallback */
+  }
+
   let sent = 0;
 
   for (const uid of userIds) {
+    // 0) Morning brief — today's events + tasks, once per local day at ~7am.
+    if (!briefOff.has(uid)) {
+      let local: { ymd: string; hour: number };
+      try {
+        local = localDayHour(tzByUser.get(uid) || "Europe/London", now);
+      } catch {
+        local = localDayHour("Europe/London", now);
+      }
+      if (local.hour === BRIEF_HOUR) {
+        const [{ data: dueTasks }, { data: todayEvents }] = await Promise.all([
+          admin
+            .from("extracted_tasks")
+            .select("id")
+            .eq("user_id", uid)
+            .eq("status", "pending")
+            .eq("due_date", local.ymd),
+          admin
+            .from("calendar_events")
+            .select("title,start_time")
+            .eq("user_id", uid)
+            .gte("start_time", `${local.ymd}T00:00:00`)
+            .lte("start_time", `${local.ymd}T23:59:59`)
+            .order("start_time", { ascending: true }),
+        ]);
+        const taskN = dueTasks?.length ?? 0;
+        const evN = todayEvents?.length ?? 0;
+        // Only ping when there's actually something to brief — no empty nudges.
+        if (taskN > 0 || evN > 0) {
+          const bits: string[] = [];
+          if (evN > 0) {
+            const first = todayEvents![0];
+            const hhmm = (first.start_time as string).slice(11, 16);
+            bits.push(
+              `${evN} event${evN > 1 ? "s" : ""} — first ${hhmm}, ${first.title as string}`,
+            );
+          }
+          if (taskN > 0) bits.push(`${taskN} task${taskN > 1 ? "s" : ""} due`);
+          const ok = await sendOnce(uid, `daily-brief:${local.ymd}`, {
+            title: "Good morning — today at a glance",
+            body: bits.join(" · "),
+            url: "/today",
+            tag: "daily-brief",
+          });
+          if (ok) sent++;
+        }
+      }
+    }
+
     // 1) Reminders you set — tasks due today or overdue.
     const { data: tasks } = await admin
       .from("extracted_tasks")

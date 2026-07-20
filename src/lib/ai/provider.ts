@@ -98,6 +98,32 @@ class OpenAICompatibleProvider implements AIProvider {
   }
 }
 
+/** Non-secret snapshot of the AI configuration, for the Settings self-test. */
+export function getAIDiagnostics(): {
+  configured: boolean;
+  model: string;
+  host: string;
+  keyPresent: boolean;
+  keyLooksLikeSupabase: boolean;
+} {
+  const baseUrl = process.env.AI_PROVIDER_BASE_URL ?? "https://api.openai.com/v1";
+  const apiKey = process.env.AI_PROVIDER_API_KEY ?? "";
+  const model = process.env.AI_MODEL ?? "gpt-4o-mini";
+  let host = baseUrl;
+  try {
+    host = new URL(baseUrl).host;
+  } catch {
+    /* leave as-is */
+  }
+  return {
+    configured: getAIProvider().isConfigured(),
+    model,
+    host,
+    keyPresent: Boolean(apiKey),
+    keyLooksLikeSupabase: apiKey.startsWith("sb_"),
+  };
+}
+
 let cached: AIProvider | null = null;
 
 export function getAIProvider(): AIProvider {

@@ -201,7 +201,11 @@ export async function askDailyOS(
         actions: withLabels(dedupeActions(parsed.actions as AssistantAction[])),
         usedAI: true,
       };
-    } catch {
+    } catch (err) {
+      // Surface the real reason in the server logs — the user only sees the
+      // friendly fallback below, but this is what tells us WHY (bad key, no
+      // billing/quota, wrong model, timeout…). See Settings → Test AI.
+      console.error("[askDailyOS] AI call failed:", err);
       /* fall through to local */
     }
   }

@@ -62,11 +62,11 @@ async function searchContent(raw: string): Promise<Item[]> {
   const supabase = createClient();
   try {
     const [inbox, tasks, events, notes, vault] = await Promise.all([
-      supabase.from("inbox_items").select("id,title,summary").or(`title.ilike.${like},summary.ilike.${like}`).limit(4),
-      supabase.from("extracted_tasks").select("id,title").ilike("title", like).limit(4),
-      supabase.from("calendar_events").select("id,title").ilike("title", like).limit(4),
-      supabase.from("notes").select("id,content").ilike("content", like).limit(4),
-      supabase.from("vault_items").select("id,title,summary").or(`title.ilike.${like},summary.ilike.${like}`).limit(4),
+      supabase.from("inbox_items").select("id,title,summary").or(`title.ilike.${like},summary.ilike.${like}`).limit(5),
+      supabase.from("extracted_tasks").select("id,title").ilike("title", like).limit(5),
+      supabase.from("calendar_events").select("id,title,location,description").or(`title.ilike.${like},location.ilike.${like},description.ilike.${like}`).limit(5),
+      supabase.from("notes").select("id,content").ilike("content", like).limit(5),
+      supabase.from("vault_items").select("id,title,summary").or(`title.ilike.${like},summary.ilike.${like}`).limit(5),
     ]);
     const out: Item[] = [];
     for (const r of inbox.data ?? []) out.push({ id: `i-${r.id}`, label: r.title || "Drop item", sub: "The Drop", href: `/inbox/${r.id}`, icon: Inbox });
