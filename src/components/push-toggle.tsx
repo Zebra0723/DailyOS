@@ -87,10 +87,21 @@ export function PushToggle() {
       if (res.ok) {
         toast({ variant: "success", title: "Test sent — watch for it!" });
       } else {
+        const messages: Record<string, string> = {
+          "not-configured":
+            "The server has no VAPID keys set — add them in the hosting env, then redeploy.",
+          "no-device":
+            "This device isn't subscribed. Turn notifications off and on again, then retest.",
+          "send-failed":
+            "The server's VAPID keys don't match this device. After updating the keys, turn notifications off and on to re-subscribe.",
+          "signed-out": "Please sign in and try again.",
+        };
         toast({
           variant: "info",
           title: "Nothing sent",
-          description: "No active device, or notifications aren't set up yet.",
+          description:
+            messages[res.reason] ??
+            "No active device, or notifications aren't set up yet.",
         });
       }
     } catch {
