@@ -29,25 +29,36 @@ function DefaultIcon({ className }: { className?: string }) {
   );
 }
 
-/** Resize/crop an image file to a square data URL. */
-function toSquareDataUrl(file: File, size = 512): Promise<string> {
+/** Resize/crop an image file to a square data URL (kept small for fast sync). */
+function toSquareDataUrl(file: File, size = 256): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
-    img.onload = () => {
+    // Never hang forever if the browser can't decode the file (e.g. HEIC).
+    const timer = setTimeout(() => {
       URL.revokeObjectURL(url);
-      const canvas = document.createElement("canvas");
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return reject(new Error("no canvas"));
-      const scale = Math.max(size / img.width, size / img.height);
-      const w = img.width * scale;
-      const h = img.height * scale;
-      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
-      resolve(canvas.toDataURL("image/jpeg", 0.85));
+      reject(new Error("timeout"));
+    }, 15000);
+    img.onload = () => {
+      clearTimeout(timer);
+      URL.revokeObjectURL(url);
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("no canvas"));
+        const scale = Math.max(size / img.width, size / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
+      } catch (err) {
+        reject(err);
+      }
     };
     img.onerror = () => {
+      clearTimeout(timer);
       URL.revokeObjectURL(url);
       reject(new Error("bad image"));
     };
@@ -77,20 +88,28 @@ export function AppIconUploader() {
     if (fileRef.current) fileRef.current.value = "";
     if (!file) return;
     setBusy(true);
+    let dataUrl: string;
     try {
-      const dataUrl = await toSquareDataUrl(file);
-      setSrc(dataUrl);
-      await saveRemote("appicon", dataUrl);
-      toast({
-        variant: "success",
-        title: "App icon saved",
-        description: "Re-add DailyOS to your home screen to see it.",
-      });
+      dataUrl = await toSquareDataUrl(file);
     } catch {
-      toast({ variant: "error", title: "Couldn't use that image" });
-    } finally {
       setBusy(false);
+      toast({ variant: "error", title: "Couldn't use that image" });
+      return;
     }
+    // Show it and stop the spinner immediately — don't block the UI on the save.
+    setSrc(dataUrl);
+    setBusy(false);
+    void saveRemote("appicon", dataUrl)
+      .then(() =>
+        toast({
+          variant: "success",
+          title: "App icon saved",
+          description: "Re-add DailyOS to your home screen to see it.",
+        }),
+      )
+      .catch(() =>
+        toast({ variant: "error", title: "Saved on this device only" }),
+      );
   }
 
   function remove() {
