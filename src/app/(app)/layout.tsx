@@ -1,5 +1,17 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+
+// Admin accounts get the green home-screen icon; everyone else keeps the red
+// default. Server-rendered into the <head>, so iOS reads it on Add to Home Screen.
+export async function generateMetadata(): Promise<Metadata> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user?.user_metadata?.admin) return {};
+  return { icons: { apple: "/admin-app-icon.png" } };
+}
 import { TopNav, MobileNav, MobileHeader } from "@/components/app-nav";
 import { FreePlanBanner } from "@/components/free-plan-banner";
 import { CommandPalette } from "@/components/command-palette";

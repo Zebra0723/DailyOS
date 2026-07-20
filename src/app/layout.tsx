@@ -4,7 +4,6 @@ import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { PwaRegister } from "@/components/pwa-register";
-import { AppIconLink } from "@/components/app-icon-link";
 import { VersionGuard } from "@/components/version-guard";
 
 // Fraunces: a warm "old-style" serif — the editorial voice of the Almanac UI.
@@ -25,8 +24,13 @@ export const metadata: Metadata = {
   ),
   applicationName: "DailyOS",
   manifest: "/manifest.webmanifest",
-  // Icons come from the special files app/icon.svg (favicon) + app/apple-icon.tsx
-  // (iOS). A per-device custom icon is layered on client-side by <AppIconLink>.
+  // Default home-screen icon (red/white). Admin accounts override this with the
+  // green variant via the (app) layout's generateMetadata — server-rendered, so
+  // iOS actually reads it on Add to Home Screen.
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-touch-default.png",
+  },
   appleWebApp: {
     capable: true,
     title: "DailyOS",
@@ -96,7 +100,6 @@ export default function RootLayout({
           <ConfirmProvider>{children}</ConfirmProvider>
         </ToastProvider>
         <PwaRegister />
-        <AppIconLink />
         <VersionGuard />
       </body>
     </html>
