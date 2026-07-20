@@ -19,7 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { APPICON_LS_KEY, APPICON_EVENT } from "@/components/app-icon-link";
-import { ADMIN_ICON_DATA_URL } from "@/lib/special-icon";
+
+// The admin icon is a real static URL (iOS ignores data: URLs for icons).
+const ADMIN_ICON_URL = "/admin-app-icon.png";
 import { cn } from "@/lib/utils";
 
 // Promo/admin codes are validated server-side (see promo-actions.ts) so the
@@ -63,12 +65,12 @@ export function PricingTable({
     // (red with a light-green logo). Applied instantly via the apple-touch-icon.
     if (entered === "ADMINICONOS") {
       try {
-        localStorage.setItem(APPICON_LS_KEY, ADMIN_ICON_DATA_URL);
+        localStorage.setItem(APPICON_LS_KEY, ADMIN_ICON_URL);
       } catch {
         /* ignore */
       }
       window.dispatchEvent(
-        new CustomEvent(APPICON_EVENT, { detail: ADMIN_ICON_DATA_URL }),
+        new CustomEvent(APPICON_EVENT, { detail: ADMIN_ICON_URL }),
       );
       toast({
         variant: "success",
