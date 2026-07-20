@@ -18,6 +18,8 @@ import { redeemPromoCode } from "@/app/(app)/subscriptions/promo-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { APPICON_LS_KEY, APPICON_EVENT } from "@/components/app-icon-link";
+import { ADMIN_ICON_DATA_URL } from "@/lib/special-icon";
 import { cn } from "@/lib/utils";
 
 // Promo/admin codes are validated server-side (see promo-actions.ts) so the
@@ -56,6 +58,26 @@ export function PricingTable({
       return;
     }
     setError(false);
+
+    // Special code: sets this device's home-screen icon to the admin icon
+    // (red with a light-green logo). Applied instantly via the apple-touch-icon.
+    if (entered === "ADMINICONOS") {
+      try {
+        localStorage.setItem(APPICON_LS_KEY, ADMIN_ICON_DATA_URL);
+      } catch {
+        /* ignore */
+      }
+      window.dispatchEvent(
+        new CustomEvent(APPICON_EVENT, { detail: ADMIN_ICON_DATA_URL }),
+      );
+      toast({
+        variant: "success",
+        title: "Admin app icon set",
+        description: "Remove DailyOS from your home screen and add it again.",
+      });
+      setCode("");
+      return;
+    }
 
     // Check it as a promo/admin code (validated on the server against private
     // env codes — the code strings are never in the client).
