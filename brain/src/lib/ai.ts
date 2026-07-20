@@ -1,16 +1,20 @@
 import "server-only";
 
 // Talks to the same OpenAI-compatible AI provider the DailyOS app uses.
+// Defaults to Groq — override with AI_PROVIDER_BASE_URL / AI_MODEL for others.
+const DEFAULT_BASE_URL = "https://api.groq.com/openai/v1";
+const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+
 export function aiInfo() {
   const key = process.env.AI_PROVIDER_API_KEY ?? "";
-  let host = "api.openai.com";
+  let host = "api.groq.com";
   try {
-    host = new URL(process.env.AI_PROVIDER_BASE_URL ?? "https://api.openai.com/v1").host;
+    host = new URL(process.env.AI_PROVIDER_BASE_URL ?? DEFAULT_BASE_URL).host;
   } catch {
     /* keep default */
   }
   return {
-    model: process.env.AI_MODEL ?? "gpt-4o-mini",
+    model: process.env.AI_MODEL ?? DEFAULT_MODEL,
     host,
     keyPresent: Boolean(key),
     looksLikeSupabase: key.startsWith("sb_"),
@@ -18,9 +22,9 @@ export function aiInfo() {
 }
 
 export async function testChat(prompt: string): Promise<{ ok: boolean; reply?: string; error?: string }> {
-  const base = (process.env.AI_PROVIDER_BASE_URL ?? "https://api.openai.com/v1").replace(/\/$/, "");
+  const base = (process.env.AI_PROVIDER_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/$/, "");
   const key = process.env.AI_PROVIDER_API_KEY;
-  const model = process.env.AI_MODEL ?? "gpt-4o-mini";
+  const model = process.env.AI_MODEL ?? DEFAULT_MODEL;
   if (!key) return { ok: false, error: "No AI_PROVIDER_API_KEY set in this project." };
   try {
     const res = await fetch(`${base}/chat/completions`, {
