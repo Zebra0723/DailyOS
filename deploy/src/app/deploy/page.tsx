@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ExternalLink, GitBranch } from "lucide-react";
 import { listDeployments, vercelConfigured, deployHookConfigured } from "@/lib/vercel";
 import { TriggerButton } from "@/components/trigger-button";
@@ -47,7 +48,9 @@ export default async function DeployPage() {
                     {d.target === "production" && <span className="rounded-md bg-[#bf502b] px-2 py-0.5 text-[11px] font-bold text-white">PROD</span>}
                     <span className="ml-auto text-xs text-[#8a8073]">{d.created ? new Date(d.created).toLocaleString() : ""}</span>
                   </div>
-                  <p className="mt-1.5 truncate text-sm font-medium">{d.message || d.name || d.url}</p>
+                  <Link href={`/deploy/${d.uid}`} className="mt-1.5 block truncate text-sm font-medium hover:text-[#bf502b] hover:underline">
+                    {d.message || d.name || d.url}
+                  </Link>
                   <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[#8a8073]">
                     {d.branch && <span className="inline-flex items-center gap-1"><GitBranch className="size-3" /> {d.branch}</span>}
                     {d.url && (
@@ -56,7 +59,7 @@ export default async function DeployPage() {
                       </a>
                     )}
                   </div>
-                  <DeploymentActions uid={d.uid} name={d.name} target={d.target} state={d.state} />
+                  <DeploymentActions uid={d.uid} name={d.name} target={d.target} state={d.state} showDetails />
                 </div>
               );
             })

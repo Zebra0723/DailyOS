@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Pencil, Save, X } from "lucide-react";
 import type { EnvVar } from "@/lib/vercel";
 import { ConfirmButton } from "@/components/confirm-button";
+import { EnvCopyTool } from "@/components/env-copy-tool";
 import { createEnvAction, updateEnvAction, deleteEnvAction } from "@/app/deploy/actions";
 
 const TARGETS = ["production", "preview", "development"] as const;
@@ -205,6 +206,7 @@ export function EnvManager({ envs }: { envs: EnvVar[] }) {
   return (
     <div className="grid gap-3">
       <AddForm onDone={refresh} />
+      {envs.length > 0 && <EnvCopyTool envs={envs} />}
       {envs.length === 0 ? (
         <p className="text-sm text-[#8a8073]">No environment variables found.</p>
       ) : (

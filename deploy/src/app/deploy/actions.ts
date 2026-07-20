@@ -7,9 +7,11 @@ import {
   cancelDeployment,
   promoteDeployment,
   redeployDeployment,
+  rollbackDeployment,
   createEnv,
   updateEnv,
   deleteEnv,
+  copyEnvValue,
 } from "@/lib/vercel";
 
 type R = { ok: boolean; error?: string };
@@ -41,6 +43,28 @@ export async function redeployDeploymentAction(
   await requireAdminUser();
   const r = await redeployDeployment(id, name, target);
   if (r.ok) revalidatePath("/deploy");
+  return r;
+}
+
+export async function rollbackDeploymentAction(id: string, name: string): Promise<R> {
+  await requireAdminUser();
+  const r = await rollbackDeployment(id, name);
+  if (r.ok) {
+    revalidatePath("/deploy");
+    revalidatePath(`/deploy/${id}`);
+  }
+  return r;
+}
+
+export async function copyEnvAcrossTargetsAction(input: {
+  key: string;
+  fromTarget: string;
+  toTarget: string;
+  value?: string;
+}): Promise<R & { needsValue?: boolean }> {
+  await requireAdminUser();
+  const r = await copyEnvValue(input);
+  if (r.ok) revalidatePath("/deploy/env");
   return r;
 }
 

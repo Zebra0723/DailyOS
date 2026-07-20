@@ -49,6 +49,25 @@ export interface LogLine {
   type: string;
 }
 
+export interface DeploymentDetail {
+  uid: string;
+  name: string;
+  url: string;
+  state: string;
+  target: string | null;
+  createdAt: number;
+  buildingAt: number | null;
+  ready: number | null;
+  creator: string | null;
+  branch: string | null;
+  commitSha: string | null;
+  commitAuthor: string | null;
+  message: string | null;
+  aliases: string[];
+  /** Build duration in ms (ready - buildingAt), when both are known. */
+  buildMs: number | null;
+}
+
 export function vercelConfigured(): boolean {
   return Boolean(process.env.VC_TOKEN);
 }
@@ -202,6 +221,54 @@ export async function getDeploymentLogs(
   return { ok: true, lines };
 }
 
+/** Fetch a single deployment with full metadata (GET /v13/deployments/{id}). */
+export async function getDeployment(
+  id: string,
+): Promise<{ ok: boolean; deployment?: DeploymentDetail; error?: string }> {
+  const r = await vc<Record<string, unknown>>(`/v13/deployments/${id}?${teamQ().slice(1)}`);
+  if (!r.ok) return { ok: false, error: r.error };
+  const d = r.data ?? {};
+  const meta = (d.meta ?? {}) as Record<string, string>;
+  const creatorObj = (d.creator ?? {}) as Record<string, unknown>;
+  const aliasRaw = d.alias;
+  const aliases = Array.isArray(aliasRaw) ? aliasRaw.map((a) => String(a)) : [];
+  const buildingAt = Number(d.buildingAt ?? 0) || null;
+  const ready = Number(d.ready ?? 0) || null;
+  const deployment: DeploymentDetail = {
+    uid: String(d.uid ?? d.id ?? id),
+    name: String(d.name ?? ""),
+    url: String(d.url ?? ""),
+    state: String(d.readyState ?? d.state ?? d.status ?? "UNKNOWN"),
+    target: (d.target as string) ?? null,
+    createdAt: Number(d.createdAt ?? d.created ?? 0),
+    buildingAt,
+    ready,
+    creator:
+      (creatorObj.username as string) ?? (creatorObj.email as string) ?? null,
+    branch: meta.githubCommitRef ?? null,
+    commitSha: meta.githubCommitSha ?? null,
+    commitAuthor: meta.githubCommitAuthorName ?? null,
+    message: meta.githubCommitMessage ?? null,
+    aliases,
+    buildMs: buildingAt && ready && ready > buildingAt ? ready - buildingAt : null,
+  };
+  return { ok: true, deployment };
+}
+
+/** Roll production back to a previous deployment: promote it to production when
+ *  VC_PROJECT_ID is set, otherwise redeploy it targeting production. */
+export async function rollbackDeployment(
+  id: string,
+  name: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (process.env.VC_PROJECT_ID) {
+    const r = await promoteDeployment(id);
+    if (r.ok) return r;
+    // Fall through to redeploy if promote is unavailable for this account.
+  }
+  return redeployDeployment(id, name, "production");
+}
+
 // ---------------------------------------------------------------------------
 // Environment variables
 // ---------------------------------------------------------------------------
@@ -276,6 +343,44 @@ export async function deleteEnv(envId: string): Promise<{ ok: boolean; error?: s
     method: "DELETE",
   });
   return { ok: r.ok, error: r.error };
+}
+
+/** Copy an env var's value from one target to another. Reuses create/update.
+ *  Values are frequently write-only (encrypted/sensitive): when the source
+ *  value is not returned by the API, `needsValue` is set so the caller can ask
+ *  the operator to paste it. */
+export async function copyEnvValue(input: {
+  key: string;
+  fromTarget: string;
+  toTarget: string;
+  value?: string;
+}): Promise<{ ok: boolean; error?: string; needsValue?: boolean }> {
+  const projectId = process.env.VC_PROJECT_ID;
+  if (!projectId) return { ok: false, error: "Set VC_PROJECT_ID first." };
+  if (input.fromTarget === input.toTarget)
+    return { ok: false, error: "Source and destination targets must differ." };
+
+  const list = await listEnv();
+  if (!list.ok) return { ok: false, error: list.error };
+  const envs = list.envs ?? [];
+
+  const source = envs.find((e) => e.key === input.key && e.target.includes(input.fromTarget));
+  if (!source) return { ok: false, error: `No "${input.key}" found on ${input.fromTarget}.` };
+
+  const value = input.value != null && input.value !== "" ? input.value : source.value;
+  if (value == null) {
+    return {
+      ok: false,
+      needsValue: true,
+      error: `"${input.key}" is write-only on Vercel — its value is not readable. Paste the value to copy it to ${input.toTarget}.`,
+    };
+  }
+
+  const dest = envs.find((e) => e.key === input.key && e.target.includes(input.toTarget));
+  if (dest) {
+    return updateEnv(dest.id, { value });
+  }
+  return createEnv({ key: input.key, value, type: source.type, target: [input.toTarget] });
 }
 
 // ---------------------------------------------------------------------------
