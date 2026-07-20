@@ -35,12 +35,25 @@ async function recentFrom(admin: Client, table: string, label: string) {
   }));
 }
 
+/** Filtered count that degrades to null when the table/column isn't reachable. */
+async function countWhere(admin: Client, table: string, col: string, val: unknown): Promise<number | null> {
+  try {
+    const { count, error } = await admin.from(table).select("*", { count: "exact", head: true }).eq(col, val);
+    if (error) return null;
+    return count ?? 0;
+  } catch {
+    return null;
+  }
+}
+
 export default async function DashboardPage() {
   const admin = createServiceClient();
-  const [{ data: userData }, counts, activityLists] = await Promise.all([
+  const [{ data: userData }, counts, activityLists, pushPending, feedbackOpen] = await Promise.all([
     admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
     Promise.all(TABLES.map((t) => countRows(admin, t.table).catch(() => 0))),
     Promise.all(ACTIVITY.map((a) => recentFrom(admin, a.table, a.label).catch(() => []))),
+    countWhere(admin, "scheduled_pushes", "sent", false),
+    countWhere(admin, "feedback", "status", "open"),
   ]);
 
   const users = (userData?.users ?? []).slice().sort((a, b) =>
@@ -52,7 +65,7 @@ export default async function DashboardPage() {
   const now = new Date(users[0]?.created_at ?? "").getTime() || 0;
   const nowMs = Math.max(now, ...users.map((u) => new Date(u.created_at ?? 0).getTime()), Date.now());
   const plans = { free: 0, plus: 0, pro: 0 };
-  let signups7 = 0, signups30 = 0, suspended = 0, admins = 0;
+  let signups7 = 0, signups30 = 0, suspended = 0, admins = 0, expiring = 0;
   for (const u of users) {
     const created = new Date(u.created_at ?? 0).getTime();
     if (nowMs - created < 7 * DAY) signups7++;
@@ -63,6 +76,11 @@ export default async function DashboardPage() {
     if (u.user_metadata?.admin) { admins++; continue; }
     const tier = effectiveTier(u);
     if (tier === "pro") plans.pro++; else if (tier === "plus") plans.plus++; else plans.free++;
+    // Paid plans lapsing within the next 30 days (plan_exp is ms epoch; null = lifetime).
+    if (tier !== "free") {
+      const exp = Number(u.user_metadata?.plan_exp ?? 0);
+      if (exp > 0 && exp > Date.now() && exp - Date.now() < 30 * DAY) expiring++;
+    }
   }
   const customers = Math.max(0, users.length - admins);
   const paid = plans.plus + plans.pro;
@@ -121,6 +139,7 @@ export default async function DashboardPage() {
           { label: "New · 30 days", value: signups30 },
           { label: "Paid customers", value: paid },
           { label: "Est. MRR", value: `£${mrr}` },
+          { label: "Expiring · 30d", value: expiring },
           { label: "Admins", value: admins },
           { label: "Suspended", value: suspended },
         ].map((t) => (
@@ -144,6 +163,23 @@ export default async function DashboardPage() {
           ))}
         </div>
       </section>
+
+      {/* Ops queue — only tables that are actually reachable */}
+      {(pushPending !== null || feedbackOpen !== null) && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))", gap: 12 }}>
+          {([
+            { label: "Pushes pending", value: pushPending },
+            { label: "Feedback open", value: feedbackOpen },
+          ] as { label: string; value: number | null }[])
+            .filter((t): t is { label: string; value: number } => t.value !== null)
+            .map((t) => (
+              <div key={t.label} style={{ ...card, borderColor: "#eabf95", background: "#fdf3e8" }}>
+                <div style={{ fontSize: 26, fontWeight: 700, color: "#9a3412" }}>{t.value}</div>
+                <div style={{ fontSize: 12, color: "#6b6157", marginTop: 2 }}>{t.label}</div>
+              </div>
+            ))}
+        </div>
+      )}
 
       {/* Counts */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(148px, 1fr))", gap: 12 }}>

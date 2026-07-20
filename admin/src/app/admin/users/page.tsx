@@ -1,6 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import { createServiceClient } from "@/lib/supabase/service";
 import { UsersTable, type UserRowData } from "./users-table";
+import { ExportButton } from "./export-button";
 import { effectiveTier } from "@/lib/plan";
 import { Warning } from "@/components/warning";
 
@@ -42,7 +43,7 @@ export default async function UsersPage() {
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Users</h1>
-        <a href="/admin/users/export" style={{ fontSize: 13, fontWeight: 600, textDecoration: "none", border: "1px solid #d9d2c6", background: "#fffdf9", color: "#1c1a17", borderRadius: 10, padding: "7px 12px" }}>Export CSV</a>
+        <ExportButton />
       </div>
       <Warning>Suspending or deleting here locks out or erases that person&apos;s account for good.</Warning>
       <UsersTable users={rows} />
