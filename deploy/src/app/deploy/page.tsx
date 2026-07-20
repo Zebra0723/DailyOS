@@ -28,7 +28,7 @@ export default async function DeployPage() {
 
       {!vercelConfigured() ? (
         <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
-          Set <code>VERCEL_TOKEN</code> (and optionally <code>VERCEL_PROJECT_ID</code> / <code>VERCEL_TEAM_ID</code>) in this project&apos;s environment.
+          Set <code>VC_TOKEN</code> (and optionally <code>VC_PROJECT_ID</code> / <code>VC_TEAM_ID</code>) in this project&apos;s environment.
         </div>
       ) : !res.ok ? (
         <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">{res.error}</div>
