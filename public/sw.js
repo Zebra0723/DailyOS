@@ -14,7 +14,7 @@
 // Result: after any deploy, an online load is always coherent; an offline load
 // serves the last page you visited together with the chunks it was built with.
 
-const VERSION = "v3";
+const VERSION = "v4";
 const STATIC_CACHE = `dailyos-static-${VERSION}`;
 const PAGES_CACHE = `dailyos-pages-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
