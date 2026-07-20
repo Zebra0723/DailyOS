@@ -1,12 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Camera, X, Loader2 } from "lucide-react";
-import { loadRemote, saveRemote } from "@/lib/sync";
+import { Camera, Loader2, Lock } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { APPICON_LS_KEY, APPICON_EVENT } from "@/components/app-icon-link";
 
-// Default DailyOS app icon — red disc, white brand glyph.
+// Enter this code to unlock setting a custom home-screen icon for this device.
+const ICON_CODE = "ADMINICONOS";
+
 function DefaultIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
@@ -29,12 +32,11 @@ function DefaultIcon({ className }: { className?: string }) {
   );
 }
 
-/** Resize/crop an image file to a square data URL (kept small for fast sync). */
+/** Resize/crop an image file to a small square data URL. */
 function toSquareDataUrl(file: File, size = 256): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
-    // Never hang forever if the browser can't decode the file (e.g. HEIC).
     const timer = setTimeout(() => {
       URL.revokeObjectURL(url);
       reject(new Error("timeout"));
@@ -70,23 +72,22 @@ export function AppIconUploader() {
   const { toast } = useToast();
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [src, setSrc] = React.useState<string | null>(null);
+  const [code, setCode] = React.useState("");
   const [busy, setBusy] = React.useState(false);
+  const unlocked = code.trim() === ICON_CODE;
 
   React.useEffect(() => {
-    let alive = true;
-    void (async () => {
-      const remote = await loadRemote<string>("appicon");
-      if (alive && remote) setSrc(remote);
-    })();
-    return () => {
-      alive = false;
-    };
+    try {
+      setSrc(localStorage.getItem(APPICON_LS_KEY));
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (fileRef.current) fileRef.current.value = "";
-    if (!file) return;
+    if (!file || !unlocked) return;
     setBusy(true);
     let dataUrl: string;
     try {
@@ -96,25 +97,29 @@ export function AppIconUploader() {
       toast({ variant: "error", title: "Couldn't use that image" });
       return;
     }
-    // Show it and stop the spinner immediately — don't block the UI on the save.
     setSrc(dataUrl);
     setBusy(false);
-    void saveRemote("appicon", dataUrl)
-      .then(() =>
-        toast({
-          variant: "success",
-          title: "App icon saved",
-          description: "Re-add DailyOS to your home screen to see it.",
-        }),
-      )
-      .catch(() =>
-        toast({ variant: "error", title: "Saved on this device only" }),
-      );
+    try {
+      localStorage.setItem(APPICON_LS_KEY, dataUrl);
+    } catch {
+      /* ignore */
+    }
+    window.dispatchEvent(new CustomEvent(APPICON_EVENT, { detail: dataUrl }));
+    toast({
+      variant: "success",
+      title: "Icon set for this device",
+      description: "Remove DailyOS from your home screen and add it again.",
+    });
   }
 
-  function remove() {
+  function reset() {
     setSrc(null);
-    void saveRemote("appicon", "");
+    try {
+      localStorage.removeItem(APPICON_LS_KEY);
+    } catch {
+      /* ignore */
+    }
+    window.dispatchEvent(new CustomEvent(APPICON_EVENT, { detail: null }));
     toast({ variant: "info", title: "Back to the default icon" });
   }
 
@@ -128,45 +133,54 @@ export function AppIconUploader() {
           ) : (
             <DefaultIcon className="size-16 rounded-2xl" />
           )}
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            aria-label="Change app icon"
-            className="absolute -bottom-1 -right-1 grid size-7 place-items-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow"
-          >
-            {busy ? <Loader2 className="size-3.5 animate-spin" /> : <Camera className="size-3.5" />}
-          </button>
-          {src && !busy && (
-            <button
-              type="button"
-              onClick={remove}
-              aria-label="Remove custom icon"
-              className="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full border-2 border-background bg-muted text-muted-foreground shadow hover:text-foreground"
-            >
-              <X className="size-3" />
-            </button>
+          {busy && (
+            <div className="absolute inset-0 grid place-items-center rounded-2xl bg-black/40">
+              <Loader2 className="size-5 animate-spin text-white" />
+            </div>
           )}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium">Home-screen icon</p>
           <p className="text-xs text-muted-foreground">
-            Use your own image, or keep the DailyOS icon.
+            Set a custom icon for this device. Enter the code to unlock.
           </p>
-          <div className="mt-2 flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={busy}>
-              Choose image
-            </Button>
-            {src && (
-              <Button size="sm" variant="ghost" onClick={remove} disabled={busy}>
-                Reset
-              </Button>
-            )}
-          </div>
         </div>
       </div>
+
+      <div className="mt-3 space-y-2">
+        <div className="relative">
+          <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Icon code"
+            autoCapitalize="characters"
+            autoCorrect="off"
+            spellCheck={false}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => fileRef.current?.click()}
+            disabled={!unlocked || busy}
+          >
+            <Camera className="size-4" /> Choose image
+          </Button>
+          {src && (
+            <Button size="sm" variant="ghost" onClick={reset} disabled={busy}>
+              Reset
+            </Button>
+          )}
+        </div>
+      </div>
+
       <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-        Your device caches the icon when you install. To update it, remove
-        DailyOS from your home screen and add it again.
+        This only changes the icon on this device. Your phone caches the icon
+        when you install, so remove DailyOS from the home screen and add it again
+        to see the change.
       </p>
       <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="hidden" />
     </div>

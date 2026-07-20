@@ -14,7 +14,7 @@ export default function AppleIcon() {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #E0864F, #9A3412)",
+          background: "#D62828",
         }}
       >
         <svg

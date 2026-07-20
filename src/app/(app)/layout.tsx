@@ -1,17 +1,5 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-
-// Point the apple-touch-icon at the signed-in user's per-id icon URL, so their
-// custom home-screen icon resolves without a cookie when iOS fetches it.
-export async function generateMetadata(): Promise<Metadata> {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return {};
-  return { icons: { apple: `/app-icon/${user.id}` } };
-}
 import { TopNav, MobileNav, MobileHeader } from "@/components/app-nav";
 import { FreePlanBanner } from "@/components/free-plan-banner";
 import { CommandPalette } from "@/components/command-palette";
