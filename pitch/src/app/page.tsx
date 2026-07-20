@@ -17,6 +17,7 @@ import {
   PenLine,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { LogoMark } from "@/components/logo-mark";
 
 const APP_URL = "https://daily-os-lac.vercel.app";
 
@@ -121,9 +122,7 @@ export default function PitchPage() {
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
         <div className="container flex h-16 items-center justify-between gap-4">
           <a href="#top" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-primary font-display text-lg font-bold text-primary-foreground">
-              D
-            </span>
+            <LogoMark className="size-8 shrink-0" />
             <Logo className="text-xl" />
           </a>
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
@@ -187,9 +186,7 @@ export default function PitchPage() {
           <div className="animate-fade-up md:justify-self-end">
             <div className="w-full max-w-sm rounded-3xl border bg-card p-5 shadow-elevated">
               <div className="flex items-center gap-2 border-b pb-3">
-                <span className="grid size-7 place-items-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
-                  D
-                </span>
+                <LogoMark className="size-7 shrink-0" />
                 <Logo className="text-base" />
                 <span className="ml-auto text-xs text-muted-foreground">Today</span>
               </div>

@@ -1,22 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#E0864F"/>
-      <stop offset="1" stop-color="#9A3412"/>
-    </linearGradient>
-    <linearGradient id="dev" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#f4b98f"/>
-      <stop offset="1" stop-color="#e0643a"/>
+      <stop offset="0" stop-color="#F0A060"/><stop offset="1" stop-color="#C2410C"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="116" fill="#17130f"/>
-  <rect x="20" y="20" width="472" height="472" rx="98" fill="none" stroke="#2c2219" stroke-width="4"/>
-  <g transform="translate(146,72) scale(9.16)" fill="none" stroke="url(#mark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="512" height="512" rx="116" fill="#0B44C4"/>
+  <rect x="20" y="20" width="472" height="472" rx="98" fill="none" stroke="#2f63e6" stroke-width="4"/>
+  <g transform="translate(96,96) scale(13.3)" fill="none" stroke="url(#mark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
     <path d="M21 3v5h-5"/>
     <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
     <path d="M3 21v-5h5"/>
     <path d="M8.5 12.2l2.4 2.4 4.6-5.4" stroke-width="2.4"/>
   </g>
-  <text x="256" y="422" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="110" font-weight="700" letter-spacing="4" fill="url(#dev)">dev</text>
+  <g transform="rotate(-6 256 292)">
+    <text x="256" y="308" font-family="Pacifico, 'Snell Roundhand', 'Brush Script MT', cursive" font-size="104" fill="#fdf6ec" stroke="#082a86" stroke-width="6" paint-order="stroke" text-anchor="middle">dev</text>
+  </g>
 </svg>
