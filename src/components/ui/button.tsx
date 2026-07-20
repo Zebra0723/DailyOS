@@ -42,10 +42,24 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, loading, disabled, children, ...props }, ref) => {
+  ({ className, variant, size, loading, disabled, children, asChild, ...props }, ref) => {
+    const classes = cn(buttonVariants({ variant, size, className }));
+
+    // asChild: render the child element (e.g. a <Link>) styled as a button,
+    // instead of a <button> wrapping it — so the whole control is the link and
+    // actually navigates.
+    if (asChild && React.isValidElement(children)) {
+      const child = children as React.ReactElement;
+      return React.cloneElement(child, {
+        className: cn(classes, child.props.className),
+        ref,
+        ...props,
+      });
+    }
+
     return (
       <button
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={classes}
         ref={ref}
         disabled={disabled || loading}
         aria-busy={loading || undefined}
