@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.20 · v198 (Admin suite: new Hub app + beefed-up Base/Deploy/Pulse/Brain/Support, all restyled to the DailyOS look)";
+export const APP_VERSION = "2026.07.20 · v199 (Distinct glyph colours per admin-app icon; Deploy is pure black/white)";
