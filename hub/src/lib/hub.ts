@@ -97,6 +97,40 @@ async function versionAndLatency(): Promise<{ version: string | null; ms: number
   }
 }
 
+/** Reachability + latency for one configured app URL. */
+export interface AppPing {
+  ok: boolean;
+  ms: number | null;
+}
+
+async function pingOne(url: string, timeoutMs = 4000): Promise<AppPing> {
+  const start = performance.now();
+  const opts = { cache: "no-store", redirect: "manual", signal: AbortSignal.timeout(timeoutMs) } as const;
+  try {
+    // HEAD is cheapest; any HTTP response means the host is reachable.
+    const res = await fetch(url, { method: "HEAD", ...opts });
+    return { ok: res.status > 0, ms: Math.round(performance.now() - start) };
+  } catch {
+    // Some hosts reject HEAD — fall back to a lightweight GET before giving up.
+    try {
+      const res = await fetch(url, { method: "GET", ...opts });
+      return { ok: res.status > 0, ms: Math.round(performance.now() - start) };
+    } catch {
+      return { ok: false, ms: null };
+    }
+  }
+}
+
+/** Ping every configured HUB_*_URL app in parallel; keyed by app key.
+ *  Unconfigured apps are skipped and simply absent from the result. */
+export async function pingApps(): Promise<Record<string, AppPing>> {
+  const configured = appLinks().filter((a) => a.url);
+  const results = await Promise.all(
+    configured.map(async (a) => [a.key, await pingOne(a.url)] as const),
+  );
+  return Object.fromEntries(results);
+}
+
 export interface HubStats {
   version: string | null;
   latencyMs: number | null;

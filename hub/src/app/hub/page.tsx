@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowUpRight, Gauge, Users, BellRing, MessageSquare, CalendarClock, Wrench } from "lucide-react";
-import { getHubStats, appLinks, platforms, MAIN_APP_URL } from "@/lib/hub";
+import { getHubStats, pingApps, appLinks, platforms, MAIN_APP_URL } from "@/lib/hub";
+import { AutoRefresh } from "@/components/auto-refresh";
+import { QuickActions } from "@/components/quick-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -21,18 +23,23 @@ function Stat({ icon: Icon, label, value, sub, tone }: { icon: typeof Gauge; lab
 }
 
 export default async function HubDashboard() {
-  const s = await getHubStats();
+  const [s, pings] = await Promise.all([getHubStats(), pingApps()]);
   const apps = appLinks();
   const plats = platforms();
+  const cronEnabled = !!process.env.CRON_SECRET;
+  const renderedAt = Date.now();
 
   const latency = s.latencyMs === null ? "—" : `${s.latencyMs} ms`;
   const latencyTone: "ok" | "warn" = s.latencyMs === null ? "warn" : s.latencyMs < 1500 ? "ok" : "warn";
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="text-2xl font-bold">Hub</h1>
-        <p className="text-sm text-[#6b6157]">Your whole DailyOS operation, at a glance.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Hub</h1>
+          <p className="text-sm text-[#6b6157]">Your whole DailyOS operation, at a glance.</p>
+        </div>
+        <AutoRefresh renderedAt={renderedAt} />
       </div>
 
       {/* Alerts */}
@@ -66,13 +73,24 @@ export default async function HubDashboard() {
         <h2 className="mb-3 text-base font-bold">Open an app</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {apps.map((a) => {
+            const ping = pings[a.key];
             const inner = (
               <div className="flex items-start gap-3">
                 <span className="mt-1 size-3 shrink-0 rounded-full" style={{ background: a.dot }} />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 font-semibold">
                     DailyOS {a.label}
                     {a.url && <ArrowUpRight className="size-3.5 text-[#a89b8a]" />}
+                    {ping && (
+                      <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-[#8a8073]">
+                        <span
+                          className="size-2 rounded-full"
+                          style={{ background: ping.ok ? "#15803d" : "#c0392b" }}
+                          aria-label={ping.ok ? "up" : "down"}
+                        />
+                        {ping.ok ? (ping.ms === null ? "up" : `${ping.ms} ms`) : "down"}
+                      </span>
+                    )}
                   </div>
                   <div className="truncate text-xs text-[#6b6157]">{a.blurb}</div>
                   {!a.url && <div className="mt-1 text-[11px] text-[#a89b8a]">Set HUB_{a.key.toUpperCase()}_URL to link it</div>}
@@ -87,6 +105,9 @@ export default async function HubDashboard() {
           })}
         </div>
       </section>
+
+      {/* Quick actions */}
+      <QuickActions cronEnabled={cronEnabled} maintenance={s.maintenance} />
 
       {/* Platforms */}
       <section>
