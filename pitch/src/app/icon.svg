@@ -1,4 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="15" fill="#bf502b" />
-  <text x="32" y="45" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#fdf6ec" text-anchor="middle">D</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#bf502b"/>
+  <text x="256" y="372" font-family="Georgia, 'Times New Roman', serif" font-size="380" font-weight="700" fill="#fdf6ec" text-anchor="middle">D</text>
+  <g transform="rotate(-8 256 330)">
+    <text x="256" y="352" font-family="Pacifico, 'Snell Roundhand', 'Brush Script MT', cursive" font-size="170" fill="#ffce85" stroke="#a5381b" stroke-width="7" paint-order="stroke" text-anchor="middle">pitch</text>
+  </g>
 </svg>
