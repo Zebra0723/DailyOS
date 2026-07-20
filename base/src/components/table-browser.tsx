@@ -2,8 +2,14 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Search, X, Trash2, Plus, Pencil, Save, Loader2 } from "lucide-react";
-import { deleteRow, insertRow, updateRow } from "@/app/base/tables/actions";
+import { Search, X, Trash2, Plus, Pencil, Save, Loader2, Download, Filter } from "lucide-react";
+import {
+  deleteRow,
+  insertRow,
+  updateRow,
+  countByFilter,
+  bulkDeleteByFilter,
+} from "@/app/base/tables/actions";
 import { ConfirmButton } from "@/components/confirm-button";
 
 export type ColumnInfo = {
@@ -30,6 +36,167 @@ function toStr(v: unknown): string {
   if (v === null || v === undefined) return "";
   if (typeof v === "object") return JSON.stringify(v);
   return String(v);
+}
+
+/** RFC-4180-ish CSV cell: always quote, escape embedded quotes by doubling. */
+function csvCell(v: unknown): string {
+  const s = v === null || v === undefined ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
+  return '"' + s.replace(/"/g, '""') + '"';
+}
+
+function buildCsv(cols: string[], rows: Record<string, unknown>[]): string {
+  const head = cols.map(csvCell).join(",");
+  const body = rows.map((r) => cols.map((c) => csvCell(r[c])).join(",")).join("\r\n");
+  return body ? `${head}\r\n${body}` : head;
+}
+
+function downloadCsv(filename: string, csv: string) {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/** Guarded bulk-delete panel: preview the affected count, then confirm. */
+function BulkDelete({
+  table,
+  columns,
+  rows,
+  onDone,
+}: {
+  table: string;
+  columns: ColumnInfo[];
+  rows: Record<string, unknown>[];
+  onDone: () => void;
+}) {
+  const colNames = React.useMemo(() => {
+    if (columns.length) return columns.map((c) => c.name);
+    return rows.length ? Object.keys(rows[0]) : [];
+  }, [columns, rows]);
+
+  const [open, setOpen] = React.useState(false);
+  const [column, setColumn] = React.useState("");
+  const [value, setValue] = React.useState("");
+  const [count, setCount] = React.useState<number | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!column && colNames.length) setColumn(colNames[0]);
+  }, [colNames, column]);
+
+  // Any change to the filter invalidates a stale preview.
+  React.useEffect(() => {
+    setCount(null);
+    setError(null);
+  }, [column, value]);
+
+  async function check() {
+    setBusy(true);
+    setError(null);
+    try {
+      const r = await countByFilter(table, column, value);
+      if (!r.ok) setError(r.error ?? "Couldn’t count rows.");
+      else setCount(r.count ?? 0);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (colNames.length === 0) return null;
+
+  return (
+    <div className="rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-3">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-1.5 text-left text-sm font-semibold text-[#4b443b]"
+      >
+        <Filter className="size-4" style={{ color: teal }} />
+        Bulk delete by filter
+        <span className="ml-auto text-xs font-normal text-[#8a8073]">{open ? "hide" : "show"}</span>
+      </button>
+
+      {open && (
+        <div className="mt-3 grid gap-2">
+          <p className="text-xs text-[#8a8073]">
+            Deletes every row where <code>column = value</code>. Preview the count first.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={column}
+              onChange={(e) => setColumn(e.target.value)}
+              className="h-9 rounded-lg border border-[#d9d2c6] bg-white px-2 text-sm outline-none focus:border-[#bf502b]"
+            >
+              {colNames.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+            <span className="text-sm text-[#8a8073]">=</span>
+            <input
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="value"
+              className="h-9 flex-1 rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#bf502b]"
+            />
+            <button
+              onClick={check}
+              disabled={busy || !column}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3 text-sm font-semibold text-[#4b443b] hover:border-[#bf502b] disabled:opacity-50"
+            >
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
+              Check count
+            </button>
+          </div>
+
+          {error && (
+            <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-2.5 text-sm text-[#9a3412]">
+              {error}
+            </div>
+          )}
+
+          {count !== null && !error && (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-sm text-[#4b443b]">
+                <strong>{count}</strong> row{count === 1 ? "" : "s"} match{count === 1 ? "es" : ""}{" "}
+                <code>{column} = {value === "" ? "''" : value}</code>.
+              </span>
+              {count > 0 && (
+                <ConfirmButton
+                  label={
+                    <span className="inline-flex items-center gap-1.5">
+                      <Trash2 className="size-4" /> Delete {count} row{count === 1 ? "" : "s"}
+                    </span>
+                  }
+                  style={{ display: "inline-flex", alignItems: "center", background: "#c0392b", color: "#fff", border: 0, borderRadius: 10, padding: "8px 14px", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+                  title={`Delete ${count} row${count === 1 ? "" : "s"} from ${table}?`}
+                  message={`This permanently deletes every row where ${column} = ${value === "" ? "''" : value} in ${table}.`}
+                  warn="This can't be undone."
+                  confirmLabel={`Delete ${count} row${count === 1 ? "" : "s"}`}
+                  onConfirm={async () => {
+                    const r = await bulkDeleteByFilter(table, column, value);
+                    if (!r.ok) {
+                      setError(r.error ?? "Delete failed.");
+                      return;
+                    }
+                    setCount(null);
+                    setValue("");
+                    onDone();
+                  }}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 /** Modal form used for both INSERT (row = null) and EDIT (row = the row). */
@@ -201,6 +368,15 @@ export function TableBrowser({
     return rows.filter((r) => JSON.stringify(r).toLowerCase().includes(s));
   }, [q, rows]);
 
+  function exportCsv() {
+    const source = filtered;
+    if (source.length === 0) return;
+    const cols = columns.length
+      ? columns.map((c) => c.name)
+      : Array.from(source.reduce<Set<string>>((set, r) => { Object.keys(r).forEach((k) => set.add(k)); return set; }, new Set()));
+    downloadCsv(`${current}-${new Date().toISOString().slice(0, 10)}.csv`, buildCsv(cols, source));
+  }
+
   return (
     <div className="grid gap-4">
       {/* Table picker */}
@@ -236,6 +412,14 @@ export function TableBrowser({
                 className="h-10 w-full rounded-lg border border-[#d9d2c6] bg-white pl-9 pr-3 text-sm outline-none focus:border-[#bf502b]"
               />
             </div>
+            <button
+              onClick={exportCsv}
+              disabled={filtered.length === 0}
+              title="Download the shown rows as CSV"
+              className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3 text-sm font-semibold text-[#4b443b] hover:border-[#bf502b] disabled:opacity-50"
+            >
+              <Download className="size-4" /> Export CSV
+            </button>
             {canEdit ? (
               <button
                 onClick={() => setForm({ row: null })}
@@ -250,6 +434,15 @@ export function TableBrowser({
               </span>
             )}
           </div>
+
+          {canEdit && (
+            <BulkDelete
+              table={current}
+              columns={columns}
+              rows={rows}
+              onDone={() => router.refresh()}
+            />
+          )}
 
           <div className="grid gap-1.5">
             {filtered.length === 0 ? (

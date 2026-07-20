@@ -1,10 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { Play, Loader2, Wand2, CheckCircle2, AlertTriangle } from "lucide-react";
-import { runSqlAction, applySetupAction } from "@/app/base/sql/actions";
+import { Play, Loader2, Wand2, CheckCircle2, AlertTriangle, Star, History, Bookmark, Trash2 } from "lucide-react";
+import {
+  runSqlAction,
+  applySetupAction,
+  getSqlStoreAction,
+  saveQueryAction,
+  deleteQueryAction,
+} from "@/app/base/sql/actions";
 import { ConfirmButton } from "@/components/confirm-button";
 import type { SqlResult } from "@/lib/management";
+import type { SqlStore } from "@/lib/sql-store";
 
 const teal = "#bf502b";
 
@@ -42,18 +49,57 @@ export function SqlConsole({
   const [busy, setBusy] = React.useState(false);
   const [result, setResult] = React.useState<SqlResult | null>(null);
   const [note, setNote] = React.useState<string | null>(null);
+  const [store, setStore] = React.useState<SqlStore>({ saved: [], history: [] });
 
   const isSelect = /^\s*select\b/i.test(query);
+
+  const loadStore = React.useCallback(() => {
+    getSqlStoreAction()
+      .then(setStore)
+      .catch(() => {});
+  }, []);
+
+  React.useEffect(() => {
+    if (configured) loadStore();
+  }, [configured, loadStore]);
 
   async function run() {
     setBusy(true);
     setNote(null);
     setResult(null);
     try {
-      setResult(await runSqlAction(query));
+      const r = await runSqlAction(query);
+      setResult(r);
+      if (r.ok) loadStore();
     } finally {
       setBusy(false);
     }
+  }
+
+  async function saveCurrent() {
+    if (!query.trim()) return;
+    const name = window.prompt("Name this query:");
+    if (!name || !name.trim()) return;
+    try {
+      setStore(await saveQueryAction(name.trim(), query));
+      setNote(`Saved query “${name.trim()}”.`);
+    } catch {
+      setNote("Couldn’t save the query.");
+    }
+  }
+
+  async function removeSaved(name: string) {
+    try {
+      setStore(await deleteQueryAction(name));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function fill(sql: string) {
+    setQuery(sql);
+    setResult(null);
+    setNote(null);
   }
 
   async function applySetup() {
@@ -158,11 +204,78 @@ export function SqlConsole({
               onConfirm={run}
             />
           )}
+          <button
+            onClick={saveCurrent}
+            disabled={!query.trim()}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3 py-2 text-sm font-semibold text-[#4b443b] hover:border-[#bf502b] disabled:opacity-50"
+          >
+            <Bookmark className="size-4" /> Save
+          </button>
           <span className="text-xs text-[#8a8073]">
             {isSelect || !query.trim() ? "Read-only query" : "⚠ Write query"}
           </span>
         </div>
       </div>
+
+      {/* Saved queries + run history */}
+      {(store.saved.length > 0 || store.history.length > 0) && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4">
+            <div className="mb-2 flex items-center gap-1.5">
+              <Star className="size-4" style={{ color: teal }} />
+              <h3 className="text-sm font-bold">Saved</h3>
+            </div>
+            {store.saved.length === 0 ? (
+              <p className="text-xs text-[#8a8073]">No saved queries yet. Write SQL and hit Save.</p>
+            ) : (
+              <ul className="grid gap-1.5">
+                {store.saved.map((s) => (
+                  <li key={s.name} className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => fill(s.sql)}
+                      title={s.sql}
+                      className="flex-1 truncate rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-left text-xs font-medium text-[#4b443b] hover:border-[#bf502b]"
+                    >
+                      {s.name}
+                    </button>
+                    <button
+                      onClick={() => removeSaved(s.name)}
+                      title="Delete saved query"
+                      className="shrink-0 rounded-lg p-1.5 text-[#8a8073] hover:bg-[#f2e6da] hover:text-[#9a3412]"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4">
+            <div className="mb-2 flex items-center gap-1.5">
+              <History className="size-4" style={{ color: teal }} />
+              <h3 className="text-sm font-bold">Recent</h3>
+            </div>
+            {store.history.length === 0 ? (
+              <p className="text-xs text-[#8a8073]">Successful runs show up here.</p>
+            ) : (
+              <ul className="grid gap-1.5">
+                {store.history.map((h, i) => (
+                  <li key={i}>
+                    <button
+                      onClick={() => fill(h.sql)}
+                      title={h.sql}
+                      className="block w-full truncate rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-left font-mono text-[11px] text-[#6b6157] hover:border-[#bf502b]"
+                    >
+                      {h.sql.replace(/\s+/g, " ").trim()}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
 
       {note && (
         <div className="rounded-xl border border-[#a7d8d3] bg-[#e0f2f1] p-3 text-sm font-medium" style={{ color: "#a5401f" }}>
