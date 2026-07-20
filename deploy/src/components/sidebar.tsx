@@ -2,12 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Rocket, ExternalLink, LogOut } from "lucide-react";
+import { Rocket, FolderGit2, KeyRound, Globe, ExternalLink, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
-const ACCENT = "#111827";
-const NAV = [{ href: "/deploy", label: "Deployments", icon: Rocket }];
+const ACCENT = "#bf502b";
+const NAV = [
+  { href: "/deploy", label: "Deployments", icon: Rocket },
+  { href: "/deploy/projects", label: "Projects", icon: FolderGit2 },
+  { href: "/deploy/env", label: "Env", icon: KeyRound },
+  { href: "/deploy/domains", label: "Domains", icon: Globe },
+];
 
 export function Sidebar({ email }: { email: string }) {
   const pathname = usePathname();

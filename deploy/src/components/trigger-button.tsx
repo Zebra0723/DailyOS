@@ -31,7 +31,7 @@ export function TriggerButton({ enabled }: { enabled: boolean }) {
             {busy ? <Loader2 className="size-4 animate-spin" /> : <Rocket className="size-4" />} Trigger deploy
           </span>
         }
-        style={{ display: "inline-flex", background: enabled ? "#111827" : "#9ca3af", color: "#fff", border: 0, borderRadius: 10, padding: "9px 16px", fontWeight: 700, fontSize: 14, cursor: enabled ? "pointer" : "not-allowed" }}
+        style={{ display: "inline-flex", background: enabled ? "#bf502b" : "#9ca3af", color: "#fff", border: 0, borderRadius: 10, padding: "9px 16px", fontWeight: 700, fontSize: 14, cursor: enabled ? "pointer" : "not-allowed" }}
         title="Trigger a new production deploy?"
         message="This rebuilds and redeploys the project via its Vercel Deploy Hook."
         confirmLabel="Deploy now"

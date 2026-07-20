@@ -1,5 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { TableBrowser } from "@/components/table-browser";
+import { runSql, managementConfigured } from "@/lib/management";
+import { TableBrowser, type ColumnInfo } from "@/components/table-browser";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,23 @@ const TABLES = [
   "admin_audit", "admin_reminders", "scheduled_pushes", "push_log",
   "processing_logs", "referrals", "feedback",
 ];
+
+async function loadColumns(table: string): Promise<ColumnInfo[]> {
+  if (!managementConfigured()) return [];
+  const res = await runSql(
+    `select column_name, data_type, is_nullable, column_default
+       from information_schema.columns
+      where table_schema = 'public' and table_name = '${table.replace(/'/g, "''")}'
+      order by ordinal_position;`,
+  );
+  if (!res.ok || !res.rows) return [];
+  return res.rows.map((r) => ({
+    name: String(r.column_name),
+    type: String(r.data_type),
+    nullable: r.is_nullable === "YES",
+    hasDefault: r.column_default !== null,
+  }));
+}
 
 export default async function TablesPage({
   searchParams,
@@ -28,13 +46,22 @@ export default async function TablesPage({
     error = e instanceof Error ? e.message : String(e);
   }
 
+  const columns = await loadColumns(table);
+
   return (
     <div className="grid gap-5">
       <div>
         <h1 className="text-2xl font-bold">Tables</h1>
         <p className="text-sm text-[#6b6157]">Browse and manage rows. Latest 100 shown.</p>
       </div>
-      <TableBrowser tables={TABLES} current={table} rows={rows} error={error} />
+      <TableBrowser
+        tables={TABLES}
+        current={table}
+        rows={rows}
+        error={error}
+        columns={columns}
+        canEdit={managementConfigured()}
+      />
     </div>
   );
 }

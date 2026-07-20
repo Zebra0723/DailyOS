@@ -6,7 +6,7 @@ import { LifeBuoy, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
-const ACCENT = "#0284c7";
+const ACCENT = "#bf502b";
 const NAV = [{ href: "/support", label: "Inbox", icon: LifeBuoy }];
 
 export function Sidebar({ email }: { email: string }) {

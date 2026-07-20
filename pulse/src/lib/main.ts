@@ -20,6 +20,17 @@ export async function fetchVersion(): Promise<string | null> {
   }
 }
 
+/** Measure round-trip latency (ms) to the main app's version endpoint. */
+export async function measureLatency(): Promise<{ ms: number | null; ok: boolean }> {
+  const started = Date.now();
+  try {
+    const res = await fetch(`${MAIN_APP_URL}/api/version`, { cache: "no-store" });
+    return { ms: Date.now() - started, ok: res.ok };
+  } catch {
+    return { ms: null, ok: false };
+  }
+}
+
 /** Fire the reminder/broadcast cron on demand. */
 export async function runCron(): Promise<{ ok: boolean; status?: number; error?: string }> {
   const secret = process.env.CRON_SECRET;

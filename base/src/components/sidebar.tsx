@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Table2, Terminal, ExternalLink, LogOut } from "lucide-react";
+import { LayoutDashboard, Table2, Terminal, Users, FolderOpen, Columns3, ExternalLink, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
 const NAV = [
   { href: "/base", label: "Dashboard", icon: LayoutDashboard },
   { href: "/base/tables", label: "Tables", icon: Table2 },
+  { href: "/base/schema", label: "Schema", icon: Columns3 },
+  { href: "/base/users", label: "Users", icon: Users },
+  { href: "/base/storage", label: "Storage", icon: FolderOpen },
   { href: "/base/sql", label: "SQL", icon: Terminal },
 ];
 
@@ -35,7 +38,7 @@ export function Sidebar({ email, projectRef }: { email: string; projectRef?: str
             <Link
               key={n.href}
               href={n.href}
-              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#0d9488] text-white" : "text-[#4b443b] hover:bg-[#d7f0ec]"}`}
+              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#bf502b] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
             >
               <Icon className="size-4 shrink-0" /> {n.label}
             </Link>
@@ -46,7 +49,7 @@ export function Sidebar({ email, projectRef }: { email: string; projectRef?: str
           href={supabaseUrl}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#d7f0ec]"
+          className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#f2e6da]"
         >
           <ExternalLink className="size-4 shrink-0" /> Open Supabase
         </a>

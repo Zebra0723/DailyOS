@@ -9,7 +9,7 @@ const card = "rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4";
 
 export default async function BrainPage() {
   const info = aiInfo();
-  const { systemPromptOverride } = await getAIConfig();
+  const config = await getAIConfig();
   const ok = info.keyPresent && !info.looksLikeSupabase;
 
   return (
@@ -31,7 +31,7 @@ export default async function BrainPage() {
         </div>
       </section>
 
-      <AiConsole initialOverride={systemPromptOverride} />
+      <AiConsole config={config} />
     </div>
   );
 }

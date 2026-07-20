@@ -58,7 +58,7 @@ export default function VerifyPage() {
         ) : (
           <form onSubmit={sendLink} style={{ display: "grid", gap: 10 }}>
             <input type="email" required autoFocus placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={field} autoComplete="username" />
-            <button type="submit" disabled={state === "working"} style={{ ...field, height: 44, border: 0, background: "#e11d48", color: "#fff", fontWeight: 600, cursor: "pointer", opacity: state === "working" ? 0.6 : 1 }}>
+            <button type="submit" disabled={state === "working"} style={{ ...field, height: 44, border: 0, background: "#bf502b", color: "#fff", fontWeight: 600, cursor: "pointer", opacity: state === "working" ? 0.6 : 1 }}>
               {state === "working" ? "Sending…" : "Email me a sign-in link"}
             </button>
           </form>

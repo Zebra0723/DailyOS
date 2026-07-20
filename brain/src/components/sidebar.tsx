@@ -6,7 +6,7 @@ import { Brain, ExternalLink, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
-const ACCENT = "#7c3aed";
+const ACCENT = "#bf502b";
 const NAV = [{ href: "/brain", label: "Assistant", icon: Brain }];
 
 export function Sidebar({ email }: { email: string }) {
@@ -30,7 +30,7 @@ export function Sidebar({ email }: { email: string }) {
             </Link>
           );
         })}
-        <a href="https://platform.openai.com/usage" target="_blank" rel="noreferrer" className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#ede9fe]">
+        <a href="https://platform.openai.com/usage" target="_blank" rel="noreferrer" className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#f2e6da]">
           <ExternalLink className="size-4 shrink-0" /> AI provider
         </a>
       </nav>

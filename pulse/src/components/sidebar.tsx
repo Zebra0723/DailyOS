@@ -6,7 +6,7 @@ import { Activity, ExternalLink, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
-const ACCENT = "#e11d48";
+const ACCENT = "#bf502b";
 const NAV = [{ href: "/pulse", label: "Status", icon: Activity }];
 
 export function Sidebar({ email, mainUrl }: { email: string; mainUrl: string }) {
@@ -30,7 +30,7 @@ export function Sidebar({ email, mainUrl }: { email: string; mainUrl: string }) 
             </Link>
           );
         })}
-        <a href={mainUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#ffe4e6]">
+        <a href={mainUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#f2e6da]">
           <ExternalLink className="size-4 shrink-0" /> Open DailyOS
         </a>
       </nav>

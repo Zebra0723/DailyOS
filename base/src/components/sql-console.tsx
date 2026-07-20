@@ -6,7 +6,30 @@ import { runSqlAction, applySetupAction } from "@/app/base/sql/actions";
 import { ConfirmButton } from "@/components/confirm-button";
 import type { SqlResult } from "@/lib/management";
 
-const teal = "#0d9488";
+const teal = "#bf502b";
+
+const SNIPPETS: { label: string; sql: string }[] = [
+  {
+    label: "Row counts (all tables)",
+    sql: "select relname as table, n_live_tup as est_rows\n  from pg_stat_user_tables\n order by n_live_tup desc;",
+  },
+  {
+    label: "Table sizes",
+    sql: "select relname as table, pg_size_pretty(pg_total_relation_size(relid)) as size\n  from pg_stat_user_tables\n order by pg_total_relation_size(relid) desc;",
+  },
+  {
+    label: "List policies",
+    sql: "select schemaname, tablename, policyname, cmd, roles\n  from pg_policies\n order by tablename, policyname;",
+  },
+  {
+    label: "Recent signups",
+    sql: "select email, created_at, last_sign_in_at\n  from auth.users\n order by created_at desc\n limit 25;",
+  },
+  {
+    label: "Biggest tables by rows",
+    sql: "select schemaname, relname as table, n_live_tup as rows\n  from pg_stat_user_tables\n order by n_live_tup desc\n limit 20;",
+  },
+];
 
 export function SqlConsole({
   configured,
@@ -95,12 +118,24 @@ export function SqlConsole({
 
       {/* Console */}
       <div>
+        <div className="mb-2 flex flex-wrap gap-1.5">
+          <span className="mr-1 self-center text-xs font-semibold text-[#8a8073]">Snippets:</span>
+          {SNIPPETS.map((s) => (
+            <button
+              key={s.label}
+              onClick={() => { setQuery(s.sql); setResult(null); setNote(null); }}
+              className="rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1 text-xs font-medium text-[#4b443b] hover:border-[#bf502b]"
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
         <textarea
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="select * from inbox_items limit 20;"
           spellCheck={false}
-          className="h-40 w-full rounded-xl border border-[#d9d2c6] bg-[#0f1720] p-3 font-mono text-sm text-[#d7f0ec] outline-none"
+          className="h-40 w-full rounded-xl border border-[#d9d2c6] bg-[#0f1720] p-3 font-mono text-sm text-[#f2e6da] outline-none"
         />
         <div className="mt-2 flex items-center gap-2">
           {isSelect || !query.trim() ? (
@@ -130,7 +165,7 @@ export function SqlConsole({
       </div>
 
       {note && (
-        <div className="rounded-xl border border-[#a7d8d3] bg-[#e0f2f1] p-3 text-sm font-medium" style={{ color: "#0f766e" }}>
+        <div className="rounded-xl border border-[#a7d8d3] bg-[#e0f2f1] p-3 text-sm font-medium" style={{ color: "#a5401f" }}>
           {note}
         </div>
       )}

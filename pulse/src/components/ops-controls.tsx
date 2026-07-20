@@ -4,7 +4,7 @@ import * as React from "react";
 import { Loader2, Megaphone, Wrench, Play } from "lucide-react";
 import { runCronAction, saveOpsConfig } from "@/app/pulse/actions";
 
-const ROSE = "#e11d48";
+const ROSE = "#bf502b";
 
 export function OpsControls({
   initialAnnouncement,
@@ -53,7 +53,7 @@ export function OpsControls({
           value={announcement}
           onChange={(e) => setAnnouncement(e.target.value)}
           placeholder="Show a banner across the app (leave empty for none)…"
-          className="mt-2 h-20 w-full rounded-lg border border-[#d9d2c6] bg-white p-2.5 text-sm outline-none focus:border-[#e11d48]"
+          className="mt-2 h-20 w-full rounded-lg border border-[#d9d2c6] bg-white p-2.5 text-sm outline-none focus:border-[#bf502b]"
         />
         <label className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-[#e6ded2] p-2.5">
           <span className="flex items-center gap-2 text-sm font-medium"><Wrench className="size-4" style={{ color: ROSE }} /> Maintenance mode</span>
