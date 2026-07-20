@@ -9,11 +9,16 @@ create table if not exists public.scheduled_pushes (
   title text not null default 'DailyOS',
   body text not null default '',
   url text not null default '/today',
+  -- Comma list of plan tiers to target (free/plus/pro). Empty = everyone.
+  audience text not null default '',
   send_at timestamptz not null,
   sent boolean not null default false,
   created_by text,
   created_at timestamptz not null default now()
 );
+
+-- If the table already existed from an earlier run, add the column.
+alter table public.scheduled_pushes add column if not exists audience text not null default '';
 
 alter table public.scheduled_pushes enable row level security;
 

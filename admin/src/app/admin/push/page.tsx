@@ -17,6 +17,7 @@ export default function PushPage() {
   const [body, setBody] = useState("");
   const [mode, setMode] = useState<"now" | "later">("now");
   const [when, setWhen] = useState(""); // local "YYYY-MM-DDTHH:mm"
+  const [tiers, setTiers] = useState<string[]>(["free", "plus", "pro"]);
   const [status, setStatus] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [scheduled, setScheduled] = useState<ScheduledPush[]>([]);
@@ -36,8 +37,12 @@ export default function PushPage() {
     setSending(true);
     setStatus(null);
     try {
+      if (tiers.length === 0) {
+        setStatus("Pick at least one audience.");
+        return;
+      }
       if (mode === "now") {
-        const res = await sendBroadcast(title, body);
+        const res = await sendBroadcast(title, body, tiers);
         setStatus(res.ok ? `Sent to ${res.sent} device(s).` : res.error ?? "Failed.");
       } else {
         if (!when) {
@@ -46,7 +51,7 @@ export default function PushPage() {
         }
         // Convert the picked local wall-clock to a real UTC instant.
         const iso = new Date(when).toISOString();
-        const res = await scheduleBroadcast(title, body, iso);
+        const res = await scheduleBroadcast(title, body, iso, tiers);
         if (res.ok) {
           setStatus("Scheduled ✓");
           setTitle("");
@@ -96,6 +101,35 @@ export default function PushPage() {
         <input style={field} placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <textarea style={{ ...field, minHeight: 90, resize: "vertical" }} placeholder="Message" value={body} onChange={(e) => setBody(e.target.value)} />
 
+        {/* Audience — Free / Plus / Pro. All three = everyone. */}
+        <div>
+          <label style={{ display: "block", fontSize: 13, color: "#6b6157", marginBottom: 6 }}>
+            Audience {tiers.length === 3 ? "· everyone" : tiers.length ? `· ${tiers.join(", ")}` : "· none selected"}
+          </label>
+          <div style={{ display: "flex", gap: 8 }}>
+            {(["free", "plus", "pro"] as const).map((t) => {
+              const on = tiers.includes(t);
+              return (
+                <button
+                  key={t}
+                  onClick={() =>
+                    setTiers((prev) => (on ? prev.filter((x) => x !== t) : [...prev, t]))
+                  }
+                  style={{
+                    flex: 1, height: 38, borderRadius: 8, cursor: "pointer", fontSize: 14,
+                    fontWeight: 600, textTransform: "capitalize",
+                    border: on ? 0 : "1px solid #d9d2c6",
+                    background: on ? BRAND : "#fff",
+                    color: on ? "#fff" : "#6b6157",
+                  }}
+                >
+                  {t}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {mode === "later" && (
           <div>
             <label style={{ display: "block", fontSize: 13, color: "#6b6157", marginBottom: 4 }}>Send at</label>
@@ -133,7 +167,7 @@ export default function PushPage() {
                     {s.title || "(no title)"}
                   </div>
                   <div style={{ fontSize: 12, color: "#8a8073" }}>
-                    {new Date(s.send_at).toLocaleString()}
+                    {new Date(s.send_at).toLocaleString()} · {s.audience ? s.audience : "everyone"}
                   </div>
                 </div>
                 <button

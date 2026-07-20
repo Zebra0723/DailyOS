@@ -246,9 +246,29 @@ export async function GET(req: Request) {
   try {
     const { data: due } = await admin
       .from("scheduled_pushes")
-      .select("id,title,body,url")
+      .select("id,title,body,url,audience")
       .eq("sent", false)
       .lte("send_at", nowIso);
+
+    // A user's effective plan tier (a lapsed plan is free again), same as the app.
+    const tierOf = (meta: Record<string, unknown> | undefined): string => {
+      const raw = (meta?.tier as string) ?? (meta?.plan as string) ?? "free";
+      if (raw !== "plus" && raw !== "pro") return "free";
+      const expMs = meta?.plan_exp == null ? 0 : Number(meta.plan_exp);
+      if (expMs > 0 && Date.now() > expMs) return "free";
+      return raw;
+    };
+    // Lazily list users once, only if a scheduled broadcast targets specific tiers.
+    let userTiers: { id: string; tier: string }[] | null = null;
+    const allowedIds = async (tiers: string[]): Promise<Set<string>> => {
+      if (!userTiers) {
+        const { data: u } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+        userTiers = (u?.users ?? []).map((x) => ({ id: x.id, tier: tierOf(x.user_metadata) }));
+      }
+      const want = new Set(tiers);
+      return new Set(userTiers.filter((x) => want.has(x.tier)).map((x) => x.id));
+    };
+
     for (const b of due ?? []) {
       const { data: claimed } = await admin
         .from("scheduled_pushes")
@@ -257,12 +277,22 @@ export async function GET(req: Request) {
         .eq("sent", false)
         .select("id");
       if (!claimed || claimed.length === 0) continue; // another run claimed it
-      broadcasts += await broadcastToAll({
-        title: (b.title as string) || "DailyOS",
-        body: (b.body as string) || "",
-        url: (b.url as string) || "/today",
-        tag: `sched-${b.id}`,
-      });
+
+      const tiers = String(b.audience ?? "")
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      const onlyUsers = tiers.length ? await allowedIds(tiers) : undefined;
+
+      broadcasts += await broadcastToAll(
+        {
+          title: (b.title as string) || "DailyOS",
+          body: (b.body as string) || "",
+          url: (b.url as string) || "/today",
+          tag: `sched-${b.id}`,
+        },
+        onlyUsers,
+      );
     }
   } catch {
     /* scheduled_pushes table not set up yet — skip */

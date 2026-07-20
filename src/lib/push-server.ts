@@ -99,19 +99,25 @@ export async function sendToUser(
  * Broadcast a notification to EVERY subscribed device (all users). Used for
  * admin-scheduled broadcasts. Returns the number delivered; prunes dead endpoints.
  */
-export async function broadcastToAll(payload: PushPayload): Promise<number> {
+export async function broadcastToAll(
+  payload: PushPayload,
+  onlyUserIds?: Set<string>,
+): Promise<number> {
   if (!ensureConfigured()) return 0;
   const admin = createServiceClient();
-  const { data: subs } = await admin
+  const { data } = await admin
     .from("push_subscriptions")
-    .select("endpoint,p256dh,auth");
-  if (!subs || subs.length === 0) return 0;
+    .select("endpoint,p256dh,auth,user_id");
+  let subs = (data ?? []) as (SubRow & { user_id: string })[];
+  // Restrict to a specific set of users (e.g. a plan-tier audience).
+  if (onlyUserIds) subs = subs.filter((s) => onlyUserIds.has(s.user_id));
+  if (subs.length === 0) return 0;
 
   const body = JSON.stringify(payload);
   let delivered = 0;
   const dead: string[] = [];
   await Promise.all(
-    (subs as SubRow[]).map(async (s) => {
+    subs.map(async (s) => {
       try {
         await webpush.sendNotification(
           { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
