@@ -118,7 +118,11 @@ export default async function SettingsPage() {
             <CardDescription>
               Get a nudge even when DailyOS is closed — for reminders you set,
               upcoming events, and reward codes about to expire. Off until you
-              turn it on.
+              turn it on.{" "}
+              <strong className="text-foreground">
+                Notifications only work once DailyOS is installed to your home
+                screen.
+              </strong>
             </CardDescription>
           </CardHeader>
           <CardContent>
