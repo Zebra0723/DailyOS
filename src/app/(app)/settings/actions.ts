@@ -2,6 +2,7 @@
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { getAIProvider, getAIDiagnostics } from "@/lib/ai/provider";
+import { testAdminPush, type AdminPushDiagnostics } from "@/lib/admin-notify";
 
 async function requireUser() {
   const supabase = createClient();
@@ -64,6 +65,21 @@ export async function testAIConnection(): Promise<AITestResult> {
       error: err instanceof Error ? err.message : String(err),
     };
   }
+}
+
+/** Admin diagnostic: check the feedback-alert push pipeline and fire a test. */
+export async function testFeedbackAlert(): Promise<AdminPushDiagnostics> {
+  const { user } = await requireUser();
+  if ((user.user_metadata as { admin?: boolean } | null)?.admin !== true) {
+    return {
+      vapidConfigured: false,
+      adminAccounts: 0,
+      subscribedDevices: 0,
+      delivered: 0,
+      error: "Admin only.",
+    };
+  }
+  return testAdminPush();
 }
 
 /** Export everything the user has stored, as a plain JSON object they can

@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ShieldCheck, Home, Sparkles, FlaskConical, Bot, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { ShieldCheck, Home, Sparkles, FlaskConical, Bot, Loader2, CheckCircle2, XCircle, BellRing } from "lucide-react";
 import { usePlan, setAdmin } from "@/lib/use-pro";
-import { testAIConnection, type AITestResult } from "@/app/(app)/settings/actions";
+import { testAIConnection, testFeedbackAlert, type AITestResult } from "@/app/(app)/settings/actions";
+import type { AdminPushDiagnostics } from "@/lib/admin-notify";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,8 +20,22 @@ export function AdminPanel({ userId }: { userId?: string }) {
   const { toast } = useToast();
   const [aiBusy, setAiBusy] = React.useState(false);
   const [aiResult, setAiResult] = React.useState<AITestResult | null>(null);
+  const [alertBusy, setAlertBusy] = React.useState(false);
+  const [alertResult, setAlertResult] = React.useState<AdminPushDiagnostics | null>(null);
 
   if (!mounted || !admin) return null;
+
+  async function runAlertTest() {
+    setAlertBusy(true);
+    setAlertResult(null);
+    try {
+      setAlertResult(await testFeedbackAlert());
+    } catch {
+      setAlertResult({ vapidConfigured: false, adminAccounts: 0, subscribedDevices: 0, delivered: 0, error: "Test failed to run." });
+    } finally {
+      setAlertBusy(false);
+    }
+  }
 
   function turnOff() {
     void setAdmin(false, userId);
@@ -118,6 +133,45 @@ export function AdminPanel({ userId }: { userId?: string }) {
               <p className="mt-1 text-xs text-muted-foreground">
                 model: {aiResult.model || "—"} · host: {aiResult.host || "—"}
               </p>
+            </div>
+          )}
+        </div>
+
+        {/* Feedback-alert pipeline test — shows exactly where it breaks. */}
+        <div className="rounded-lg border bg-background p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="flex items-center gap-2 text-sm font-medium">
+              <BellRing className="size-4 text-primary" /> Feedback alerts
+            </span>
+            <Button size="sm" variant="outline" onClick={runAlertTest} disabled={alertBusy}>
+              {alertBusy ? <Loader2 className="size-4 animate-spin" /> : <BellRing className="size-4" />}
+              Test feedback alert
+            </Button>
+          </div>
+          {alertResult && (
+            <div
+              className={
+                "mt-3 rounded-md border p-2.5 text-sm " +
+                (alertResult.delivered > 0
+                  ? "border-emerald-500/30 bg-emerald-500/5"
+                  : "border-destructive/30 bg-destructive/5")
+              }
+            >
+              <p className="flex items-center gap-1.5 font-medium">
+                {alertResult.delivered > 0 ? (
+                  <><CheckCircle2 className="size-4 text-emerald-500" /> Sent to {alertResult.delivered} device{alertResult.delivered === 1 ? "" : "s"} — check your notifications</>
+                ) : (
+                  <><XCircle className="size-4 text-destructive" /> Nothing was delivered</>
+                )}
+              </p>
+              {alertResult.error && (
+                <p className="mt-1 break-words text-destructive">{alertResult.error}</p>
+              )}
+              <ul className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
+                <li>VAPID keys: {alertResult.vapidConfigured ? "set ✓" : "MISSING — set NEXT_PUBLIC_VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY"}</li>
+                <li>Admin accounts matched: {alertResult.adminAccounts}{alertResult.adminAccounts === 0 ? " — your account isn't flagged admin / listed in ADMIN_EMAILS" : ""}</li>
+                <li>Subscribed devices: {alertResult.subscribedDevices}{alertResult.subscribedDevices === 0 ? " — enable notifications in the app on this device" : ""}</li>
+              </ul>
             </div>
           )}
         </div>
