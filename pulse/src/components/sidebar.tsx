@@ -2,12 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, ExternalLink, LogOut } from "lucide-react";
+import { Gauge, Activity, CalendarClock, Table2, SlidersHorizontal, ExternalLink, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
-const ACCENT = "#bf502b";
-const NAV = [{ href: "/pulse", label: "Status", icon: Activity }];
+const NAV = [
+  { href: "/pulse", label: "Overview", icon: Gauge },
+  { href: "/pulse/activity", label: "Activity", icon: Activity },
+  { href: "/pulse/queue", label: "Queue", icon: CalendarClock },
+  { href: "/pulse/tables", label: "Tables", icon: Table2 },
+  { href: "/pulse/controls", label: "Controls", icon: SlidersHorizontal },
+];
 
 export function Sidebar({ email, mainUrl }: { email: string; mainUrl: string }) {
   const pathname = usePathname();
@@ -24,13 +29,22 @@ export function Sidebar({ email, mainUrl }: { email: string; mainUrl: string }) 
           const A = active(n.href);
           const Icon = n.icon;
           return (
-            <Link key={n.href} href={n.href} className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-              style={A ? { background: ACCENT, color: "#fff" } : { color: "#4b443b" }}>
+            <Link
+              key={n.href}
+              href={n.href}
+              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#bf502b] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
+            >
               <Icon className="size-4 shrink-0" /> {n.label}
             </Link>
           );
         })}
-        <a href={mainUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#f2e6da]">
+        {/* Deep-link straight into the live DailyOS app. */}
+        <a
+          href={mainUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#f2e6da]"
+        >
           <ExternalLink className="size-4 shrink-0" /> Open DailyOS
         </a>
       </nav>
