@@ -12,7 +12,7 @@ export default async function LogsPage({ params }: { params: { id: string } }) {
   return (
     <div className="grid gap-5">
       <div>
-        <Link href="/deploy" className="inline-flex items-center gap-1.5 text-sm text-[#6b6157] hover:text-[#1c1a17]">
+        <Link href="/deploy/deployments" className="inline-flex items-center gap-1.5 text-sm text-[#6b6157] hover:text-[#1c1a17]">
           <ArrowLeft className="size-4" /> Back to deployments
         </Link>
         <h1 className="mt-2 text-2xl font-bold">Build logs</h1>

@@ -212,7 +212,7 @@ export default async function DeploymentDetailPage({ params }: { params: { id: s
 
 function BackLink() {
   return (
-    <Link href="/deploy" className="inline-flex items-center gap-1.5 text-sm text-[#6b6157] hover:text-[#1c1a17]">
+    <Link href="/deploy/deployments" className="inline-flex items-center gap-1.5 text-sm text-[#6b6157] hover:text-[#1c1a17]">
       <ArrowLeft className="size-4" /> Back to deployments
     </Link>
   );

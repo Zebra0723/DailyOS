@@ -24,14 +24,20 @@ export async function triggerDeployAction(): Promise<R> {
 export async function cancelDeploymentAction(id: string): Promise<R> {
   await requireAdminUser();
   const r = await cancelDeployment(id);
-  if (r.ok) revalidatePath("/deploy");
+  if (r.ok) {
+    revalidatePath("/deploy");
+    revalidatePath("/deploy/deployments");
+  }
   return r;
 }
 
 export async function promoteDeploymentAction(id: string): Promise<R> {
   await requireAdminUser();
   const r = await promoteDeployment(id);
-  if (r.ok) revalidatePath("/deploy");
+  if (r.ok) {
+    revalidatePath("/deploy");
+    revalidatePath("/deploy/deployments");
+  }
   return r;
 }
 
@@ -42,7 +48,10 @@ export async function redeployDeploymentAction(
 ): Promise<R> {
   await requireAdminUser();
   const r = await redeployDeployment(id, name, target);
-  if (r.ok) revalidatePath("/deploy");
+  if (r.ok) {
+    revalidatePath("/deploy");
+    revalidatePath("/deploy/deployments");
+  }
   return r;
 }
 
@@ -51,6 +60,7 @@ export async function rollbackDeploymentAction(id: string, name: string): Promis
   const r = await rollbackDeployment(id, name);
   if (r.ok) {
     revalidatePath("/deploy");
+    revalidatePath("/deploy/deployments");
     revalidatePath(`/deploy/${id}`);
   }
   return r;
