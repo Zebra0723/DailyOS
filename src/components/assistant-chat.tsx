@@ -82,6 +82,17 @@ export function AssistantChat() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
+  // Optional deep-link prefill: /assistant?q=... (used by the Ask widget).
+  // Read from the URL directly so we don't need a Suspense boundary.
+  React.useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search).get("q");
+      if (q) setInput(q);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   async function send(text: string) {
     const content = text.trim();
     if (!content || loading) return;

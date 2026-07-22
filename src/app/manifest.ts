@@ -46,7 +46,18 @@ export default function manifest(): MetadataRoute.Manifest {
       },
       {
         name: "Ask DailyOS",
+        short_name: "Ask",
         url: "/assistant",
+        icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
+      },
+      {
+        name: "Calendar",
+        url: "/calendar",
+        icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
+      },
+      {
+        name: "Widgets",
+        url: "/widgets",
         icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
       },
     ],
