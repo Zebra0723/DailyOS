@@ -107,6 +107,28 @@ alter table public.push_log enable row level security;`,
 );
 alter table public.feedback enable row level security;`,
   },
+  {
+    key: "survey_responses",
+    label: "survey_responses (mini-survey answers → DailyOS Support)",
+    sql: `create table if not exists public.survey_responses (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  email text,
+  -- multiple-choice (single-select) answers
+  q_frequency text,   -- how often they use DailyOS
+  q_helpful text,     -- how much it has helped
+  q_recommend text,   -- likelihood to recommend
+  -- open-ended answers (kept verbatim)
+  q_improve text,
+  q_love text,
+  -- raw payload for forward-compatibility if questions change
+  answers jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+alter table public.survey_responses enable row level security;
+create index if not exists survey_responses_created_idx
+  on public.survey_responses (created_at desc);`,
+  },
 ];
 
 /** Every migration joined into one script. */
@@ -129,4 +151,6 @@ export const HEALTH_TABLES = [
   "admin_reminders",
   "scheduled_pushes",
   "push_log",
+  "feedback",
+  "survey_responses",
 ];

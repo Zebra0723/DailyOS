@@ -7,7 +7,7 @@ export default async function SupportLayout({ children }: { children: React.Reac
     <div className="min-h-screen md:flex">
       <Sidebar email={user.email ?? ""} />
       <main className="min-w-0 flex-1 p-5 md:p-8">
-        <div className="mx-auto max-w-3xl">{children}</div>
+        <div className="mx-auto max-w-5xl">{children}</div>
       </main>
     </div>
   );

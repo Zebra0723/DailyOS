@@ -4,19 +4,19 @@ import { ErrorBanner } from "@/components/error-banner";
 
 export const dynamic = "force-dynamic";
 
-export default async function InboxPage() {
+export default async function ResolvedPage() {
   const { items, error } = await loadFeedback();
-  const open = items.filter((f) => !f.resolved);
+  const resolved = items.filter((f) => f.resolved);
 
   return (
     <div className="grid gap-5">
       <div>
-        <h1 className="text-2xl font-bold">Inbox</h1>
+        <h1 className="text-2xl font-bold">Resolved</h1>
         <p className="text-sm text-[#6b6157]">
-          {open.length} open · triage, reply, and resolve incoming feedback
+          {resolved.length} archived · reopen anything that needs another look
         </p>
       </div>
-      {error ? <ErrorBanner error={error} /> : <FeedbackList items={open} mode="open" />}
+      {error ? <ErrorBanner error={error} /> : <FeedbackList items={resolved} mode="resolved" />}
     </div>
   );
 }
