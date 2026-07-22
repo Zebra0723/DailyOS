@@ -2,12 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Brain, ExternalLink, LogOut } from "lucide-react";
+import { Gauge, MessagesSquare, FileText, SlidersHorizontal, Boxes, ExternalLink, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
-const ACCENT = "#bf502b";
-const NAV = [{ href: "/brain", label: "Assistant", icon: Brain }];
+const NAV = [
+  { href: "/brain", label: "Overview", icon: Gauge },
+  { href: "/brain/playground", label: "Playground", icon: MessagesSquare },
+  { href: "/brain/instructions", label: "Instructions", icon: FileText },
+  { href: "/brain/settings", label: "Settings", icon: SlidersHorizontal },
+  { href: "/brain/models", label: "Models", icon: Boxes },
+];
 
 export function Sidebar({ email }: { email: string }) {
   const pathname = usePathname();
@@ -18,25 +23,37 @@ export function Sidebar({ email }: { email: string }) {
   }
   return (
     <aside className="border-b border-[#e6ded2] bg-[#fffdf9] md:flex md:min-h-screen md:w-56 md:flex-col md:border-b-0 md:border-r">
-      <div className="px-4 pb-2 pt-4"><Link href="/brain"><Logo /></Link></div>
+      <div className="px-4 pb-2 pt-4">
+        <Link href="/brain"><Logo /></Link>
+      </div>
       <nav className="flex gap-1 overflow-x-auto px-2 pb-2 md:flex-col">
         {NAV.map((n) => {
           const A = active(n.href);
           const Icon = n.icon;
           return (
-            <Link key={n.href} href={n.href} className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-              style={A ? { background: ACCENT, color: "#fff" } : { color: "#4b443b" }}>
+            <Link
+              key={n.href}
+              href={n.href}
+              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#bf502b] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
+            >
               <Icon className="size-4 shrink-0" /> {n.label}
             </Link>
           );
         })}
-        <a href="https://platform.openai.com/usage" target="_blank" rel="noreferrer" className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#f2e6da]">
+        <a
+          href="https://platform.openai.com/usage"
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-[#4b443b] hover:bg-[#f2e6da]"
+        >
           <ExternalLink className="size-4 shrink-0" /> AI provider
         </a>
       </nav>
       <div className="mt-auto hidden border-t border-[#e6ded2] p-3 md:block">
         <p className="mb-2 truncate text-xs text-[#8a8073]">{email}</p>
-        <button onClick={signOut} className="flex items-center gap-2 text-sm text-[#6b6157] hover:text-[#1c1a17]"><LogOut className="size-4" /> Sign out</button>
+        <button onClick={signOut} className="flex items-center gap-2 text-sm text-[#6b6157] hover:text-[#1c1a17]">
+          <LogOut className="size-4" /> Sign out
+        </button>
       </div>
     </aside>
   );
