@@ -13,11 +13,11 @@ import {
 import { Logo } from "@/components/logo";
 import { InstallApp } from "@/components/install-app";
 
-// DailyOS is PWA-only: the real app renders only when opened from the home
-// screen (standalone). In a normal browser tab, users get the install wall.
-// Auth/marketing pages are not wrapped in this, so people can still sign up
-// and install first.
-const PWA_ONLY = true;
+// TEMPORARY: PWA-only is turned off for now — DailyOS is usable straight in
+// the browser again, no install required. Set this back to `true` to re-enable
+// the install wall (the app then renders only when opened from the home screen).
+// Note: notifications still require installing to the home screen (iOS rule).
+const PWA_ONLY = false;
 
 const POINTS = [
   {

@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.20 · v202 (New Weekly Review page: wins, overdue, the week ahead, momentum)";
+export const APP_VERSION = "2026.07.20 · v203 (Temporarily turn PWA-only back off — DailyOS works in the browser again)";
