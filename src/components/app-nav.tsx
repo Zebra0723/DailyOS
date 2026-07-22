@@ -25,6 +25,7 @@ import {
   X,
   CreditCard,
   MessageSquarePlus,
+  Compass,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { useSurvey } from "@/components/survey/survey-provider";
@@ -386,6 +387,14 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
                 <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                   Help us improve
                 </p>
+                <Link
+                  href="/welcome?replay=1"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground"
+                >
+                  <Compass className="size-[18px] text-muted-foreground" />
+                  Take the tour
+                </Link>
                 <button
                   onClick={() => {
                     setMenuOpen(false);

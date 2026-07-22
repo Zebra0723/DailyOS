@@ -1,4 +1,4 @@
-import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell, MessageSquare } from "lucide-react";
+import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell, MessageSquare, Compass } from "lucide-react";
 import { FeedbackForm } from "@/components/feedback-form";
 import { InstallApp } from "@/components/install-app";
 import { PushToggle } from "@/components/push-toggle";
@@ -146,6 +146,24 @@ export default async function SettingsPage() {
             <InstallApp />
           </CardContent>
         </Card>
+
+        {/* Replay the guided welcome tour — optional, on demand, never forced */}
+        <Link href="/welcome?replay=1" className="block">
+          <Card className="transition-colors hover:bg-accent/40">
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                <Compass className="size-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium">Take the tour</p>
+                <p className="text-sm text-muted-foreground">
+                  Replay the guided walkthrough of DailyOS any time.
+                </p>
+              </div>
+              <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Feedback → DailyOS Support */}
         <Card>
