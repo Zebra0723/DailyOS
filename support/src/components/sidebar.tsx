@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Inbox, CheckCircle2, TrendingUp, Users, Download, LogOut } from "lucide-react";
+import { Inbox, CheckCircle2, TrendingUp, Users, Download, ClipboardList, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
@@ -12,6 +12,7 @@ const NAV = [
   { href: "/support/trends", label: "Trends", icon: TrendingUp },
   { href: "/support/people", label: "People", icon: Users },
   { href: "/support/export", label: "Export", icon: Download },
+  { href: "/support/survey", label: "Survey", icon: ClipboardList },
 ];
 
 export function Sidebar({ email }: { email: string }) {

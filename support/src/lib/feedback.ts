@@ -26,9 +26,17 @@ export async function loadFeedback(): Promise<{ items: Feedback[]; error: string
   }
 }
 
-/** Turn a raw Postgres error into the "create the table" hint when relevant. */
+/** Turn a raw Postgres error into the "create the table" hint when relevant.
+ *  Detects the missing table's name so the hint fits whichever page hit it. */
 export function friendlyError(error: string): string {
-  return error.includes("does not exist") || error.includes("schema cache")
-    ? "The feedback table doesn't exist yet — create it from DailyOS Base → SQL → Apply setup."
-    : error;
+  if (error.includes("does not exist") || error.includes("schema cache")) {
+    const table = /survey_responses/.test(error)
+      ? "survey_responses"
+      : /feedback/.test(error)
+        ? "feedback"
+        : null;
+    const name = table ?? "required";
+    return `The ${name} table doesn't exist yet — create it from DailyOS Base → SQL → Apply setup.`;
+  }
+  return error;
 }
