@@ -10,7 +10,10 @@ import {
   deleteFeedbackMany,
 } from "@/app/support/actions";
 import { ConfirmButton } from "@/components/confirm-button";
+import { ReplyComposer } from "@/components/reply-composer";
+import { ReplyHistory } from "@/components/reply-history";
 import type { Feedback } from "@/lib/feedback";
+import type { Reply as FeedbackReply } from "@/lib/replies";
 
 export type { Feedback };
 
@@ -72,7 +75,19 @@ function CopyEmailButton({ email }: { email: string }) {
  *  - "resolved": Reopen (single + bulk) + delete
  * Items are expected to be pre-filtered to the matching status by the page.
  */
-export function FeedbackList({ items, mode }: { items: Feedback[]; mode: "open" | "resolved" }) {
+export function FeedbackList({
+  items,
+  mode,
+  repliesByFeedback = {},
+  isOwner = false,
+  emailReady = false,
+}: {
+  items: Feedback[];
+  mode: "open" | "resolved";
+  repliesByFeedback?: Record<string, FeedbackReply[]>;
+  isOwner?: boolean;
+  emailReady?: boolean;
+}) {
   const router = useRouter();
   const [query, setQuery] = React.useState("");
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -341,6 +356,10 @@ export function FeedbackList({ items, mode }: { items: Feedback[]; mode: "open" 
                   }}
                 />
               </div>
+              <ReplyHistory replies={repliesByFeedback[f.id] ?? []} />
+              {f.email && (
+                <ReplyComposer feedbackId={f.id} isOwner={isOwner} emailReady={emailReady} />
+              )}
             </div>
           ))}
         </div>

@@ -2,20 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Inbox, CheckCircle2, TrendingUp, Users, Download, ClipboardList, LogOut } from "lucide-react";
+import { Inbox, CheckCircle2, TrendingUp, Users, Download, ClipboardList, MailCheck, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
 const NAV = [
   { href: "/support", label: "Inbox", icon: Inbox },
   { href: "/support/resolved", label: "Resolved", icon: CheckCircle2 },
+  { href: "/support/approvals", label: "Approvals", icon: MailCheck },
   { href: "/support/trends", label: "Trends", icon: TrendingUp },
   { href: "/support/people", label: "People", icon: Users },
   { href: "/support/export", label: "Export", icon: Download },
   { href: "/support/survey", label: "Survey", icon: ClipboardList },
 ];
 
-export function Sidebar({ email }: { email: string }) {
+export function Sidebar({ email, pendingApprovals = 0 }: { email: string; pendingApprovals?: number }) {
   const pathname = usePathname();
   const active = (href: string) =>
     href === "/support" ? pathname === "/support" : pathname.startsWith(href);
@@ -39,6 +40,14 @@ export function Sidebar({ email }: { email: string }) {
               className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#bf502b] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
             >
               <Icon className="size-4 shrink-0" /> {n.label}
+              {n.href === "/support/approvals" && pendingApprovals > 0 && (
+                <span
+                  className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold"
+                  style={A ? { background: "#fff", color: "#bf502b" } : { background: "#bf502b", color: "#fff" }}
+                >
+                  {pendingApprovals}
+                </span>
+              )}
             </Link>
           );
         })}
