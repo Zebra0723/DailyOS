@@ -10,6 +10,7 @@ import {
 import { Logo } from "@/components/logo";
 import { HomeButton } from "@/components/home-button";
 import { Button } from "@/components/ui/button";
+import { ContactForm } from "@/components/contact-form";
 import { SUPPORT_EMAIL, ENQUIRIES_EMAIL } from "@/lib/contact";
 
 export const metadata = {
@@ -59,6 +60,11 @@ export default function ContactPage() {
               email={ENQUIRIES_EMAIL}
               subject="DailyOS enquiry"
             />
+          </div>
+
+          {/* Working message form — a real channel even before email inboxes exist. */}
+          <div id="message" className="mt-8 scroll-mt-20">
+            <ContactForm />
           </div>
 
           {/* Reassurances */}
@@ -143,10 +149,13 @@ function ContactCard({
             </a>
           </Button>
         ) : (
-          // Empty slot, waiting for the inbox to be created.
-          <div className="rounded-xl border border-dashed bg-muted/40 px-4 py-3 text-center text-sm text-muted-foreground">
-            Email address coming soon
-          </div>
+          // No public inbox yet — point at the working message form below.
+          <a
+            href="#message"
+            className="block rounded-xl border border-dashed bg-muted/40 px-4 py-3 text-center text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          >
+            Use the message form below ↓
+          </a>
         )}
       </div>
     </div>
