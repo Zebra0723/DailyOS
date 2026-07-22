@@ -24,8 +24,10 @@ import {
   Menu,
   X,
   CreditCard,
+  MessageSquarePlus,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
+import { useSurvey } from "@/components/survey/survey-provider";
 import { createClient } from "@/lib/supabase/client";
 import { usePlan } from "@/lib/use-pro";
 import { HOME_SECTIONS, homeHref } from "@/components/homeos/tabs";
@@ -111,6 +113,7 @@ function activeCategory(pathname: string) {
 
 export function TopNav({ email, userId }: { email: string; userId?: string }) {
   const pathname = usePathname();
+  const { openSurvey } = useSurvey();
   const { tier } = usePlan(userId);
   const vaultLocked = tier === "free"; // Vault & Build My Day (Plus+)
   const homeLocked = tier === "free"; // HomeOS is now Plus+
@@ -189,6 +192,15 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
               ⌘K
             </kbd>
           </button>
+          <button
+            onClick={openSurvey}
+            className="inline-flex items-center gap-2 rounded-full border border-input bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            aria-label="Feedback"
+            title="Share feedback"
+          >
+            <MessageSquarePlus className="size-4" />
+            <span className="hidden lg:inline">Feedback</span>
+          </button>
           <Button asChild size="sm" className="shadow-elevated">
             <Link href="/inbox/new">
               <Plus className="size-4" />
@@ -257,6 +269,7 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
 
 export function MobileNav({ email, userId }: { email?: string; userId?: string }) {
   const pathname = usePathname();
+  const { openSurvey } = useSurvey();
   const { tier } = usePlan(userId);
   const vaultLocked = tier === "free"; // Vault & Build My Day (Plus+)
   const homeLocked = tier === "free"; // HomeOS is now Plus+
@@ -368,6 +381,22 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
                   })}
                 </div>
               ))}
+
+              <div>
+                <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  Help us improve
+                </p>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    openSurvey();
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground"
+                >
+                  <MessageSquarePlus className="size-[18px] text-muted-foreground" />
+                  Feedback
+                </button>
+              </div>
             </nav>
 
             <div className="border-t px-4 py-3">

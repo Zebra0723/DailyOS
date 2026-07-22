@@ -24,6 +24,7 @@ import { AppFooter } from "@/components/app-footer";
 import { PwaGate } from "@/components/pwa-gate";
 import { OfflineBanner } from "@/components/offline-banner";
 import { AnnouncementBanner } from "@/components/announcement-banner";
+import { SurveyProvider } from "@/components/survey/survey-provider";
 
 export default async function AppLayout({
   children,
@@ -72,24 +73,26 @@ export default async function AppLayout({
 
   return (
     <PwaGate>
-      <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-background">
-        <OfflineBanner />
-        <AnnouncementBanner text={announcement} />
-        <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
-        <MobileHeader />
-        <FreePlanBanner userId={user.id} />
-        <main className="flex-1 pb-bottomnav md:pb-0">
-          <div className="container max-w-6xl py-8 md:py-12">{children}</div>
-          <AppFooter />
-        </main>
-        <MobileNav email={user.email ?? "you@example.com"} userId={user.id} />
-        <AssistantFab />
-        <CommandPalette />
-        <DueReminder />
-        <LocalReminders />
-        <TimezoneSync />
-        <DeviceBackup />
-      </div>
+      <SurveyProvider>
+        <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-background">
+          <OfflineBanner />
+          <AnnouncementBanner text={announcement} />
+          <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
+          <MobileHeader />
+          <FreePlanBanner userId={user.id} />
+          <main className="flex-1 pb-bottomnav md:pb-0">
+            <div className="container max-w-6xl py-8 md:py-12">{children}</div>
+            <AppFooter />
+          </main>
+          <MobileNav email={user.email ?? "you@example.com"} userId={user.id} />
+          <AssistantFab />
+          <CommandPalette />
+          <DueReminder />
+          <LocalReminders />
+          <TimezoneSync />
+          <DeviceBackup />
+        </div>
+      </SurveyProvider>
     </PwaGate>
   );
 }
