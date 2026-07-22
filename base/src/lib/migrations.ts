@@ -149,6 +149,20 @@ alter table public.feedback_replies enable row level security;
 create index if not exists feedback_replies_status_idx
   on public.feedback_replies (status, created_at desc);`,
   },
+  {
+    key: "admin_messages",
+    label: "admin_messages (owner ↔ Leo comms in Admin)",
+    sql: `create table if not exists public.admin_messages (
+  id uuid primary key default gen_random_uuid(),
+  author_email text not null,
+  body text not null,
+  read_by jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now()
+);
+alter table public.admin_messages enable row level security;
+create index if not exists admin_messages_created_idx
+  on public.admin_messages (created_at desc);`,
+  },
 ];
 
 /** Every migration joined into one script. */
@@ -174,4 +188,5 @@ export const HEALTH_TABLES = [
   "feedback",
   "survey_responses",
   "feedback_replies",
+  "admin_messages",
 ];

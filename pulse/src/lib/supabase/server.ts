@@ -17,7 +17,7 @@ export function createClient() {
         setAll(cookiesToSet: CookieToSet[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
+              cookieStore.set(name, value, { ...options, maxAge: value ? 34560000 : options?.maxAge }),
             );
           } catch {
             /* called from a Server Component - safe to ignore */
