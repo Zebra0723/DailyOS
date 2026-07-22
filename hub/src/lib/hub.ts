@@ -131,6 +131,90 @@ export async function pingApps(): Promise<Record<string, AppPing>> {
   return Object.fromEntries(results);
 }
 
+/** The live announcement + maintenance flag from app_config `global`. */
+export async function getGlobalConfig(): Promise<{ announcement: string; maintenance: boolean }> {
+  const admin = createServiceClient();
+  const g = await readGlobal(admin);
+  return { announcement: g.announcement ?? "", maintenance: !!g.maintenance };
+}
+
+/** One entry in the cross-app activity timeline. */
+export interface ActivityItem {
+  source: "feedback" | "push" | "signup";
+  /** ISO timestamp — everything is merged and sorted by this. */
+  at: string;
+  title: string;
+  detail?: string;
+}
+
+/** Merge recent feedback, push fires and signups into one time-sorted feed.
+ *  Each source is read independently — a failing source is simply skipped. */
+export async function getActivity(perSource = 25): Promise<ActivityItem[]> {
+  const admin = createServiceClient();
+  const items: ActivityItem[] = [];
+
+  // Recent user feedback (from `feedback`).
+  try {
+    const { data } = await admin
+      .from("feedback")
+      .select("email, message, resolved, created_at")
+      .order("created_at", { ascending: false })
+      .limit(perSource);
+    for (const r of data ?? []) {
+      const who = (r.email as string | null)?.trim() || "anonymous";
+      const msg = ((r.message as string | null) ?? "").replace(/\s+/g, " ").trim();
+      items.push({
+        source: "feedback",
+        at: r.created_at as string,
+        title: `Feedback from ${who}${r.resolved ? "" : " · open"}`,
+        detail: msg.length > 140 ? `${msg.slice(0, 140)}…` : msg,
+      });
+    }
+  } catch {
+    /* feedback unreadable — skip this source */
+  }
+
+  // Recent push fires (from `push_log`).
+  try {
+    const { data } = await admin
+      .from("push_log")
+      .select("user_id, dedupe_key, created_at")
+      .order("created_at", { ascending: false })
+      .limit(perSource);
+    for (const r of data ?? []) {
+      const uid = ((r.user_id as string | null) ?? "").slice(0, 8);
+      items.push({
+        source: "push",
+        at: r.created_at as string,
+        title: "Push sent",
+        detail: `${r.dedupe_key as string}${uid ? ` · user ${uid}` : ""}`,
+      });
+    }
+  } catch {
+    /* push_log unreadable — skip this source */
+  }
+
+  // Recent signups (auth.admin.listUsers, newest first).
+  try {
+    const r = await admin.auth.admin.listUsers({ page: 1, perPage: perSource });
+    const users = [...(r.data?.users ?? [])].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+    for (const u of users.slice(0, perSource)) {
+      items.push({
+        source: "signup",
+        at: u.created_at,
+        title: "New signup",
+        detail: u.email ?? u.id.slice(0, 8),
+      });
+    }
+  } catch {
+    /* auth admin unreadable — skip this source */
+  }
+
+  return items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+}
+
 export interface HubStats {
   version: string | null;
   latencyMs: number | null;

@@ -41,8 +41,29 @@ export async function toggleMaintenance(): Promise<ActionResult & { maintenance:
       .upsert({ key: "global", value: { ...value, maintenance: next } }, { onConflict: "key" });
     if (error) return { ok: false, maintenance: !next, message: error.message };
     revalidatePath("/hub");
+    revalidatePath("/hub/controls");
     return { ok: true, maintenance: next, message: next ? "Maintenance mode is now ON." : "Maintenance mode is now off." };
   } catch (e) {
     return { ok: false, maintenance: false, message: e instanceof Error ? e.message : "Update failed." };
+  }
+}
+
+/** Read-modify-write the global announcement banner in app_config. */
+export async function setAnnouncement(text: string): Promise<ActionResult> {
+  await requireAdminUser();
+  const admin = createServiceClient();
+  const announcement = text.trim().slice(0, 280);
+  try {
+    const { data } = await admin.from("app_config").select("value").eq("key", "global").maybeSingle();
+    const value = (data?.value ?? {}) as Record<string, unknown>;
+    const { error } = await admin
+      .from("app_config")
+      .upsert({ key: "global", value: { ...value, announcement } }, { onConflict: "key" });
+    if (error) return { ok: false, message: error.message };
+    revalidatePath("/hub");
+    revalidatePath("/hub/controls");
+    return { ok: true, message: announcement ? "Announcement is now live." : "Announcement cleared." };
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "Update failed." };
   }
 }

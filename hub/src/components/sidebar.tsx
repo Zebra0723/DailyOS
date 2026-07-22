@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ExternalLink, LogOut } from "lucide-react";
+import { Gauge, LayoutGrid, Activity, SlidersHorizontal, ExternalLink, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/logo";
 
@@ -13,9 +13,17 @@ interface AppNav {
   dot: string;
 }
 
+const NAV = [
+  { href: "/hub", label: "Overview", icon: Gauge },
+  { href: "/hub/apps", label: "Apps", icon: LayoutGrid },
+  { href: "/hub/activity", label: "Activity", icon: Activity },
+  { href: "/hub/controls", label: "Controls", icon: SlidersHorizontal },
+  { href: "/hub/platforms", label: "Platforms", icon: ExternalLink },
+];
+
 export function Sidebar({ email, apps }: { email: string; apps: AppNav[] }) {
   const pathname = usePathname();
-  const active = pathname === "/hub";
+  const active = (href: string) => (href === "/hub" ? pathname === "/hub" : pathname.startsWith(href));
   async function signOut() {
     await createClient().auth.signOut();
     window.location.href = "/verify";
@@ -27,12 +35,20 @@ export function Sidebar({ email, apps }: { email: string; apps: AppNav[] }) {
         <Link href="/hub"><Logo /></Link>
       </div>
       <nav className="flex gap-1 overflow-x-auto px-2 pb-2 md:flex-col">
-        <Link
-          href="/hub"
-          className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${active ? "bg-[#bf502b] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
-        >
-          <LayoutDashboard className="size-4 shrink-0" /> Dashboard
-        </Link>
+        {NAV.map((n) => {
+          const A = active(n.href);
+          const Icon = n.icon;
+          return (
+            <Link
+              key={n.href}
+              href={n.href}
+              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#bf502b] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
+            >
+              <Icon className="size-4 shrink-0" /> {n.label}
+            </Link>
+          );
+        })}
+        {/* Per-app wayfinding: deep-links straight into each sibling admin app. */}
         {linked.length > 0 && (
           <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wide text-[#a89b8a]">Apps</p>
         )}

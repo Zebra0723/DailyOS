@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowUpRight, Gauge, Users, BellRing, MessageSquare, CalendarClock, Wrench } from "lucide-react";
-import { getHubStats, pingApps, appLinks, platforms, MAIN_APP_URL } from "@/lib/hub";
+import { getHubStats, MAIN_APP_URL } from "@/lib/hub";
 import { AutoRefresh } from "@/components/auto-refresh";
-import { QuickActions } from "@/components/quick-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -22,11 +21,8 @@ function Stat({ icon: Icon, label, value, sub, tone }: { icon: typeof Gauge; lab
   );
 }
 
-export default async function HubDashboard() {
-  const [s, pings] = await Promise.all([getHubStats(), pingApps()]);
-  const apps = appLinks();
-  const plats = platforms();
-  const cronEnabled = !!process.env.CRON_SECRET;
+export default async function OverviewPage() {
+  const s = await getHubStats();
   const renderedAt = Date.now();
 
   const latency = s.latencyMs === null ? "—" : `${s.latencyMs} ms`;
@@ -36,7 +32,7 @@ export default async function HubDashboard() {
     <div className="grid gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Hub</h1>
+          <h1 className="text-2xl font-bold">Overview</h1>
           <p className="text-sm text-[#6b6157]">Your whole DailyOS operation, at a glance.</p>
         </div>
         <AutoRefresh renderedAt={renderedAt} />
@@ -44,14 +40,14 @@ export default async function HubDashboard() {
 
       {/* Alerts */}
       {s.maintenance && (
-        <div className="flex items-center gap-2 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
-          <Wrench className="size-4 shrink-0" /> Maintenance mode is <b>ON</b> — users see the maintenance screen.
-        </div>
+        <Link href="/hub/controls" className="flex items-center gap-2 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412] transition-colors hover:border-[#e39a8c]">
+          <Wrench className="size-4 shrink-0" /> Maintenance mode is <b>ON</b> — users see the maintenance screen. <span className="ml-auto text-xs font-medium">Manage →</span>
+        </Link>
       )}
       {s.announcement && (
-        <div className="flex items-start gap-2 rounded-xl border border-[#e6ded2] bg-[#fbf6ec] p-3 text-sm text-[#6b5b3e]">
+        <Link href="/hub/controls" className="flex items-start gap-2 rounded-xl border border-[#e6ded2] bg-[#fbf6ec] p-3 text-sm text-[#6b5b3e] transition-colors hover:border-[#d9a38f]">
           <AlertTriangle className="mt-0.5 size-4 shrink-0" /> <span>Live announcement: &ldquo;{s.announcement}&rdquo;</span>
-        </div>
+        </Link>
       )}
 
       {/* Live vitals */}
@@ -68,62 +64,17 @@ export default async function HubDashboard() {
         </div>
       </section>
 
-      {/* Open an app */}
-      <section>
-        <h2 className="mb-3 text-base font-bold">Open an app</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {apps.map((a) => {
-            const ping = pings[a.key];
-            const inner = (
-              <div className="flex items-start gap-3">
-                <span className="mt-1 size-3 shrink-0 rounded-full" style={{ background: a.dot }} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 font-semibold">
-                    DailyOS {a.label}
-                    {a.url && <ArrowUpRight className="size-3.5 text-[#a89b8a]" />}
-                    {ping && (
-                      <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-[#8a8073]">
-                        <span
-                          className="size-2 rounded-full"
-                          style={{ background: ping.ok ? "#15803d" : "#c0392b" }}
-                          aria-label={ping.ok ? "up" : "down"}
-                        />
-                        {ping.ok ? (ping.ms === null ? "up" : `${ping.ms} ms`) : "down"}
-                      </span>
-                    )}
-                  </div>
-                  <div className="truncate text-xs text-[#6b6157]">{a.blurb}</div>
-                  {!a.url && <div className="mt-1 text-[11px] text-[#a89b8a]">Set HUB_{a.key.toUpperCase()}_URL to link it</div>}
-                </div>
-              </div>
-            );
-            return a.url ? (
-              <a key={a.key} href={a.url} target="_blank" rel="noreferrer" className={`${card} transition-colors hover:border-[#d9a38f]`}>{inner}</a>
-            ) : (
-              <div key={a.key} className={`${card} opacity-70`}>{inner}</div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Quick actions */}
-      <QuickActions cronEnabled={cronEnabled} maintenance={s.maintenance} />
-
-      {/* Platforms */}
-      <section>
-        <h2 className="mb-3 text-base font-bold">Platforms</h2>
-        <div className="flex flex-wrap gap-2">
-          {plats.map((p) => (
-            <a key={p.label} href={p.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3.5 py-2 text-sm font-semibold transition-colors hover:border-[#d9a38f]">
-              {p.label}
-              <ArrowUpRight className="size-3.5 text-[#a89b8a]" />
-            </a>
-          ))}
-        </div>
-        <p className="mt-2 text-xs text-[#a89b8a]">Quick links to the real dashboards — for billing, secrets and setup the apps can&rsquo;t reach.</p>
-      </section>
-
-      <Link href="/hub" className="text-xs text-[#a89b8a] hover:text-[#6b6157]">Refresh</Link>
+      <div className="flex flex-wrap gap-2 text-sm">
+        <Link href="/hub/apps" className="inline-flex items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3.5 py-2 font-semibold transition-colors hover:border-[#d9a38f]">
+          Check apps <ArrowUpRight className="size-3.5 text-[#a89b8a]" />
+        </Link>
+        <Link href="/hub/activity" className="inline-flex items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3.5 py-2 font-semibold transition-colors hover:border-[#d9a38f]">
+          Recent activity <ArrowUpRight className="size-3.5 text-[#a89b8a]" />
+        </Link>
+        <Link href="/hub/controls" className="inline-flex items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3.5 py-2 font-semibold transition-colors hover:border-[#d9a38f]">
+          Controls <ArrowUpRight className="size-3.5 text-[#a89b8a]" />
+        </Link>
+      </div>
     </div>
   );
 }
