@@ -1,6 +1,7 @@
 "use server";
 
 import { createServiceClient } from "@/lib/supabase/server";
+import { notifyAdmins } from "@/lib/admin-notify";
 
 /** Public contact form → lands in the `feedback` table (DailyOS Support).
  *  Works without a login, so a stuck visitor always has a real channel. */
@@ -22,6 +23,13 @@ export async function submitContact(
       message: `[Contact form] ${cleanMsg}`.slice(0, 4000),
     });
     if (error) return { ok: false, error: error.message };
+    // Alert the owner(s) on their devices that a contact message came in.
+    await notifyAdmins({
+      title: "📨 New contact message",
+      body: `${cleanEmail}: ${cleanMsg.length > 120 ? `${cleanMsg.slice(0, 120)}…` : cleanMsg}`,
+      url: "/contact",
+      tag: "feedback",
+    });
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
