@@ -129,6 +129,26 @@ alter table public.survey_responses enable row level security;
 create index if not exists survey_responses_created_idx
   on public.survey_responses (created_at desc);`,
   },
+  {
+    key: "feedback_replies",
+    label: "feedback_replies (Support replies + owner approval)",
+    sql: `create table if not exists public.feedback_replies (
+  id uuid primary key default gen_random_uuid(),
+  feedback_id uuid not null references public.feedback(id) on delete cascade,
+  author_email text,                          -- which admin drafted it
+  to_email text,                              -- recipient (feedback author) snapshot
+  body text not null,
+  status text not null default 'pending',     -- pending | approved | declined
+  sent boolean not null default false,
+  send_error text,
+  decided_by text,
+  decided_at timestamptz,
+  created_at timestamptz not null default now()
+);
+alter table public.feedback_replies enable row level security;
+create index if not exists feedback_replies_status_idx
+  on public.feedback_replies (status, created_at desc);`,
+  },
 ];
 
 /** Every migration joined into one script. */
@@ -153,4 +173,5 @@ export const HEALTH_TABLES = [
   "push_log",
   "feedback",
   "survey_responses",
+  "feedback_replies",
 ];
