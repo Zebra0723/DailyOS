@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.20 · v213 (Fix: push cron now runs hourly so the 7am morning brief reaches every timezone)";
+export const APP_VERSION = "2026.07.20 · v214 (Remove emojis from all emails)";

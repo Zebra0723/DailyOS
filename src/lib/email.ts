@@ -28,7 +28,7 @@ export async function sendAdminCodeAlert(opts: {
   if (!to) return { ok: false, skipped: true };
   const html = `
   <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#1c1a17">
-    <h1 style="font-size:20px;margin:0 0 12px">⚠️ Admin code used on DailyOS</h1>
+    <h1 style="font-size:20px;margin:0 0 12px">Admin code used on DailyOS</h1>
     <p style="font-size:15px;line-height:1.5;color:#5b544b;margin:0 0 16px">
       The admin code was just entered on this account:
     </p>
@@ -46,7 +46,7 @@ export async function sendAdminCodeAlert(opts: {
   </div>`;
   const res = await sendEmail({
     to,
-    subject: "⚠️ DailyOS admin code was used",
+    subject: "DailyOS admin code was used",
     html,
   });
   return { ok: res.ok, skipped: res.skipped };
@@ -129,8 +129,8 @@ export async function sendRewardEmail(opts: {
   return sendEmail({
     to: opts.to,
     subject: friend
-      ? "Welcome to DailyOS — here's your reward 🎁"
-      : "You've earned a DailyOS reward 🎉",
+      ? "Welcome to DailyOS — here's your reward"
+      : "You've earned a DailyOS reward",
     html: rewardEmail({
       heading: friend
         ? "Thanks for joining through a friend."
