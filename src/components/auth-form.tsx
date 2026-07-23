@@ -36,6 +36,21 @@ export function AuthForm({
   // Off by default: a plain login lasts 30 days; ticking it stretches to 1 year.
   const [remember, setRemember] = React.useState(false);
 
+  // Email-OTP second factor on login. Gated behind an env flag so it can only
+  // be switched on AFTER Supabase's OTP email template is configured (otherwise
+  // users get a link with no code and can't finish logging in). Default: off.
+  const REQUIRE_OTP = process.env.NEXT_PUBLIC_REQUIRE_LOGIN_OTP === "true";
+  const [otpStage, setOtpStage] = React.useState(false);
+  const [otpEmail, setOtpEmail] = React.useState("");
+  const [otpCode, setOtpCode] = React.useState("");
+  const [resendIn, setResendIn] = React.useState(0);
+
+  React.useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
   // New sign-ups go through onboarding (which hands off to the welcome tour on
   // first run); a normal login lands straight on Today — the welcome tour must
   // never be forced on a returning user. A `redirect` param (e.g. from a
@@ -99,6 +114,23 @@ export function AuthForm({
           password: passwordVal,
         });
         if (error) throw error;
+
+        if (REQUIRE_OTP) {
+          // Password is correct — but grant NO access on password alone. Discard
+          // the session, then email a one-time code that must be entered to
+          // actually create the session.
+          await supabase.auth.signOut();
+          const { error: otpErr } = await supabase.auth.signInWithOtp({
+            email: emailVal,
+            options: { shouldCreateUser: false },
+          });
+          if (otpErr) throw otpErr;
+          setOtpEmail(emailVal);
+          setOtpStage(true);
+          setResendIn(30);
+          setLoading(false);
+          return;
+        }
       }
 
       // Stamp how long this session lasts, honouring the "Remember me" tick on
@@ -115,6 +147,103 @@ export function AuthForm({
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setLoading(false);
     }
+  }
+
+  async function verifyOtpCode(e: React.FormEvent) {
+    e.preventDefault();
+    const code = otpCode.trim();
+    if (code.length < 6) {
+      setError("Enter the 6-digit code from your email.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: otpEmail,
+        token: code,
+        type: "email",
+      });
+      if (error) throw error;
+      markSessionStart(remember);
+      toast({ variant: "success", title: "Welcome to DailyOS" });
+      window.location.assign(redirect);
+      return; // keep the spinner up while the next page loads
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "That code didn't work — try again.");
+      setLoading(false);
+    }
+  }
+
+  async function resendOtp() {
+    if (resendIn > 0) return;
+    setError(null);
+    const { error } = await supabase.auth.signInWithOtp({
+      email: otpEmail,
+      options: { shouldCreateUser: false },
+    });
+    if (error) setError(error.message);
+    else {
+      setResendIn(30);
+      toast({ variant: "info", title: "New code sent" });
+    }
+  }
+
+  if (otpStage) {
+    return (
+      <form onSubmit={verifyOtpCode} className="space-y-4">
+        <div className="space-y-1 text-center">
+          <h2 className="text-lg font-semibold">Verify it&apos;s you</h2>
+          <p className="text-sm text-muted-foreground">
+            We emailed a 6-digit code to <strong>{otpEmail}</strong>. Enter it to
+            finish signing in.
+          </p>
+        </div>
+        <Input
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          pattern="[0-9]*"
+          maxLength={6}
+          placeholder="123456"
+          value={otpCode}
+          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+          className="text-center text-lg tracking-[0.5em]"
+          autoFocus
+          required
+        />
+        {error && (
+          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading && <Loader2 className="size-4 animate-spin" />}
+          Verify &amp; sign in
+        </Button>
+        <div className="flex items-center justify-between text-sm">
+          <button
+            type="button"
+            onClick={() => {
+              setOtpStage(false);
+              setOtpCode("");
+              setError(null);
+              setLoading(false);
+            }}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            ← Back
+          </button>
+          <button
+            type="button"
+            onClick={resendOtp}
+            disabled={resendIn > 0}
+            className="font-medium text-primary hover:underline disabled:opacity-50 disabled:no-underline"
+          >
+            {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend code"}
+          </button>
+        </div>
+      </form>
+    );
   }
 
   if (sentConfirmation) {
