@@ -26,7 +26,7 @@ export default function PrivacyPage() {
         <li>Operated by: the DailyOS team, currently as an individual rather than a registered company. If DailyOS is later incorporated, we&rsquo;ll update these details.</li>
         <li>Based in: the United Kingdom.</li>
         <li>VAT: not registered.</li>
-        <li>Contact for privacy: through our <a href="/contact">contact page</a>.</li>
+        <li>Contact for privacy: <a href="mailto:support@dailyos.uk">support@dailyos.uk</a>, or through our <a href="/contact">contact page</a>.</li>
         <li>Data Protection Officer: none appointed — we are not required to appoint one.</li>
       </ul>
 
@@ -179,7 +179,7 @@ export default function PrivacyPage() {
 
       <h2>14. Complaints</h2>
       <p>
-        Please contact us first through our <a href="/contact">contact page</a>. You
+        Please contact us first at <a href="mailto:support@dailyos.uk">support@dailyos.uk</a> or through our <a href="/contact">contact page</a>. You
         also have the right to complain to the Information Commissioner&rsquo;s
         Office (ICO) at{" "}
         <a href="https://ico.org.uk" target="_blank" rel="noreferrer">ico.org.uk</a>.

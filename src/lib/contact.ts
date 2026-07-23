@@ -8,5 +8,5 @@
 //   SUPPORT_EMAIL    — e.g. "support@dailyos.app"
 //   ENQUIRIES_EMAIL  — e.g. "hello@dailyos.app"
 
-export const SUPPORT_EMAIL = "";
-export const ENQUIRIES_EMAIL = "";
+export const SUPPORT_EMAIL = "support@dailyos.uk";
+export const ENQUIRIES_EMAIL = "general@dailyos.uk";

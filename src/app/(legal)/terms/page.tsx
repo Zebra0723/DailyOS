@@ -19,7 +19,7 @@ export default function TermsPage() {
       <ul>
         <li>Trading name: <strong>DailyOS</strong>.</li>
         <li>Operated by: the DailyOS team, currently as an individual based in the United Kingdom rather than a registered company. VAT: not registered. If DailyOS is later incorporated, we&rsquo;ll update these details.</li>
-        <li>Contact: through our <a href="/contact">contact page</a>.</li>
+        <li>Contact: <a href="mailto:general@dailyos.uk">general@dailyos.uk</a> for general enquiries, <a href="mailto:support@dailyos.uk">support@dailyos.uk</a> for support, or through our <a href="/contact">contact page</a>.</li>
       </ul>
 
       <h2>2. Acceptance</h2>
@@ -191,8 +191,9 @@ export default function TermsPage() {
       <h2>21. Changes &amp; contact</h2>
       <p>
         We may update these Terms; we&rsquo;ll notify you of material changes and
-        show a new &ldquo;last updated&rdquo; date. Questions or complaints: through
-        our <a href="/contact">contact page</a>.
+        show a new &ldquo;last updated&rdquo; date. Questions or complaints: email{" "}
+        <a href="mailto:support@dailyos.uk">support@dailyos.uk</a> or use our{" "}
+        <a href="/contact">contact page</a>.
       </p>
     </>
   );

@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.20 · v211 (Feedback survey invite now waits until ~2 weeks of usage)";
+export const APP_VERSION = "2026.07.20 · v212 (Live contact emails: support@dailyos.uk & general@dailyos.uk on Contact + legal pages)";
