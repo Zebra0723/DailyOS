@@ -1,0 +1,29 @@
+name: Push notifications cron
+
+# Fires the DailyOS push scanner (morning brief + reminders + alerts) every hour.
+# This runs regardless of the Vercel plan — Vercel's free tier caps crons to
+# once a day, which can't cover every timezone's 7am. GitHub Actions cron is
+# free and hourly. Every send is de-duped server-side, so hourly is safe.
+#
+# Required repo secret:
+#   CRON_SECRET  — must match the CRON_SECRET env var on the app
+# Optional repo secret:
+#   APP_URL      — e.g. https://dailyos.uk (defaults to the Vercel URL below)
+
+on:
+  schedule:
+    - cron: "0 * * * *" # every hour, on the hour (UTC)
+  workflow_dispatch: {} # lets you run it manually from the Actions tab
+
+jobs:
+  fire:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger /api/push/run
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          BASE="${APP_URL:-https://daily-os-lac.vercel.app}"
+          echo "Triggering ${BASE}/api/push/run"
+          curl -fsS --max-time 60 "${BASE}/api/push/run?key=${CRON_SECRET}" && echo "" && echo "triggered ok"

@@ -130,7 +130,10 @@ export async function GET(req: Request) {
       } catch {
         local = localDayHour("Europe/London", now);
       }
-      if (local.hour === BRIEF_HOUR) {
+      // A morning window (not one exact hour): the trigger may run late or miss
+      // the 7 o'clock slot, so any run between 7am and 11am delivers the brief.
+      // sendOnce (keyed by the local day) still guarantees it fires only once.
+      if (local.hour >= BRIEF_HOUR && local.hour < BRIEF_HOUR + 4) {
         const [{ data: dueTasks }, { data: todayEvents }] = await Promise.all([
           admin
             .from("extracted_tasks")
