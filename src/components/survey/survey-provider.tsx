@@ -20,6 +20,9 @@ import { cn } from "@/lib/utils";
  */
 
 const STORAGE_KEY = "dailyos_survey_seen";
+// When this device first opened the app — the invite waits until ~2 weeks after.
+const FIRST_USE_KEY = "dailyos_first_use";
+const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
 
 interface SurveyContextValue {
   openSurvey: () => void;
@@ -81,17 +84,26 @@ export function SurveyProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Proactive invite: show at most once, never after seen, and not immediately
-  // on first load — wait a few seconds so it doesn't collide with page load.
+  // Proactive invite: show at most once, never after it's been seen/dismissed,
+  // and only once this device has ~2 weeks of usage — so we ask people who've
+  // actually lived with DailyOS, not first-timers. On first ever open we just
+  // record the timestamp and stay quiet.
   React.useEffect(() => {
-    let seen = false;
     try {
-      seen = localStorage.getItem(STORAGE_KEY) === "1";
+      if (localStorage.getItem(STORAGE_KEY) === "1") return;
+
+      const raw = localStorage.getItem(FIRST_USE_KEY);
+      let firstUse = raw ? parseInt(raw, 10) || 0 : 0;
+      if (!firstUse) {
+        firstUse = Date.now();
+        localStorage.setItem(FIRST_USE_KEY, String(firstUse));
+      }
+      // Not enough usage history yet — don't invite.
+      if (Date.now() - firstUse < TWO_WEEKS_MS) return;
     } catch {
-      /* ignore */
+      return;
     }
-    if (seen) return;
-    const t = setTimeout(() => setShowInvite(true), 6000);
+    const t = setTimeout(() => setShowInvite(true), 4000);
     return () => clearTimeout(t);
   }, []);
 
