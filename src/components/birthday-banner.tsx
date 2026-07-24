@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 
 // A one-off celebration banner. Flip SHOW to false (or remove the
 // <BirthdayBanner /> mount in the app layout) once the day is over.
-const SHOW = true;
+const SHOW = false;
 const KEY = "dailyos-arjun-bday-2026";
 
 export function BirthdayBanner() {
