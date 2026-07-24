@@ -163,6 +163,24 @@ alter table public.admin_messages enable row level security;
 create index if not exists admin_messages_created_idx
   on public.admin_messages (created_at desc);`,
   },
+  {
+    key: "bug_reports",
+    label: "bug_reports (in-app Report Bug → DailyOS Support)",
+    sql: `create table if not exists public.bug_reports (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  email text,
+  description text not null,
+  page_url text,        -- where they hit the bug
+  user_agent text,      -- device / browser
+  app_version text,     -- the deployed version at report time
+  status text not null default 'open',   -- open | resolved
+  created_at timestamptz not null default now()
+);
+alter table public.bug_reports enable row level security;
+create index if not exists bug_reports_status_idx
+  on public.bug_reports (status, created_at desc);`,
+  },
 ];
 
 /** Every migration joined into one script. */
@@ -189,4 +207,5 @@ export const HEALTH_TABLES = [
   "survey_responses",
   "feedback_replies",
   "admin_messages",
+  "bug_reports",
 ];
