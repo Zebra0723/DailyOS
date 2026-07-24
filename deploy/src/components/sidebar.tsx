@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Rocket, FolderGit2, KeyRound, Globe, ExternalLink, LogOut } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { signOutAdmin } from "@/app/verify/actions";
 import { Logo } from "@/components/logo";
 
 const ACCENT = "#bf502b";
@@ -19,7 +19,7 @@ export function Sidebar({ email }: { email: string }) {
   const pathname = usePathname();
   const active = (href: string) => (href === "/deploy" ? pathname === "/deploy" : pathname.startsWith(href));
   async function signOut() {
-    await createClient().auth.signOut();
+    await signOutAdmin();
     window.location.href = "/verify";
   }
   return (

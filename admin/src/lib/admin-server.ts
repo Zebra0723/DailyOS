@@ -1,14 +1,10 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/admin";
+import { currentAdminEmail } from "@/lib/admin-auth";
 
-/** Ensure the current request is an allow-listed admin, or bounce to /verify.
- *  Call this in the admin layout AND every admin server action. */
-export async function requireAdminUser() {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user || !isAdminEmail(user.email)) redirect("/verify");
-  return user;
+/** Ensure the request is a signed-in admin, or bounce to /verify. Returns a
+ *  minimal user ({ email, id }) so existing callers (`user.email`) keep working. */
+export async function requireAdminUser(): Promise<{ email: string; id: string }> {
+  const email = currentAdminEmail();
+  if (!email) redirect("/verify");
+  return { email, id: email };
 }

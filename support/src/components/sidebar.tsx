@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Inbox, CheckCircle2, TrendingUp, Users, Download, ClipboardList, MailCheck, LogOut } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { signOutAdmin } from "@/app/verify/actions";
 import { Logo } from "@/components/logo";
 
 const NAV = [
@@ -21,7 +21,7 @@ export function Sidebar({ email, pendingApprovals = 0 }: { email: string; pendin
   const active = (href: string) =>
     href === "/support" ? pathname === "/support" : pathname.startsWith(href);
   async function signOut() {
-    await createClient().auth.signOut();
+    await signOutAdmin();
     window.location.href = "/verify";
   }
   return (

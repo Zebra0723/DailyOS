@@ -1,68 +1,48 @@
 "use client";
 
-import { useState } from "react";
-import { checkAdminEmail } from "./actions";
-import { createClient } from "@/lib/supabase/client";
+import * as React from "react";
 import { Logo } from "@/components/logo";
-
-type State = "idle" | "working" | "sent" | "denied" | "error";
-
-function box(bg: string, border: string): React.CSSProperties {
-  return { background: bg, border: `1px solid ${border}`, borderRadius: 10, padding: "14px 16px", fontSize: 14, lineHeight: 1.5, marginBottom: 12 };
-}
-const field: React.CSSProperties = {
-  height: 44, borderRadius: 10, border: "1px solid #d9d2c6", background: "#fff",
-  color: "inherit", padding: "0 14px", fontSize: 15, boxSizing: "border-box", width: "100%",
-};
+import { signInWithPassword } from "./actions";
 
 export default function VerifyPage() {
-  const [email, setEmail] = useState("");
-  const [state, setState] = useState<State>("idle");
+  const [password, setPassword] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
 
-  async function sendLink(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const clean = email.trim().toLowerCase();
-    if (!clean) return;
-    setState("working");
-    try {
-      const { allowed } = await checkAdminEmail(clean);
-      if (!allowed) {
-        setState("denied");
-        return;
-      }
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        email: clean,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-      });
-      setState(error ? "error" : "sent");
-    } catch {
-      setState("error");
+    setLoading(true);
+    setError("");
+    const res = await signInWithPassword(password);
+    if (res.ok) {
+      window.location.href = "/";
+      return;
     }
+    setError(res.error ?? "Wrong password.");
+    setLoading(false);
   }
 
   return (
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
-      <div style={{ width: "100%", maxWidth: 380 }}>
+      <div style={{ width: "100%", maxWidth: 360 }}>
         <div style={{ marginBottom: 6 }}><Logo /></div>
-        <p style={{ color: "#6b6157", fontSize: 14, margin: "0 0 20px" }}>Verify your email to open DailyOS Brain.</p>
-
-        {state === "denied" ? (
-          <div style={box("#fbe9e7", "#f0c4bd")}>
-            This email doesn&apos;t have access to DailyOS Brain.
-          </div>
-        ) : state === "sent" ? (
-          <div style={box("#e0f2f1", "#a7d8d3")}>
-            Check your inbox &mdash; we&apos;ve emailed you a secure sign-in link.
-          </div>
-        ) : (
-          <form onSubmit={sendLink} style={{ display: "grid", gap: 10 }}>
-            <input type="email" required autoFocus placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={field} autoComplete="username" />
-            <button type="submit" disabled={state === "working"} style={{ ...field, height: 44, border: 0, background: "#bf502b", color: "#fff", fontWeight: 600, cursor: "pointer", opacity: state === "working" ? 0.6 : 1 }}>
-              {state === "working" ? "Sending…" : "Email me a sign-in link"}
-            </button>
-          </form>
-        )}
+        <p style={{ color: "#6b6157", fontSize: 14, margin: "0 0 20px" }}>Enter your admin password to continue.</p>
+        <form onSubmit={onSubmit} style={{ display: "grid", gap: 10 }}>
+          <input
+            type="password"
+            autoFocus
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            style={{ width: "100%", padding: "11px 12px", fontSize: 15, border: "1px solid #e0d6c8", borderRadius: 10, background: "#fffdf9", color: "#1c1a17" }}
+          />
+          {error && (
+            <div style={{ background: "#fbe9e7", border: "1px solid #f0c4bd", color: "#9a3412", borderRadius: 10, padding: "9px 12px", fontSize: 13 }}>{error}</div>
+          )}
+          <button type="submit" disabled={loading} style={{ width: "100%", padding: "11px 12px", fontSize: 15, fontWeight: 600, background: "#bf502b", color: "#fff", border: "none", borderRadius: 10, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
+            {loading ? "Checking…" : "Sign in"}
+          </button>
+        </form>
       </div>
     </main>
   );

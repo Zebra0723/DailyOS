@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gauge, LayoutGrid, Activity, SlidersHorizontal, ExternalLink, LogOut } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { signOutAdmin } from "@/app/verify/actions";
 import { Logo } from "@/components/logo";
 
 interface AppNav {
@@ -25,7 +25,7 @@ export function Sidebar({ email, apps }: { email: string; apps: AppNav[] }) {
   const pathname = usePathname();
   const active = (href: string) => (href === "/hub" ? pathname === "/hub" : pathname.startsWith(href));
   async function signOut() {
-    await createClient().auth.signOut();
+    await signOutAdmin();
     window.location.href = "/verify";
   }
   const linked = apps.filter((a) => a.url);

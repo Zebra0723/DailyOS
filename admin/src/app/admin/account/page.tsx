@@ -1,10 +1,10 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
+import { signOutAdmin } from "@/app/verify/actions";
 
 export default function AccountPage() {
   async function signOut() {
-    await createClient().auth.signOut();
+    await signOutAdmin();
     window.location.href = "/verify";
   }
   return (

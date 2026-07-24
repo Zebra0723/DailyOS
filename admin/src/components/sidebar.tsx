@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, Database, Ticket, Bell, CheckSquare, Settings, ScrollText, MessagesSquare, LogOut,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { signOutAdmin } from "@/app/verify/actions";
 import { Logo } from "@/components/logo";
 
 const NAV = [
@@ -24,7 +24,7 @@ export function Sidebar({ email, unread = 0 }: { email: string; unread?: number 
   const pathname = usePathname();
   const active = (href: string) => (href === "/admin" ? pathname === "/admin" : pathname.startsWith(href));
   async function signOut() {
-    await createClient().auth.signOut();
+    await signOutAdmin();
     window.location.href = "/verify";
   }
   return (

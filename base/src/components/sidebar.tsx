@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Table2, Terminal, Users, FolderOpen, Columns3, ExternalLink, LogOut } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { signOutAdmin } from "@/app/verify/actions";
 import { Logo } from "@/components/logo";
 
 const NAV = [
@@ -19,7 +19,7 @@ export function Sidebar({ email, projectRef }: { email: string; projectRef?: str
   const pathname = usePathname();
   const active = (href: string) => (href === "/base" ? pathname === "/base" : pathname.startsWith(href));
   async function signOut() {
-    await createClient().auth.signOut();
+    await signOutAdmin();
     window.location.href = "/verify";
   }
   const supabaseUrl = projectRef
