@@ -32,9 +32,11 @@ export function friendlyError(error: string): string {
   if (error.includes("does not exist") || error.includes("schema cache")) {
     const table = /survey_responses/.test(error)
       ? "survey_responses"
-      : /feedback/.test(error)
-        ? "feedback"
-        : null;
+      : /bug_reports/.test(error)
+        ? "bug_reports"
+        : /feedback/.test(error)
+          ? "feedback"
+          : null;
     const name = table ?? "required";
     return `The ${name} table doesn't exist yet — create it from DailyOS Base → SQL → Apply setup.`;
   }

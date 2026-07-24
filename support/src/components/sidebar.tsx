@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Inbox, CheckCircle2, TrendingUp, Users, Download, ClipboardList, MailCheck, LogOut } from "lucide-react";
+import { Inbox, CheckCircle2, TrendingUp, Users, Download, ClipboardList, MailCheck, Bug, LogOut } from "lucide-react";
 import { signOutAdmin } from "@/app/verify/actions";
 import { Logo } from "@/components/logo";
 
@@ -10,13 +10,22 @@ const NAV = [
   { href: "/support", label: "Inbox", icon: Inbox },
   { href: "/support/resolved", label: "Resolved", icon: CheckCircle2 },
   { href: "/support/approvals", label: "Approvals", icon: MailCheck },
+  { href: "/support/bugs", label: "Bugs", icon: Bug },
   { href: "/support/trends", label: "Trends", icon: TrendingUp },
   { href: "/support/people", label: "People", icon: Users },
   { href: "/support/export", label: "Export", icon: Download },
   { href: "/support/survey", label: "Survey", icon: ClipboardList },
 ];
 
-export function Sidebar({ email, pendingApprovals = 0 }: { email: string; pendingApprovals?: number }) {
+export function Sidebar({
+  email,
+  pendingApprovals = 0,
+  openBugs = 0,
+}: {
+  email: string;
+  pendingApprovals?: number;
+  openBugs?: number;
+}) {
   const pathname = usePathname();
   const active = (href: string) =>
     href === "/support" ? pathname === "/support" : pathname.startsWith(href);
@@ -46,6 +55,14 @@ export function Sidebar({ email, pendingApprovals = 0 }: { email: string; pendin
                   style={A ? { background: "#fff", color: "#bf502b" } : { background: "#bf502b", color: "#fff" }}
                 >
                   {pendingApprovals}
+                </span>
+              )}
+              {n.href === "/support/bugs" && openBugs > 0 && (
+                <span
+                  className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold"
+                  style={A ? { background: "#fff", color: "#bf502b" } : { background: "#bf502b", color: "#fff" }}
+                >
+                  {openBugs}
                 </span>
               )}
             </Link>
