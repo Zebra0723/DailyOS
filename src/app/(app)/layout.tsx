@@ -24,6 +24,7 @@ import { AppFooter } from "@/components/app-footer";
 import { PwaGate } from "@/components/pwa-gate";
 import { OfflineBanner } from "@/components/offline-banner";
 import { AnnouncementBanner } from "@/components/announcement-banner";
+import { BirthdayBanner } from "@/components/birthday-banner";
 import { SurveyProvider } from "@/components/survey/survey-provider";
 
 export default async function AppLayout({
@@ -75,6 +76,7 @@ export default async function AppLayout({
     <PwaGate>
       <SurveyProvider>
         <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-background">
+          <BirthdayBanner />
           <OfflineBanner />
           <AnnouncementBanner text={announcement} />
           <TopNav email={user.email ?? "you@example.com"} userId={user.id} />
