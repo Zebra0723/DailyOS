@@ -27,9 +27,11 @@ import {
   MessageSquarePlus,
   Compass,
   LayoutGrid,
+  Bug,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { useSurvey } from "@/components/survey/survey-provider";
+import { useBugReport } from "@/components/bug/bug-report-provider";
 import { createClient } from "@/lib/supabase/client";
 import { usePlan } from "@/lib/use-pro";
 import { HOME_SECTIONS, homeHref } from "@/components/homeos/tabs";
@@ -117,6 +119,7 @@ function activeCategory(pathname: string) {
 export function TopNav({ email, userId }: { email: string; userId?: string }) {
   const pathname = usePathname();
   const { openSurvey } = useSurvey();
+  const { openBugReport } = useBugReport();
   const { tier } = usePlan(userId);
   const vaultLocked = tier === "free"; // Vault & Build My Day (Plus+)
   const homeLocked = tier === "free"; // HomeOS is now Plus+
@@ -204,6 +207,15 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
             <MessageSquarePlus className="size-4" />
             <span className="hidden lg:inline">Feedback</span>
           </button>
+          <button
+            onClick={openBugReport}
+            className="inline-flex items-center gap-2 rounded-full border border-input bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            aria-label="Report Bug"
+            title="Report a bug"
+          >
+            <Bug className="size-4" />
+            <span className="hidden lg:inline">Report Bug</span>
+          </button>
           <Button asChild size="sm" className="shadow-elevated">
             <Link href="/inbox/new">
               <Plus className="size-4" />
@@ -273,6 +285,7 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
 export function MobileNav({ email, userId }: { email?: string; userId?: string }) {
   const pathname = usePathname();
   const { openSurvey } = useSurvey();
+  const { openBugReport } = useBugReport();
   const { tier } = usePlan(userId);
   const vaultLocked = tier === "free"; // Vault & Build My Day (Plus+)
   const homeLocked = tier === "free"; // HomeOS is now Plus+
@@ -406,6 +419,16 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
                 >
                   <MessageSquarePlus className="size-[18px] text-muted-foreground" />
                   Feedback
+                </button>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    openBugReport();
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground"
+                >
+                  <Bug className="size-[18px] text-muted-foreground" />
+                  Report Bug
                 </button>
               </div>
             </nav>

@@ -26,6 +26,7 @@ import { OfflineBanner } from "@/components/offline-banner";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { BirthdayBanner } from "@/components/birthday-banner";
 import { SurveyProvider } from "@/components/survey/survey-provider";
+import { BugReportProvider } from "@/components/bug/bug-report-provider";
 
 export default async function AppLayout({
   children,
@@ -75,6 +76,7 @@ export default async function AppLayout({
   return (
     <PwaGate>
       <SurveyProvider>
+        <BugReportProvider>
         <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-background">
           <BirthdayBanner />
           <OfflineBanner />
@@ -94,6 +96,7 @@ export default async function AppLayout({
           <TimezoneSync />
           <DeviceBackup />
         </div>
+        </BugReportProvider>
       </SurveyProvider>
     </PwaGate>
   );
