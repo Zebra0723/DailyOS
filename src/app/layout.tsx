@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Fraunces, Inter, Pacifico } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
@@ -14,6 +14,8 @@ const display = Fraunces({
   style: ["normal", "italic"],
 });
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
+// Pacifico: a handwritten cursive — used sparingly, e.g. the About-page sign-off.
+const cursive = Pacifico({ subsets: ["latin"], weight: "400", variable: "--font-cursive", display: "swap" });
 
 export const metadata: Metadata = {
   title: "DailyOS — Your life admin, finally handled.",
@@ -89,7 +91,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${display.variable}`}
+      className={`${sans.variable} ${display.variable} ${cursive.variable}`}
       suppressHydrationWarning
     >
       <head>

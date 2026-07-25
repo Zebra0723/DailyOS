@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/logo";
+import { Logo, LogoMark } from "@/components/logo";
 import { HomeButton } from "@/components/home-button";
 
 export const metadata = {
@@ -74,6 +74,23 @@ export default function AboutPage() {
               <br />
               Arjun &amp; Leo
             </p>
+
+            {/* DailyOS logo with a cursive "leadership team, 2026" under the wordmark */}
+            <div className="mt-6 inline-flex items-center gap-3">
+              <LogoMark className="size-10 shrink-0" />
+              <span className="flex flex-col leading-none">
+                <span className="text-xl font-bold tracking-tight">
+                  <span className="text-primary">Daily</span>
+                  <span className="text-foreground">OS</span>
+                </span>
+                <span
+                  className="mt-1.5 text-[15px] text-muted-foreground"
+                  style={{ fontFamily: "var(--font-cursive)" }}
+                >
+                  dailyos leadership team, 2026
+                </span>
+              </span>
+            </div>
           </div>
 
           <div className="mt-10 flex flex-wrap gap-3">
