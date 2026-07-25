@@ -43,6 +43,9 @@ export default function LegalLayout({
             <Link href="/contact" className="hover:text-foreground">
               Contact
             </Link>
+            <Link href="/about" className="hover:text-foreground">
+              About
+            </Link>
             <Link href="/help" className="hover:text-foreground">
               Help
             </Link>

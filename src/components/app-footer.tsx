@@ -30,6 +30,11 @@ export function AppFooter() {
                     Contact us
                   </Link>
                 </li>
+                <li>
+                  <Link href="/about" className="hover:text-foreground">
+                    About us
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>

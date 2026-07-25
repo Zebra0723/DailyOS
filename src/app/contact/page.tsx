@@ -102,6 +102,9 @@ export default function ContactPage() {
       </main>
 
       <footer className="container flex flex-wrap items-center justify-center gap-x-4 gap-y-1 py-6 text-xs text-muted-foreground">
+        <Link href="/about" className="hover:text-foreground">
+          About
+        </Link>
         <Link href="/privacy" className="hover:text-foreground">
           Privacy
         </Link>
