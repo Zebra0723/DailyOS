@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { syncSubscription } from "@/lib/push";
+import { APP_VERSION } from "@/lib/version";
 
 /** Registers the service worker (production only) so DailyOS works offline and
  *  feels like a real installed app. Renders nothing. */
@@ -25,8 +26,13 @@ export function PwaRegister() {
     );
 
     const register = () => {
+      // Register with the build version in the URL. The worker's bytes are the
+      // same file every deploy, so a plain /sw.js never looks "changed" and the
+      // browser skips the update. A versioned URL changes each deploy → the
+      // browser installs the new worker → it activates and claims the page →
+      // controllerchange fires → we reload once onto the fresh build.
       navigator.serviceWorker
-        .register("/sw.js")
+        .register(`/sw.js?v=${encodeURIComponent(APP_VERSION)}`)
         .then((reg) => {
           // Check for an updated worker on every load so fixes roll out fast.
           reg.update().catch(() => {});

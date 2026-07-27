@@ -36,7 +36,7 @@ import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { useSurvey } from "@/components/survey/survey-provider";
 import { useBugReport } from "@/components/bug/bug-report-provider";
 import { createClient } from "@/lib/supabase/client";
-import { usePlan } from "@/lib/use-pro";
+import { usePlan, tierMeets } from "@/lib/use-pro";
 import { HOME_SECTIONS, homeHref } from "@/components/homeos/tabs";
 import { cn, initials } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -123,10 +123,16 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
   const pathname = usePathname();
   const { openSurvey } = useSurvey();
   const { openBugReport } = useBugReport();
-  const { tier } = usePlan(userId);
-  const vaultLocked = tier === "free"; // Vault & Build My Day (Plus+)
-  const homeLocked = tier === "free"; // HomeOS is now Plus+
-  const askLocked = tier !== "pro"; // Ask DailyOS is Pro
+  const { tier, mounted, resolved } = usePlan(userId);
+  // Only show a lock once the plan is CONFIRMED, and derive each lock from the
+  // exact same tierMeets check the page gate uses. That does two things:
+  //  • never flash a lock at a paying user while their plan is still loading, and
+  //  • the badge can never disagree with whether you actually get in — so the
+  //    moment your new status unlocks a feature, its lock disappears too.
+  const ready = mounted && resolved;
+  const vaultLocked = ready && !tierMeets(tier, "Plus"); // Vault & Build My Day (Plus+)
+  const homeLocked = ready && !tierMeets(tier, "Plus"); // HomeOS is Plus+
+  const askLocked = ready && !tierMeets(tier, "Pro"); // Ask DailyOS is Pro
 
   const current = activeCategory(pathname);
 
@@ -289,10 +295,14 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
   const pathname = usePathname();
   const { openSurvey } = useSurvey();
   const { openBugReport } = useBugReport();
-  const { tier } = usePlan(userId);
-  const vaultLocked = tier === "free"; // Vault & Build My Day (Plus+)
-  const homeLocked = tier === "free"; // HomeOS is now Plus+
-  const askLocked = tier !== "pro"; // Ask DailyOS is Pro
+  const { tier, mounted, resolved } = usePlan(userId);
+  // Only show a lock once the plan is CONFIRMED, derived from the same tierMeets
+  // check the page gate uses — so a paid user never sees a lingering lock on a
+  // feature their new status has unlocked, and the badge always matches access.
+  const ready = mounted && resolved;
+  const vaultLocked = ready && !tierMeets(tier, "Plus"); // Vault & Build My Day (Plus+)
+  const homeLocked = ready && !tierMeets(tier, "Plus"); // HomeOS is Plus+
+  const askLocked = ready && !tierMeets(tier, "Pro"); // Ask DailyOS is Pro
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
