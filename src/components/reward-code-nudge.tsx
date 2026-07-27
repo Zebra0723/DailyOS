@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Gift, ArrowRight, Loader2 } from "lucide-react";
 import { grantPlanReward } from "@/lib/use-pro";
 import { redeemRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
+import { persistPlan } from "@/app/(app)/subscriptions/promo-actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
@@ -65,7 +66,9 @@ export function RewardCodeNudge({
         if (res.reward.kind === "plan") {
           const expiresAt =
             res.reward.days > 0 ? Date.now() + res.reward.days * 86_400_000 : null;
-          void grantPlanReward(res.reward.tier, userId, expiresAt);
+          const merged = await grantPlanReward(res.reward.tier, userId, expiresAt);
+          // Persist server-side so the plan follows the account across devices.
+          void persistPlan({ plan: merged.tier, expiresAt: merged.expiresAt });
           toast({ variant: "success", title: `Unlocked: ${res.label} 🎉` });
         } else {
           toast({

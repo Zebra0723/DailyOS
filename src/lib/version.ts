@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.20 · v223 (About us now a findable menu section — About & help in the More menu)";
+export const APP_VERSION = "2026.07.27 · v224 (Subscriptions now sync across devices — plan persists to your account, not just one browser)";

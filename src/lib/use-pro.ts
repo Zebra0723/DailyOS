@@ -239,10 +239,13 @@ export function usePlan(userId?: string): {
       let exp = localE;
 
       try {
+        // Authoritative read from the Auth server (not the locally cached JWT),
+        // so a plan set on ANOTHER device is picked up here even when this
+        // device's session token predates that change. getSession() would only
+        // ever see the stale token metadata until the next refresh.
         const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        const user = session?.user;
+          data: { user },
+        } = await supabase.auth.getUser();
         if (user) {
           const uid = userId ?? user.id;
           // Metadata-only view.

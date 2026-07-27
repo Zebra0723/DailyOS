@@ -1,5 +1,7 @@
 "use server";
 
+import { createClient } from "@/lib/supabase/server";
+
 // Server-side promo/admin code validation. The actual code strings live ONLY in
 // environment variables (set in Vercel) — never in the repo or the client
 // bundle — so they stay private. The browser sends whatever was typed; we just
@@ -62,4 +64,39 @@ export async function redeemPromoCode(raw: string): Promise<PromoResult> {
     default:
       return { ok: false };
   }
+}
+
+/**
+ * Persist the account's plan to Supabase auth metadata SERVER-SIDE, awaited.
+ *
+ * This is what makes a subscription follow the account to another device. The
+ * client also mirrors the plan into auth metadata, but that write is
+ * fire-and-forget and can be dropped (tab closed mid-request, flaky network),
+ * leaving the plan stranded in one device's localStorage. This awaited server
+ * write — authenticated by the user's own cookie session — is the authoritative
+ * one: once it returns ok, any other device that logs in reads the same plan.
+ */
+export async function persistPlan(input: {
+  plan: PromoPlan;
+  admin?: boolean;
+  expiresAt?: number | null;
+}): Promise<{ ok: boolean }> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+
+  const data: Record<string, unknown> = {
+    plan: input.plan,
+    pro: input.plan === "pro",
+    plan_exp: input.plan === "free" ? null : (input.expiresAt ?? null),
+  };
+  // The admin code grants admin; the free-reset code revokes it. Other codes
+  // leave admin status untouched.
+  if (input.admin === true) data.admin = true;
+  else if (input.plan === "free") data.admin = false;
+
+  const { error } = await supabase.auth.updateUser({ data });
+  return { ok: !error };
 }

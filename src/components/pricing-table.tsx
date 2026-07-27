@@ -14,7 +14,7 @@ import {
 import { recordReferralConversion } from "@/app/(app)/subscriptions/referral-actions";
 import { notifyAdminCodeUsed } from "@/app/(app)/subscriptions/admin-alert-actions";
 import { redeemRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
-import { redeemPromoCode } from "@/app/(app)/subscriptions/promo-actions";
+import { redeemPromoCode, persistPlan } from "@/app/(app)/subscriptions/promo-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -84,6 +84,11 @@ export function PricingTable({
     });
     // Persist for this account (and update the gated screens via the event).
     void setPlan(plan, userId);
+    // Authoritatively persist the plan to auth metadata SERVER-SIDE (awaited),
+    // so the subscription follows this account to any other device. The client
+    // setPlan above mirrors it too, but that write is fire-and-forget and can be
+    // dropped; this one is the reliable source of truth for cross-device sync.
+    void persistPlan({ plan, admin, expiresAt: null });
     // The admin code grants admin; the free-reset code revokes it. Other codes
     // leave admin status untouched.
     if (admin) {
@@ -112,8 +117,10 @@ export function PricingTable({
               : null;
           setJustTier(res.reward.tier);
           setJustExp(expiresAt); // keep the time-limit so it doesn't show lifetime
-          // Merge so a gift never downgrades a better plan the user already has.
-          void grantPlanReward(res.reward.tier, userId, expiresAt);
+          // Merge so a gift never downgrades a better plan the user already has,
+          // then persist the merged result server-side so it syncs across devices.
+          const merged = await grantPlanReward(res.reward.tier, userId, expiresAt);
+          void persistPlan({ plan: merged.tier, expiresAt: merged.expiresAt });
           toast({ variant: "success", title: `Unlocked: ${res.label} 🎉` });
         } else {
           toast({
