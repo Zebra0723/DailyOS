@@ -28,6 +28,9 @@ import {
   Compass,
   LayoutGrid,
   Bug,
+  Info,
+  LifeBuoy,
+  Mail,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { useSurvey } from "@/components/survey/survey-provider";
@@ -397,6 +400,36 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
                   })}
                 </div>
               ))}
+
+              <div>
+                <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  About &amp; help
+                </p>
+                <Link
+                  href="/about"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground"
+                >
+                  <Info className="size-[18px] text-muted-foreground" />
+                  About us
+                </Link>
+                <Link
+                  href="/help"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground"
+                >
+                  <LifeBuoy className="size-[18px] text-muted-foreground" />
+                  Help &amp; FAQs
+                </Link>
+                <Link
+                  href="/contact"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground"
+                >
+                  <Mail className="size-[18px] text-muted-foreground" />
+                  Contact us
+                </Link>
+              </div>
 
               <div>
                 <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
