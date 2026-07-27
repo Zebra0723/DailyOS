@@ -10,6 +10,7 @@ import {
   Clock,
   CalendarDays,
   Home,
+  X,
 } from "lucide-react";
 import { EventDialog } from "@/components/event-dialog";
 import { EmptyState } from "@/components/empty-state";
@@ -57,6 +58,10 @@ export function CalendarView({
   const [dialog, setDialog] = React.useState<
     { event: CalendarEvent | null; date?: string } | null
   >(null);
+  // The day whose detail sheet is open (YYYY-MM-DD). Tapping a date opens this
+  // — a read-out of what's on that day — instead of jumping straight into "add
+  // event"; the sheet itself carries the Add Event button.
+  const [selectedDay, setSelectedDay] = React.useState<string | null>(null);
   const [homeEvents, setHomeEvents] = React.useState<Disp[]>([]);
 
   // Pull in HomeOS dates client-side so the calendar shows both.
@@ -208,9 +213,7 @@ export function CalendarView({
                   date && "cursor-pointer transition-colors hover:bg-accent/40",
                   (i + 1) % 7 === 0 && "border-r-0",
                 )}
-                onClick={() =>
-                  date && setDialog({ event: null, date: ymd(date) })
-                }
+                onClick={() => date && setSelectedDay(ymd(date))}
               >
                 {date && (
                   <>
@@ -334,6 +337,23 @@ export function CalendarView({
         )}
       </div>
 
+      {selectedDay && (
+        <DaySheet
+          day={selectedDay}
+          events={byDay.get(selectedDay) ?? []}
+          isToday={selectedDay === todayKey}
+          onClose={() => setSelectedDay(null)}
+          onAdd={() => {
+            setDialog({ event: null, date: selectedDay });
+            setSelectedDay(null);
+          }}
+          onOpenEvent={(d) => {
+            setSelectedDay(null);
+            openDisp(d);
+          }}
+        />
+      )}
+
       {dialog && (
         <EventDialog
           event={dialog.event}
@@ -341,6 +361,147 @@ export function CalendarView({
           onClose={() => setDialog(null)}
         />
       )}
+    </div>
+  );
+}
+
+/** The day-detail sheet: a read-out of everything on a tapped date, with an
+ *  Add Event button in the top-right. Slides up from the bottom on phones,
+ *  centres as a card on larger screens. */
+function DaySheet({
+  day,
+  events,
+  isToday,
+  onClose,
+  onAdd,
+  onOpenEvent,
+}: {
+  day: string;
+  events: Disp[];
+  isToday: boolean;
+  onClose: () => void;
+  onAdd: () => void;
+  onOpenEvent: (d: Disp) => void;
+}) {
+  // Parse as a local calendar day (no timezone shift) purely for the heading.
+  const date = new Date(`${day}T00:00:00`);
+  const heading = date.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
+  // Close on Escape for keyboard/desktop users.
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 backdrop-blur-sm sm:items-center"
+      onClick={onClose}
+    >
+      <div
+        className="flex max-h-[80vh] w-full flex-col rounded-t-3xl bg-card shadow-elevated sm:max-w-md sm:rounded-3xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header: date + Add Event (top-right) */}
+        <div className="flex items-start justify-between gap-3 border-b p-4">
+          <div className="min-w-0">
+            {isToday && (
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                Today
+              </p>
+            )}
+            <h3 className="truncate text-lg font-semibold">{heading}</h3>
+            <p className="text-sm text-muted-foreground">
+              {events.length === 0
+                ? "Nothing scheduled"
+                : `${events.length} ${events.length === 1 ? "event" : "events"}`}
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <Button size="sm" onClick={onAdd}>
+              <Plus className="size-4" /> Add Event
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Body: what's on this day */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {events.length === 0 ? (
+            <button
+              onClick={onAdd}
+              className="flex w-full flex-col items-center gap-2 rounded-2xl border border-dashed p-8 text-center text-muted-foreground transition-colors hover:bg-accent/40"
+            >
+              <CalendarDays className="size-8" />
+              <p className="text-sm">
+                Nothing on this day yet — tap to add your first event.
+              </p>
+            </button>
+          ) : (
+            <div className="space-y-2">
+              {events.map((e) => (
+                <button
+                  key={e.id}
+                  onClick={() => onOpenEvent(e)}
+                  className="flex w-full items-center gap-4 rounded-xl border bg-card p-3 text-left transition-colors hover:bg-accent/40"
+                >
+                  <div
+                    className={cn(
+                      "grid size-10 shrink-0 place-items-center rounded-lg",
+                      e.source === "home"
+                        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                        : "bg-accent text-accent-foreground",
+                    )}
+                  >
+                    {e.source === "home" ? (
+                      <Home className="size-5" />
+                    ) : (
+                      <CalendarDays className="size-5" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{e.title}</p>
+                    <div className="flex flex-wrap items-center gap-x-3 text-sm text-muted-foreground">
+                      {e.source === "life" ? (
+                        <>
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="size-3.5" />
+                            {e.timeLabel}
+                          </span>
+                          {e.location && (
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="size-3.5" />
+                              {e.location}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="inline-flex items-center gap-1">
+                          <Home className="size-3.5" /> {e.kind} · HomeOS
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
