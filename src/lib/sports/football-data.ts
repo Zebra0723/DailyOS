@@ -65,7 +65,9 @@ export async function fetchFootballData(
 
 function side(team: any): Side {
   const name: string = team?.shortName || team?.name || "TBD";
-  return { name, flag: countryFlag(team?.name || name), short: team?.tla };
+  const s: Side = { name, flag: countryFlag(team?.name || name), short: team?.tla };
+  if (team?.crest) s.crest = team.crest;
+  return s;
 }
 
 function statusOf(s: string): MatchStatus {

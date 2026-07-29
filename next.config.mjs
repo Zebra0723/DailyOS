@@ -26,6 +26,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "*.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "crests.football-data.org",
+      },
     ],
   },
   async headers() {

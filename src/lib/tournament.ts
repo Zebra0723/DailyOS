@@ -17,6 +17,8 @@ export type Side = {
   flag: string;
   /** 3-letter code for compact rows, e.g. "ITA". */
   short?: string;
+  /** Club crest URL from the live feed (only present for club competitions). */
+  crest?: string;
 };
 
 export type MatchStatus = "live" | "upcoming" | "finished";

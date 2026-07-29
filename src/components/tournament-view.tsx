@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Trophy, Medal } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -109,6 +110,34 @@ export function ScoresList({ matches }: { matches: Match[] }) {
   );
 }
 
+function Crest({ side: s, size = 28 }: { side: Side; size?: number }) {
+  if (!s.crest) return <span className="text-2xl leading-none">{s.flag}</span>;
+  return (
+    <Image
+      src={s.crest}
+      alt={s.name}
+      width={size}
+      height={size}
+      className="size-7 object-contain"
+      unoptimized
+    />
+  );
+}
+
+function CrestSm({ side: s }: { side: Side }) {
+  if (!s.crest) return <span className="text-lg leading-none">{s.flag}</span>;
+  return (
+    <Image
+      src={s.crest}
+      alt={s.name}
+      width={22}
+      height={22}
+      className="size-[22px] object-contain"
+      unoptimized
+    />
+  );
+}
+
 /** The flag-vs-flag scoreline: 🇮🇹 Italy  1 – 2  Palestine 🇵🇸 */
 function ScoreLine({ match: m }: { match: Match }) {
   const played = m.status !== "upcoming" && m.scoreA != null && m.scoreB != null;
@@ -118,7 +147,7 @@ function ScoreLine({ match: m }: { match: Match }) {
     <div className="flex items-center gap-3">
       <TeamName side={m.a} align="right" dim={bWon} />
       <div className="flex shrink-0 items-center gap-2 tabular-nums">
-        <span className="text-2xl leading-none">{m.a.flag}</span>
+        <Crest side={m.a} />
         <span
           className={cn(
             "min-w-14 text-center text-xl font-bold",
@@ -127,7 +156,7 @@ function ScoreLine({ match: m }: { match: Match }) {
         >
           {played ? `${m.scoreA} – ${m.scoreB}` : "v"}
         </span>
-        <span className="text-2xl leading-none">{m.b.flag}</span>
+        <Crest side={m.b} />
       </div>
       <TeamName side={m.b} align="left" dim={aWon} />
     </div>
@@ -225,7 +254,7 @@ function BracketSlotRow({ slot }: { slot: BracketSlot }) {
         slot.winner ? "font-semibold" : "text-muted-foreground",
       )}
     >
-      <span className="text-lg leading-none">{s?.flag ?? "⬜"}</span>
+      {s ? <CrestSm side={s} /> : <span className="text-lg leading-none">⬜</span>}
       <span className="min-w-0 flex-1 truncate text-sm">
         {s?.name ?? "TBD"}
       </span>
@@ -270,7 +299,7 @@ export function StandingsTables({ tables }: { tables: Tournament["tables"] }) {
                       <span className="w-4 text-right text-xs tabular-nums text-muted-foreground">
                         {i + 1}
                       </span>
-                      <span className="text-lg leading-none">{r.team.flag}</span>
+                      <CrestSm side={r.team} />
                       <span className="font-medium">{r.team.name}</span>
                     </span>
                   </td>
@@ -318,7 +347,7 @@ export function StandingsTables({ tables }: { tables: Tournament["tables"] }) {
                         <span className="w-4 text-right text-xs tabular-nums text-muted-foreground">
                           {i + 1}
                         </span>
-                        <span className="text-lg leading-none">{r.team.flag}</span>
+                        <CrestSm side={r.team} />
                         <span className="font-medium">{r.team.name}</span>
                       </span>
                     </td>
