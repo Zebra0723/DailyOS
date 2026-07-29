@@ -10,20 +10,26 @@ import type { Match, StandingsGroup } from "@/lib/tournament";
 
 type Tab = "scores" | "table";
 
-/** A live league page inside the Sports section: Scores and Table tabs, fed by
- *  the live sports pipeline. (Brackets belong to tournaments, not leagues.) */
 export function LeagueView({
   name,
   subtitle,
   scores,
   groups,
+  seasonLabel = "This season",
+  prevGroups = [],
+  prevSeasonLabel = "Last season",
 }: {
   name: string;
   subtitle: string;
   scores: Match[];
   groups: StandingsGroup[];
+  seasonLabel?: string;
+  prevGroups?: StandingsGroup[];
+  prevSeasonLabel?: string;
 }) {
   const [tab, setTab] = React.useState<Tab>("scores");
+  const [season, setSeason] = React.useState<"current" | "prev">("current");
+  const hasPrev = prevGroups.length > 0;
 
   return (
     <div className="max-w-2xl">
@@ -60,7 +66,40 @@ export function LeagueView({
 
       {tab === "scores" && <ScoresList matches={scores} />}
       {tab === "table" && (
-        <StandingsTables tables={{ kind: "league", groups }} />
+        <div>
+          {hasPrev && (
+            <div className="mb-4 inline-flex rounded-lg border bg-muted/40 p-0.5">
+              <button
+                onClick={() => setSeason("current")}
+                className={cn(
+                  "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+                  season === "current"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {seasonLabel}
+              </button>
+              <button
+                onClick={() => setSeason("prev")}
+                className={cn(
+                  "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+                  season === "prev"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {prevSeasonLabel}
+              </button>
+            </div>
+          )}
+          <StandingsTables
+            tables={{
+              kind: "league",
+              groups: season === "prev" && hasPrev ? prevGroups : groups,
+            }}
+          />
+        </div>
       )}
 
       <p className="mt-6 text-center text-xs text-muted-foreground">

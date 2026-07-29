@@ -21,9 +21,16 @@ import type {
 
 const BASE = "https://api.football-data.org/v4";
 
+type SeasonTables = {
+  kind: "league";
+  groups: StandingsGroup[];
+  label: string;
+};
+
 type LiveBundle = {
   scores: Match[];
-  tables: { kind: "league"; groups: StandingsGroup[] } | null;
+  tables: SeasonTables | null;
+  prevTables: SeasonTables | null;
   bracket: { label: string; rounds: BracketRound[] } | null;
 };
 
@@ -36,8 +43,6 @@ export async function fetchFootballData(
 
   try {
     const [mRes, sRes] = await Promise.all([
-      // No date range: pull the season's matches and pick the interesting ones
-      // ourselves (avoids the free tier's 10-day range cap).
       fetch(`${BASE}/competitions/${code}/matches`, {
         headers,
         next: { revalidate: 30 },
@@ -53,9 +58,44 @@ export async function fetchFootballData(
 
     if (matches.length === 0 && !standingsJson) return null;
 
+    const tables = mapStandings(standingsJson);
+    const seasonLabel = seasonString(standingsJson);
+
+    // Fetch previous season standings.
+    let prevTables: SeasonTables | null = null;
+    const prevYear = prevSeasonYear(standingsJson);
+    if (prevYear != null) {
+      try {
+        const pRes = await fetch(
+          `${BASE}/competitions/${code}/standings?season=${prevYear}`,
+          { headers, next: { revalidate: 3600 } },
+        );
+        if (pRes.ok) {
+          const pJson = await pRes.json();
+          const mapped = mapStandings(pJson);
+          if (mapped) {
+            prevTables = { ...mapped, label: seasonString(pJson) };
+          }
+        }
+      } catch {
+        // Previous season is optional — swallow errors.
+      }
+    }
+
+    // If the current season hasn't started, sort teams alphabetically.
+    if (tables) {
+      for (const g of tables.groups) {
+        const allZero = g.rows.every((r) => r.played === 0);
+        if (allZero) {
+          g.rows.sort((a, b) => a.team.name.localeCompare(b.team.name));
+        }
+      }
+    }
+
     return {
       scores: pickScores(matches),
-      tables: mapStandings(standingsJson),
+      tables: tables ? { ...tables, label: seasonLabel } : null,
+      prevTables,
       bracket: buildBracket(matches),
     };
   } catch {
@@ -136,6 +176,23 @@ function pickScores(matches: any[]): Match[] {
     return a.status === "finished" ? tb - ta : ta - tb;
   });
   return mapped.slice(0, 14);
+}
+
+function seasonString(json: any): string {
+  const start: string = json?.season?.startDate ?? "";
+  const end: string = json?.season?.endDate ?? "";
+  const sy = start.slice(0, 4);
+  const ey = end.slice(0, 4);
+  if (!sy) return "Season";
+  if (sy === ey) return `${sy}`;
+  return `${sy}/${ey.slice(2)}`;
+}
+
+function prevSeasonYear(json: any): number | null {
+  const start: string = json?.season?.startDate ?? "";
+  const y = parseInt(start.slice(0, 4), 10);
+  if (!Number.isFinite(y) || y < 2000) return null;
+  return y - 1;
 }
 
 function mapStandings(

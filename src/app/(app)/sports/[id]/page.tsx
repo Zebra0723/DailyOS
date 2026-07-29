@@ -44,6 +44,9 @@ export default async function CompetitionPage({
           }
           scores={live.scores}
           groups={live.tables?.groups ?? []}
+          seasonLabel={live.tables?.label ?? "This season"}
+          prevGroups={live.prevTables?.groups ?? []}
+          prevSeasonLabel={live.prevTables?.label ?? "Last season"}
         />
       );
     }
