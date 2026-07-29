@@ -29,12 +29,20 @@ export function TournamentView({
 
   return (
     <div className="max-w-2xl">
-      <Link
-        href="/today"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" /> Back to Today
-      </Link>
+      <div className="mb-4 flex items-center justify-between">
+        <Link
+          href="/today"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" /> Back to Today
+        </Link>
+        <Link
+          href="/sports"
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          All sports →
+        </Link>
+      </div>
 
       <PageHeader
         title={t.name}
@@ -65,9 +73,9 @@ export function TournamentView({
         ))}
       </div>
 
-      {tab === "scores" && <Scores matches={t.scores} />}
+      {tab === "scores" && <ScoresList matches={t.scores} />}
       {tab === "bracket" && <Bracket bracket={t.bracket} />}
-      {tab === "tables" && <Tables tables={t.tables} />}
+      {tab === "tables" && <StandingsTables tables={t.tables} />}
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
         {live
@@ -79,7 +87,8 @@ export function TournamentView({
 }
 
 // --- Scores ---------------------------------------------------------------
-function Scores({ matches }: { matches: Match[] }) {
+// Exported so the Sports section's league pages reuse the same renderers.
+export function ScoresList({ matches }: { matches: Match[] }) {
   if (matches.length === 0) {
     return <Empty label="No fixtures listed yet." />;
   }
@@ -228,7 +237,7 @@ function BracketSlotRow({ slot }: { slot: BracketSlot }) {
 }
 
 // --- Tables ---------------------------------------------------------------
-function Tables({ tables }: { tables: Tournament["tables"] }) {
+export function StandingsTables({ tables }: { tables: Tournament["tables"] }) {
   if (tables.kind === "medals") {
     const rows = [...tables.rows].sort(
       (a, b) =>
