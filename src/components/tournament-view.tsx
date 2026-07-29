@@ -16,7 +16,13 @@ import {
 
 type Tab = "scores" | "bracket" | "tables";
 
-export function TournamentView({ tournament: t }: { tournament: Tournament }) {
+export function TournamentView({
+  tournament: t,
+  live = false,
+}: {
+  tournament: Tournament;
+  live?: boolean;
+}) {
   const [tab, setTab] = React.useState<Tab>("scores");
 
   const window = `${fmtDate(t.start)} – ${fmtDate(t.end)}`;
@@ -64,7 +70,9 @@ export function TournamentView({ tournament: t }: { tournament: Tournament }) {
       {tab === "tables" && <Tables tables={t.tables} />}
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Results are updated periodically — not a live feed.
+        {live
+          ? "Live scores refresh automatically while matches are in play."
+          : "Results are updated periodically — not a live feed."}
       </p>
     </div>
   );

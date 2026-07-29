@@ -88,6 +88,15 @@ export type Tournament = {
   /** Inclusive date window (YYYY-MM-DD). Controls when the feature shows. */
   start: string;
   end: string;
+  /**
+   * Optional live-data binding. When set AND the provider's API key is present,
+   * scores/tables/bracket are pulled live and overlaid on the static data below
+   * (which then acts as the offline/no-key fallback). Omit for a manual, hand-
+   * maintained tournament (e.g. multi-sport events with no free live feed).
+   *   provider "football-data" → competition is a football-data.org code:
+   *     "WC" World Cup · "EC" Euros · "CL" Champions League · "PL" Premier League
+   */
+  live?: { provider: "football-data"; competition: string };
   scores: Match[];
   bracket: {
     /** The knockout this bracket represents, e.g. "Netball". */

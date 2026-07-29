@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { Trophy, ArrowRight } from "lucide-react";
-import { getActiveTournament } from "@/lib/tournament";
+import { loadActiveTournament } from "@/lib/tournament-live";
 
 /** Today banner for a live major tournament. Shows the tournament NAME in caps
  *  (no governing body) with a "SEE SCORES & BRACKET" call to action, linking to
  *  the tournament hub. Renders nothing when no tournament is currently on. */
-export function TournamentBanner({ now }: { now?: Date }) {
-  const t = getActiveTournament(now);
+export async function TournamentBanner({ now }: { now?: Date }) {
+  const t = await loadActiveTournament(now);
   if (!t) return null;
 
   // Count anything in play right now for a live nudge.
