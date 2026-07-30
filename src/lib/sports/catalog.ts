@@ -43,6 +43,8 @@ export type Competition = {
   window?: { start: string; end: string };
   /** Short context line, e.g. "New season starts mid-August". */
   note?: string;
+  /** Static team roster — used to show a table when no live API key is set. */
+  teams?: string[];
 };
 
 export type FootballCountry = {
@@ -68,15 +70,15 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "England",
     flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     leagues: [
-      { id: "premier-league", name: "Premier League", sport: "football", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 1, live: { provider: "football-data", competition: "PL" }, window: EU_SEASON, note: EU_NOTE },
-      { id: "championship", name: "Championship", sport: "football", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 2, live: { provider: "football-data", competition: "ELC" }, window: { start: "2026-08-07", end: "2027-05-29" }, note: EU_NOTE },
+      { id: "premier-league", name: "Premier League", sport: "football", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 1, live: { provider: "football-data", competition: "PL" }, window: EU_SEASON, note: EU_NOTE, teams: ["Arsenal", "Aston Villa", "Bournemouth", "Brentford", "Brighton", "Chelsea", "Crystal Palace", "Everton", "Fulham", "Ipswich Town", "Leicester City", "Liverpool", "Manchester City", "Manchester United", "Newcastle United", "Nottingham Forest", "Southampton", "Tottenham", "West Ham", "Wolves"] },
+      { id: "championship", name: "Championship", sport: "football", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 2, live: { provider: "football-data", competition: "ELC" }, window: { start: "2026-08-07", end: "2027-05-29" }, note: EU_NOTE, teams: ["Blackburn", "Bristol City", "Burnley", "Cardiff City", "Coventry City", "Derby County", "Hull City", "Leeds United", "Luton Town", "Middlesbrough", "Millwall", "Norwich City", "Oxford United", "Plymouth Argyle", "Portsmouth", "Preston", "QPR", "Sheffield United", "Sheffield Wednesday", "Stoke City", "Sunderland", "Swansea City", "Watford", "West Brom"] },
     ],
   },
   {
     name: "Spain",
     flag: "🇪🇸",
     leagues: [
-      { id: "la-liga", name: "La Liga", sport: "football", emoji: "🇪🇸", tier: 1, live: { provider: "football-data", competition: "PD" }, window: EU_SEASON, note: EU_NOTE },
+      { id: "la-liga", name: "La Liga", sport: "football", emoji: "🇪🇸", tier: 1, live: { provider: "football-data", competition: "PD" }, window: EU_SEASON, note: EU_NOTE, teams: ["Alavés", "Athletic Bilbao", "Atlético Madrid", "Barcelona", "Betis", "Celta Vigo", "Espanyol", "Getafe", "Girona", "Las Palmas", "Leganés", "Mallorca", "Osasuna", "Rayo Vallecano", "Real Madrid", "Real Sociedad", "Sevilla", "Valencia", "Valladolid", "Villarreal"] },
       { id: "la-liga-2", name: "La Liga 2", sport: "football", emoji: "🇪🇸", tier: 2, window: EU_SEASON, note: EU_NOTE },
     ],
   },
@@ -84,7 +86,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "Italy",
     flag: "🇮🇹",
     leagues: [
-      { id: "serie-a", name: "Serie A", sport: "football", emoji: "🇮🇹", tier: 1, live: { provider: "football-data", competition: "SA" }, window: EU_SEASON, note: EU_NOTE },
+      { id: "serie-a", name: "Serie A", sport: "football", emoji: "🇮🇹", tier: 1, live: { provider: "football-data", competition: "SA" }, window: EU_SEASON, note: EU_NOTE, teams: ["AC Milan", "Atalanta", "Bologna", "Cagliari", "Como", "Empoli", "Fiorentina", "Genoa", "Inter Milan", "Juventus", "Lazio", "Lecce", "Monza", "Napoli", "Parma", "Roma", "Torino", "Udinese", "Venezia", "Verona"] },
       { id: "serie-b", name: "Serie B", sport: "football", emoji: "🇮🇹", tier: 2, window: EU_SEASON, note: EU_NOTE },
     ],
   },
@@ -92,7 +94,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "Germany",
     flag: "🇩🇪",
     leagues: [
-      { id: "bundesliga", name: "Bundesliga", sport: "football", emoji: "🇩🇪", tier: 1, live: { provider: "football-data", competition: "BL1" }, window: EU_SEASON, note: EU_NOTE },
+      { id: "bundesliga", name: "Bundesliga", sport: "football", emoji: "🇩🇪", tier: 1, live: { provider: "football-data", competition: "BL1" }, window: EU_SEASON, note: EU_NOTE, teams: ["Augsburg", "Bayern Munich", "Bochum", "Dortmund", "Eintracht Frankfurt", "Freiburg", "Heidenheim", "Hoffenheim", "Holstein Kiel", "Leverkusen", "Mainz", "Mönchengladbach", "RB Leipzig", "St. Pauli", "Stuttgart", "Union Berlin", "Werder Bremen", "Wolfsburg"] },
       { id: "bundesliga-2", name: "2. Bundesliga", sport: "football", emoji: "🇩🇪", tier: 2, window: { start: "2026-07-31", end: "2027-05-23" }, note: "Season starts end of July" },
     ],
   },
@@ -100,7 +102,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "France",
     flag: "🇫🇷",
     leagues: [
-      { id: "ligue-1", name: "Ligue 1", sport: "football", emoji: "🇫🇷", tier: 1, live: { provider: "football-data", competition: "FL1" }, window: EU_SEASON, note: EU_NOTE },
+      { id: "ligue-1", name: "Ligue 1", sport: "football", emoji: "🇫🇷", tier: 1, live: { provider: "football-data", competition: "FL1" }, window: EU_SEASON, note: EU_NOTE, teams: ["Angers", "Auxerre", "Brest", "Le Havre", "Lens", "Lille", "Lyon", "Marseille", "Monaco", "Montpellier", "Nantes", "Nice", "PSG", "Reims", "Rennes", "Saint-Étienne", "Strasbourg", "Toulouse"] },
       { id: "ligue-2", name: "Ligue 2", sport: "football", emoji: "🇫🇷", tier: 2, window: EU_SEASON, note: EU_NOTE },
     ],
   },
@@ -108,7 +110,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "Netherlands",
     flag: "🇳🇱",
     leagues: [
-      { id: "eredivisie", name: "Eredivisie", sport: "football", emoji: "🇳🇱", tier: 1, live: { provider: "football-data", competition: "DED" }, window: EU_SEASON, note: EU_NOTE },
+      { id: "eredivisie", name: "Eredivisie", sport: "football", emoji: "🇳🇱", tier: 1, live: { provider: "football-data", competition: "DED" }, window: EU_SEASON, note: EU_NOTE, teams: ["Ajax", "AZ Alkmaar", "Almere City", "Feyenoord", "Fortuna Sittard", "Go Ahead Eagles", "Groningen", "Heerenveen", "Heracles", "NAC Breda", "NEC", "PEC Zwolle", "PSV", "RKC Waalwijk", "Sparta Rotterdam", "Twente", "Utrecht", "Willem II"] },
       { id: "eerste-divisie", name: "Eerste Divisie", sport: "football", emoji: "🇳🇱", tier: 2, window: EU_SEASON, note: EU_NOTE },
     ],
   },
@@ -116,7 +118,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "Portugal",
     flag: "🇵🇹",
     leagues: [
-      { id: "primeira-liga", name: "Primeira Liga", sport: "football", emoji: "🇵🇹", tier: 1, live: { provider: "football-data", competition: "PPL" }, window: EU_SEASON, note: EU_NOTE },
+      { id: "primeira-liga", name: "Primeira Liga", sport: "football", emoji: "🇵🇹", tier: 1, live: { provider: "football-data", competition: "PPL" }, window: EU_SEASON, note: EU_NOTE, teams: ["Arouca", "AVS", "Benfica", "Boavista", "Braga", "Casa Pia", "Estoril", "Estrela Amadora", "Famalicão", "Gil Vicente", "Moreirense", "Nacional", "Porto", "Rio Ave", "Santa Clara", "Sporting CP", "Vitória de Guimarães", "Vizela"] },
       { id: "liga-portugal-2", name: "Liga Portugal 2", sport: "football", emoji: "🇵🇹", tier: 2, window: EU_SEASON, note: EU_NOTE },
     ],
   },
@@ -140,7 +142,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "Brazil",
     flag: "🇧🇷",
     leagues: [
-      { id: "brasileirao", name: "Série A", sport: "football", emoji: "🇧🇷", tier: 1, live: { provider: "football-data", competition: "BSA" }, window: { start: "2026-03-28", end: "2026-12-06" }, note: "Season runs March–December" },
+      { id: "brasileirao", name: "Série A", sport: "football", emoji: "🇧🇷", tier: 1, live: { provider: "football-data", competition: "BSA" }, window: { start: "2026-03-28", end: "2026-12-06" }, note: "Season runs March–December", teams: ["Athletico Paranaense", "Atlético Mineiro", "Bahia", "Botafogo", "Corinthians", "Criciúma", "Cruzeiro", "Cuiabá", "Flamengo", "Fluminense", "Fortaleza", "Grêmio", "Internacional", "Juventude", "Palmeiras", "Red Bull Bragantino", "Santos", "São Paulo", "Vasco da Gama", "Vitória"] },
       { id: "brasileirao-b", name: "Série B", sport: "football", emoji: "🇧🇷", tier: 2, window: { start: "2026-04-03", end: "2026-11-28" }, note: "Season runs April–November" },
     ],
   },

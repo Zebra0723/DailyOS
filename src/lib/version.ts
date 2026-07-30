@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.30 · v233 (Aggressive PWA update — unregister SW and cache-bust on version mismatch)";
+export const APP_VERSION = "2026.07.30 · v234 (League tables work without API key — static team rosters for all top-flight leagues)";

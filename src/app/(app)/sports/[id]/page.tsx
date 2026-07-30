@@ -4,8 +4,9 @@ import { ArrowLeft, CalendarDays, Radio } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { LeagueView } from "@/components/league-view";
-import { findCompetition } from "@/lib/sports/catalog";
+import { findCompetition, type Competition } from "@/lib/sports/catalog";
 import { fetchFootballData } from "@/lib/sports/football-data";
+import type { StandingsGroup } from "@/lib/tournament";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,35 @@ function fmtDate(ymd: string) {
   });
 }
 
+function staticSeasonLabel(comp: Competition): string {
+  if (!comp.window) return "Season";
+  const sy = comp.window.start.slice(0, 4);
+  const ey = comp.window.end.slice(0, 4);
+  if (sy === ey) return sy;
+  return `${sy}/${ey.slice(2)}`;
+}
+
+function staticStandings(comp: Competition): StandingsGroup[] {
+  if (!comp.teams?.length) return [];
+  return [
+    {
+      name: "Standings",
+      rows: [...comp.teams]
+        .sort((a, b) => a.localeCompare(b))
+        .map((name) => ({
+          team: { name, flag: comp.emoji },
+          played: 0,
+          win: 0,
+          draw: 0,
+          loss: 0,
+          for: 0,
+          against: 0,
+          points: 0,
+        })),
+    },
+  ];
+}
+
 export default async function CompetitionPage({
   params,
 }: {
@@ -30,6 +60,10 @@ export default async function CompetitionPage({
   const comp = findCompetition(params.id);
   if (!comp) redirect("/sports");
 
+  const subtitle = comp.window
+    ? `${fmtDate(comp.window.start)} – ${fmtDate(comp.window.end)}`
+    : "Season";
+
   // Live-bound competition + key present → real scores and standings.
   if (comp.live?.provider === "football-data") {
     const live = await fetchFootballData(comp.live.competition);
@@ -37,11 +71,7 @@ export default async function CompetitionPage({
       return (
         <LeagueView
           name={comp.name}
-          subtitle={
-            comp.window
-              ? `${fmtDate(comp.window.start)} – ${fmtDate(comp.window.end)}`
-              : "Season"
-          }
+          subtitle={subtitle}
           scores={live.scores}
           groups={live.tables?.groups ?? []}
           seasonLabel={live.tables?.label ?? "This season"}
@@ -52,7 +82,21 @@ export default async function CompetitionPage({
     }
   }
 
-  // No live feed (or none wired for this sport yet) → an honest info card.
+  // No live API key, but we have a static team roster → show a table.
+  const groups = staticStandings(comp);
+  if (groups.length > 0) {
+    return (
+      <LeagueView
+        name={comp.name}
+        subtitle={subtitle}
+        scores={[]}
+        groups={groups}
+        seasonLabel={staticSeasonLabel(comp)}
+      />
+    );
+  }
+
+  // No live feed and no roster → an honest info card.
   return (
     <div className="max-w-2xl">
       <Link
