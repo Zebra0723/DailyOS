@@ -58,43 +58,67 @@ export async function fetchFootballData(
 
     if (matches.length === 0 && !standingsJson) return null;
 
-    const tables = mapStandings(standingsJson);
-    const seasonLabel = seasonString(standingsJson);
+    const mapped = mapStandings(standingsJson);
+    const seasonEnded = hasSeasonEnded(standingsJson);
 
-    // Fetch previous season standings.
+    let tables: SeasonTables | null = null;
     let prevTables: SeasonTables | null = null;
-    const prevYear = prevSeasonYear(standingsJson);
-    if (prevYear != null) {
-      try {
-        const pRes = await fetch(
-          `${BASE}/competitions/${code}/standings?season=${prevYear}`,
-          { headers, next: { revalidate: 3600 } },
-        );
-        if (pRes.ok) {
-          const pJson = await pRes.json();
-          const mapped = mapStandings(pJson);
-          if (mapped) {
-            prevTables = { ...mapped, label: seasonString(pJson) };
-          }
-        }
-      } catch {
-        // Previous season is optional — swallow errors.
-      }
-    }
 
-    // If the current season hasn't started, sort teams alphabetically.
-    if (tables) {
+    if (mapped && seasonEnded) {
+      // The API's "current" season has already finished (off-season). Treat it
+      // as last season and synthesise a not-yet-started current season from the
+      // same team list, sorted alphabetically with the next year's label.
+      prevTables = { ...mapped, label: seasonString(standingsJson) };
+      const nextLabel = nextSeasonString(standingsJson);
+      const blankGroups: StandingsGroup[] = mapped.groups.map((g) => ({
+        name: g.name,
+        rows: g.rows
+          .map((r) => ({
+            team: r.team,
+            played: 0,
+            win: 0,
+            draw: 0,
+            loss: 0,
+            for: 0,
+            against: 0,
+            points: 0,
+          }))
+          .sort((a, b) => a.team.name.localeCompare(b.team.name)),
+      }));
+      tables = { kind: "league", groups: blankGroups, label: nextLabel };
+    } else if (mapped) {
+      // Normal in-season flow.
+      tables = { ...mapped, label: seasonString(standingsJson) };
+
+      // Sort alphabetically if no games played yet.
       for (const g of tables.groups) {
-        const allZero = g.rows.every((r) => r.played === 0);
-        if (allZero) {
+        if (g.rows.every((r) => r.played === 0)) {
           g.rows.sort((a, b) => a.team.name.localeCompare(b.team.name));
+        }
+      }
+
+      // Fetch previous season standings.
+      const prevYear = prevSeasonYear(standingsJson);
+      if (prevYear != null) {
+        try {
+          const pRes = await fetch(
+            `${BASE}/competitions/${code}/standings?season=${prevYear}`,
+            { headers, next: { revalidate: 3600 } },
+          );
+          if (pRes.ok) {
+            const pJson = await pRes.json();
+            const pm = mapStandings(pJson);
+            if (pm) prevTables = { ...pm, label: seasonString(pJson) };
+          }
+        } catch {
+          // Previous season is optional — swallow errors.
         }
       }
     }
 
     return {
       scores: pickScores(matches),
-      tables: tables ? { ...tables, label: seasonLabel } : null,
+      tables,
       prevTables,
       bracket: buildBracket(matches),
     };
@@ -186,6 +210,24 @@ function seasonString(json: any): string {
   if (!sy) return "Season";
   if (sy === ey) return `${sy}`;
   return `${sy}/${ey.slice(2)}`;
+}
+
+function nextSeasonString(json: any): string {
+  const start: string = json?.season?.startDate ?? "";
+  const end: string = json?.season?.endDate ?? "";
+  const sy = parseInt(start.slice(0, 4), 10);
+  const ey = parseInt(end.slice(0, 4), 10);
+  if (!Number.isFinite(sy)) return "Season";
+  if (sy === ey) return `${sy + 1}`;
+  return `${ey}/${String(ey + 1).slice(2)}`;
+}
+
+function hasSeasonEnded(json: any): boolean {
+  const end: string = json?.season?.endDate ?? "";
+  if (!end) return false;
+  const today = new Date();
+  const ymd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  return ymd > end;
 }
 
 function prevSeasonYear(json: any): number | null {
