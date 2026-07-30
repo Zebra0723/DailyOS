@@ -30,7 +30,6 @@ import { isOnboarding, tailoredIntro } from "@/lib/onboarding";
 import { HomeOSTodayActions } from "@/components/homeos/today-home-actions";
 import { RewardCodeNudge } from "@/components/reward-code-nudge";
 import { PushNudge } from "@/components/push-nudge";
-import { TournamentBanner } from "@/components/tournament-banner";
 import { QuickAddTask } from "@/components/quick-add-task";
 import { getClaimableRewardCodes } from "@/app/(app)/subscriptions/reward-code-actions";
 import type { CalendarEvent, ExtractedTask, InboxItem } from "@/lib/types";
@@ -162,9 +161,6 @@ export default async function TodayPage() {
 
       {/* One-tap "turn on notifications" — easy to find, hides once enabled */}
       <PushNudge />
-
-      {/* Major sports tournament (only shows while one is on) */}
-      <TournamentBanner />
 
       {/* Personalised "made for you" card from onboarding */}
       {intro && (

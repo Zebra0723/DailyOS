@@ -1,6 +1,5 @@
-import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell, MessageSquare, Compass, RefreshCw } from "lucide-react";
+import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell, MessageSquare, Compass } from "lucide-react";
 import { FeedbackForm } from "@/components/feedback-form";
-import { RefreshAppButton } from "@/components/refresh-app-button";
 import { InstallApp } from "@/components/install-app";
 import { PushToggle } from "@/components/push-toggle";
 import { DailyBriefToggle } from "@/components/daily-brief-toggle";
@@ -74,25 +73,6 @@ export default async function SettingsPage() {
               </p>
               <InviteButton userId={user?.id} />
             </div>
-          </CardContent>
-        </Card>
-
-        {/* App / refresh */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <RefreshCw className="size-4 text-primary" /> App
-            </CardTitle>
-            <CardDescription>
-              On the latest version? If something looks out of date, refresh to
-              pull the newest build.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground">
-              Version <span className="font-medium text-foreground">{APP_VERSION}</span>
-            </p>
-            <RefreshAppButton />
           </CardContent>
         </Card>
 
