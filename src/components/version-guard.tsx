@@ -36,18 +36,22 @@ export function VersionGuard() {
         if (last && Date.now() - last < RETRY_AFTER_MS) return;
         sessionStorage.setItem(ATTEMPT_KEY, String(Date.now()));
 
-        // Clear caches + refresh the worker so the reload is guaranteed fresh.
+        // Nuclear update: unregister every service worker so no stale SW can
+        // intercept the reload, purge the Cache API, then navigate (not reload)
+        // with a cache-busting param to bypass the browser's HTTP cache too.
+        try {
+          const regs = await navigator.serviceWorker?.getRegistrations?.();
+          if (regs) await Promise.all(regs.map((r) => r.unregister()));
+        } catch { /* best effort */ }
         try {
           if (window.caches) {
             const keys = await caches.keys();
             await Promise.all(keys.map((k) => caches.delete(k)));
           }
-          const regs = await navigator.serviceWorker?.getRegistrations?.();
-          if (regs) await Promise.all(regs.map((r) => r.update()));
-        } catch {
-          /* best effort */
-        }
-        window.location.reload();
+        } catch { /* best effort */ }
+        const url = new URL(window.location.href);
+        url.searchParams.set("_v", Date.now().toString(36));
+        window.location.replace(url.toString());
       } catch {
         /* offline or transient — try again next time */
       } finally {
