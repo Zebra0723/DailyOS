@@ -6,7 +6,8 @@ import { Card } from "@/components/ui/card";
 import { LeagueView } from "@/components/league-view";
 import { findCompetition, type Competition } from "@/lib/sports/catalog";
 import { fetchFootballData } from "@/lib/sports/football-data";
-import type { StandingsGroup } from "@/lib/tournament";
+import { fetchBBCScores } from "@/lib/sports/bbc-sport";
+import type { Match, StandingsGroup } from "@/lib/tournament";
 
 export const dynamic = "force-dynamic";
 
@@ -82,14 +83,21 @@ export default async function CompetitionPage({
     }
   }
 
-  // No live API key, but we have a static team roster → show a table.
+  // Try BBC Sport for scores/fixtures (no API key needed).
+  let bbcScores: Match[] = [];
+  if (comp.bbc) {
+    const bbc = await fetchBBCScores(comp.bbc);
+    if (bbc) bbcScores = bbc;
+  }
+
+  // Static team roster → show a table (with BBC scores if we got them).
   const groups = staticStandings(comp);
-  if (groups.length > 0) {
+  if (bbcScores.length > 0 || groups.length > 0) {
     return (
       <LeagueView
         name={comp.name}
         subtitle={subtitle}
-        scores={[]}
+        scores={bbcScores}
         groups={groups}
         seasonLabel={staticSeasonLabel(comp)}
       />

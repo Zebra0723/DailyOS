@@ -45,6 +45,8 @@ export type Competition = {
   note?: string;
   /** Static team roster — used to show a table when no live API key is set. */
   teams?: string[];
+  /** BBC Sport slug — used to scrape fixtures when no live API key is set. */
+  bbc?: string;
 };
 
 export type FootballCountry = {
@@ -70,15 +72,15 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "England",
     flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     leagues: [
-      { id: "premier-league", name: "Premier League", sport: "football", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 1, live: { provider: "football-data", competition: "PL" }, window: EU_SEASON, note: EU_NOTE, teams: ["Arsenal", "Aston Villa", "Bournemouth", "Brentford", "Brighton", "Chelsea", "Crystal Palace", "Everton", "Fulham", "Ipswich Town", "Leicester City", "Liverpool", "Manchester City", "Manchester United", "Newcastle United", "Nottingham Forest", "Southampton", "Tottenham", "West Ham", "Wolves"] },
-      { id: "championship", name: "Championship", sport: "football", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 2, live: { provider: "football-data", competition: "ELC" }, window: { start: "2026-08-07", end: "2027-05-29" }, note: EU_NOTE, teams: ["Blackburn", "Bristol City", "Burnley", "Cardiff City", "Coventry City", "Derby County", "Hull City", "Leeds United", "Luton Town", "Middlesbrough", "Millwall", "Norwich City", "Oxford United", "Plymouth Argyle", "Portsmouth", "Preston", "QPR", "Sheffield United", "Sheffield Wednesday", "Stoke City", "Sunderland", "Swansea City", "Watford", "West Brom"] },
+      { id: "premier-league", name: "Premier League", sport: "football", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 1, live: { provider: "football-data", competition: "PL" }, bbc: "premier-league", window: EU_SEASON, note: EU_NOTE, teams: ["Arsenal", "Aston Villa", "Bournemouth", "Brentford", "Brighton", "Chelsea", "Crystal Palace", "Everton", "Fulham", "Ipswich Town", "Leicester City", "Liverpool", "Manchester City", "Manchester United", "Newcastle United", "Nottingham Forest", "Southampton", "Tottenham", "West Ham", "Wolves"] },
+      { id: "championship", name: "Championship", sport: "football", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier: 2, live: { provider: "football-data", competition: "ELC" }, bbc: "championship", window: { start: "2026-08-07", end: "2027-05-29" }, note: EU_NOTE, teams: ["Blackburn", "Bristol City", "Burnley", "Cardiff City", "Coventry City", "Derby County", "Hull City", "Leeds United", "Luton Town", "Middlesbrough", "Millwall", "Norwich City", "Oxford United", "Plymouth Argyle", "Portsmouth", "Preston", "QPR", "Sheffield United", "Sheffield Wednesday", "Stoke City", "Sunderland", "Swansea City", "Watford", "West Brom"] },
     ],
   },
   {
     name: "Spain",
     flag: "🇪🇸",
     leagues: [
-      { id: "la-liga", name: "La Liga", sport: "football", emoji: "🇪🇸", tier: 1, live: { provider: "football-data", competition: "PD" }, window: EU_SEASON, note: EU_NOTE, teams: ["Alavés", "Athletic Bilbao", "Atlético Madrid", "Barcelona", "Betis", "Celta Vigo", "Espanyol", "Getafe", "Girona", "Las Palmas", "Leganés", "Mallorca", "Osasuna", "Rayo Vallecano", "Real Madrid", "Real Sociedad", "Sevilla", "Valencia", "Valladolid", "Villarreal"] },
+      { id: "la-liga", name: "La Liga", sport: "football", emoji: "🇪🇸", tier: 1, live: { provider: "football-data", competition: "PD" }, bbc: "spanish-la-liga", window: EU_SEASON, note: EU_NOTE, teams: ["Alavés", "Athletic Bilbao", "Atlético Madrid", "Barcelona", "Betis", "Celta Vigo", "Espanyol", "Getafe", "Girona", "Las Palmas", "Leganés", "Mallorca", "Osasuna", "Rayo Vallecano", "Real Madrid", "Real Sociedad", "Sevilla", "Valencia", "Valladolid", "Villarreal"] },
       { id: "la-liga-2", name: "La Liga 2", sport: "football", emoji: "🇪🇸", tier: 2, window: EU_SEASON, note: EU_NOTE },
     ],
   },
@@ -86,7 +88,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "Italy",
     flag: "🇮🇹",
     leagues: [
-      { id: "serie-a", name: "Serie A", sport: "football", emoji: "🇮🇹", tier: 1, live: { provider: "football-data", competition: "SA" }, window: EU_SEASON, note: EU_NOTE, teams: ["AC Milan", "Atalanta", "Bologna", "Cagliari", "Como", "Empoli", "Fiorentina", "Genoa", "Inter Milan", "Juventus", "Lazio", "Lecce", "Monza", "Napoli", "Parma", "Roma", "Torino", "Udinese", "Venezia", "Verona"] },
+      { id: "serie-a", name: "Serie A", sport: "football", emoji: "🇮🇹", tier: 1, live: { provider: "football-data", competition: "SA" }, bbc: "italian-serie-a", window: EU_SEASON, note: EU_NOTE, teams: ["AC Milan", "Atalanta", "Bologna", "Cagliari", "Como", "Empoli", "Fiorentina", "Genoa", "Inter Milan", "Juventus", "Lazio", "Lecce", "Monza", "Napoli", "Parma", "Roma", "Torino", "Udinese", "Venezia", "Verona"] },
       { id: "serie-b", name: "Serie B", sport: "football", emoji: "🇮🇹", tier: 2, window: EU_SEASON, note: EU_NOTE },
     ],
   },
@@ -94,7 +96,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "Germany",
     flag: "🇩🇪",
     leagues: [
-      { id: "bundesliga", name: "Bundesliga", sport: "football", emoji: "🇩🇪", tier: 1, live: { provider: "football-data", competition: "BL1" }, window: EU_SEASON, note: EU_NOTE, teams: ["Augsburg", "Bayern Munich", "Bochum", "Dortmund", "Eintracht Frankfurt", "Freiburg", "Heidenheim", "Hoffenheim", "Holstein Kiel", "Leverkusen", "Mainz", "Mönchengladbach", "RB Leipzig", "St. Pauli", "Stuttgart", "Union Berlin", "Werder Bremen", "Wolfsburg"] },
+      { id: "bundesliga", name: "Bundesliga", sport: "football", emoji: "🇩🇪", tier: 1, live: { provider: "football-data", competition: "BL1" }, bbc: "german-bundesliga", window: EU_SEASON, note: EU_NOTE, teams: ["Augsburg", "Bayern Munich", "Bochum", "Dortmund", "Eintracht Frankfurt", "Freiburg", "Heidenheim", "Hoffenheim", "Holstein Kiel", "Leverkusen", "Mainz", "Mönchengladbach", "RB Leipzig", "St. Pauli", "Stuttgart", "Union Berlin", "Werder Bremen", "Wolfsburg"] },
       { id: "bundesliga-2", name: "2. Bundesliga", sport: "football", emoji: "🇩🇪", tier: 2, window: { start: "2026-07-31", end: "2027-05-23" }, note: "Season starts end of July" },
     ],
   },
@@ -102,7 +104,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
     name: "France",
     flag: "🇫🇷",
     leagues: [
-      { id: "ligue-1", name: "Ligue 1", sport: "football", emoji: "🇫🇷", tier: 1, live: { provider: "football-data", competition: "FL1" }, window: EU_SEASON, note: EU_NOTE, teams: ["Angers", "Auxerre", "Brest", "Le Havre", "Lens", "Lille", "Lyon", "Marseille", "Monaco", "Montpellier", "Nantes", "Nice", "PSG", "Reims", "Rennes", "Saint-Étienne", "Strasbourg", "Toulouse"] },
+      { id: "ligue-1", name: "Ligue 1", sport: "football", emoji: "🇫🇷", tier: 1, live: { provider: "football-data", competition: "FL1" }, bbc: "french-ligue-1", window: EU_SEASON, note: EU_NOTE, teams: ["Angers", "Auxerre", "Brest", "Le Havre", "Lens", "Lille", "Lyon", "Marseille", "Monaco", "Montpellier", "Nantes", "Nice", "PSG", "Reims", "Rennes", "Saint-Étienne", "Strasbourg", "Toulouse"] },
       { id: "ligue-2", name: "Ligue 2", sport: "football", emoji: "🇫🇷", tier: 2, window: EU_SEASON, note: EU_NOTE },
     ],
   },
@@ -182,7 +184,7 @@ export const FOOTBALL_COUNTRIES: FootballCountry[] = [
 
 // Football: continental & international competitions.
 export const FOOTBALL_INTERNATIONAL: Competition[] = [
-  { id: "champions-league", name: "Champions League", sport: "football", emoji: "⚽", live: { provider: "football-data", competition: "CL" }, window: { start: "2026-09-15", end: "2027-06-05" }, note: "New campaign starts September" },
+  { id: "champions-league", name: "Champions League", sport: "football", emoji: "⚽", live: { provider: "football-data", competition: "CL" }, bbc: "champions-league", window: { start: "2026-09-15", end: "2027-06-05" }, note: "New campaign starts September" },
   { id: "europa-league", name: "Europa League", sport: "football", emoji: "⚽", window: { start: "2026-09-16", end: "2027-05-26" }, note: "New campaign starts September" },
   { id: "copa-libertadores", name: "Copa Libertadores", sport: "football", emoji: "⚽", window: { start: "2026-02-03", end: "2026-11-28" }, note: "Knockout rounds through November" },
   { id: "world-cup", name: "World Cup", sport: "football", emoji: "🏆", window: { start: "2026-06-11", end: "2026-07-19" }, note: "The 2026 edition has just finished" },

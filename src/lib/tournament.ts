@@ -125,9 +125,21 @@ const UGA: Side = { name: "Uganda", flag: "🇺🇬", short: "UGA" };
 const SCO: Side = { name: "Scotland", flag: "🏴󠁧󠁢󠁳󠁣󠁴󠁿", short: "SCO" };
 const ENG: Side = { name: "England", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", short: "ENG" };
 const WAL: Side = { name: "Wales", flag: "🏴󠁧󠁢󠁷󠁬󠁳󠁿", short: "WAL" };
+const MAS: Side = { name: "Malaysia", flag: "🇲🇾", short: "MAS" };
+const CYP: Side = { name: "Cyprus", flag: "🇨🇾", short: "CYP" };
+const SAM: Side = { name: "Samoa", flag: "🇼🇸", short: "SAM" };
+const TTO: Side = { name: "Trinidad & Tobago", flag: "🇹🇹", short: "TTO" };
+const GHA: Side = { name: "Ghana", flag: "🇬🇭", short: "GHA" };
+const PAK: Side = { name: "Pakistan", flag: "🇵🇰", short: "PAK" };
 
 // --- The tournament roster ------------------------------------------------
 // Add future tournaments here; the one whose window contains today wins.
+//
+// Glasgow 2026 — 10 sports: Athletics, Swimming, Track Cycling, Artistic
+// Gymnastics, Boxing, Judo, Weightlifting, Lawn Bowls, Netball, Para Table
+// Tennis. Day 8 of 11 (July 30): athletics in full swing, swimming finals
+// wrapping up, netball concluded, boxing semi-finals under way.
+
 export const TOURNAMENTS: Tournament[] = [
   {
     id: "commonwealth-2026",
@@ -137,15 +149,109 @@ export const TOURNAMENTS: Tournament[] = [
     start: "2026-07-23",
     end: "2026-08-02",
     scores: [
+      // --- Live ---
+      {
+        id: "cwg-ath-100m",
+        stage: "Athletics · 100m final",
+        a: RSA,
+        b: ENG,
+        scoreA: null,
+        scoreB: null,
+        status: "live",
+        note: "On track",
+      },
+      {
+        id: "cwg-box-sf1",
+        stage: "Boxing · 71kg semi-final",
+        a: ENG,
+        b: GHA,
+        scoreA: null,
+        scoreB: null,
+        status: "live",
+        note: "R2",
+      },
+      // --- Upcoming today ---
+      {
+        id: "cwg-cricket-final",
+        stage: "T20 Cricket · Final",
+        a: ENG,
+        b: IND,
+        scoreA: null,
+        scoreB: null,
+        status: "upcoming",
+        kickoff: "2026-07-30T13:00:00Z",
+      },
+      {
+        id: "cwg-ath-1500f",
+        stage: "Athletics · 1500m final (W)",
+        a: KEN,
+        b: AUS,
+        scoreA: null,
+        scoreB: null,
+        status: "upcoming",
+        kickoff: "2026-07-30T19:15:00Z",
+      },
+      {
+        id: "cwg-cycling-keirin",
+        stage: "Track Cycling · Keirin final",
+        a: AUS,
+        b: NZL,
+        scoreA: null,
+        scoreB: null,
+        status: "upcoming",
+        kickoff: "2026-07-30T20:00:00Z",
+      },
+      {
+        id: "cwg-judo-90",
+        stage: "Judo · 90kg final",
+        a: CAN,
+        b: SCO,
+        scoreA: null,
+        scoreB: null,
+        status: "upcoming",
+        kickoff: "2026-07-30T16:30:00Z",
+      },
+      // --- Finished today ---
+      {
+        id: "cwg-swim-50free",
+        stage: "Swimming · 50m free final (M)",
+        a: AUS,
+        b: ENG,
+        scoreA: null,
+        scoreB: null,
+        status: "finished",
+        note: "AUS gold",
+      },
+      {
+        id: "cwg-gym-aa",
+        stage: "Gymnastics · All-around final (W)",
+        a: ENG,
+        b: CAN,
+        scoreA: null,
+        scoreB: null,
+        status: "finished",
+        note: "ENG gold",
+      },
+      {
+        id: "cwg-wl-76",
+        stage: "Weightlifting · 76kg final",
+        a: IND,
+        b: NGA,
+        scoreA: null,
+        scoreB: null,
+        status: "finished",
+        note: "IND gold",
+      },
+      // --- Finished earlier in games ---
       {
         id: "cwg-net-final",
         stage: "Netball · Final",
         a: AUS,
         b: NZL,
-        scoreA: 55,
-        scoreB: 52,
-        status: "live",
-        note: "Q4",
+        scoreA: 63,
+        scoreB: 55,
+        status: "finished",
+        note: "FT",
       },
       {
         id: "cwg-rugby7-final",
@@ -158,34 +264,34 @@ export const TOURNAMENTS: Tournament[] = [
         note: "FT",
       },
       {
-        id: "cwg-hockey-sf",
-        stage: "Hockey · Semi-final",
-        a: IND,
-        b: AUS,
-        scoreA: 2,
-        scoreB: 3,
+        id: "cwg-hockey-final",
+        stage: "Hockey · Final",
+        a: AUS,
+        b: IND,
+        scoreA: 3,
+        scoreB: 2,
         status: "finished",
         note: "FT",
       },
       {
-        id: "cwg-cricket-final",
-        stage: "T20 Cricket · Final",
-        a: ENG,
-        b: IND,
+        id: "cwg-swim-100fly",
+        stage: "Swimming · 100m fly final (W)",
+        a: AUS,
+        b: CAN,
         scoreA: null,
         scoreB: null,
-        status: "upcoming",
-        kickoff: "2026-07-30T13:00:00Z",
+        status: "finished",
+        note: "AUS gold",
       },
       {
-        id: "cwg-net-3rd",
-        stage: "Netball · Bronze",
-        a: JAM,
-        b: ENG,
-        scoreA: 61,
-        scoreB: 58,
+        id: "cwg-ath-10k",
+        stage: "Athletics · 10,000m final (M)",
+        a: KEN,
+        b: UGA,
+        scoreA: null,
+        scoreB: null,
         status: "finished",
-        note: "FT",
+        note: "KEN gold",
       },
     ],
     bracket: {
@@ -236,8 +342,8 @@ export const TOURNAMENTS: Tournament[] = [
           matches: [
             {
               id: "final",
-              top: { side: AUS, score: 55 },
-              bottom: { side: NZL, score: 52 },
+              top: { side: AUS, score: 63, winner: true },
+              bottom: { side: NZL, score: 55 },
             },
           ],
         },
@@ -246,15 +352,17 @@ export const TOURNAMENTS: Tournament[] = [
     tables: {
       kind: "medals",
       rows: [
-        { team: AUS, gold: 41, silver: 33, bronze: 28 },
-        { team: ENG, gold: 30, silver: 27, bronze: 31 },
-        { team: CAN, gold: 18, silver: 20, bronze: 22 },
-        { team: IND, gold: 16, silver: 14, bronze: 12 },
-        { team: NZL, gold: 14, silver: 12, bronze: 17 },
-        { team: SCO, gold: 12, silver: 15, bronze: 19 },
-        { team: RSA, gold: 9, silver: 8, bronze: 11 },
-        { team: NGA, gold: 6, silver: 5, bronze: 7 },
-        { team: KEN, gold: 5, silver: 4, bronze: 6 },
+        { team: AUS, gold: 32, silver: 27, bronze: 24 },
+        { team: ENG, gold: 25, silver: 22, bronze: 26 },
+        { team: CAN, gold: 15, silver: 16, bronze: 18 },
+        { team: IND, gold: 12, silver: 11, bronze: 10 },
+        { team: SCO, gold: 10, silver: 13, bronze: 16 },
+        { team: NZL, gold: 9, silver: 8, bronze: 12 },
+        { team: RSA, gold: 7, silver: 6, bronze: 9 },
+        { team: KEN, gold: 5, silver: 4, bronze: 3 },
+        { team: NGA, gold: 4, silver: 5, bronze: 6 },
+        { team: WAL, gold: 3, silver: 4, bronze: 7 },
+        { team: JAM, gold: 3, silver: 2, bronze: 4 },
       ],
     },
   },
