@@ -9,8 +9,6 @@ function keyFor(text: string): string {
   return `dailyos-ann:${h}`;
 }
 
-/** A dismissible app-wide announcement set by an admin. Hidden once dismissed
- *  (per message), and re-appears if the admin changes the text. */
 export function AnnouncementBanner({ text }: { text: string }) {
   const [hidden, setHidden] = React.useState(true);
   React.useEffect(() => {
@@ -22,20 +20,22 @@ export function AnnouncementBanner({ text }: { text: string }) {
   }, [text]);
   if (hidden || !text) return null;
   return (
-    <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 text-center text-sm font-medium text-primary">
-      <Megaphone className="size-4 shrink-0" />
-      <span className="flex-1">{text}</span>
+    <div className="relative bg-gradient-to-r from-primary to-primary/80 px-4 py-3.5 text-primary-foreground shadow-md sm:py-4">
+      <div className="mx-auto flex max-w-3xl items-center justify-center gap-3 pr-8">
+        <Megaphone className="size-5 shrink-0 sm:size-6" />
+        <p className="text-sm font-semibold leading-snug sm:text-base">
+          {text}
+        </p>
+      </div>
       <button
         aria-label="Dismiss"
         onClick={() => {
           try {
             localStorage.setItem(keyFor(text), "1");
-          } catch {
-            /* ignore */
-          }
+          } catch {}
           setHidden(true);
         }}
-        className="shrink-0 opacity-70 hover:opacity-100"
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 opacity-80 transition-opacity hover:bg-primary-foreground/20 hover:opacity-100"
       >
         <X className="size-4" />
       </button>
