@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.07.31 · v239 (Fix admin codes, notifications, move admin to admin app)";
+export const APP_VERSION = "2026.07.31 · v240 (Triple-tap version to force update)";

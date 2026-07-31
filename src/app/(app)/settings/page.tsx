@@ -14,7 +14,7 @@ import { CalendarSyncCard } from "@/components/calendar-sync-card";
 import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { initials } from "@/lib/utils";
-import { APP_VERSION } from "@/lib/version";
+import { VersionTap } from "@/components/version-tap";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -231,9 +231,7 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
 
-        <p className="pt-2 text-center text-xs text-muted-foreground">
-          DailyOS · {APP_VERSION}
-        </p>
+        <VersionTap />
       </div>
     </div>
   );
