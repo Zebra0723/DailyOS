@@ -49,7 +49,7 @@ export default function AuthLayout({
           {/* Quote anchored toward the bottom */}
           <div className="pb-4">
             <blockquote className="max-w-md text-2xl font-semibold leading-snug">
-              Turn tomorrow into a better tomorrow, sign up now.
+              Drop it in. We&apos;ll handle the rest.
             </blockquote>
             <p className="mt-6 max-w-md text-primary-foreground/80">
               Drop in receipts, bookings, school letters and screenshots — and
