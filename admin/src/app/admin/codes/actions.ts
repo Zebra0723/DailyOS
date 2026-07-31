@@ -27,7 +27,17 @@ export async function issueCode(input: {
   const row: Record<string, unknown> = { code, kind: input.kind, used: false };
   if (input.kind === "discount") row.percent = input.percent ?? 10;
   else { row.plan_tier = input.tier ?? "plus"; row.plan_days = input.days ?? 0; }
-  if (input.recipientEmail?.trim()) row.recipient_email = input.recipientEmail.trim();
+
+  if (input.recipientEmail?.trim()) {
+    const email = input.recipientEmail.trim().toLowerCase();
+    row.recipient_email = email;
+    const { data: lookup } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    const match = lookup?.users?.find(
+      (u) => u.email?.toLowerCase() === email,
+    );
+    if (match) row.recipient_id = match.id;
+  }
+
   const { error } = await admin.from("reward_codes").insert(row);
   if (error) return { ok: false, error: error.message };
   await logAudit(user.email, "issue-code", `${code} (${input.kind})`);

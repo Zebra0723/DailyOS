@@ -10,7 +10,6 @@ import { ExportDataButton } from "@/components/export-data-button";
 import { SignOutButton } from "@/components/sign-out-button";
 import { InviteButton } from "@/components/invite-button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { AdminPanel } from "@/components/admin-panel";
 import { CalendarSyncCard } from "@/components/calendar-sync-card";
 import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -75,9 +74,6 @@ export default async function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Owner tools (admin only — renders nothing otherwise) */}
-        <AdminPanel userId={user?.id} />
 
         {/* Username */}
         <Card>

@@ -13,7 +13,7 @@ export async function setUserPlan(userId: string, tier: Tier) {
   const admin = createServiceClient();
   const { data } = await admin.auth.admin.getUserById(userId);
   const meta = data.user?.user_metadata ?? {};
-  await admin.auth.admin.updateUserById(userId, { user_metadata: { ...meta, tier, plan: tier, pro: tier === "pro" } });
+  await admin.auth.admin.updateUserById(userId, { user_metadata: { ...meta, tier, plan: tier, pro: tier === "pro", plan_exp: null } });
   await logAudit(user.email, "set-plan", `${data.user?.email ?? userId} → ${tier}`);
   revalidatePath("/admin/users");
   return { ok: true as const };

@@ -1,8 +1,6 @@
 "use server";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { getAIProvider, getAIDiagnostics } from "@/lib/ai/provider";
-import { testAdminPush, type AdminPushDiagnostics } from "@/lib/admin-notify";
 
 async function requireUser() {
   const supabase = createClient();
@@ -11,75 +9,6 @@ async function requireUser() {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
   return { supabase, user };
-}
-
-export interface AITestResult {
-  ok: boolean;
-  configured: boolean;
-  model: string;
-  host: string;
-  error?: string;
-  sample?: string;
-}
-
-/**
- * Diagnose "Ask DailyOS" from Settings: actually calls the AI provider and
- * reports the REAL result — a bad key, no billing/quota, a wrong model name or
- * a timeout all show their true error here, instead of the generic
- * "I can't reach the AI right now" the chat falls back to.
- */
-export async function testAIConnection(): Promise<AITestResult> {
-  await requireUser();
-  const diag = getAIDiagnostics();
-  const base = { configured: diag.configured, model: diag.model, host: diag.host };
-
-  if (!diag.configured) {
-    return {
-      ...base,
-      ok: false,
-      error: diag.keyLooksLikeSupabase
-        ? "AI_PROVIDER_API_KEY looks like a Supabase key (sb_…). Set it to your OpenAI (or other provider) API key."
-        : !diag.keyPresent
-          ? "No AI key found. Set AI_PROVIDER_API_KEY in your Vercel project, then redeploy."
-          : "AI is not configured. Check AI_PROVIDER_API_KEY, AI_MODEL and AI_PROVIDER_BASE_URL.",
-    };
-  }
-
-  try {
-    const reply = await getAIProvider().chat({
-      json: true,
-      timeoutMs: 12_000,
-      messages: [
-        {
-          role: "user",
-          content:
-            'Reply with JSON only: {"reply":"pong"}. This is a connection test.',
-        },
-      ],
-    });
-    return { ...base, ok: true, sample: reply.slice(0, 160) };
-  } catch (err) {
-    return {
-      ...base,
-      ok: false,
-      error: err instanceof Error ? err.message : String(err),
-    };
-  }
-}
-
-/** Admin diagnostic: check the feedback-alert push pipeline and fire a test. */
-export async function testFeedbackAlert(): Promise<AdminPushDiagnostics> {
-  const { user } = await requireUser();
-  if ((user.user_metadata as { admin?: boolean } | null)?.admin !== true) {
-    return {
-      vapidConfigured: false,
-      adminAccounts: 0,
-      subscribedDevices: 0,
-      delivered: 0,
-      error: "Admin only.",
-    };
-  }
-  return testAdminPush();
 }
 
 /** Export everything the user has stored, as a plain JSON object they can
