@@ -31,6 +31,7 @@ import { HomeOSTodayActions } from "@/components/homeos/today-home-actions";
 import { RewardCodeNudge } from "@/components/reward-code-nudge";
 import { PushNudge } from "@/components/push-nudge";
 import { QuickAddTask } from "@/components/quick-add-task";
+import { LanguagePicker } from "@/components/language-picker";
 import { getClaimableRewardCodes } from "@/app/(app)/subscriptions/reward-code-actions";
 import type { CalendarEvent, ExtractedTask, InboxItem } from "@/lib/types";
 
@@ -128,7 +129,10 @@ export default async function TodayPage() {
       {/* Editorial masthead */}
       <header className="border-b border-foreground/15 pb-6">
         <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-          <span>The Daily Brief</span>
+          <span className="inline-flex items-center gap-x-3">
+            <span>The Daily Brief</span>
+            <LanguagePicker />
+          </span>
           <span className="inline-flex items-center gap-x-2">
             <span className="hidden sm:inline">{dateLabel}</span>
             <span className="text-muted-foreground/40">·</span>
