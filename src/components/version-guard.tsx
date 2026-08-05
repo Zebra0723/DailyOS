@@ -5,8 +5,8 @@ import { APP_VERSION } from "@/lib/version";
 
 const ATTEMPT_KEY = "dailyos-update-attempt";
 const ATTEMPT_COUNT_KEY = "dailyos-update-count";
-const RETRY_AFTER_MS = 20_000;
-const MAX_ATTEMPTS = 3;
+const RETRY_AFTER_MS = 10_000;
+const MAX_ATTEMPTS = 10;
 
 export function VersionGuard() {
   React.useEffect(() => {
