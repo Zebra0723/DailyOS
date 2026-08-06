@@ -43,8 +43,7 @@ export function CommsThread({
   // Best-effort: mark everything read for this admin when the thread opens.
   useEffect(() => {
     markAllRead(email).then(() => router.refresh());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [email, router]);
 
   function send(e: React.FormEvent) {
     e.preventDefault();

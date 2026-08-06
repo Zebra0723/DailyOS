@@ -17,9 +17,15 @@ Every deploy must:
    ```
 4. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current version: **v247**
+Current version: **v248**
 
 If you get a push rejection, `git pull origin main --rebase` first — Arjun runs multiple agents (Codex CLI, etc.) that push concurrently.
+
+### Debug cadence
+
+- Every release: run targeted typecheck, lint, tests, and production build for the changed apps.
+- Every version ending in `0` (v250, v260, etc.): run a full-repository audit across every app/package, fix concrete defects, and verify the live deployment.
+- Also run a full audit immediately when Arjun requests heavy debugging or reports unexplained glitches.
 
 ---
 
@@ -27,6 +33,7 @@ If you get a push rejection, `git pull origin main --rebase` first — Arjun run
 
 | Version | What changed |
 |---------|-------------|
+| v248 | Guided tour and account-state sync fixes; full repository audit |
 | v247 | In-app guided tour (navigates through real pages) |
 | v246 | dailyos.uk domain + adaptive Dev UI logo (Codex CLI) |
 | v245 | Removed spending tracker per Arjun, kept language picker |

@@ -86,11 +86,12 @@ export function GuidedTour() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const tourRequested = searchParams.get("tour") === "1";
   const [step, setStep] = React.useState(-1);
   const [animating, setAnimating] = React.useState(false);
 
   React.useEffect(() => {
-    if (searchParams.get("tour") === "1") {
+    if (tourRequested) {
       sessionStorage.setItem(TOUR_KEY, "1");
       setStep(0);
       const url = new URL(window.location.href);
@@ -101,7 +102,7 @@ export function GuidedTour() {
       if (idx >= 0) setStep(idx);
       else setStep(0);
     }
-  }, []);
+  }, [pathname, tourRequested]);
 
   function navigate(idx: number) {
     setAnimating(true);

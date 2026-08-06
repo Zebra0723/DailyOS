@@ -59,6 +59,7 @@ export function InterestsManager({ userId }: { userId: string }) {
 
   React.useEffect(() => {
     let active = true;
+    hydratedRef.current = false;
     (async () => {
       // Instant paint from local storage.
       let local: Interest[] = [];
@@ -89,8 +90,7 @@ export function InterestsManager({ userId }: { userId: string }) {
     return () => {
       active = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [key]);
 
   function persist(next: Interest[]) {
     setItems(next);

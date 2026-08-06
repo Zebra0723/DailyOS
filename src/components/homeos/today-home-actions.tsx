@@ -10,6 +10,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+function readActions(key: string): DailyOSTodayAction[] {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    const data = JSON.parse(raw) as HomeOSData;
+    return Array.isArray(data.todayActions) ? data.todayActions : [];
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Shows HomeOS-created actions on the DailyOS Today page. Reads straight from
  * the per-user HomeOS localStorage so it works without the HomeOS provider.
@@ -20,20 +31,8 @@ export function HomeOSTodayActions({ userId }: { userId: string }) {
   const [actions, setActions] = React.useState<DailyOSTodayAction[] | null>(null);
 
   React.useEffect(() => {
-    setActions(read());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function read(): DailyOSTodayAction[] {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) return [];
-      const d = JSON.parse(raw) as HomeOSData;
-      return Array.isArray(d.todayActions) ? d.todayActions : [];
-    } catch {
-      return [];
-    }
-  }
+    setActions(readActions(key));
+  }, [key]);
 
   function setStatus(id: string, status: DailyOSTodayAction["status"]) {
     try {

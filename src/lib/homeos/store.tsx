@@ -212,33 +212,47 @@ export function HomeOSProvider({
   }, []);
 
   // Generic add/update/delete builders for the entity collections.
-  function makeAdd<T extends { id: string; createdAt: string; updatedAt: string }>(
-    keyName: keyof HomeOSData,
-    prefix: string,
-  ) {
-    return (input: New<T>) =>
-      mutate((d) => {
-        const now = nowIso();
-        const item = { ...input, id: uid(prefix), createdAt: now, updatedAt: now } as unknown as T;
-        return { ...d, [keyName]: [item, ...(d[keyName] as unknown as T[])] };
-      });
-  }
-  function makeUpdate<T extends { id: string; updatedAt: string }>(keyName: keyof HomeOSData) {
-    return (id: string, patch: Partial<T>) =>
-      mutate((d) => ({
-        ...d,
-        [keyName]: (d[keyName] as unknown as T[]).map((x) =>
-          x.id === id ? { ...x, ...patch, updatedAt: nowIso() } : x,
-        ),
-      }));
-  }
-  function makeDelete<T extends { id: string }>(keyName: keyof HomeOSData) {
-    return (id: string) =>
-      mutate((d) => ({
-        ...d,
-        [keyName]: (d[keyName] as unknown as T[]).filter((x) => x.id !== id),
-      }));
-  }
+  const makeAdd = React.useCallback(
+    <T extends { id: string; createdAt: string; updatedAt: string }>(
+      keyName: keyof HomeOSData,
+      prefix: string,
+    ) =>
+      (input: New<T>) =>
+        mutate((d) => {
+          const now = nowIso();
+          const item = {
+            ...input,
+            id: uid(prefix),
+            createdAt: now,
+            updatedAt: now,
+          } as unknown as T;
+          return {
+            ...d,
+            [keyName]: [item, ...(d[keyName] as unknown as T[])],
+          };
+        }),
+    [mutate],
+  );
+  const makeUpdate = React.useCallback(
+    <T extends { id: string; updatedAt: string }>(keyName: keyof HomeOSData) =>
+      (id: string, patch: Partial<T>) =>
+        mutate((d) => ({
+          ...d,
+          [keyName]: (d[keyName] as unknown as T[]).map((x) =>
+            x.id === id ? { ...x, ...patch, updatedAt: nowIso() } : x,
+          ),
+        })),
+    [mutate],
+  );
+  const makeDelete = React.useCallback(
+    <T extends { id: string }>(keyName: keyof HomeOSData) =>
+      (id: string) =>
+        mutate((d) => ({
+          ...d,
+          [keyName]: (d[keyName] as unknown as T[]).filter((x) => x.id !== id),
+        })),
+    [mutate],
+  );
 
   const value = React.useMemo<HomeOSContextValue>(() => {
     return {
@@ -389,8 +403,7 @@ export function HomeOSProvider({
         }
       },
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, mutate]);
+  }, [data, makeAdd, makeDelete, makeUpdate, mutate]);
 
   return <HomeOSContext.Provider value={value}>{children}</HomeOSContext.Provider>;
 }
