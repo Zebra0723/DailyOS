@@ -23,6 +23,7 @@ import {
   Loader2,
   Sparkles,
   CreditCard,
+  SwatchBook,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -46,12 +47,14 @@ const PAGES: Item[] = [
   { id: "p-home", label: "HomeOS", sub: "Page", href: "/homeos", icon: Home },
   { id: "p-subs", label: "Subscription", sub: "Page", href: "/subscriptions", icon: CreditCard },
   { id: "p-settings", label: "Settings", sub: "Page", href: "/settings", icon: Settings },
+  { id: "p-dev-ui", label: "Dev UI", sub: "Temporary palette lab", href: "/dev-ui", icon: SwatchBook },
 ];
 
 const PAGE_KEYWORDS: Record<string, string> = {
   "p-add": "new capture receipt upload",
   "p-home": "home subscriptions devices rooms arrivals",
   "p-build": "plan schedule day",
+  "p-dev-ui": "theme colour color palette design preview",
 };
 
 /** Search the user's real content across Supabase tables (RLS-scoped). */

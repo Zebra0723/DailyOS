@@ -73,7 +73,7 @@ export default async function DashboardPage() {
     const banned = (u as { banned_until?: string }).banned_until;
     if (banned && new Date(banned).getTime() > Date.now()) suspended++;
     // Admins are counted on their own — never as free/paid customers.
-    if (u.user_metadata?.admin) { admins++; continue; }
+    if (u.app_metadata?.admin === true) { admins++; continue; }
     const tier = effectiveTier(u);
     if (tier === "pro") plans.pro++; else if (tier === "plus") plans.plus++; else plans.free++;
     // Paid plans lapsing within the next 30 days (plan_exp is ms epoch; null = lifetime).

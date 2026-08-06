@@ -34,7 +34,7 @@ export default async function UsersPage() {
       id: u.id,
       email: u.email ?? "(no email)",
       tier: effectiveTier(u),
-      isAdmin: Boolean(u.user_metadata?.admin),
+      isAdmin: u.app_metadata?.admin === true,
       suspended: isSuspended(u),
       createdAt: u.created_at ?? "",
     }));

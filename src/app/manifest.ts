@@ -55,11 +55,6 @@ export default function manifest(): MetadataRoute.Manifest {
         url: "/calendar",
         icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
       },
-      {
-        name: "Widgets",
-        url: "/widgets",
-        icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
-      },
     ],
   };
 }

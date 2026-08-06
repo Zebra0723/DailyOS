@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isAdminUser } from "@/lib/admin-user";
 
 // Admin accounts get the green home-screen icon; everyone else keeps the red
 // default. Server-rendered into the <head>, so iOS reads it on Add to Home Screen.
@@ -9,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user?.user_metadata?.admin) return {};
+  if (!isAdminUser(user)) return {};
   return { icons: { apple: "/admin-app-icon.png" } };
 }
 import { TopNav, MobileNav, MobileHeader } from "@/components/app-nav";
@@ -57,7 +58,7 @@ export default async function AppLayout({
   } catch {
     /* ignore */
   }
-  const isAdmin = Boolean(user.user_metadata?.admin);
+  const isAdmin = isAdminUser(user);
 
   if (maintenance && !isAdmin) {
     return (

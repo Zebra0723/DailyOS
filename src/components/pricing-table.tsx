@@ -7,7 +7,6 @@ import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
 import {
   usePlan,
   setPlan,
-  setAdmin,
   grantPlanReward,
   type Tier,
 } from "@/lib/use-pro";
@@ -88,15 +87,12 @@ export function PricingTable({
     // so the subscription follows this account to any other device. The client
     // setPlan above mirrors it too, but that write is fire-and-forget and can be
     // dropped; this one is the reliable source of truth for cross-device sync.
-    void persistPlan({ plan, admin, expiresAt: null });
-    // The admin code grants admin; the free-reset code revokes it. Other codes
-    // leave admin status untouched.
+    void persistPlan({ plan, expiresAt: null });
     if (admin) {
-      void setAdmin(true, userId);
       // Alert the owner (with a one-click suspend link) that the admin code was
       // used on this account.
       void notifyAdminCodeUsed();
-    } else if (plan === "free") void setAdmin(false, userId);
+    }
 
     // Landing on a paid plan is what "counts" a referral. Until Stripe is live,
     // a paid code stands in for a payment. If this account was referred, the

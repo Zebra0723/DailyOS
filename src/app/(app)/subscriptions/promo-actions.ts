@@ -1,14 +1,10 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 
-// Server-side promo/admin code validation. The actual code strings live ONLY in
-// environment variables (set in Vercel) — never in the repo or the client
-// bundle — so they stay private. The browser sends whatever was typed; we just
-// answer "which plan / admin does this unlock", or nothing. There is deliberately
-// NO hardcoded fallback: if the env codes aren't set, no plan/admin code works
-// (referral reward codes are separate and still work), so nothing secret ever
-// lives in the (public) source.
+// Server-side promo/admin code validation. Production codes live in Vercel
+// environment variables and never enter the client bundle. Public fallback
+// plan codes keep local/demo installs usable, but admin has no public fallback.
 //
 //   ADMIN_CODE  -> Pro + admin (the /admin console, testing tools)
 //   PRO_CODE    -> lifetime Pro
@@ -25,7 +21,7 @@ function norm(v: string | undefined): string {
   return (v ?? "").trim().toUpperCase();
 }
 
-export async function redeemPromoCode(raw: string): Promise<PromoResult> {
+function resolvePromoCode(raw: string): PromoResult {
   const entered = norm(raw);
   if (!entered) return { ok: false };
 
@@ -55,7 +51,7 @@ export async function redeemPromoCode(raw: string): Promise<PromoResult> {
   // (public) source; set the env vars above to replace them with private ones.
   switch (entered) {
     case "HOMEOSVIP25":
-      return { ok: true, plan: "pro", admin: true };
+      return { ok: true, plan: "pro", admin: false };
     case "ARLEOPRO":
       return { ok: true, plan: "pro", admin: false };
     case "ARLEOPLUS":
@@ -64,6 +60,40 @@ export async function redeemPromoCode(raw: string): Promise<PromoResult> {
     default:
       return { ok: false };
   }
+}
+
+/** Validate and apply a promo in one Auth Admin update. Admin is written only
+ * through the service client because user metadata is editable by the user. */
+export async function redeemPromoCode(raw: string): Promise<PromoResult> {
+  const result = resolvePromoCode(raw);
+  if (!result.ok) return result;
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+
+  const admin = createServiceClient();
+  const { error } = await admin.auth.admin.updateUserById(user.id, {
+    user_metadata: {
+      ...user.user_metadata,
+      plan: result.plan,
+      pro: result.plan === "pro",
+      plan_exp: null,
+    },
+    ...(result.admin || result.plan === "free"
+      ? {
+          app_metadata: {
+            ...user.app_metadata,
+            admin: result.admin,
+          },
+        }
+      : {}),
+  });
+  if (error) return { ok: false };
+
+  return result;
 }
 
 /**
@@ -78,7 +108,6 @@ export async function redeemPromoCode(raw: string): Promise<PromoResult> {
  */
 export async function persistPlan(input: {
   plan: PromoPlan;
-  admin?: boolean;
   expiresAt?: number | null;
 }): Promise<{ ok: boolean }> {
   const supabase = createClient();
@@ -87,16 +116,12 @@ export async function persistPlan(input: {
   } = await supabase.auth.getUser();
   if (!user) return { ok: false };
 
-  const data: Record<string, unknown> = {
-    plan: input.plan,
-    pro: input.plan === "pro",
-    plan_exp: input.plan === "free" ? null : (input.expiresAt ?? null),
-  };
-  // The admin code grants admin; the free-reset code revokes it. Other codes
-  // leave admin status untouched.
-  if (input.admin === true) data.admin = true;
-  else if (input.plan === "free") data.admin = false;
-
-  const { error } = await supabase.auth.updateUser({ data });
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      plan: input.plan,
+      pro: input.plan === "pro",
+      plan_exp: input.plan === "free" ? null : (input.expiresAt ?? null),
+    },
+  });
   return { ok: !error };
 }

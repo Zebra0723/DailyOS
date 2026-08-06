@@ -3,6 +3,7 @@
 import * as React from "react";
 import { createClient } from "@/lib/supabase/client";
 import { mergeGrant } from "@/lib/plan-merge";
+import { isAdminUser } from "@/lib/admin-user";
 
 // Plan tiers. Stored per-user (keyed by user id) so a plan never leaks
 // between accounts on the same browser. Source of truth without real billing:
@@ -15,7 +16,6 @@ export const PRO_EVENT = "dailyos-pro";
 const tierKey = (userId: string) => `dailyos-tier:${userId}`;
 const tierExpKey = (userId: string) => `dailyos-tier-exp:${userId}`; // plan expiry (ms)
 const legacyProKey = (userId: string) => `dailyos-pro:${userId}`; // older "pro" flag
-const adminKey = (userId: string) => `dailyos-admin:${userId}`; // admin access
 
 /**
  * Set the plan for an account. Pass userId (from the server) for a reliable
@@ -154,37 +154,6 @@ export async function grantPlanReward(
   return { tier: merged.tier, expiresAt: merged.exp };
 }
 
-function readAdminFor(id: string | undefined, metaAdmin?: boolean): boolean {
-  if (id && typeof window !== "undefined") {
-    if (localStorage.getItem(adminKey(id)) === "1") return true;
-  }
-  return metaAdmin === true;
-}
-
-/** Grant or revoke admin access for an account. */
-export async function setAdmin(on: boolean, userId?: string) {
-  const supabase = createClient();
-  let id = userId;
-  if (!id) {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      id = session?.user?.id;
-    } catch {
-      /* handled below */
-    }
-  }
-  if (typeof window !== "undefined" && id) {
-    if (on) localStorage.setItem(adminKey(id), "1");
-    else localStorage.removeItem(adminKey(id));
-    window.dispatchEvent(new Event(PRO_EVENT));
-  }
-  supabase.auth.updateUser({ data: { admin: on } }).catch(() => {
-    /* metadata write can fail offline; local flag still applies here */
-  });
-}
-
 /** Reactively read the account's plan tier + admin access. Pass userId (server) for reliability. */
 export function usePlan(userId?: string): {
   mounted: boolean;
@@ -216,7 +185,6 @@ export function usePlan(userId?: string): {
     // Paint immediately from localStorage so a gate never hangs on a spinner
     // while we wait for the network. The async pass below refines from metadata.
     const localTier = readTierFor(userId);
-    const localAdmin = readAdminFor(userId);
     // If localStorage already grants paid access we don't need the network at
     // all — mark resolved so gates show content immediately, no flicker.
     const localResolved = localTier !== "free";
@@ -224,18 +192,17 @@ export function usePlan(userId?: string): {
       mounted: true,
       resolved: localResolved,
       tier: localTier,
-      admin: localAdmin,
+      admin: false,
       planExp: localTier === "free" ? null : localExp(userId),
     });
 
     const read = async () => {
       // Fast local values (localStorage only).
       const localTier = readTierFor(userId);
-      const localAdmin = readAdminFor(userId);
       const localE = localTier === "free" ? null : localExp(userId);
 
       let tier = localTier;
-      let admin = localAdmin;
+      let admin = false;
       let exp = localE;
 
       try {
@@ -258,7 +225,7 @@ export function usePlan(userId?: string): {
           const metaExp = user.user_metadata?.plan_exp
             ? Number(user.user_metadata.plan_exp)
             : null;
-          const metaAdmin = user.user_metadata?.admin === true;
+          const metaAdmin = isAdminUser(user);
 
           // Merge the two, never downgrading (lifetime beats time-limited).
           const merged = mergeGrant(
@@ -267,7 +234,7 @@ export function usePlan(userId?: string): {
           );
           tier = merged.tier;
           exp = merged.tier === "free" ? null : merged.exp;
-          admin = localAdmin || metaAdmin;
+          admin = metaAdmin;
 
           // Heal whichever store is behind so the plan survives logout/login and
           // separate PWA/Safari storage. Write directly (no PRO_EVENT) to avoid
@@ -297,9 +264,6 @@ export function usePlan(userId?: string): {
                 })
                 .catch(() => {});
             }
-          }
-          if (admin && !metaAdmin) {
-            supabase.auth.updateUser({ data: { admin: true } }).catch(() => {});
           }
         }
       } catch {
@@ -332,4 +296,3 @@ export function tierMeets(tier: Tier, required: "Plus" | "Pro"): boolean {
   if (required === "Plus" && tier === "plus") return true;
   return false;
 }
-

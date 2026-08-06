@@ -27,11 +27,11 @@ import {
   PoundSterling,
   MessageSquarePlus,
   Compass,
-  LayoutGrid,
   Bug,
   Info,
   LifeBuoy,
   Mail,
+  SwatchBook,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { useSurvey } from "@/components/survey/survey-provider";
@@ -61,7 +61,6 @@ const CATEGORIES: {
     lead: "/today",
     items: [
       { href: "/today", label: "Today", icon: Sun },
-      { href: "/widgets", label: "Widgets", icon: LayoutGrid },
       { href: "/assistant", label: "Ask DailyOS", icon: Sparkles },
       { href: "/inbox", label: "The Drop", icon: Inbox },
       { href: "/build-day", label: "Build My Day", icon: CalendarClock },
@@ -86,6 +85,7 @@ const CATEGORIES: {
     items: [
       { href: "/subscriptions", label: "Subscription", icon: CreditCard },
       { href: "/settings", label: "Settings", icon: Settings },
+      { href: "/dev-ui", label: "Dev UI", icon: SwatchBook },
     ],
   },
 ];

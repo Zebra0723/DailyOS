@@ -2,6 +2,7 @@
 
 import { randomUUID } from "crypto";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { isAdminUser } from "@/lib/admin-user";
 import { sendRewardEmail, emailConfigured } from "@/lib/email";
 import {
   MILESTONES,
@@ -221,7 +222,7 @@ export async function getReferralSummary(): Promise<{
   } = await supabase.auth.getUser();
   if (!user) return { total: 0, converted: 0, testDelta: 0, admin: false };
 
-  const isAdmin = user.user_metadata?.admin === true;
+  const isAdmin = isAdminUser(user);
   const delta = isAdmin
     ? Math.trunc(Number(user.user_metadata?.ref_test_delta ?? 0)) || 0
     : 0;
@@ -256,7 +257,7 @@ export async function adminSetReferralTestDelta(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false };
-  if (user.user_metadata?.admin !== true) return { ok: false };
+  if (!isAdminUser(user)) return { ok: false };
 
   const clamped = Math.max(-100, Math.min(100, Math.trunc(Number(delta)) || 0));
   const { error } = await supabase.auth.updateUser({

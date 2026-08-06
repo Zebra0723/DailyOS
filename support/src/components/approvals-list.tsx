@@ -161,7 +161,7 @@ export function ApprovalsList({
       {!isOwner && (
         <div className="flex items-center gap-2 rounded-xl border border-[#e6ded2] bg-[#f7ece4] px-3 py-2 text-sm text-[#6b6157]">
           <Lock className="size-4 shrink-0 text-[#bf502b]" />
-          Only the owner can approve replies. You can see what's queued below.
+          Only the owner can approve replies. You can see what&apos;s queued below.
         </div>
       )}
       {items.map((item) => {

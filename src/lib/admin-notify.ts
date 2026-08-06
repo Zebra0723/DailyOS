@@ -21,7 +21,7 @@ async function adminUserIds(admin: Admin): Promise<string[]> {
   return users
     .filter(
       (u) =>
-        (u.user_metadata as { admin?: boolean } | null)?.admin === true ||
+        (u.app_metadata as { admin?: boolean } | null)?.admin === true ||
         OWNER_EMAILS.includes((u.email ?? "").toLowerCase()),
     )
     .map((u) => u.id);

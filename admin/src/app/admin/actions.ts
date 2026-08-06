@@ -23,8 +23,8 @@ export async function setUserAdmin(userId: string, makeAdmin: boolean) {
   const user = await requireAdminUser();
   const admin = createServiceClient();
   const { data } = await admin.auth.admin.getUserById(userId);
-  const meta = data.user?.user_metadata ?? {};
-  await admin.auth.admin.updateUserById(userId, { user_metadata: { ...meta, admin: makeAdmin } });
+  const meta = data.user?.app_metadata ?? {};
+  await admin.auth.admin.updateUserById(userId, { app_metadata: { ...meta, admin: makeAdmin } });
   await logAudit(user.email, "set-admin", `${data.user?.email ?? userId} → admin=${makeAdmin}`);
   revalidatePath("/admin/users");
   return { ok: true as const };

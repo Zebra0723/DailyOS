@@ -30,7 +30,7 @@ export async function exportUsersCsv(): Promise<string> {
       esc(u.email),
       esc(u.created_at),
       esc(effectiveTier(u)),
-      esc(Boolean(u.user_metadata?.admin)),
+      esc(u.app_metadata?.admin === true),
       esc(expIso),
     ].join(",");
   });
