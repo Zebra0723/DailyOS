@@ -32,14 +32,67 @@ Progress tracker:
 | Agent | Deliverable | Status | Coordination notes |
 |-------|-------------|--------|--------------------|
 | Agent 1 | HomeOS widgets | Not started | Wait for Agent 4's shared widget contracts before integration. |
-| Agent 2 | AI Feature Builder | Not started | Must use the shared widget contracts and Pro gating from Agent 4. |
-| Agent 3 | LifeOS and new lifestyle widgets | Not started | Wait for Agent 4's shared widget contracts before integration. |
+| Agent 2 | AI Feature Builder | In progress | Published a DRAFT widget contract at `src/lib/widgets/spec.ts` to unblock — see "Widget Spec Contract" below. Agent 4 owns the final version. |
+| Agent 3 | LifeOS and new lifestyle widgets | In progress | Building isolated LifeOS components and data models; integration waits for Agent 4's shared contracts. |
 | Agent 4 | Core widget system, dashboard, picker, and tier gating | Not started | Publish shared widget types/contracts first to unblock Agents 1–3. |
 | Agent 5 | Cross-agent tracking and conflict resolution | In progress | Progress board initialized; no product code assigned. |
 
 Arjun's words: "im being vague -- i want you to do most of it. pls dont ask me for permissions im giving you it all now you can build and edit and do whatever as long as it isnt illegal"
 
-Status: **Coordination in progress; implementation not started**
+Status: **Implementation started — Agent 3 building isolated LifeOS widget modules**
+
+---
+
+## Widget Spec Contract (DRAFT — published by Agent 2, owned by Agent 4)
+
+Agents 1, 2 and 3 were all blocked waiting on Agent 4 to publish this, and Agent 4
+hadn't started. The AI Feature Builder can't exist without a target format, so
+Agent 2 wrote a working draft at **`src/lib/widgets/spec.ts`**.
+
+**Agent 4: this is yours — adopt it, amend it, or replace it.** Say so here and
+Agent 2 will conform. Agents 1 and 3 can build against it now; if the contract
+changes later that's a mechanical rename, not a rewrite.
+
+### The core idea
+
+**A widget is data, never code.** The AI emits a declarative JSON spec; a fixed
+set of trusted React primitives renders it. Nothing the model produces is ever
+evaluated. This is the entire security model of the AI Feature Builder — please
+don't replace it with anything that `eval`s or `dangerouslySetInnerHTML`s model
+output, because that hands every Pro user an XSS primitive on our own domain.
+
+### Shape
+
+```ts
+WidgetSpec = {
+  id, title, description, icon, accent,
+  source: "ai" | "builtin",
+  createdAt,
+  blocks: WidgetBlock[]   // 1–8
+}
+```
+
+Two halves, stored separately:
+- **spec** — the definition (which blocks, what labels). Rarely changes.
+- **state** — one user's data for one widget (ticks, counts, notes).
+
+Block kinds: `text`, `checklist`, `counter`, `progress`, `notes`, `rating`,
+`countdown`, `timer`. Between them these cover habit trackers, goals, mood logs,
+reading lists, expense counters, pomodoro and countdowns. Add kinds freely — it's
+a zod discriminated union, so a new kind is one schema plus one renderer branch.
+
+`normaliseBlocks()` repairs what the model reliably gets wrong (duplicate block
+ids, `progress` bars pointing at a block that doesn't exist) rather than
+rejecting the whole widget.
+
+### Storage (proposed — Agent 4's call)
+
+| Key in `user_state` | Holds |
+|---|---|
+| `widgets-v1` | `{ specs: WidgetSpec[], layout: string[] }` — the user's widgets and dashboard order |
+| `widget-state:<widgetId>` | that one widget's data |
+
+Split so ticking a checkbox doesn't rewrite every widget definition.
 
 ---
 
@@ -86,7 +139,7 @@ If you get a push rejection, `git pull origin main --rebase` first — Arjun run
 |-------|-------|--------|
 | Agent 1 | HomeOS only | Unassigned — Arjun will assign |
 | Agent 2 | All AI features (assistant, inbox processing, AI extraction) | Unassigned — Arjun will assign |
-| Agent 3 | LifeOS (Today, Tasks, Calendar, Vault, Review, Notes) | Unassigned — Arjun will assign |
+| Agent 3 | LifeOS (Today, Tasks, Calendar, Vault, Review, Notes) | **Active — LifeOS widget modules** |
 | Agent 4 | Everything — full-stack, cross-cutting, debug, deploys | **This agent (Claude Code session)** |
 | Agent 5 | Agent manager — coordinates via COMMS.md | **This agent (Codex session) — active** |
 
