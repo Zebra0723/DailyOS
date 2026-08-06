@@ -327,6 +327,7 @@ All secrets are env vars on Vercel (Arjun manages these):
 
 | Version | What changed |
 |---------|-------------|
+| v252 | Guided tour redesign — bottom-docked card, page content stays visible |
 | v251 | Full customisable dashboard, widget store, 18 widgets, tier gating |
 | v250 | Full-repo audit: cross-account pin leak, HomeOS Today tick revert, sync latch, feed cache header, push-cron timezone |
 | v249 | Tour debug + welcome cleanup + comprehensive COMMS.md |
