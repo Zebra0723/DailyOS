@@ -7,7 +7,7 @@ import { getWidget, WIDGETS, type PlanTier } from "@/lib/widgets";
 import { usePlan, tierMeets } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { WidgetStore } from "@/components/widget-store";
+import { WidgetStore, useWidgetStore } from "@/components/widget-store";
 
 import { TasksDueWidget } from "@/components/widgets/tasks-due";
 import { UpcomingEventsWidget } from "@/components/widgets/upcoming-events";
@@ -82,6 +82,7 @@ function tierAllows(userTier: PlanTier | string, required: PlanTier): boolean {
 
 export function Dashboard({ userId }: { userId?: string }) {
   const { tier } = usePlan(userId);
+  const { openWidgetStore } = useWidgetStore();
   const [widgets, setWidgets] = React.useState<string[]>([]);
   const [loaded, setLoaded] = React.useState(false);
   const [editing, setEditing] = React.useState(false);
@@ -160,7 +161,7 @@ export function Dashboard({ userId }: { userId?: string }) {
             goals, or anything else. Make DailyOS yours.
           </p>
           <div className="mt-6 flex gap-2">
-            <Button onClick={() => setStoreOpen(true)}>
+            <Button onClick={openWidgetStore}>
               <Plus className="size-4" /> Add your first widget
             </Button>
             <Button

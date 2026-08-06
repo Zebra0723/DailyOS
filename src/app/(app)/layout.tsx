@@ -28,6 +28,7 @@ import { AnnouncementBanner } from "@/components/announcement-banner";
 import { BirthdayBanner } from "@/components/birthday-banner";
 import { SurveyProvider } from "@/components/survey/survey-provider";
 import { BugReportProvider } from "@/components/bug/bug-report-provider";
+import { WidgetStoreProvider } from "@/components/widget-store";
 import { GuidedTour } from "@/components/guided-tour";
 
 export default async function AppLayout({
@@ -79,6 +80,7 @@ export default async function AppLayout({
     <PwaGate>
       <SurveyProvider>
         <BugReportProvider>
+        <WidgetStoreProvider>
         <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-background">
           <BirthdayBanner />
           <OfflineBanner />
@@ -99,6 +101,7 @@ export default async function AppLayout({
           <DeviceBackup />
           <GuidedTour />
         </div>
+        </WidgetStoreProvider>
         </BugReportProvider>
       </SurveyProvider>
     </PwaGate>
