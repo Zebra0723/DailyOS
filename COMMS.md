@@ -8,6 +8,21 @@ Everything an agent needs to work on this codebase. Read this first, keep it upd
 
 Tasks are posted here by Arjun (via Agent 4). Pick up tasks in your area, build them, mark done when shipped. No need to ask for permissions — Arjun has given blanket approval to build, edit, and ship anything here as long as it isn't illegal.
 
+### Cross-agent request routing
+
+When Arjun sends any agent a request outside that agent's assigned lane, the
+receiving agent must:
+
+1. Add it to the routed-request queue below instead of implementing it.
+2. Assign it using the agent allocations in this file; cross-cutting or unclear
+   product work goes to Agent 4.
+3. Tell Arjun which agent owns it; the queue entry is the notification to that agent.
+4. Track it here until the assigned agent reports it shipped or blocked.
+
+| ID | Assigned agent | Request | Status | Notes |
+|----|----------------|---------|--------|-------|
+| R-001 | Agent 4 | Restore production to the latest release; `dailyos.uk` is still serving v247 despite newer commits. | Blocked by Vercel rate limit | Live `/api/version` returns v247 and live `sw.js` has `DEPLOY = "247"`. Latest `main` Vercel check says “Deployment rate limited — retry in 24 hours.” After cooldown/quota resolution, make one compliant versioned deploy to both branches and verify both endpoints plus the live app. |
+
 ### Active Tasks
 
 **MAJOR: Full customisation overhaul (all agents)**
@@ -31,7 +46,7 @@ Progress tracker:
 
 | Agent | Deliverable | Status | Coordination notes |
 |-------|-------------|--------|--------------------|
-| Agent 1 | HomeOS widgets | Not started | Wait for Agent 4's shared widget contracts before integration. |
+| Agent 1 | HomeOS widgets | **SHIPPED v253** | 8 HomeOS widgets + HomeOS Summary rebuilt on real data. Uses Agent 4's v251 registry pattern as-is — no contract changes needed. |
 | Agent 2 | AI Feature Builder | In progress | Published a DRAFT widget contract at `src/lib/widgets/spec.ts` to unblock — see "Widget Spec Contract" below. Agent 4 owns the final version. |
 | Agent 3 | LifeOS and new lifestyle widgets | In progress | Building isolated LifeOS components and data models; integration waits for Agent 4's shared contracts. |
 | Agent 4 | Core widget system, dashboard, picker, and tier gating | **SHIPPED v251** | 18 widgets, widget store, dashboard with drag-reorder, tier gating. Agents 1-3: add widgets following the pattern in COMMS.md. |
@@ -59,7 +74,7 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current version: **v251**
+Current version: **v253**
 
 If you get a push rejection, `git pull origin main --rebase` first — Arjun runs multiple agents (Codex CLI, etc.) that push concurrently.
 
@@ -86,7 +101,7 @@ If you get a push rejection, `git pull origin main --rebase` first — Arjun run
 
 | Agent | Focus | Status |
 |-------|-------|--------|
-| Agent 1 | HomeOS only | Unassigned — Arjun will assign |
+| Agent 1 | HomeOS only | **Active — HomeOS widgets shipped v253** |
 | Agent 2 | All AI features (assistant, inbox processing, AI extraction) | Unassigned — Arjun will assign |
 | Agent 3 | LifeOS (Today, Tasks, Calendar, Vault, Review, Notes) | **Active — LifeOS widget modules** |
 | Agent 4 | Everything — full-stack, cross-cutting, debug, deploys | **This agent (Claude Code session)** |
@@ -327,6 +342,7 @@ All secrets are env vars on Vercel (Arjun manages these):
 
 | Version | What changed |
 |---------|-------------|
+| v253 | Agent 1: 8 HomeOS widgets, HomeOS Summary on real data, HomeOS date-drift fix |
 | v252 | Guided tour redesign — bottom-docked card, page content stays visible |
 | v251 | Full customisable dashboard, widget store, 18 widgets, tier gating |
 | v250 | Full-repo audit: cross-account pin leak, HomeOS Today tick revert, sync latch, feed cache header, push-cron timezone |
@@ -363,6 +379,22 @@ These are standing orders from Arjun — do these on a regular schedule:
 5. **Push conflicts** are normal — always rebase before pushing. Take the higher version + 1.
 6. **Any browser-local key that holds user data must be scoped `:${userId}`.** Two accounts share one browser (and one PWA storage). An unscoped key leaks between them, and `DeviceBackup` will then mirror the wrong account's copy into `user_state`. This bit `dailyos-pinned-notes` (fixed v250).
 7. **The remote copy wins on hydration.** `HomeOSProvider` overwrites local with `user_state` once the pull lands. So anything that writes the HomeOS blob outside the provider must `saveRemote` too, or the edit is silently reverted on the next hydration. This bit the Today-page action toggle (fixed v250).
+8. **Never return `toISOString()` from a date built at local midnight.** It re-expresses the local day in UTC, which lands on the *previous* day for every UTC+ offset — including Europe/London through BST, i.e. most of our users for half the year. `homeos/dates.addDays()` did this and shifted maintenance dates a day early in the iCal feed (fixed v253). Prefer a bare `YYYY-MM-DD`; `safeParseDate` pins it back to local midnight. Date tests pass under UTC in CI, so assert explicit calendar days and check with `TZ=Europe/London npm test`.
+
+---
+
+## HomeOS Widgets (Agent 1, v253)
+
+HomeOS is on the dashboard as nine widgets, all `category: "homeos"`, all `tier: "plus"` (matching the tier Agent 4 gave the original HomeOS Summary):
+
+`homeos-summary` · `home-control-score` · `home-subscriptions` · `home-deliveries` · `home-devices` · `home-rooms` · `home-alerts` · `home-calendar` · `home-vault`
+
+Two things worth knowing before touching them:
+
+- **`HomeOSProvider` does not wrap the dashboard** — it only wraps `homeos-app.tsx`, so `useHomeOS()` throws on `/today`. Widgets read through `useHomeOSData()` (`src/lib/homeos/use-homeos-data.ts`) instead: local blob for instant paint, then the `user_state` copy wins, same order as the provider.
+- **The widgets are deliberately read-only.** Per pitfall 7 above, writing the HomeOS blob from outside the provider needs a matching `saveRemote` or the edit gets reverted. Widgets summarise and link into HomeOS to make changes, which avoids that class of bug entirely. Keep it that way unless you also handle the write path.
+
+Shared chrome lives in `src/components/widgets/homeos-shell.tsx` (`HomeWidgetShell`, `MiniStat`, `HomeRow`, `gbp`) — reuse it rather than rebuilding card/loading/empty states.
 
 ---
 
@@ -371,3 +403,7 @@ These are standing orders from Arjun — do these on a regular schedule:
 | Owner | Task | Priority | Status |
 |-------|------|----------|--------|
 | Agent 4 | Add range paging to `/api/push/run` queries over `push_subscriptions`, `user_state`, and auth `listUsers`. Current unpaginated reads silently cap at service row limits. | Not urgent at current scale | Backlog — flagged v250 |
+| Agent 4 | `deleteAllData()` in `src/app/(app)/settings/actions.ts` only removes the first 100 stored files. `supabase.storage.list()` defaults to `limit: 100` (confirmed in the installed storage-js) and isn't paged, so "delete all my data" silently leaves every file past the first 100 in the bucket. Page it with `{ limit, offset }`. | High — privacy claim in README | Found by Agent 1 during v253 audit; out of lane, not fixed |
+| Agent 4 | `verifyFeedToken` (`src/lib/calendar-feed.ts:29`) and `verifySuspendToken` (`src/lib/admin-token.ts:32`) compare HMACs with `!==` rather than `crypto.timingSafeEqual`. | Low | Found by Agent 1 during v253 audit; out of lane |
+| Agent 3 | `src/lib/ical.ts` never folds lines to the RFC 5545 75-octet limit, so a long event title or description can break strict calendar parsers. | Low | Found by Agent 1 during v253 audit; out of lane |
+| Agent 4 | Plan downgrades are impossible: `mergeGrant` never lowers a tier, and `usePlan` writes the higher local value back to auth metadata (`src/lib/use-pro.ts:256-266`). Revoking someone's Pro server-side is undone by their browser on next load. "Never downgrade" looks deliberate — the metadata write-back is the part worth a decision. | Needs Arjun's call | Found by Agent 1 during v253 audit; out of lane |

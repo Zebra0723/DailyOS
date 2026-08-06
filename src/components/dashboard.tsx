@@ -26,6 +26,14 @@ import { MoodTrackerWidget } from "@/components/widgets/mood-tracker";
 import { DailyQuoteWidget } from "@/components/widgets/daily-quote";
 import { CountdownWidget } from "@/components/widgets/countdown";
 import { HomeOSSummaryWidget } from "@/components/widgets/homeos-summary";
+import { HomeControlScoreWidget } from "@/components/widgets/home-control-score";
+import { HomeSubscriptionsWidget } from "@/components/widgets/home-subscriptions";
+import { HomeDeliveriesWidget } from "@/components/widgets/home-deliveries";
+import { HomeDevicesWidget } from "@/components/widgets/home-devices";
+import { HomeRoomsWidget } from "@/components/widgets/home-rooms";
+import { HomeAlertsWidget } from "@/components/widgets/home-alerts";
+import { HomeCalendarWidget } from "@/components/widgets/home-calendar";
+import { HomeVaultWidget } from "@/components/widgets/home-vault";
 import { AIBuilderWidget } from "@/components/widgets/ai-builder";
 
 const COMPONENT_MAP: Record<string, React.ComponentType> = {
@@ -46,6 +54,14 @@ const COMPONENT_MAP: Record<string, React.ComponentType> = {
   "daily-quote": DailyQuoteWidget,
   countdown: CountdownWidget,
   "homeos-summary": HomeOSSummaryWidget,
+  "home-control-score": HomeControlScoreWidget,
+  "home-subscriptions": HomeSubscriptionsWidget,
+  "home-deliveries": HomeDeliveriesWidget,
+  "home-devices": HomeDevicesWidget,
+  "home-rooms": HomeRoomsWidget,
+  "home-alerts": HomeAlertsWidget,
+  "home-calendar": HomeCalendarWidget,
+  "home-vault": HomeVaultWidget,
   "ai-builder": AIBuilderWidget,
 };
 
