@@ -327,12 +327,8 @@ All secrets are env vars on Vercel (Arjun manages these):
 
 | Version | What changed |
 |---------|-------------|
-<<<<<<< HEAD
-| v250 | Full-repo audit: cross-account pin leak, HomeOS Today tick revert, sync latch, feed cache header, push-cron timezone |
-=======
 | v251 | Full customisable dashboard, widget store, 18 widgets, tier gating |
-| v250 | Cross-account + sync fixes, full audit (Codex CLI) |
->>>>>>> 41ac59e (v250: Customisable dashboard with widget store and 18 widgets)
+| v250 | Full-repo audit: cross-account pin leak, HomeOS Today tick revert, sync latch, feed cache header, push-cron timezone |
 | v249 | Tour debug + welcome cleanup + comprehensive COMMS.md |
 | v248 | Guided tour and account-state sync fixes; full repository audit (Codex CLI) |
 | v247 | In-app guided tour (navigates through real pages) |
