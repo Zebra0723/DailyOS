@@ -47,20 +47,3 @@ export function formatAmount(amount: number, currency: string, locale?: string):
     return `${def?.symbol ?? ""}${amount.toFixed(2)}`;
   }
 }
-
-export const SPEND_CATEGORIES = [
-  { key: "food", label: "Food & Drink" },
-  { key: "shopping", label: "Shopping" },
-  { key: "transport", label: "Transport" },
-  { key: "bills", label: "Bills" },
-  { key: "entertainment", label: "Entertainment" },
-  { key: "health", label: "Health" },
-  { key: "education", label: "Education" },
-  { key: "gifts", label: "Gifts" },
-  { key: "subscriptions", label: "Subscriptions" },
-  { key: "home", label: "Home" },
-  { key: "travel", label: "Travel" },
-  { key: "other", label: "Other" },
-] as const;
-
-export type SpendCategory = (typeof SPEND_CATEGORIES)[number]["key"];
