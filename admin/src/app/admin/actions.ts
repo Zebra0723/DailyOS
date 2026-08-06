@@ -58,7 +58,7 @@ export async function sendUserPush(userId: string, title: string, body: string):
   const priv = process.env.VAPID_PRIVATE_KEY;
   if (!pub || !priv) return { ok: false, error: "VAPID keys aren't set on this project." };
   if (!title.trim() && !body.trim()) return { ok: false, error: "Enter a title or message." };
-  webpush.setVapidDetails(process.env.VAPID_SUBJECT || "https://daily-os-lac.vercel.app", pub, priv);
+  webpush.setVapidDetails(process.env.VAPID_SUBJECT || "https://www.dailyos.uk", pub, priv);
   const admin = createServiceClient();
   const { data } = await admin.from("push_subscriptions").select("endpoint,p256dh,auth").eq("user_id", userId);
   const subs = (data ?? []) as PushRow[];

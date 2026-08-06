@@ -8,7 +8,7 @@ name: Push notifications cron
 # Required repo secret:
 #   CRON_SECRET  — must match the CRON_SECRET env var on the app
 # Optional repo secret:
-#   APP_URL      — e.g. https://dailyos.uk (defaults to the Vercel URL below)
+#   APP_URL      — optional override (defaults to the live DailyOS domain below)
 
 on:
   schedule:
@@ -24,6 +24,6 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           APP_URL: ${{ secrets.APP_URL }}
         run: |
-          BASE="${APP_URL:-https://daily-os-lac.vercel.app}"
+          BASE="${APP_URL:-https://www.dailyos.uk}"
           echo "Triggering ${BASE}/api/push/run"
           curl -fsS --max-time 60 "${BASE}/api/push/run?key=${CRON_SECRET}" && echo "" && echo "triggered ok"

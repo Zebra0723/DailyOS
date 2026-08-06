@@ -43,7 +43,7 @@ fastest way to "have the app on your phone" while the store route is set up.
    npx cap add ios
    ```
    (For a wrapper that loads the live site, point the Capacitor config
-   `server.url` at https://daily-os-lac.vercel.app; for a bundled build,
+   `server.url` at https://www.dailyos.uk; for a bundled build,
    export the app instead.)
 4. **App Store Connect** — create the app record, screenshots, description,
    category, age rating, and the privacy "nutrition label" (point the privacy

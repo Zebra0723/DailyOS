@@ -2,7 +2,7 @@ import "server-only";
 
 // The live DailyOS app Pulse watches over.
 export const MAIN_APP_URL =
-  process.env.MAIN_APP_URL || "https://daily-os-lac.vercel.app";
+  process.env.MAIN_APP_URL || "https://www.dailyos.uk";
 
 export function cronConfigured(): boolean {
   return Boolean(process.env.CRON_SECRET);

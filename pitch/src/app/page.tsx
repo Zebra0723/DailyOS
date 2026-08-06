@@ -24,7 +24,7 @@ import {
 import { Logo } from "@/components/logo";
 import { LogoMark } from "@/components/logo-mark";
 
-const APP_URL = "https://daily-os-lac.vercel.app";
+const APP_URL = "https://www.dailyos.uk";
 
 const NAV = [
   { href: "#problem", label: "The problem" },

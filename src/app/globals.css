@@ -35,6 +35,10 @@
     --input: 34 22% 82%;
     --ring: 15 63% 46%;
 
+    /* Keep the original brand gradient unless Dev UI is previewing a palette. */
+    --logo-start: #e0864f;
+    --logo-end: #9a3412;
+
     --radius: 0.875rem;
   }
 
@@ -170,6 +174,8 @@
     --border: var(--dev-neutral-hue) 23% 83%;
     --input: var(--dev-neutral-hue) 23% 79%;
     --ring: var(--dev-primary-hue) var(--dev-primary-saturation) 41%;
+    --logo-start: hsl(var(--primary));
+    --logo-end: hsl(var(--accent-foreground));
   }
 
   :root.dark[data-dev-palette] {

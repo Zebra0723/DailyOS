@@ -8,6 +8,8 @@
 //   RESEND_API_KEY  — from https://resend.com (API Keys)
 //   EMAIL_FROM      — a verified sender, e.g. "DailyOS <hello@yourdomain.com>"
 
+import { SITE_URL } from "@/lib/site";
+
 type SendResult = { ok: boolean; skipped: boolean; error?: string };
 
 export function emailConfigured(): boolean {
@@ -87,9 +89,6 @@ export async function sendEmail({
   }
 }
 
-const SITE =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://daily-os-lac.vercel.app";
-
 function rewardEmail(opts: {
   heading: string;
   intro: string;
@@ -109,7 +108,7 @@ function rewardEmail(opts: {
       Account → Subscription. It's your own one-time code, so keep it to yourself.
       Codes expire two months after they're issued.
     </p>
-    <a href="${SITE}/subscriptions" style="display:inline-block;margin-top:20px;background:#b4633a;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:11px 20px;border-radius:10px">
+    <a href="${SITE_URL}/subscriptions" style="display:inline-block;margin-top:20px;background:#b4633a;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:11px 20px;border-radius:10px">
       Redeem in DailyOS
     </a>
   </div>`;

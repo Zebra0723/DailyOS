@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { PwaRegister } from "@/components/pwa-register";
 import { VersionGuard } from "@/components/version-guard";
+import { SITE_URL } from "@/lib/site";
 
 // Fraunces: a warm "old-style" serif — the editorial voice of the Almanac UI.
 const display = Fraunces({
@@ -21,9 +22,7 @@ export const metadata: Metadata = {
   title: "DailyOS — Your life admin, finally handled.",
   description:
     "Drop in receipts, bookings, school letters, screenshots, PDFs and reminders. DailyOS sorts them into tasks, calendar events and a searchable vault.",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://daily-os-lac.vercel.app",
-  ),
+  metadataBase: new URL(SITE_URL),
   applicationName: "DailyOS",
   manifest: "/manifest.webmanifest",
   // Default home-screen icon (red/white). Admin accounts override this with the

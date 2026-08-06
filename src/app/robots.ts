@@ -1,7 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const BASE =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://daily-os-lac.vercel.app";
+import { SITE_URL } from "@/lib/site";
 
 // Public marketing/legal pages are indexable; the signed-in app is not.
 export default function robots(): MetadataRoute.Robots {
@@ -25,7 +23,7 @@ export default function robots(): MetadataRoute.Robots {
         "/welcome",
       ],
     },
-    sitemap: `${BASE}/sitemap.xml`,
-    host: BASE,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

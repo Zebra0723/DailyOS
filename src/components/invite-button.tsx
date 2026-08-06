@@ -4,6 +4,7 @@ import * as React from "react";
 import { UserPlus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { SITE_URL } from "@/lib/site";
 
 /** Share / copy a personal referral link. It points at a one-of-a-kind referral
  *  page (/r/<your id>) that explains the 10%-off-for-both deal and sends the
@@ -15,12 +16,11 @@ export function InviteButton({ userId }: { userId?: string }) {
   const [copied, setCopied] = React.useState(false);
 
   function referralUrl() {
-    const base =
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      (typeof window !== "undefined" ? window.location.origin : "");
     // No id → fall back to a plain signup link (shouldn't happen for a
     // signed-in user, but keeps the button safe).
-    return userId ? `${base}/r/${encodeURIComponent(userId)}` : `${base}/signup`;
+    return userId
+      ? `${SITE_URL}/r/${encodeURIComponent(userId)}`
+      : `${SITE_URL}/signup`;
   }
 
   async function invite() {

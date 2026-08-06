@@ -1,6 +1,7 @@
 import "server-only";
 import webpush from "web-push";
 import { createServiceClient } from "@/lib/supabase/server";
+import { SITE_URL } from "@/lib/site";
 
 // Server-side Web Push sending. Configured from environment:
 //   NEXT_PUBLIC_VAPID_PUBLIC_KEY   the VAPID public key (also used client-side)
@@ -32,8 +33,7 @@ function ensureConfigured(): boolean {
   // mailto: or an https: URL — we default to the site URL (no email needed).
   const subject =
     process.env.VAPID_SUBJECT ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://daily-os-lac.vercel.app";
+    SITE_URL;
   try {
     webpush.setVapidDetails(subject, publicKey, privateKey);
     configured = true;

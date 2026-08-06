@@ -42,7 +42,7 @@ jobs:
     steps:
       - name: Ping the send endpoint once a minute for ~6 minutes
         env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://daily-os-lac.vercel.app' }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://www.dailyos.uk' }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           # 6 pings on a 5-minute schedule = ~1 minute of overlap, so even when

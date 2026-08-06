@@ -2,7 +2,7 @@
 
 **Your life admin, finally handled.**
 
-**Live app:** https://daily-os-lac.vercel.app
+**Live app:** https://www.dailyos.uk
 
 DailyOS is a personal "chief of staff" for life admin. Drop in receipts,
 bookings, school letters, screenshots, PDFs and reminders — and DailyOS reads
@@ -147,9 +147,10 @@ item is saved safely with a **"Needs review"** state instead of being lost.
 
 1. Push this repo to GitHub.
 2. Import it at [vercel.com/new](https://vercel.com/new).
-3. Add the same environment variables from `.env.local` in
-   **Project → Settings → Environment Variables** (set `NEXT_PUBLIC_SITE_URL`
-   to your production URL).
+3. Add the same server-side environment variables from `.env.local` in
+   **Project → Settings → Environment Variables**. The production site URL is
+   fixed to `https://www.dailyos.uk`; `NEXT_PUBLIC_SITE_URL` is only a local-dev
+   override.
 4. In Supabase **Authentication → URL Configuration**, add your Vercel URL to
    the allowed redirect URLs.
 5. Deploy.

@@ -3,7 +3,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 
 // The live DailyOS app the whole operation revolves around.
 export const MAIN_APP_URL =
-  process.env.MAIN_APP_URL || "https://daily-os-lac.vercel.app";
+  process.env.MAIN_APP_URL || "https://www.dailyos.uk";
 
 type Admin = ReturnType<typeof createServiceClient>;
 

@@ -16,6 +16,7 @@
 // ----------------------------------------------------------------------------
 
 import "server-only";
+import { SITE_URL } from "@/lib/site";
 import {
   parseDuckDuckGo,
   stripTags,
@@ -28,8 +29,7 @@ import {
 export type { WebResult };
 export { formatResults, looksLikeWebLookup };
 
-const UA =
-  "Mozilla/5.0 (compatible; DailyOS/1.0; +https://daily-os-lac.vercel.app)";
+const UA = `Mozilla/5.0 (compatible; DailyOS/1.0; +${SITE_URL})`;
 
 /**
  * Search the web and return up to 5 results. Never throws — returns [] on any

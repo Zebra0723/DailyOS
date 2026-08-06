@@ -10,10 +10,9 @@ The product itself is feature-complete. What's left is commercial plumbing.
 
 ## 1. Domain & email
 
-- **[you] Buy the domain** (e.g. `dailyos.app`). Cloudflare Registrar is cheap
-  and includes free email forwarding.
-- **[you] Point Vercel at it** — add the domain in Vercel → Project → Domains,
-  and set `NEXT_PUBLIC_SITE_URL` to `https://dailyos.app`.
+- ✅ **Domain live:** `dailyos.uk`, with `www.dailyos.uk` as the serving origin.
+- ✅ **Pointed at Vercel.** The canonical production URL is fixed in code as
+  `https://www.dailyos.uk`; `NEXT_PUBLIC_SITE_URL` is only for local development.
 - **[you] Email forwarding** — forward `support@yourdomain (once you set it up)` to your inbox so
   the address on the legal pages is real (receive-only, free).
 - **[you] (optional) A real mailbox** — Zoho (free tier) or Google Workspace

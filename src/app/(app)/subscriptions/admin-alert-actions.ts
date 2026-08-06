@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { makeSuspendToken } from "@/lib/admin-token";
 import { sendAdminCodeAlert } from "@/lib/email";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * Fired when the admin code is entered on an account. Emails the owner
@@ -16,9 +17,7 @@ export async function notifyAdminCodeUsed(): Promise<{ ok: boolean }> {
   } = await supabase.auth.getUser();
   if (!user) return { ok: false };
 
-  const site =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://daily-os-lac.vercel.app";
-  const suspendUrl = `${site}/suspend?token=${makeSuspendToken(user.id)}`;
+  const suspendUrl = `${SITE_URL}/suspend?token=${makeSuspendToken(user.id)}`;
 
   try {
     await sendAdminCodeAlert({

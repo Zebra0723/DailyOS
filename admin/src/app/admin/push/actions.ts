@@ -44,7 +44,7 @@ export async function sendBroadcast(
   if (tiers.length === 0) return { ok: false, error: "Pick at least one audience." };
 
   webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || "https://daily-os-lac.vercel.app",
+    process.env.VAPID_SUBJECT || "https://www.dailyos.uk",
     pub,
     priv,
   );

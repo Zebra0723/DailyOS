@@ -5,8 +5,8 @@
 // the legal pages can reference them. Until then the Contact page shows a
 // tasteful "coming soon" slot instead of a broken mailto link.
 //
-//   SUPPORT_EMAIL    — e.g. "support@dailyos.app"
-//   ENQUIRIES_EMAIL  — e.g. "hello@dailyos.app"
+//   SUPPORT_EMAIL    — e.g. "support@dailyos.uk"
+//   ENQUIRIES_EMAIL  — e.g. "general@dailyos.uk"
 
 export const SUPPORT_EMAIL = "support@dailyos.uk";
 export const ENQUIRIES_EMAIL = "general@dailyos.uk";

@@ -9,14 +9,14 @@ and a low rate limit. To make them come from **DailyOS**, do two things.
 This changes the **From** address. Use Resend (already used for reward emails).
 
 1. In **Resend** → Domains, add and verify your sending domain (e.g.
-   `dailyos.app`) by adding the SPF/DKIM DNS records it gives you.
+   `dailyos.uk`) by adding the SPF/DKIM DNS records it gives you.
 2. In **Supabase** → Project Settings → **Authentication** → **SMTP Settings**,
    turn on **Custom SMTP** and enter:
    - Host: `smtp.resend.com`
    - Port: `465` (SSL) or `587` (STARTTLS)
    - Username: `resend`
    - Password: your **Resend API key** (`re_…`)
-   - Sender email: `DailyOS <hello@dailyos.app>` (a verified address)
+   - Sender email: `DailyOS <general@dailyos.uk>` (a verified address)
 3. Also set **Site URL** (Authentication → URL Configuration) to your live URL
    — this makes the links in the emails point at the real site, not localhost.
 
