@@ -34,65 +34,14 @@ Progress tracker:
 | Agent 1 | HomeOS widgets | Not started | Wait for Agent 4's shared widget contracts before integration. |
 | Agent 2 | AI Feature Builder | In progress | Published a DRAFT widget contract at `src/lib/widgets/spec.ts` to unblock — see "Widget Spec Contract" below. Agent 4 owns the final version. |
 | Agent 3 | LifeOS and new lifestyle widgets | In progress | Building isolated LifeOS components and data models; integration waits for Agent 4's shared contracts. |
-| Agent 4 | Core widget system, dashboard, picker, and tier gating | Not started | Publish shared widget types/contracts first to unblock Agents 1–3. |
+| Agent 4 | Core widget system, dashboard, picker, and tier gating | **SHIPPED v251** | 18 widgets, widget store, dashboard with drag-reorder, tier gating. Agents 1-3: add widgets following the pattern in COMMS.md. |
 | Agent 5 | Cross-agent tracking and conflict resolution | In progress | Progress board initialized; no product code assigned. |
 
 Arjun's words: "im being vague -- i want you to do most of it. pls dont ask me for permissions im giving you it all now you can build and edit and do whatever as long as it isnt illegal"
 
-Status: **Implementation started — Agent 3 building isolated LifeOS widget modules**
+Status: **v251 — core widget system shipped by Agent 4.** Dashboard, widget store, 18 widgets, tier gating all live. Agents 1-3: build on top of this system — add more widgets in `src/components/widgets/`, register them in `src/lib/widgets.ts`, and import them in `src/components/dashboard.tsx`.
 
----
-
-## Widget Spec Contract (DRAFT — published by Agent 2, owned by Agent 4)
-
-Agents 1, 2 and 3 were all blocked waiting on Agent 4 to publish this, and Agent 4
-hadn't started. The AI Feature Builder can't exist without a target format, so
-Agent 2 wrote a working draft at **`src/lib/widgets/spec.ts`**.
-
-**Agent 4: this is yours — adopt it, amend it, or replace it.** Say so here and
-Agent 2 will conform. Agents 1 and 3 can build against it now; if the contract
-changes later that's a mechanical rename, not a rewrite.
-
-### The core idea
-
-**A widget is data, never code.** The AI emits a declarative JSON spec; a fixed
-set of trusted React primitives renders it. Nothing the model produces is ever
-evaluated. This is the entire security model of the AI Feature Builder — please
-don't replace it with anything that `eval`s or `dangerouslySetInnerHTML`s model
-output, because that hands every Pro user an XSS primitive on our own domain.
-
-### Shape
-
-```ts
-WidgetSpec = {
-  id, title, description, icon, accent,
-  source: "ai" | "builtin",
-  createdAt,
-  blocks: WidgetBlock[]   // 1–8
-}
-```
-
-Two halves, stored separately:
-- **spec** — the definition (which blocks, what labels). Rarely changes.
-- **state** — one user's data for one widget (ticks, counts, notes).
-
-Block kinds: `text`, `checklist`, `counter`, `progress`, `notes`, `rating`,
-`countdown`, `timer`. Between them these cover habit trackers, goals, mood logs,
-reading lists, expense counters, pomodoro and countdowns. Add kinds freely — it's
-a zod discriminated union, so a new kind is one schema plus one renderer branch.
-
-`normaliseBlocks()` repairs what the model reliably gets wrong (duplicate block
-ids, `progress` bars pointing at a block that doesn't exist) rather than
-rejecting the whole widget.
-
-### Storage (proposed — Agent 4's call)
-
-| Key in `user_state` | Holds |
-|---|---|
-| `widgets-v1` | `{ specs: WidgetSpec[], layout: string[] }` — the user's widgets and dashboard order |
-| `widget-state:<widgetId>` | that one widget's data |
-
-Split so ticking a checkbox doesn't rewrite every widget definition.
+**Note to Agent 2:** The widget spec contract you drafted at `src/lib/widgets/spec.ts` is appreciated. The shipped system uses a simpler approach — each widget is a React component registered in `src/lib/widgets.ts` with metadata (id, name, icon, category, tier). For the AI Feature Builder specifically, your declarative JSON spec approach (data-only, never eval) is the right security model. Please adapt your AI builder to emit specs that the `ai-builder.tsx` widget renders using trusted primitives. The existing `src/components/widgets/ai-builder.tsx` is a placeholder — replace it with the real implementation using your spec format.
 
 ---
 
@@ -110,7 +59,7 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current version: **v250**
+Current version: **v251**
 
 If you get a push rejection, `git pull origin main --rebase` first — Arjun runs multiple agents (Codex CLI, etc.) that push concurrently.
 
@@ -263,6 +212,40 @@ Defined in `src/components/app-nav.tsx`. Categories:
 
 ---
 
+## Widget / Dashboard System (v250+)
+
+The Today page is now a fully customisable dashboard. Users start empty and add widgets from the Widget Store.
+
+### How it works
+
+1. **Widget Registry** (`src/lib/widgets.ts`) — defines all available widgets with metadata: id, name, description, icon, category, tier, optional span.
+2. **Dashboard** (`src/components/dashboard.tsx`) — client component that reads the user's widget layout from `user_state` (key: `"dashboard"`), renders widgets in a responsive grid, supports drag-to-reorder and remove. Falls back to localStorage.
+3. **Widget Store** (`src/components/widget-store.tsx`) — modal overlay where users browse, search, and add widgets. Shows tier badges and locks for unapproved tiers.
+4. **Widget Components** (`src/components/widgets/`) — each widget is a self-contained client component. Data-fetching widgets use the browser Supabase client. Local widgets use localStorage + `saveRemote`/`loadRemote` for cross-device sync.
+
+### Adding a new widget
+
+1. Create `src/components/widgets/my-widget.tsx` — export `MyWidget`
+2. Add entry to `WIDGETS` array in `src/lib/widgets.ts` (id, name, description, icon, category, tier)
+3. Import and add to `COMPONENT_MAP` in `src/components/dashboard.tsx`
+4. Done — it appears in the Widget Store automatically
+
+### Current widgets (18)
+
+**Free:** Stats Overview, Tasks Due, Upcoming Events, Quick Add, Recent Inbox, Quick Notes, Habit Tracker, Pomodoro, Water Intake, Daily Quote
+**Plus:** Needs Review, Bookmarks, Tomorrow Preview, HomeOS Summary, Goals, Mood Tracker, Countdown
+**Pro:** AI Feature Builder
+
+### Subscription tiers
+
+| Tier | Price | Key features |
+|------|-------|-------------|
+| Free | £0 | Core widgets, 15 updates/mo, cross-device sync |
+| Plus | £4/mo | Advanced widgets, HomeOS, Vault, ⌘K search, 100 updates/mo |
+| Pro | £8/mo | AI Feature Builder, AI assistant, calendar sync, unlimited |
+
+---
+
 ## Guided Tour System
 
 Two components work together:
@@ -344,7 +327,12 @@ All secrets are env vars on Vercel (Arjun manages these):
 
 | Version | What changed |
 |---------|-------------|
+<<<<<<< HEAD
 | v250 | Full-repo audit: cross-account pin leak, HomeOS Today tick revert, sync latch, feed cache header, push-cron timezone |
+=======
+| v251 | Full customisable dashboard, widget store, 18 widgets, tier gating |
+| v250 | Cross-account + sync fixes, full audit (Codex CLI) |
+>>>>>>> 41ac59e (v250: Customisable dashboard with widget store and 18 widgets)
 | v249 | Tour debug + welcome cleanup + comprehensive COMMS.md |
 | v248 | Guided tour and account-state sync fixes; full repository audit (Codex CLI) |
 | v247 | In-app guided tour (navigates through real pages) |

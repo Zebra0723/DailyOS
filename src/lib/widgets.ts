@@ -1,0 +1,194 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  CheckSquare,
+  CalendarDays,
+  Inbox,
+  AlertTriangle,
+  BarChart3,
+  Plus,
+  Bookmark,
+  Target,
+  Timer,
+  StickyNote,
+  Droplets,
+  Smile,
+  Quote,
+  CalendarClock,
+  Sparkles,
+  Home,
+  Flame,
+  Hourglass,
+} from "lucide-react";
+
+export type WidgetCategory = "lifeos" | "homeos" | "productivity" | "wellness" | "ai";
+export type PlanTier = "free" | "plus" | "pro";
+
+export interface WidgetDef {
+  id: string;
+  name: string;
+  description: string;
+  icon: LucideIcon;
+  category: WidgetCategory;
+  tier: PlanTier;
+  span?: "full";
+}
+
+export const WIDGET_CATEGORIES: { key: WidgetCategory; label: string }[] = [
+  { key: "lifeos", label: "LifeOS" },
+  { key: "homeos", label: "HomeOS" },
+  { key: "productivity", label: "Productivity" },
+  { key: "wellness", label: "Wellness" },
+  { key: "ai", label: "AI" },
+];
+
+export const WIDGETS: WidgetDef[] = [
+  {
+    id: "stats-overview",
+    name: "Stats Overview",
+    description: "Quick counts of tasks due, events, and items to review.",
+    icon: BarChart3,
+    category: "lifeos",
+    tier: "free",
+    span: "full",
+  },
+  {
+    id: "tasks-due",
+    name: "Tasks Due Today",
+    description: "Tasks due today with quick completion.",
+    icon: CheckSquare,
+    category: "lifeos",
+    tier: "free",
+  },
+  {
+    id: "upcoming-events",
+    name: "Upcoming Events",
+    description: "Your next calendar events at a glance.",
+    icon: CalendarDays,
+    category: "lifeos",
+    tier: "free",
+  },
+  {
+    id: "quick-add",
+    name: "Quick Add",
+    description: "Add a task or drop an item without leaving the page.",
+    icon: Plus,
+    category: "lifeos",
+    tier: "free",
+  },
+  {
+    id: "recent-inbox",
+    name: "Recent Inbox",
+    description: "Your latest items from the Drop.",
+    icon: Inbox,
+    category: "lifeos",
+    tier: "free",
+  },
+  {
+    id: "quick-notes",
+    name: "Quick Notes",
+    description: "A scratchpad right on your dashboard.",
+    icon: StickyNote,
+    category: "lifeos",
+    tier: "free",
+  },
+  {
+    id: "needs-review",
+    name: "Needs Review",
+    description: "Items DailyOS extracted that need your approval.",
+    icon: AlertTriangle,
+    category: "lifeos",
+    tier: "plus",
+  },
+  {
+    id: "bookmarks",
+    name: "Bookmarks",
+    description: "Inbox items you pinned for quick access.",
+    icon: Bookmark,
+    category: "lifeos",
+    tier: "plus",
+  },
+  {
+    id: "tomorrow-preview",
+    name: "Tomorrow Preview",
+    description: "A heads-up on what's due tomorrow.",
+    icon: CalendarClock,
+    category: "lifeos",
+    tier: "plus",
+  },
+  {
+    id: "homeos-summary",
+    name: "HomeOS Summary",
+    description: "Quick snapshot of your household — deliveries, alerts, devices.",
+    icon: Home,
+    category: "homeos",
+    tier: "plus",
+  },
+  {
+    id: "habit-tracker",
+    name: "Habit Tracker",
+    description: "Track daily habits and build streaks.",
+    icon: Flame,
+    category: "wellness",
+    tier: "free",
+  },
+  {
+    id: "pomodoro",
+    name: "Pomodoro Timer",
+    description: "Focus timer with 25-min work and 5-min break cycles.",
+    icon: Timer,
+    category: "productivity",
+    tier: "free",
+  },
+  {
+    id: "goals",
+    name: "Goals",
+    description: "Set goals, track progress, stay accountable.",
+    icon: Target,
+    category: "productivity",
+    tier: "plus",
+  },
+  {
+    id: "water-intake",
+    name: "Water Intake",
+    description: "Track your daily water intake with a simple counter.",
+    icon: Droplets,
+    category: "wellness",
+    tier: "free",
+  },
+  {
+    id: "mood-tracker",
+    name: "Mood Tracker",
+    description: "Log how you're feeling each day and spot patterns.",
+    icon: Smile,
+    category: "wellness",
+    tier: "plus",
+  },
+  {
+    id: "daily-quote",
+    name: "Daily Quote",
+    description: "A new inspirational quote every day.",
+    icon: Quote,
+    category: "wellness",
+    tier: "free",
+  },
+  {
+    id: "countdown",
+    name: "Countdown",
+    description: "Count down to important dates — holidays, deadlines, birthdays.",
+    icon: Hourglass,
+    category: "productivity",
+    tier: "plus",
+  },
+  {
+    id: "ai-builder",
+    name: "AI Feature Builder",
+    description: "Describe a feature in plain English and DailyOS builds it for you.",
+    icon: Sparkles,
+    category: "ai",
+    tier: "pro",
+  },
+];
+
+export function getWidget(id: string): WidgetDef | undefined {
+  return WIDGETS.find((w) => w.id === id);
+}
