@@ -15,7 +15,7 @@
 // serves the last page you visited together with the chunks it was built with.
 
 const VERSION = "v5";
-const DEPLOY = "255";
+const DEPLOY = "256";
 const STATIC_CACHE = `dailyos-static-${VERSION}`;
 const PAGES_CACHE = `dailyos-pages-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
