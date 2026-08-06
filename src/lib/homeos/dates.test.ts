@@ -58,8 +58,23 @@ describe("homeos/dates", () => {
   });
 
   it("addDays advances the date", () => {
-    expect(addDays("2026-01-01T00:00:00", 10)?.slice(0, 10)).toBe("2026-01-11");
+    expect(addDays("2026-01-01T00:00:00", 10)).toBe("2026-01-11");
     expect(addDays(null, 5)).toBeNull();
+  });
+
+  it("addDays lands on the intended calendar day in any timezone", () => {
+    // Regression: the old implementation returned toISOString(), which pushes a
+    // local day back into the previous UTC day for every UTC+ offset. The iCal
+    // feed slices the day straight off the string, so a maintenance date set in
+    // London (BST) or Auckland showed up a day early in subscribed calendars.
+    expect(addDays("2026-08-05", 30)).toBe("2026-09-04");
+    expect(addDays("2026-08-05", 1)).toBe("2026-08-06");
+    // Month, year and leap-day rollovers.
+    expect(addDays("2026-01-31", 1)).toBe("2026-02-01");
+    expect(addDays("2026-12-31", 1)).toBe("2027-01-01");
+    expect(addDays("2028-02-28", 1)).toBe("2028-02-29");
+    // A result that round-trips: parsing it back gives the same day.
+    expect(daysUntil(addDays(fromNow(0), 10))).toBe(10);
   });
 
   it("fromNow round-trips through daysUntil", () => {

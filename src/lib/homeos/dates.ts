@@ -64,12 +64,22 @@ export function relativeLabel(value?: string | null): string {
   return `${Math.abs(n)} days ago`;
 }
 
-/** Add days to an ISO date and return a new ISO date string. */
+/**
+ * Add days to a date and return the resulting calendar day as "YYYY-MM-DD".
+ *
+ * Returns a bare date, NOT an ISO instant. `toISOString()` would re-express the
+ * local day in UTC, which lands on the previous day for every UTC+ timezone —
+ * so a maintenance date computed in London (BST) or Auckland showed up a day
+ * early everywhere it was read as UTC, including the iCal feed, which slices the
+ * day straight off the string. A bare date has no such ambiguity:
+ * `safeParseDate` pins it back to local midnight, and the feed emits it as-is.
+ */
 export function addDays(value: string | null | undefined, days: number): string | null {
   const d = safeParseDate(value);
   if (!d) return null;
   d.setDate(d.getDate() + days);
-  return d.toISOString();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 /** ISO string for `days` from now (used by demo data so it stays current). */
