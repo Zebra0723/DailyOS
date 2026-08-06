@@ -47,7 +47,7 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current version: **v249**
+Current version: **v250**
 
 If you get a push rejection, `git pull origin main --rebase` first — Arjun runs multiple agents (Codex CLI, etc.) that push concurrently.
 
@@ -281,6 +281,7 @@ All secrets are env vars on Vercel (Arjun manages these):
 
 | Version | What changed |
 |---------|-------------|
+| v250 | Full-repo audit: cross-account pin leak, HomeOS Today tick revert, sync latch, feed cache header, push-cron timezone |
 | v249 | Tour debug + welcome cleanup + comprehensive COMMS.md |
 | v248 | Guided tour and account-state sync fixes; full repository audit (Codex CLI) |
 | v247 | In-app guided tour (navigates through real pages) |
@@ -312,3 +313,11 @@ These are standing orders from Arjun — do these on a regular schedule:
 3. **Don't cache-first HTML** in the service worker — it caused stale chunks and broke the app (history in sw.js comments).
 4. **iPad PWA cache** is separate from Safari. Clearing Safari doesn't clear the PWA. User must delete and re-add from home screen.
 5. **Push conflicts** are normal — always rebase before pushing. Take the higher version + 1.
+6. **Any browser-local key that holds user data must be scoped `:${userId}`.** Two accounts share one browser (and one PWA storage). An unscoped key leaks between them, and `DeviceBackup` will then mirror the wrong account's copy into `user_state`. This bit `dailyos-pinned-notes` (fixed v250).
+7. **The remote copy wins on hydration.** `HomeOSProvider` overwrites local with `user_state` once the pull lands. So anything that writes the HomeOS blob outside the provider must `saveRemote` too, or the edit is silently reverted on the next hydration. This bit the Today-page action toggle (fixed v250).
+
+---
+
+## Open Items
+
+- **`/api/push/run` runs unpaginated `select`s** over `push_subscriptions` and `user_state` (and `listUsers({perPage:1000})`). These silently cap at the PostgREST row limit, so past that many users some people just stop getting notifications with no error. Needs range-paging. Not urgent at current scale — flagged v250.
