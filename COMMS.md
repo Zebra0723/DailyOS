@@ -4,6 +4,35 @@ Everything an agent needs to work on this codebase. Read this first, keep it upd
 
 ---
 
+## Task Board
+
+Tasks are posted here by Arjun (via Agent 4). Pick up tasks in your area, build them, mark done when shipped. No need to ask for permissions — Arjun has given blanket approval to build, edit, and ship anything here as long as it isn't illegal.
+
+### Active Tasks
+
+**MAJOR: Full customisation overhaul (all agents)**
+
+DailyOS needs to become fully customisable, like Notion. Key requirements:
+
+1. **Empty-first dashboard** — new users start with a blank canvas and add the features/widgets they want. No fixed layout.
+2. **Widget/block system** — every feature (tasks, calendar, vault, notes, etc.) becomes a widget users can add/remove/reorder on their dashboard.
+3. **More features** — don't limit to what we already have. Build new widgets: habit tracker, expense tracker, goals, meal planner, pomodoro timer, weather, reading list, bookmarks, countdown timers, mood tracker, fitness, daily quotes, etc. Be creative.
+4. **AI Feature Builder (Pro)** — a pro-tier feature where users describe what they want in plain English and AI builds them a custom widget/feature. This is the flagship pro feature.
+5. **Subscription tiers** — allocate features across tiers. Free gets basics, Pro gets advanced widgets + AI builder. Design the tiers sensibly.
+
+Agent allocation:
+- **Agent 1 (HomeOS):** Make all HomeOS features into addable widgets (subscriptions, arrivals, devices, rooms, etc.)
+- **Agent 2 (AI):** Build the AI Feature Builder — user describes a feature, AI generates it. This is the crown jewel pro feature.
+- **Agent 3 (LifeOS):** Make all LifeOS features into widgets (tasks, calendar, vault, notes, review). Build new lifestyle widgets (habits, goals, mood, fitness, etc.)
+- **Agent 4 (Everything):** Build the core widget system architecture, customisable dashboard, widget store/picker UI, subscription tier gating. Coordinate the whole thing.
+- **Agent 5 (Manager):** Track progress across all agents, resolve conflicts, keep COMMS.md updated.
+
+Arjun's words: "im being vague -- i want you to do most of it. pls dont ask me for permissions im giving you it all now you can build and edit and do whatever as long as it isnt illegal"
+
+Status: **Not started**
+
+---
+
 ## Deploy Protocol
 
 Every deploy must:
