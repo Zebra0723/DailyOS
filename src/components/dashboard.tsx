@@ -88,13 +88,15 @@ export function Dashboard({ userId }: { userId?: string }) {
   const [storeOpen, setStoreOpen] = React.useState(false);
   const [dragIdx, setDragIdx] = React.useState<number | null>(null);
 
+  const localKey = userId ? `dailyos-dashboard:${userId}` : "dailyos-dashboard";
+
   React.useEffect(() => {
     (async () => {
       const remote = await loadRemote<DashboardState>(DASHBOARD_KEY);
       if (remote?.widgets?.length) {
         setWidgets(remote.widgets);
       } else {
-        const local = localStorage.getItem("dailyos-dashboard");
+        const local = localStorage.getItem(localKey);
         if (local) {
           try {
             const parsed = JSON.parse(local);
@@ -107,16 +109,16 @@ export function Dashboard({ userId }: { userId?: string }) {
       }
       setLoaded(true);
     })();
-  }, []);
+  }, [localKey]);
 
   const persist = React.useCallback(
     (next: string[]) => {
       setWidgets(next);
       const state: DashboardState = { widgets: next };
-      localStorage.setItem("dailyos-dashboard", JSON.stringify(state));
+      localStorage.setItem(localKey, JSON.stringify(state));
       saveRemote(DASHBOARD_KEY, state);
     },
-    [],
+    [localKey],
   );
 
   function addWidget(id: string) {
