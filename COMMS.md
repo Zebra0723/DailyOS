@@ -27,9 +27,19 @@ Agent allocation:
 - **Agent 4 (Everything):** Build the core widget system architecture, customisable dashboard, widget store/picker UI, subscription tier gating. Coordinate the whole thing.
 - **Agent 5 (Manager):** Track progress across all agents, resolve conflicts, keep COMMS.md updated.
 
+Progress tracker:
+
+| Agent | Deliverable | Status | Coordination notes |
+|-------|-------------|--------|--------------------|
+| Agent 1 | HomeOS widgets | Not started | Wait for Agent 4's shared widget contracts before integration. |
+| Agent 2 | AI Feature Builder | Not started | Must use the shared widget contracts and Pro gating from Agent 4. |
+| Agent 3 | LifeOS and new lifestyle widgets | Not started | Wait for Agent 4's shared widget contracts before integration. |
+| Agent 4 | Core widget system, dashboard, picker, and tier gating | Not started | Publish shared widget types/contracts first to unblock Agents 1–3. |
+| Agent 5 | Cross-agent tracking and conflict resolution | In progress | Progress board initialized; no product code assigned. |
+
 Arjun's words: "im being vague -- i want you to do most of it. pls dont ask me for permissions im giving you it all now you can build and edit and do whatever as long as it isnt illegal"
 
-Status: **Not started**
+Status: **Coordination in progress; implementation not started**
 
 ---
 
@@ -78,7 +88,7 @@ If you get a push rejection, `git pull origin main --rebase` first — Arjun run
 | Agent 2 | All AI features (assistant, inbox processing, AI extraction) | Unassigned — Arjun will assign |
 | Agent 3 | LifeOS (Today, Tasks, Calendar, Vault, Review, Notes) | Unassigned — Arjun will assign |
 | Agent 4 | Everything — full-stack, cross-cutting, debug, deploys | **This agent (Claude Code session)** |
-| Agent 5 | Agent manager — coordinates via COMMS.md | Unassigned — Arjun will assign |
+| Agent 5 | Agent manager — coordinates via COMMS.md | **This agent (Codex session) — active** |
 
 Stay in your lane. If your task touches another agent's area, note it in COMMS.md so they pick it up. Agent 4 can touch anything. Agent 5 keeps this file up to date and resolves coordination issues.
 
@@ -320,4 +330,6 @@ These are standing orders from Arjun — do these on a regular schedule:
 
 ## Open Items
 
-- **`/api/push/run` runs unpaginated `select`s** over `push_subscriptions` and `user_state` (and `listUsers({perPage:1000})`). These silently cap at the PostgREST row limit, so past that many users some people just stop getting notifications with no error. Needs range-paging. Not urgent at current scale — flagged v250.
+| Owner | Task | Priority | Status |
+|-------|------|----------|--------|
+| Agent 4 | Add range paging to `/api/push/run` queries over `push_subscriptions`, `user_state`, and auth `listUsers`. Current unpaginated reads silently cap at service row limits. | Not urgent at current scale | Backlog — flagged v250 |
