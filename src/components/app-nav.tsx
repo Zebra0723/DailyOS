@@ -446,7 +446,7 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
                   Help us improve
                 </p>
                 <Link
-                  href="/welcome?replay=1"
+                  href="/today?tour=1"
                   onClick={() => setMenuOpen(false)}
                   className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground"
                 >

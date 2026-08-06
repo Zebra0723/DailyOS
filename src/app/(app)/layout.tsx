@@ -28,6 +28,7 @@ import { AnnouncementBanner } from "@/components/announcement-banner";
 import { BirthdayBanner } from "@/components/birthday-banner";
 import { SurveyProvider } from "@/components/survey/survey-provider";
 import { BugReportProvider } from "@/components/bug/bug-report-provider";
+import { GuidedTour } from "@/components/guided-tour";
 
 export default async function AppLayout({
   children,
@@ -96,6 +97,7 @@ export default async function AppLayout({
           <LocalReminders />
           <TimezoneSync />
           <DeviceBackup />
+          <GuidedTour />
         </div>
         </BugReportProvider>
       </SurveyProvider>

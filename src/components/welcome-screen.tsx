@@ -96,12 +96,12 @@ export function WelcomeScreen({ name }: { name: string }) {
   const [step, setStep] = React.useState(0);
   const [leaving, setLeaving] = React.useState(false);
 
-  async function done() {
+  async function done(startTour = false) {
     setLeaving(true);
     try {
       await markOnboarded();
     } catch {}
-    router.push("/today");
+    router.push(startTour ? "/today?tour=1" : "/today");
     router.refresh();
   }
 
@@ -116,7 +116,7 @@ export function WelcomeScreen({ name }: { name: string }) {
         <div className="mb-6 flex items-center justify-between">
           <Logo />
           <button
-            onClick={done}
+            onClick={() => done(false)}
             disabled={leaving}
             className="text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-60"
           >
@@ -154,12 +154,20 @@ export function WelcomeScreen({ name }: { name: string }) {
             <ArrowLeft className="size-4" /> Back
           </Button>
 
-          {step < LAST ? (
+          {isIntro ? (
+            <Button onClick={() => done(true)} disabled={leaving}>
+              {leaving ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <>Take the tour <ArrowRight className="size-4" /></>
+              )}
+            </Button>
+          ) : step < LAST ? (
             <Button onClick={() => setStep((s) => s + 1)} disabled={leaving}>
-              {isIntro ? "Take the tour" : "Next"} <ArrowRight className="size-4" />
+              Next <ArrowRight className="size-4" />
             </Button>
           ) : (
-            <Button onClick={done} disabled={leaving}>
+            <Button onClick={() => done(false)} disabled={leaving}>
               {leaving ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (

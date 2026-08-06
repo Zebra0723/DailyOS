@@ -144,7 +144,7 @@ export default async function SettingsPage() {
         </Card>
 
         {/* Replay the guided welcome tour — optional, on demand, never forced */}
-        <Link href="/welcome?replay=1" className="block">
+        <Link href="/today?tour=1" className="block">
           <Card className="transition-colors hover:bg-accent/40">
             <CardContent className="flex items-center gap-4 p-4">
               <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
