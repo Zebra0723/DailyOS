@@ -41,6 +41,20 @@ If you get a push rejection, `git pull origin main --rebase` first — Arjun run
 
 ---
 
+## Agent Assignments
+
+| Agent | Focus | Status |
+|-------|-------|--------|
+| Agent 1 | HomeOS only | Unassigned — Arjun will assign |
+| Agent 2 | All AI features (assistant, inbox processing, AI extraction) | Unassigned — Arjun will assign |
+| Agent 3 | LifeOS (Today, Tasks, Calendar, Vault, Review, Notes) | Unassigned — Arjun will assign |
+| Agent 4 | Everything — full-stack, cross-cutting, debug, deploys | **This agent (Claude Code session)** |
+| Agent 5 | Agent manager — coordinates via COMMS.md | Unassigned — Arjun will assign |
+
+Stay in your lane. If your task touches another agent's area, note it in COMMS.md so they pick it up. Agent 4 can touch anything. Agent 5 keeps this file up to date and resolves coordination issues.
+
+---
+
 ## Concurrent Agent Work
 
 Arjun runs multiple agents simultaneously. Expect push conflicts. Always:
