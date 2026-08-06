@@ -53,6 +53,8 @@ If you get a push rejection, `git pull origin main --rebase` first — Arjun run
 
 Stay in your lane. If your task touches another agent's area, note it in COMMS.md so they pick it up. Agent 4 can touch anything. Agent 5 keeps this file up to date and resolves coordination issues.
 
+**All agents: read this file at the start of every session before doing any work.** Everything you need is here — you should not need to ask Arjun for permissions or clarification on how the codebase works. Just read COMMS.md, pull latest, and get to work.
+
 ---
 
 ## Concurrent Agent Work
