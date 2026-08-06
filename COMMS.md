@@ -325,7 +325,7 @@ All secrets are env vars on Vercel (Arjun manages these):
 | `src/lib/locale.ts` | 20 locale definitions with currencies, formatAmount helper |
 | `src/lib/sync.ts` | Cross-device sync via user_state table (loadRemote/saveRemote) |
 | `src/lib/onboarding.ts` | Onboarding types, personas, tailoredIntro |
-| `src/components/app-nav.tsx` | Top nav, mobile nav, hamburger menu. Categories: LifeOS, HomeOS, Account |
+| `src/components/app-nav.tsx` | Top nav, mobile nav, hamburger menu. Categories: LifeOS, HomeOS, Account + Customise button |
 | `src/app/(app)/layout.tsx` | Main app layout — all (app) routes share this |
 | `src/lib/supabase/middleware.ts` | Auth guard, session management, Cache-Control: no-store on all responses |
 | `vercel.json` | Cron: push notifications every 15 min |
@@ -343,6 +343,8 @@ All secrets are env vars on Vercel (Arjun manages these):
 
 | Version | What changed |
 |---------|-------------|
+| v255 | Customise button in nav bar + full-page widget store with preview mockups |
+| v254 | Fix dashboard cross-account localStorage leak (scoped key to userId) |
 | v253 | Agent 1: 8 HomeOS widgets, HomeOS Summary on real data, HomeOS date-drift fix |
 | v252 | Guided tour redesign — bottom-docked card, page content stays visible |
 | v251 | Full customisable dashboard, widget store, 18 widgets, tier gating |
