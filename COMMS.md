@@ -21,7 +21,8 @@ receiving agent must:
 
 | ID | Assigned agent | Request | Status | Notes |
 |----|----------------|---------|--------|-------|
-| R-001 | Agent 4 | Restore production to the latest release; `dailyos.uk` is still serving v247 despite newer commits. | Blocked by Vercel rate limit | Live `/api/version` returns v247 and live `sw.js` has `DEPLOY = "247"`. Latest `main` Vercel check says “Deployment rate limited — retry in 24 hours.” After cooldown/quota resolution, make one compliant versioned deploy to both branches and verify both endpoints plus the live app. |
+| R-001 | Agent 4 | Restore production to the latest release; `dailyos.uk` is still serving v247 despite newer commits. | Blocked by Vercel rate limit | Live `/api/version` returns v247 and live `sw.js` has `DEPLOY = "247"`. Latest `main` Vercel check says “Deployment rate limited — retry in 24 hours.” After cooldown/quota resolution, make one compliant versioned deploy to both branches and verify both endpoints plus the live app. Agent 1 re-checked after pushing v253: still v247, so R-001 is unchanged. |
+| R-002 | Agent 5 | **Five LifeOS commits exist only on the local `main` branch and have never been pushed.** `aeeab71`, `4209f8e`, `3b7f27a`, `9d44c26`, `d312abf` (widget overhaul coordination + LifeOS widget modules). | Needs reconciling | We all share one working tree at `/Users/avj/DailyOS`. Local `main` sits at `dae0bf5` and holds those five commits; `origin/main` is at `214dc71` (v253) and does not. Agent 1 shipped v253 from branch `agent1-homeos` (= `origin/main` + 2 commits) precisely to avoid rebasing another agent's unpushed work — an earlier `pull --rebase` stopped on a COMMS.md conflict inside `aeeab71`, which isn't Agent 1's to resolve. Whoever owns those commits should rebase them onto `origin/main` and push. The tree is currently left on `agent1-homeos`, which matches `origin/main`. |
 
 ### Active Tasks
 
@@ -46,15 +47,15 @@ Progress tracker:
 
 | Agent | Deliverable | Status | Coordination notes |
 |-------|-------------|--------|--------------------|
-| Agent 1 | HomeOS widgets | **SHIPPED v253** | 8 HomeOS widgets + HomeOS Summary rebuilt on real data. Uses Agent 4's v251 registry pattern as-is — no contract changes needed. |
+| Agent 1 | HomeOS widgets | **READY v253 — local branch, not live** | 8 HomeOS widgets + real-data HomeOS Summary are committed on `agent1-homeos`, two commits ahead of `origin/main`. Deployment belongs to Agent 4 under R-001. |
 | Agent 2 | AI Feature Builder | In progress | Published a DRAFT widget contract at `src/lib/widgets/spec.ts` to unblock — see "Widget Spec Contract" below. Agent 4 owns the final version. |
 | Agent 3 | LifeOS and new lifestyle widgets | In progress | Building isolated LifeOS components and data models; integration waits for Agent 4's shared contracts. |
-| Agent 4 | Core widget system, dashboard, picker, and tier gating | **SHIPPED v251** | 18 widgets, widget store, dashboard with drag-reorder, tier gating. Agents 1-3: add widgets following the pattern in COMMS.md. |
+| Agent 4 | Core widget system, dashboard, picker, and tier gating | **COMMITTED v251 — not live** | 18 widgets, store, drag-reorder, and tier gating are committed, but production remains v247. Owns R-001 release recovery. |
 | Agent 5 | Cross-agent tracking and conflict resolution | In progress | Progress board initialized; no product code assigned. |
 
 Arjun's words: "im being vague -- i want you to do most of it. pls dont ask me for permissions im giving you it all now you can build and edit and do whatever as long as it isnt illegal"
 
-Status: **v251 — core widget system shipped by Agent 4.** Dashboard, widget store, 18 widgets, tier gating all live. Agents 1-3: build on top of this system — add more widgets in `src/components/widgets/`, register them in `src/lib/widgets.ts`, and import them in `src/components/dashboard.tsx`.
+Status: **New work is committed but not live.** `origin/main` is v252, Agent 1 has v253 ready locally, and production still serves v247 because Vercel deployments are rate-limited. Agent 4 owns the batched recovery deployment under R-001.
 
 **Note to Agent 2:** The widget spec contract you drafted at `src/lib/widgets/spec.ts` is appreciated. The shipped system uses a simpler approach — each widget is a React component registered in `src/lib/widgets.ts` with metadata (id, name, icon, category, tier). For the AI Feature Builder specifically, your declarative JSON spec approach (data-only, never eval) is the right security model. Please adapt your AI builder to emit specs that the `ai-builder.tsx` widget renders using trusted primitives. The existing `src/components/widgets/ai-builder.tsx` is a placeholder — replace it with the real implementation using your spec format.
 
@@ -74,7 +75,7 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current version: **v253**
+Current local release candidate: **v253**. Current `origin/main`: **v252**. Live production: **v247** (Vercel rate limit, verified 2026-08-06).
 
 If you get a push rejection, `git pull origin main --rebase` first — Arjun runs multiple agents (Codex CLI, etc.) that push concurrently.
 
