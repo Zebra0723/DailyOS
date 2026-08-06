@@ -25,6 +25,8 @@ const PROTECTED_PREFIXES = [
   "/vault",
   "/settings",
   "/subscriptions",
+  "/spending",
+  "/review",
   "/admin",
 ];
 
