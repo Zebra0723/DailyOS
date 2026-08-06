@@ -17,7 +17,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LogoMark } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 type Step = {
@@ -82,13 +81,13 @@ const STEPS: Step[] = [
 
 const TOUR_KEY = "dailyos-tour-active";
 
-export function GuidedTour() {
+function GuidedTourInner() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tourRequested = searchParams.get("tour") === "1";
   const [step, setStep] = React.useState(-1);
-  const [animating, setAnimating] = React.useState(false);
+  const [navigatingTo, setNavigatingTo] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (tourRequested) {
@@ -104,13 +103,19 @@ export function GuidedTour() {
     }
   }, [pathname, tourRequested]);
 
-  function navigate(idx: number) {
-    setAnimating(true);
-    setStep(idx);
-    if (STEPS[idx].page !== pathname) {
-      router.push(STEPS[idx].page);
+  React.useEffect(() => {
+    if (navigatingTo && pathname === navigatingTo) {
+      setNavigatingTo(null);
     }
-    setTimeout(() => setAnimating(false), 300);
+  }, [pathname, navigatingTo]);
+
+  function navigate(idx: number) {
+    setStep(idx);
+    const target = STEPS[idx].page;
+    if (target !== pathname) {
+      setNavigatingTo(target);
+      router.push(target);
+    }
   }
 
   function finish() {
@@ -124,23 +129,16 @@ export function GuidedTour() {
   const Icon = current.icon;
   const isFirst = step === 0;
   const isLast = step === STEPS.length - 1;
+  const onCorrectPage = pathname === current.page && !navigatingTo;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
         onClick={finish}
       />
 
-      {/* Tour card */}
-      <div
-        className={cn(
-          "relative mx-4 mb-4 w-full max-w-md rounded-2xl border bg-card shadow-elevated sm:mb-0",
-          animating ? "animate-fade-in" : "",
-        )}
-      >
-        {/* Close button */}
+      <div className="relative mx-4 mb-4 w-full max-w-md animate-fade-in rounded-2xl border bg-card shadow-elevated sm:mb-0">
         <button
           onClick={finish}
           className="absolute right-3 top-3 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -149,7 +147,6 @@ export function GuidedTour() {
           <X className="size-4" />
         </button>
 
-        {/* Progress dots */}
         <div className="flex gap-1.5 px-6 pt-5">
           {STEPS.map((_, i) => (
             <button
@@ -164,7 +161,6 @@ export function GuidedTour() {
           ))}
         </div>
 
-        {/* Content */}
         <div className="px-6 pb-2 pt-5" key={step}>
           <div className="flex items-center gap-3">
             <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -183,18 +179,16 @@ export function GuidedTour() {
             {current.body}
           </p>
 
-          {/* Pointer to actual content */}
           <div className="mt-3 flex items-center gap-2 rounded-lg border border-dashed border-primary/30 bg-primary/5 px-3 py-2">
             <Compass className="size-4 shrink-0 text-primary" />
             <p className="text-xs text-muted-foreground">
-              {pathname === current.page
+              {onCorrectPage
                 ? "You're looking at it now — scroll around to explore."
-                : `We'll take you to ${current.eyebrow} next.`}
+                : `Taking you to ${current.eyebrow}…`}
             </p>
           </div>
         </div>
 
-        {/* Navigation */}
         <div className="flex items-center justify-between border-t px-6 py-4">
           <Button
             variant="ghost"
@@ -221,7 +215,6 @@ export function GuidedTour() {
           )}
         </div>
 
-        {/* Skip link */}
         <div className="border-t px-6 py-3 text-center">
           <button
             onClick={finish}
@@ -232,5 +225,13 @@ export function GuidedTour() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function GuidedTour() {
+  return (
+    <React.Suspense fallback={null}>
+      <GuidedTourInner />
+    </React.Suspense>
   );
 }
