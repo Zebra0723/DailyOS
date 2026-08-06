@@ -3,7 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { Home, ArrowRight, Check } from "lucide-react";
-import { homeOSStorageKeyFor } from "@/lib/homeos/store";
+import { homeOSStorageKeyFor, HOMEOS_SYNC_KEY } from "@/lib/homeos/store";
+import { loadRemote, saveRemote } from "@/lib/sync";
 import type { DailyOSTodayAction, HomeOSData } from "@/lib/homeos/types";
 import { MODULE_LABEL } from "@/components/homeos/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,16 +23,35 @@ function readActions(key: string): DailyOSTodayAction[] {
 }
 
 /**
- * Shows HomeOS-created actions on the DailyOS Today page. Reads straight from
- * the per-user HomeOS localStorage so it works without the HomeOS provider.
- * Renders nothing when there are no HomeOS actions.
+ * Shows HomeOS-created actions on the DailyOS Today page. Reads the per-user
+ * HomeOS blob directly (local first, then the synced copy) so it works without
+ * the HomeOS provider. Renders nothing when there are no HomeOS actions.
  */
 export function HomeOSTodayActions({ userId }: { userId: string }) {
   const key = homeOSStorageKeyFor(userId);
   const [actions, setActions] = React.useState<DailyOSTodayAction[] | null>(null);
 
   React.useEffect(() => {
-    setActions(readActions(key));
+    let active = true;
+    setActions(readActions(key)); // instant paint from this device
+
+    // Then reconcile with the account copy. HomeOSProvider treats the remote as
+    // the winner, so mirror it here too — otherwise a toggle below would be
+    // built on a stale base and get overwritten the next time HomeOS hydrates.
+    (async () => {
+      const remote = await loadRemote<HomeOSData>(HOMEOS_SYNC_KEY);
+      if (!active || !remote || !Array.isArray(remote.subscriptions)) return;
+      try {
+        localStorage.setItem(key, JSON.stringify(remote));
+      } catch {
+        /* ignore quota errors */
+      }
+      setActions(Array.isArray(remote.todayActions) ? remote.todayActions : []);
+    })();
+
+    return () => {
+      active = false;
+    };
   }, [key]);
 
   function setStatus(id: string, status: DailyOSTodayAction["status"]) {
@@ -44,6 +64,9 @@ export function HomeOSTodayActions({ userId }: { userId: string }) {
       );
       localStorage.setItem(key, JSON.stringify(d));
       setActions(d.todayActions);
+      // Push to the account as well. Without this the next HomeOS hydration
+      // pulls the older remote blob (remote wins) and silently reverts the tick.
+      void saveRemote(HOMEOS_SYNC_KEY, d);
     } catch {
       /* ignore */
     }

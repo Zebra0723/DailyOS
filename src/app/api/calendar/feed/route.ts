@@ -72,7 +72,8 @@ export async function GET(request: Request) {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
       "Content-Disposition": 'inline; filename="dailyos.ics"',
-      "Cache-Control": "public, max-age=3600",
+      // One person's calendar — never let a CDN or shared proxy hold a copy.
+      "Cache-Control": "private, max-age=3600",
     },
   });
 }

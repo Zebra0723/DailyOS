@@ -98,8 +98,9 @@ function GuidedTourInner() {
       window.history.replaceState({}, "", url.toString());
     } else if (sessionStorage.getItem(TOUR_KEY) === "1") {
       const idx = STEPS.findIndex((s) => s.page === pathname);
-      if (idx >= 0) setStep(idx);
-      else setStep(0);
+      // On a page the tour doesn't cover (Settings, a note, …) hold the step
+      // we were on rather than snapping the user back to the start.
+      setStep((s) => (idx >= 0 ? idx : s >= 0 ? s : 0));
     }
   }, [pathname, tourRequested]);
 

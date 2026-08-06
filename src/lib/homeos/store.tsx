@@ -426,4 +426,8 @@ export function readHomeOSData(userId?: string | null): HomeOSData | null {
   }
 }
 
-export { STORAGE_BASE as HOMEOS_STORAGE_BASE, storageKeyFor as homeOSStorageKeyFor };
+export {
+  STORAGE_BASE as HOMEOS_STORAGE_BASE,
+  storageKeyFor as homeOSStorageKeyFor,
+  SYNC_KEY as HOMEOS_SYNC_KEY,
+};

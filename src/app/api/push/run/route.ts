@@ -88,7 +88,6 @@ export async function GET(req: Request) {
 
   const admin = createServiceClient();
   const now = Date.now();
-  const todayYmd = new Date(now).toISOString().slice(0, 10);
   const nowIso = new Date(now).toISOString();
   const graceIso = new Date(now - DAY).toISOString(); // don't fire reminders >24h late
 
@@ -122,14 +121,17 @@ export async function GET(req: Request) {
   let sent = 0;
 
   for (const uid of userIds) {
+    // Everything below is judged against the user's own calendar day, not UTC —
+    // otherwise anyone east of UTC gets "due today" reminders a day late.
+    let local: { ymd: string; hour: number };
+    try {
+      local = localDayHour(tzByUser.get(uid) || "Europe/London", now);
+    } catch {
+      local = localDayHour("Europe/London", now);
+    }
+
     // 0) Morning brief — today's events + tasks, once per local day at ~7am.
     if (!briefOff.has(uid)) {
-      let local: { ymd: string; hour: number };
-      try {
-        local = localDayHour(tzByUser.get(uid) || "Europe/London", now);
-      } catch {
-        local = localDayHour("Europe/London", now);
-      }
       // A morning window (not one exact hour): the trigger may run late or miss
       // the 7 o'clock slot, so any run between 7am and 11am delivers the brief.
       // sendOnce (keyed by the local day) still guarantees it fires only once.
@@ -179,9 +181,9 @@ export async function GET(req: Request) {
       .select("id,title,due_date")
       .eq("user_id", uid)
       .eq("status", "pending")
-      .lte("due_date", todayYmd);
+      .lte("due_date", local.ymd);
     for (const t of tasks ?? []) {
-      const overdue = (t.due_date as string) < todayYmd;
+      const overdue = (t.due_date as string) < local.ymd;
       const ok = await sendOnce(uid, `task-due:${t.id}`, {
         title: overdue ? "Overdue reminder" : "Reminder due today",
         body: t.title as string,

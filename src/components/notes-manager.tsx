@@ -30,7 +30,19 @@ interface Suggestion {
   analysis: NoteAnalysis;
 }
 
-export function NotesManager({ notes: initial }: { notes: Note[] }) {
+// Pins live on the device, so the key is scoped per account — otherwise two
+// people sharing a browser inherit each other's pins, and DeviceBackup then
+// mirrors whoever wrote last into the wrong account's cloud state.
+const pinnedKey = (userId?: string) => `dailyos-pinned-notes:${userId ?? "anon"}`;
+const LEGACY_PINNED_KEY = "dailyos-pinned-notes";
+
+export function NotesManager({
+  notes: initial,
+  userId,
+}: {
+  notes: Note[];
+  userId?: string;
+}) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -73,19 +85,26 @@ export function NotesManager({ notes: initial }: { notes: Note[] }) {
   // Pinned notes (kept on this device) float to the top of the list.
   const [pinned, setPinned] = React.useState<Set<string>>(new Set());
   React.useEffect(() => {
+    const key = pinnedKey(userId);
     try {
-      setPinned(new Set(JSON.parse(localStorage.getItem("dailyos-pinned-notes") || "[]")));
+      // One-time migration off the old unscoped key so existing pins survive.
+      const legacy = localStorage.getItem(LEGACY_PINNED_KEY);
+      if (legacy != null) {
+        if (localStorage.getItem(key) == null) localStorage.setItem(key, legacy);
+        localStorage.removeItem(LEGACY_PINNED_KEY);
+      }
+      setPinned(new Set(JSON.parse(localStorage.getItem(key) || "[]")));
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [userId]);
   function togglePin(id: string) {
     setPinned((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       try {
-        localStorage.setItem("dailyos-pinned-notes", JSON.stringify([...next]));
+        localStorage.setItem(pinnedKey(userId), JSON.stringify([...next]));
       } catch {
         /* ignore */
       }

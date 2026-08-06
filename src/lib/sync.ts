@@ -16,6 +16,20 @@ import { createClient } from "@/lib/supabase/client";
 // re-enables it (e.g. right after running the migration).
 let remoteDisabled = false;
 
+/**
+ * Only a genuinely missing table should switch sync off for the session. A
+ * timeout, a 5xx or a dropped connection used to latch it too, which quietly
+ * killed cross-device sync until the next reload.
+ *   42P01   — Postgres: relation does not exist
+ *   PGRST20x — PostgREST: table/column not found in the schema cache
+ */
+function isMissingTable(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  const code = error.code ?? "";
+  if (code === "42P01" || code.startsWith("PGRST20")) return true;
+  return /does not exist|schema cache/i.test(error.message ?? "");
+}
+
 /** Read a synced value for the current user, or null if unavailable. */
 export async function loadRemote<T = unknown>(key: string): Promise<T | null> {
   if (remoteDisabled) return null;
@@ -32,7 +46,9 @@ export async function loadRemote<T = unknown>(key: string): Promise<T | null> {
       .eq("key", key)
       .maybeSingle();
     if (error) {
-      remoteDisabled = true; // table missing / not set up → fall back to local
+      // Table missing → stop trying. Anything else is transient: fall back to
+      // local for this call but keep sync alive for the next one.
+      if (isMissingTable(error)) remoteDisabled = true;
       return null;
     }
     return (data?.value as T) ?? null;
@@ -56,7 +72,7 @@ export async function saveRemote(key: string, value: unknown): Promise<void> {
         { user_id: session.user.id, key, value },
         { onConflict: "user_id,key" },
       );
-    if (error) remoteDisabled = true;
+    if (isMissingTable(error)) remoteDisabled = true;
   } catch {
     /* ignore — local storage remains the fallback */
   }
