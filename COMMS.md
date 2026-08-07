@@ -24,6 +24,8 @@ receiving agent must:
 | R-001 | Agent 4 | Restore production to the latest release; `dailyos.uk` is still serving v247 despite newer commits. | Blocked by Vercel rate limit | Live `/api/version` returns v247 and live `sw.js` has `DEPLOY = "247"`. Latest `main` Vercel check says “Deployment rate limited — retry in 24 hours.” After cooldown/quota resolution, make one compliant versioned deploy to both branches and verify both endpoints plus the live app. Agent 1 re-checked after pushing v253: still v247, so R-001 is unchanged. |
 | R-002 | Agent 5 | **Five LifeOS commits exist only on the local `main` branch and have never been pushed.** `aeeab71`, `4209f8e`, `3b7f27a`, `9d44c26`, `d312abf` (widget overhaul coordination + LifeOS widget modules). | Needs reconciling | We all share one working tree at `/Users/avj/DailyOS`. Local `main` sits at `dae0bf5` and holds those five commits; `origin/main` is at `214dc71` (v253) and does not. Agent 1 shipped v253 from branch `agent1-homeos` (= `origin/main` + 2 commits) precisely to avoid rebasing another agent's unpushed work — an earlier `pull --rebase` stopped on a COMMS.md conflict inside `aeeab71`, which isn't Agent 1's to resolve. Whoever owns those commits should rebase them onto `origin/main` and push. The tree is currently left on `agent1-homeos`, which matches `origin/main`. |
 
+| R-003 | Agent 3 | **Six built-in widgets still use unscoped localStorage keys** — `widget-habits`, `widget-goals`, `widget-mood`, `widget-water`, `widget-countdown`, `widget-quick-notes`. | Open | Same class of bug Agent 4 fixed for the dashboard in v254 (`dailyos-dashboard` → `dailyos-dashboard:${userId}`). Two accounts sharing one browser see each other's habits, goals and notes on first paint, because the local mirror isn't per-user. The `user_state` side is fine (RLS scopes it) — it's only the localStorage cache. Fix is one line each: append `:${userId}`. Found by Agent 2 while building the AI Feature Builder; the AI widgets already scope their keys. See Common Pitfalls #6. |
+
 ### Active Tasks
 
 **MAJOR: Full customisation overhaul (all agents)**
@@ -48,7 +50,7 @@ Progress tracker:
 | Agent | Deliverable | Status | Coordination notes |
 |-------|-------------|--------|--------------------|
 | Agent 1 | HomeOS widgets | **READY v253 — local branch, not live** | 8 HomeOS widgets + real-data HomeOS Summary are committed on `agent1-homeos`, two commits ahead of `origin/main`. Deployment belongs to Agent 4 under R-001. |
-| Agent 2 | AI Feature Builder | In progress | Published a DRAFT widget contract at `src/lib/widgets/spec.ts` to unblock — see "Widget Spec Contract" below. Agent 4 owns the final version. |
+| Agent 2 | AI Feature Builder | **SHIPPED v257** | Placeholder replaced with the real thing: describe a feature → preview the working widget → keep it. Spec/state/templates/store under `src/lib/widgets/`, generation in `src/lib/ai/feature-builder.ts`, renderer in `src/components/widgets/ai-widget.tsx`. 65 tests. Needs the R-001 deploy to reach production. |
 | Agent 3 | LifeOS and new lifestyle widgets | In progress | Building isolated LifeOS components and data models; integration waits for Agent 4's shared contracts. |
 | Agent 4 | Core widget system, dashboard, picker, and tier gating | **COMMITTED v251 — not live** | 18 widgets, store, drag-reorder, and tier gating are committed, but production remains v247. Owns R-001 release recovery. |
 | Agent 5 | Cross-agent tracking and conflict resolution | In progress | Progress board initialized; no product code assigned. |
@@ -262,6 +264,44 @@ The Today page is now a fully customisable dashboard. Users start empty and add 
 
 ---
 
+## AI Feature Builder (Agent 2, v257)
+
+The flagship Pro feature: the user describes what they want to track in plain
+English, previews the real working widget, and keeps it if they like it.
+
+**A widget is data, never code.** The model never writes JS. It picks from a
+fixed block vocabulary and returns JSON, which is validated with zod and
+rendered by trusted React primitives. Nothing it emits is evaluated or injected
+as markup. Please keep it that way — anything that `eval`s or
+`dangerouslySetInnerHTML`s model output hands every Pro user an XSS primitive on
+our own domain.
+
+| File | Purpose |
+|------|---------|
+| `src/lib/widgets/spec.ts` | zod contract for specs + blocks; `normaliseBlocks()` repairs bad model output |
+| `src/lib/widgets/state.ts` | per-widget state, daily reset, progress + countdown maths (local time) |
+| `src/lib/widgets/templates.ts` | keyword fallback so it still works with no AI key configured |
+| `src/lib/widgets/ai-store.ts` | persistence: per-user local keys + `user_state` sync |
+| `src/lib/ai/feature-builder.ts` | the generation (server-only) |
+| `src/app/(app)/today/feature-builder-actions.ts` | server action — Pro-gated **server-side**, not just in the UI |
+| `src/components/widgets/ai-widget.tsx` | the trusted renderer |
+| `src/components/widgets/ai-widget-host.tsx` | loads + persists one widget |
+| `src/components/widgets/ai-builder.tsx` | the builder UI |
+
+**Block kinds:** `text`, `checklist`, `counter`, `progress`, `notes`, `rating`,
+`countdown`, `timer`. Adding one is a schema entry plus a renderer branch — the
+model prompt lists them explicitly, so update `SYSTEM_PROMPT` too.
+
+**Storage:** specs under `user_state["ai-widgets-v1"]`, each widget's data under
+`user_state["widget-state:<id>"]` — split so ticking a checkbox doesn't rewrite
+every definition.
+
+**Dashboard:** AI widget ids are namespaced `ai:<id>` so they can't collide with
+the static registry in `src/lib/widgets.ts`. Built-in widgets still follow Agent
+4's pattern — this spec is only for generated ones.
+
+---
+
 ## Guided Tour System
 
 Two components work together:
@@ -343,6 +383,7 @@ All secrets are env vars on Vercel (Arjun manages these):
 
 | Version | What changed |
 |---------|-------------|
+| v257 | Agent 2: AI Feature Builder — plain English in, a real working widget out (Pro) |
 | v255 | Customise button in nav bar + full-page widget store with preview mockups |
 | v254 | Fix dashboard cross-account localStorage leak (scoped key to userId) |
 | v253 | Agent 1: 8 HomeOS widgets, HomeOS Summary on real data, HomeOS date-drift fix |
