@@ -125,6 +125,15 @@ function WidgetStoreOverlay({
 }) {
   const [search, setSearch] = React.useState("");
   const [category, setCategory] = React.useState<string>("all");
+  const [localAdded, setLocalAdded] = React.useState<string[]>([]);
+
+  const handleAdd = React.useCallback(
+    (id: string) => {
+      addWidget?.(id);
+      setLocalAdded((prev) => [...prev, id]);
+    },
+    [addWidget],
+  );
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -136,6 +145,11 @@ function WidgetStoreOverlay({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  const allActive = React.useMemo(
+    () => [...activeWidgets, ...localAdded],
+    [activeWidgets, localAdded],
+  );
 
   const filtered = WIDGETS.filter((w) => {
     if (category !== "all" && w.category !== category) return false;
@@ -224,7 +238,7 @@ function WidgetStoreOverlay({
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {filtered.map((w) => {
-                const active = activeWidgets.includes(w.id);
+                const active = allActive.includes(w.id);
                 const allowed = tierAllows(userTier, w.tier);
                 return (
                   <PreviewCard
@@ -232,7 +246,7 @@ function WidgetStoreOverlay({
                     widget={w}
                     active={active}
                     allowed={allowed}
-                    onAdd={addWidget ? () => addWidget(w.id) : undefined}
+                    onAdd={() => handleAdd(w.id)}
                   />
                 );
               })}

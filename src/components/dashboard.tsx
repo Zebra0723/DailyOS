@@ -135,8 +135,14 @@ export function Dashboard({ userId }: { userId?: string }) {
   );
 
   function addWidget(id: string) {
-    if (widgets.includes(id)) return;
-    persist([...widgets, id]);
+    setWidgets((prev) => {
+      if (prev.includes(id)) return prev;
+      const next = [...prev, id];
+      const state: DashboardState = { widgets: next };
+      if (localKey) localStorage.setItem(localKey, JSON.stringify(state));
+      saveRemote(DASHBOARD_KEY, state);
+      return next;
+    });
   }
 
   function removeWidget(id: string) {
