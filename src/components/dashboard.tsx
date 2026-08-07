@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Plus, GripVertical, X, LayoutGrid } from "lucide-react";
+import { Plus, GripVertical, X, LayoutGrid, Sparkles } from "lucide-react";
 import { loadRemote, saveRemote } from "@/lib/sync";
-import { getWidget, WIDGETS, type PlanTier } from "@/lib/widgets";
+import { getWidget, WIDGETS, type PlanTier, type WidgetDef } from "@/lib/widgets";
 import { usePlan, tierMeets } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,18 @@ import { HomeAlertsWidget } from "@/components/widgets/home-alerts";
 import { HomeCalendarWidget } from "@/components/widgets/home-calendar";
 import { HomeVaultWidget } from "@/components/widgets/home-vault";
 import { AIBuilderWidget } from "@/components/widgets/ai-builder";
+import { AIWidgetHost } from "@/components/widgets/ai-widget-host";
+import { isAIWidgetId, widgetIdFromDashboardId } from "@/lib/widgets/ai-store";
+
+/** Stand-in registry entry for AI-built widgets, which have no static def. */
+const AI_WIDGET_DEF: WidgetDef = {
+  id: "ai-widget",
+  name: "AI widget",
+  description: "Built for you by the AI Feature Builder.",
+  icon: Sparkles,
+  category: "ai",
+  tier: "pro",
+};
 
 const COMPONENT_MAP: Record<string, React.ComponentType> = {
   "stats-overview": StatsOverviewWidget,
@@ -201,10 +213,13 @@ export function Dashboard({ userId }: { userId?: string }) {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {widgets.map((id, i) => {
-          const def = getWidget(id);
+          // AI-built widgets aren't in the static registry — they're per-user
+          // specs, resolved at render time by AIWidgetHost. They're always Pro.
+          const ai = isAIWidgetId(id);
+          const def = ai ? AI_WIDGET_DEF : getWidget(id);
           if (!def) return null;
-          const Comp = COMPONENT_MAP[id];
-          if (!Comp) return null;
+          const Comp = ai ? null : COMPONENT_MAP[id];
+          if (!ai && !Comp) return null;
           const allowed = tierAllows(tier, def.tier);
 
           return (
@@ -242,10 +257,19 @@ export function Dashboard({ userId }: { userId?: string }) {
                   </button>
                 </div>
               )}
-              {allowed ? (
-                <Comp />
-              ) : (
+              {!allowed ? (
                 <LockedWidget def={def} />
+              ) : ai ? (
+                <AIWidgetHost
+                  widgetId={widgetIdFromDashboardId(id)}
+                  userId={userId}
+                  onRemove={() => removeWidget(id)}
+                />
+              ) : id === "ai-builder" ? (
+                // Needs the account and a way to drop what it builds onto the grid.
+                <AIBuilderWidget userId={userId} onAdded={addWidget} />
+              ) : (
+                Comp && <Comp />
               )}
             </div>
           );
