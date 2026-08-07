@@ -93,13 +93,17 @@ export function WidgetStoreProvider({
     [],
   );
 
+  const stableAddWidget = React.useCallback((id: string) => {
+    dashRef.current?.addWidget(id);
+  }, []);
+
   return (
     <WidgetStoreContext.Provider value={{ openWidgetStore, _registerDashboard }}>
       {children}
       {open && (
         <WidgetStoreOverlay
           onClose={() => setOpen(false)}
-          addWidget={dashRef.current?.addWidget}
+          addWidget={stableAddWidget}
           activeWidgets={dashRef.current?.activeWidgets ?? []}
           userTier={dashRef.current?.userTier ?? "free"}
         />
@@ -119,7 +123,7 @@ function WidgetStoreOverlay({
   userTier,
 }: {
   onClose: () => void;
-  addWidget?: (id: string) => void;
+  addWidget: (id: string) => void;
   activeWidgets: string[];
   userTier: string;
 }) {
@@ -129,7 +133,7 @@ function WidgetStoreOverlay({
 
   const handleAdd = React.useCallback(
     (id: string) => {
-      addWidget?.(id);
+      addWidget(id);
       setLocalAdded((prev) => [...prev, id]);
     },
     [addWidget],
