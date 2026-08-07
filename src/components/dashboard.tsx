@@ -94,21 +94,21 @@ function tierAllows(userTier: PlanTier | string, required: PlanTier): boolean {
 
 export function Dashboard({ userId }: { userId?: string }) {
   const { tier } = usePlan(userId);
-  const { openWidgetStore } = useWidgetStore();
+  const { openWidgetStore, _registerDashboard } = useWidgetStore();
   const [widgets, setWidgets] = React.useState<string[]>([]);
   const [loaded, setLoaded] = React.useState(false);
   const [editing, setEditing] = React.useState(false);
   const [storeOpen, setStoreOpen] = React.useState(false);
   const [dragIdx, setDragIdx] = React.useState<number | null>(null);
 
-  const localKey = userId ? `dailyos-dashboard:${userId}` : "dailyos-dashboard";
+  const localKey = userId ? `dailyos-dashboard:${userId}` : null;
 
   React.useEffect(() => {
     (async () => {
       const remote = await loadRemote<DashboardState>(DASHBOARD_KEY);
       if (remote?.widgets?.length) {
         setWidgets(remote.widgets);
-      } else {
+      } else if (localKey) {
         const local = localStorage.getItem(localKey);
         if (local) {
           try {
@@ -128,7 +128,7 @@ export function Dashboard({ userId }: { userId?: string }) {
     (next: string[]) => {
       setWidgets(next);
       const state: DashboardState = { widgets: next };
-      localStorage.setItem(localKey, JSON.stringify(state));
+      if (localKey) localStorage.setItem(localKey, JSON.stringify(state));
       saveRemote(DASHBOARD_KEY, state);
     },
     [localKey],
@@ -149,6 +149,10 @@ export function Dashboard({ userId }: { userId?: string }) {
     next.splice(to, 0, item);
     persist(next);
   }
+
+  React.useEffect(() => {
+    _registerDashboard({ addWidget, activeWidgets: widgets, userTier: tier });
+  });
 
   if (!loaded) {
     return (

@@ -55,6 +55,11 @@ const CAT_BG: Record<WidgetCategory, string> = {
 
 interface WidgetStoreContextValue {
   openWidgetStore: () => void;
+  _registerDashboard: (config: {
+    addWidget: (id: string) => void;
+    activeWidgets: string[];
+    userTier: string;
+  }) => void;
 }
 
 const WidgetStoreContext = React.createContext<WidgetStoreContextValue | null>(
@@ -64,7 +69,7 @@ const WidgetStoreContext = React.createContext<WidgetStoreContextValue | null>(
 export function useWidgetStore(): WidgetStoreContextValue {
   const ctx = React.useContext(WidgetStoreContext);
   if (!ctx)
-    return { openWidgetStore: () => {} };
+    return { openWidgetStore: () => {}, _registerDashboard: () => {} };
   return ctx;
 }
 
@@ -75,11 +80,30 @@ export function WidgetStoreProvider({
 }) {
   const [open, setOpen] = React.useState(false);
   const openWidgetStore = React.useCallback(() => setOpen(true), []);
+  const dashRef = React.useRef<{
+    addWidget: (id: string) => void;
+    activeWidgets: string[];
+    userTier: string;
+  } | null>(null);
+
+  const _registerDashboard = React.useCallback(
+    (config: { addWidget: (id: string) => void; activeWidgets: string[]; userTier: string }) => {
+      dashRef.current = config;
+    },
+    [],
+  );
 
   return (
-    <WidgetStoreContext.Provider value={{ openWidgetStore }}>
+    <WidgetStoreContext.Provider value={{ openWidgetStore, _registerDashboard }}>
       {children}
-      {open && <WidgetStoreOverlay onClose={() => setOpen(false)} />}
+      {open && (
+        <WidgetStoreOverlay
+          onClose={() => setOpen(false)}
+          addWidget={dashRef.current?.addWidget}
+          activeWidgets={dashRef.current?.activeWidgets ?? []}
+          userTier={dashRef.current?.userTier ?? "free"}
+        />
+      )}
     </WidgetStoreContext.Provider>
   );
 }
@@ -88,7 +112,17 @@ export function WidgetStoreProvider({
 // Full-screen overlay (Notion-style template picker)
 // ---------------------------------------------------------------------------
 
-function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
+function WidgetStoreOverlay({
+  onClose,
+  addWidget,
+  activeWidgets,
+  userTier,
+}: {
+  onClose: () => void;
+  addWidget?: (id: string) => void;
+  activeWidgets: string[];
+  userTier: string;
+}) {
   const [search, setSearch] = React.useState("");
   const [category, setCategory] = React.useState<string>("all");
 
@@ -189,9 +223,19 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {filtered.map((w) => (
-                <PreviewCard key={w.id} widget={w} />
-              ))}
+              {filtered.map((w) => {
+                const active = activeWidgets.includes(w.id);
+                const allowed = tierAllows(userTier, w.tier);
+                return (
+                  <PreviewCard
+                    key={w.id}
+                    widget={w}
+                    active={active}
+                    allowed={allowed}
+                    onAdd={addWidget ? () => addWidget(w.id) : undefined}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
@@ -204,7 +248,17 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
 // Preview card — title, category, description, inline preview mockup
 // ---------------------------------------------------------------------------
 
-function PreviewCard({ widget }: { widget: WidgetDef }) {
+function PreviewCard({
+  widget,
+  active,
+  allowed,
+  onAdd,
+}: {
+  widget: WidgetDef;
+  active?: boolean;
+  allowed?: boolean;
+  onAdd?: () => void;
+}) {
   const Icon = widget.icon;
   const catLabel =
     WIDGET_CATEGORIES.find((c) => c.key === widget.category)?.label ??
@@ -255,6 +309,27 @@ function PreviewCard({ widget }: { widget: WidgetDef }) {
         </div>
         <WidgetMockup id={widget.id} />
       </div>
+
+      {/* Action button */}
+      {onAdd && (
+        <div className="px-4 pb-4">
+          {active ? (
+            <Button variant="outline" size="sm" className="w-full" disabled>
+              <Check className="size-3.5" /> Added
+            </Button>
+          ) : allowed === false ? (
+            <Button variant="outline" size="sm" className="w-full" asChild>
+              <a href="/subscriptions">
+                <Lock className="size-3.5" /> Upgrade to {widget.tier === "pro" ? "Pro" : "Plus"}
+              </a>
+            </Button>
+          ) : (
+            <Button size="sm" className="w-full" onClick={onAdd}>
+              <Plus className="size-3.5" /> Add to dashboard
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
