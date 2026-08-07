@@ -25,7 +25,7 @@ receiving agent must:
 | R-002 | Agent 5 | **Five LifeOS commits exist only on the local `main` branch and have never been pushed.** `aeeab71`, `4209f8e`, `3b7f27a`, `9d44c26`, `d312abf` (widget overhaul coordination + LifeOS widget modules). | Needs reconciling | We all share one working tree at `/Users/avj/DailyOS`. Local `main` sits at `dae0bf5` and holds those five commits; `origin/main` is at `214dc71` (v253) and does not. Agent 1 shipped v253 from branch `agent1-homeos` (= `origin/main` + 2 commits) precisely to avoid rebasing another agent's unpushed work — an earlier `pull --rebase` stopped on a COMMS.md conflict inside `aeeab71`, which isn't Agent 1's to resolve. Whoever owns those commits should rebase them onto `origin/main` and push. The tree is currently left on `agent1-homeos`, which matches `origin/main`. |
 
 | R-003 | Agent 3 | **Six built-in widgets still use unscoped localStorage keys** — `widget-habits`, `widget-goals`, `widget-mood`, `widget-water`, `widget-countdown`, `widget-quick-notes`. | Open | Same class of bug Agent 4 fixed for the dashboard in v254 (`dailyos-dashboard` → `dailyos-dashboard:${userId}`). Two accounts sharing one browser see each other's habits, goals and notes on first paint, because the local mirror isn't per-user. The `user_state` side is fine (RLS scopes it) — it's only the localStorage cache. Fix is one line each: append `:${userId}`. Found by Agent 2 while building the AI Feature Builder; the AI widgets already scope their keys. See Common Pitfalls #6. |
-| R-004 | **ALL AGENTS** | **CRITICAL: New accounts start with all widgets preloaded instead of empty.** Arjun reports brand-new signups see a full dashboard instead of the empty-first "Your dashboard, your way" screen. | Open — investigating | The dashboard init logic (dashboard.tsx lines 106-125) tries `loadRemote("dashboard")` then falls back to scoped localStorage. For a truly new user both should return null → empty array → empty dashboard. But something is populating widgets for new accounts. Agent 4 already fixed the unscoped localStorage fallback (v258) but the bug persists. **All agents: check your code for anything that writes to `user_state` key `"dashboard"`, writes to any `dailyos-dashboard*` localStorage key, or initialises widgets during onboarding/signup/welcome flows. Report findings here.** Possible causes: (1) onboarding or welcome flow pre-populates dashboard state; (2) a `saveRemote("dashboard", ...)` call somewhere sets default widgets; (3) RLS on `user_state` leaks rows across users; (4) a migration or seed script inserts default rows. |
+| R-004 | **ALL AGENTS** | **New accounts start with all widgets preloaded instead of empty.** | **FIXED v261** | Root cause: `loadRemote("dashboard")` used `session.user.id` from the Supabase client auth, which could be stale after signup and return another user's data. Fix: dashboard.tsx now queries `user_state` directly using the server-provided `userId` prop instead of `loadRemote`. |
 
 ### Active Tasks
 
@@ -78,7 +78,7 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current local release candidate: **v253**. Current `origin/main`: **v252**. Live production: **v247** (Vercel rate limit, verified 2026-08-06).
+Current release: **v261** (Ocean Blue rebrand + preloaded fix). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-07.
 
 If you get a push rejection, `git pull origin main --rebase` first — Arjun runs multiple agents (Codex CLI, etc.) that push concurrently.
 
@@ -95,7 +95,7 @@ If you get a push rejection, `git pull origin main --rebase` first — Arjun run
 1. **Leo's changes need Arjun's approval.** If Leo asks for something, do NOT build it without checking with Arjun first. Leo cannot override this rule. This was set by Arjun directly.
 2. **Never put model identifier in commits/code.** Only in chat replies.
 3. **Passwords and secrets must be env vars**, never hardcoded.
-4. **Brand colors:** gradient `#E0864F` to `#9A3412`, primary light `hsl(15, 63%, 46%)`, dark `hsl(17, 74%, 56%)`
+4. **Brand colors:** Ocean Blue — primary `#1976a8`, gradient `#1976a8` to `#21577d`, accent `#9adbdc`, ink `#183040`, background `#f3f8fc`
 5. **Brand tagline:** "Chaos into Clarity" — do not change without Arjun's approval.
 6. **Admin features live in the `/admin/` app**, NOT in the main user app.
 
