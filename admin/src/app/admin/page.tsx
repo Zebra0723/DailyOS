@@ -144,7 +144,7 @@ export default async function DashboardPage() {
           { label: "Suspended", value: suspended },
         ].map((t) => (
           <div key={t.label} style={{ ...card, borderColor: "#eabf95", background: "#fdf3e8" }}>
-            <div style={{ fontSize: 26, fontWeight: 700, color: "#9a3412" }}>{t.value}</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: "#21577d" }}>{t.value}</div>
             <div style={{ fontSize: 12, color: "#6b6157", marginTop: 2 }}>{t.label}</div>
           </div>
         ))}
@@ -158,7 +158,7 @@ export default async function DashboardPage() {
             <div
               key={i}
               title={`${b} on ${new Date(startToday.getTime() - (DAYS - 1 - i) * DAY).toLocaleDateString()}`}
-              style={{ flex: 1, height: `${Math.round((b / maxB) * 100)}%`, minHeight: b ? 6 : 2, background: b ? "#bf502b" : "#efe6d8", borderRadius: 3 }}
+              style={{ flex: 1, height: `${Math.round((b / maxB) * 100)}%`, minHeight: b ? 6 : 2, background: b ? "#21577d" : "#efe6d8", borderRadius: 3 }}
             />
           ))}
         </div>
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
             .filter((t): t is { label: string; value: number } => t.value !== null)
             .map((t) => (
               <div key={t.label} style={{ ...card, borderColor: "#eabf95", background: "#fdf3e8" }}>
-                <div style={{ fontSize: 26, fontWeight: 700, color: "#9a3412" }}>{t.value}</div>
+                <div style={{ fontSize: 26, fontWeight: 700, color: "#21577d" }}>{t.value}</div>
                 <div style={{ fontSize: 12, color: "#6b6157", marginTop: 2 }}>{t.label}</div>
               </div>
             ))}
@@ -197,7 +197,7 @@ export default async function DashboardPage() {
           <p style={{ fontSize: 12, color: "#8a8073", margin: "0 0 12px" }}>{customers} customers · {admins} admin{admins === 1 ? "" : "s"} counted separately</p>
           {planBar("Free", plans.free, "#a8a29e")}
           {planBar("Plus", plans.plus, "#c98a1a")}
-          {planBar("Pro", plans.pro, "#bf502b")}
+          {planBar("Pro", plans.pro, "#21577d")}
         </section>
 
         <section style={card}>
@@ -208,7 +208,7 @@ export default async function DashboardPage() {
             <div style={{ display: "grid", gap: 8 }}>
               {recentUsers.map((u) => (
                 <Link key={u.id} href={`/admin/users/${u.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 10, textDecoration: "none", fontSize: 13 }}>
-                  <span style={{ color: "#bf502b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.email}</span>
+                  <span style={{ color: "#21577d", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.email}</span>
                   <span style={{ color: "#8a8073", whiteSpace: "nowrap" }}>{u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}</span>
                 </Link>
               ))}

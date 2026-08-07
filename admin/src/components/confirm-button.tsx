@@ -43,13 +43,13 @@ export function ConfirmButton({
             onClick={(e) => e.stopPropagation()}
             style={{ width: "100%", maxWidth: 420, background: "#fffdf9", border: "1px solid #e6ded2", borderRadius: 18, padding: 22, boxShadow: "0 24px 60px -12px rgba(28,20,15,0.35)" }}
           >
-            <span style={{ display: "inline-block", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#fff", background: "#bf502b", borderRadius: 999, padding: "3px 10px" }}>
+            <span style={{ display: "inline-block", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#fff", background: "#21577d", borderRadius: 999, padding: "3px 10px" }}>
               ⚠ Careful
             </span>
             <h3 style={{ fontSize: 20, fontWeight: 700, margin: "12px 0 6px" }}>{title}</h3>
             <p style={{ fontSize: 14, color: "#4b443b", margin: "0 0 12px", lineHeight: 1.5 }}>{message}</p>
             {warn && (
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#9a3412", background: "#fbe9e7", border: "1px solid #f0c4bd", borderRadius: 10, padding: "10px 12px", marginBottom: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#21577d", background: "#fbe9e7", border: "1px solid #f0c4bd", borderRadius: 10, padding: "10px 12px", marginBottom: 16 }}>
                 {warn}
               </div>
             )}

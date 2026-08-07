@@ -100,9 +100,9 @@ export default async function OverviewPage() {
 
       {/* Headline vitals */}
       <div className="grid grid-cols-3 gap-3">
-        <div className={card}><div className="text-xl font-bold" style={{ color: "#bf502b" }}>{userList ?? "—"}</div><div className="text-xs text-[#6b6157]">Users</div></div>
-        <div className={card}><div className="text-xl font-bold" style={{ color: "#bf502b" }}>{subs ?? "—"}</div><div className="text-xs text-[#6b6157]">Push devices</div></div>
-        <div className={card}><div className="text-xl font-bold" style={{ color: "#bf502b" }}>{pendingPush ?? "—"}</div><div className="text-xs text-[#6b6157]">Scheduled</div></div>
+        <div className={card}><div className="text-xl font-bold" style={{ color: "#21577d" }}>{userList ?? "—"}</div><div className="text-xs text-[#6b6157]">Users</div></div>
+        <div className={card}><div className="text-xl font-bold" style={{ color: "#21577d" }}>{subs ?? "—"}</div><div className="text-xs text-[#6b6157]">Push devices</div></div>
+        <div className={card}><div className="text-xl font-bold" style={{ color: "#21577d" }}>{pendingPush ?? "—"}</div><div className="text-xs text-[#6b6157]">Scheduled</div></div>
       </div>
     </div>
   );

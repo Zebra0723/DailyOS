@@ -23,13 +23,13 @@ export default async function TablesPage() {
       {/* Per-table row counts */}
       <section className={card}>
         <div className="flex items-center gap-2">
-          <Database className="size-4" style={{ color: "#bf502b" }} />
+          <Database className="size-4" style={{ color: "#21577d" }} />
           <h2 className="text-base font-bold">Table row counts</h2>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {HEALTH_TABLES.map((t, i) => (
             <div key={t} className="rounded-xl border border-[#e6ded2] bg-white p-3">
-              <div className="text-lg font-bold" style={{ color: "#bf502b" }}>{tableCounts[i] ?? "—"}</div>
+              <div className="text-lg font-bold" style={{ color: "#21577d" }}>{tableCounts[i] ?? "—"}</div>
               <div className="truncate text-xs text-[#6b6157]" title={t}>{t}</div>
             </div>
           ))}

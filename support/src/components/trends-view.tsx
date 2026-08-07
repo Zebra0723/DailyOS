@@ -4,7 +4,7 @@ import * as React from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { Feedback } from "@/lib/feedback";
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 const DAY = 86_400_000;
 
 function StatCard({ label, value, hint }: { label: string; value: string; hint?: React.ReactNode }) {

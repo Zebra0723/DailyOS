@@ -89,10 +89,10 @@ export function ownerNotifyHtml(opts: {
       <div style="color:#4b443b;white-space:pre-wrap">${escapeHtml(opts.feedbackMessage)}</div>
     </div>
     <div style="border:1px solid #e6c9bd;border-radius:12px;padding:14px 16px;background:#f7ece4;font-size:14px">
-      <div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#bf502b;margin-bottom:4px">Drafted reply</div>
+      <div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#21577d;margin-bottom:4px">Drafted reply</div>
       <div style="color:#1c1a17;white-space:pre-wrap">${escapeHtml(opts.draft)}</div>
     </div>
-    <a href="${opts.approvalsUrl}" style="display:inline-block;margin-top:18px;background:#bf502b;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:11px 20px;border-radius:10px">
+    <a href="${opts.approvalsUrl}" style="display:inline-block;margin-top:18px;background:#21577d;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:11px 20px;border-radius:10px">
       Review in Support
     </a>
   </div>`;

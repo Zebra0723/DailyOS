@@ -47,7 +47,7 @@ export function IssueCode() {
             <input type="number" value={percent} min={1} max={100} onChange={(e) => setPercent(e.target.value)} style={{ ...sel, width: 70 }} /> % off
           </label>
         )}
-        <button onClick={go} disabled={busy} style={{ background: "#bf502b", color: "#fff", border: 0, borderRadius: 8, padding: "7px 14px", fontWeight: 600, cursor: "pointer" }}>
+        <button onClick={go} disabled={busy} style={{ background: "#21577d", color: "#fff", border: 0, borderRadius: 8, padding: "7px 14px", fontWeight: 600, cursor: "pointer" }}>
           {busy ? "Creating…" : "Create code"}
         </button>
         {result && <span style={{ fontSize: 13, fontWeight: 600, color: "#2f8f5f" }}>{result}</span>}

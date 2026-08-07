@@ -10,7 +10,7 @@ import {
 } from "./actions";
 import { DateTimePicker } from "@/components/date-time-picker";
 
-const BRAND = "#bf502b";
+const BRAND = "#21577d";
 
 export default function PushPage() {
   const [title, setTitle] = useState("");
@@ -172,7 +172,7 @@ export default function PushPage() {
                 </div>
                 <button
                   onClick={() => cancel(s.id)}
-                  style={{ height: 32, padding: "0 12px", borderRadius: 8, border: "1px solid #e0b4a6", background: "#fff", color: "#9a3412", cursor: "pointer", fontSize: 13, fontWeight: 600 }}
+                  style={{ height: 32, padding: "0 12px", borderRadius: 8, border: "1px solid #e0b4a6", background: "#fff", color: "#21577d", cursor: "pointer", fontSize: 13, fontWeight: 600 }}
                 >
                   Cancel
                 </button>

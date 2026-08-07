@@ -21,7 +21,7 @@ export type ColumnInfo = {
 
 type Field = { value: string; isNull: boolean };
 
-const teal = "#bf502b";
+const teal = "#21577d";
 
 function preview(row: Record<string, unknown>): string {
   const keys = ["title", "content", "text", "email", "name", "summary", "code", "key"];
@@ -130,7 +130,7 @@ function BulkDelete({
             <select
               value={column}
               onChange={(e) => setColumn(e.target.value)}
-              className="h-9 rounded-lg border border-[#d9d2c6] bg-white px-2 text-sm outline-none focus:border-[#bf502b]"
+              className="h-9 rounded-lg border border-[#d9d2c6] bg-white px-2 text-sm outline-none focus:border-[#21577d]"
             >
               {colNames.map((c) => (
                 <option key={c} value={c}>
@@ -143,12 +143,12 @@ function BulkDelete({
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="value"
-              className="h-9 flex-1 rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#bf502b]"
+              className="h-9 flex-1 rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#21577d]"
             />
             <button
               onClick={check}
               disabled={busy || !column}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3 text-sm font-semibold text-[#4b443b] hover:border-[#bf502b] disabled:opacity-50"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3 text-sm font-semibold text-[#4b443b] hover:border-[#21577d] disabled:opacity-50"
             >
               {busy ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
               Check count
@@ -156,7 +156,7 @@ function BulkDelete({
           </div>
 
           {error && (
-            <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-2.5 text-sm text-[#9a3412]">
+            <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-2.5 text-sm text-[#21577d]">
               {error}
             </div>
           )}
@@ -302,7 +302,7 @@ function RowForm({
                       <button
                         type="button"
                         onClick={() => set(c.name, { isNull: !f.isNull })}
-                        className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${f.isNull ? "bg-[#bf502b] text-white" : "border border-[#d9d2c6] text-[#8a8073]"}`}
+                        className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${f.isNull ? "bg-[#21577d] text-white" : "border border-[#d9d2c6] text-[#8a8073]"}`}
                       >
                         null
                       </button>
@@ -313,7 +313,7 @@ function RowForm({
                     disabled={f.isNull || idLocked}
                     placeholder={f.isNull ? "NULL" : idLocked ? "(locked)" : c.hasDefault ? "leave blank for default" : ""}
                     onChange={(e) => set(c.name, { value: e.target.value })}
-                    className="h-9 w-full rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#bf502b] disabled:bg-[#f3efe8] disabled:text-[#b0a89b]"
+                    className="h-9 w-full rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#21577d] disabled:bg-[#f3efe8] disabled:text-[#b0a89b]"
                   />
                 </div>
               );
@@ -322,7 +322,7 @@ function RowForm({
         )}
 
         {error && (
-          <div className="mt-3 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">{error}</div>
+          <div className="mt-3 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">{error}</div>
         )}
 
         <div className="mt-4 flex justify-end gap-2">
@@ -386,7 +386,7 @@ export function TableBrowser({
             key={t}
             onClick={() => router.push(`/base/tables?t=${t}`)}
             className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
-              t === current ? "bg-[#bf502b] text-white" : "border border-[#e6ded2] bg-[#fffdf9] text-[#4b443b] hover:border-[#bf502b]"
+              t === current ? "bg-[#21577d] text-white" : "border border-[#e6ded2] bg-[#fffdf9] text-[#4b443b] hover:border-[#21577d]"
             }`}
           >
             {t}
@@ -395,7 +395,7 @@ export function TableBrowser({
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">
           {error.includes("does not exist") || error.includes("schema cache")
             ? `The "${current}" table doesn't exist yet. Create it from the SQL tab.`
             : error}
@@ -409,14 +409,14 @@ export function TableBrowser({
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder={`Search ${filtered.length} row${filtered.length === 1 ? "" : "s"}…`}
-                className="h-10 w-full rounded-lg border border-[#d9d2c6] bg-white pl-9 pr-3 text-sm outline-none focus:border-[#bf502b]"
+                className="h-10 w-full rounded-lg border border-[#d9d2c6] bg-white pl-9 pr-3 text-sm outline-none focus:border-[#21577d]"
               />
             </div>
             <button
               onClick={exportCsv}
               disabled={filtered.length === 0}
               title="Download the shown rows as CSV"
-              className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3 text-sm font-semibold text-[#4b443b] hover:border-[#bf502b] disabled:opacity-50"
+              className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3 text-sm font-semibold text-[#4b443b] hover:border-[#21577d] disabled:opacity-50"
             >
               <Download className="size-4" /> Export CSV
             </button>
@@ -452,7 +452,7 @@ export function TableBrowser({
                 <button
                   key={(row.id as string) ?? i}
                   onClick={() => setOpen(row)}
-                  className="flex items-center gap-2 rounded-xl border border-[#e6ded2] bg-[#fffdf9] px-3 py-2 text-left text-sm hover:border-[#bf502b]"
+                  className="flex items-center gap-2 rounded-xl border border-[#e6ded2] bg-[#fffdf9] px-3 py-2 text-left text-sm hover:border-[#21577d]"
                 >
                   <span className="flex-1 truncate">{preview(row)}</span>
                   {row.created_at ? (
@@ -498,7 +498,7 @@ export function TableBrowser({
               {typeof open.id === "string" && (
                 <ConfirmButton
                   label={<span className="inline-flex items-center gap-1.5"><Trash2 className="size-4" /> Delete row</span>}
-                  style={{ display: "inline-flex", alignItems: "center", background: "#fbe9e7", color: "#9a3412", border: "1px solid #f0c4bd", borderRadius: 10, padding: "8px 14px", fontWeight: 600, fontSize: 14, cursor: "pointer" }}
+                  style={{ display: "inline-flex", alignItems: "center", background: "#fbe9e7", color: "#21577d", border: "1px solid #f0c4bd", borderRadius: 10, padding: "8px 14px", fontWeight: 600, fontSize: 14, cursor: "pointer" }}
                   title="Delete this row?"
                   message={`This permanently deletes the row from ${current}.`}
                   warn="This can't be undone."

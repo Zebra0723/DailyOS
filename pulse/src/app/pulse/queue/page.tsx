@@ -28,9 +28,9 @@ export default async function QueuePage() {
       <div className="grid gap-4 md:grid-cols-2">
         <section className={card}>
           <div className="flex items-center gap-2">
-            <BellRing className="size-4" style={{ color: "#bf502b" }} />
+            <BellRing className="size-4" style={{ color: "#21577d" }} />
             <h2 className="text-base font-bold">Reminders due soon</h2>
-            <span className="ml-auto rounded-full bg-[#f2e6da] px-2 py-0.5 text-xs font-bold" style={{ color: "#bf502b" }}>
+            <span className="ml-auto rounded-full bg-[#f2e6da] px-2 py-0.5 text-xs font-bold" style={{ color: "#21577d" }}>
               {dueReminders?.length ?? "—"}
             </span>
           </div>
@@ -52,9 +52,9 @@ export default async function QueuePage() {
 
         <section className={card}>
           <div className="flex items-center gap-2">
-            <Send className="size-4" style={{ color: "#bf502b" }} />
+            <Send className="size-4" style={{ color: "#21577d" }} />
             <h2 className="text-base font-bold">Upcoming scheduled pushes</h2>
-            <span className="ml-auto rounded-full bg-[#f2e6da] px-2 py-0.5 text-xs font-bold" style={{ color: "#bf502b" }}>
+            <span className="ml-auto rounded-full bg-[#f2e6da] px-2 py-0.5 text-xs font-bold" style={{ color: "#21577d" }}>
               {upcoming?.length ?? "—"}
             </span>
           </div>

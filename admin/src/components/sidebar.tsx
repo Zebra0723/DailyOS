@@ -41,12 +41,12 @@ export function Sidebar({ email, unread = 0 }: { email: string; unread?: number 
             <Link
               key={n.href}
               href={n.href}
-              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#bf502b] text-white" : "text-[#4b443b] hover:bg-[#f2e3d3]"}`}
+              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#21577d] text-white" : "text-[#4b443b] hover:bg-[#f2e3d3]"}`}
             >
               <Icon className="size-4 shrink-0" /> {n.label}
               {showBadge && (
                 <span
-                  className={`ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${A ? "bg-white text-[#bf502b]" : "bg-[#bf502b] text-white"}`}
+                  className={`ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${A ? "bg-white text-[#21577d]" : "bg-[#21577d] text-white"}`}
                 >
                   {unread > 99 ? "99+" : unread}
                 </span>

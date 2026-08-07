@@ -13,7 +13,7 @@ import { ConfirmButton } from "@/components/confirm-button";
 import type { SqlResult } from "@/lib/management";
 import type { SqlStore } from "@/lib/sql-store";
 
-const teal = "#bf502b";
+const teal = "#21577d";
 
 const SNIPPETS: { label: string; sql: string }[] = [
   {
@@ -117,7 +117,7 @@ export function SqlConsole({
 
   if (!configured) {
     return (
-      <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#9a3412]">
+      <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#21577d]">
         <p className="flex items-center gap-2 font-semibold">
           <AlertTriangle className="size-4" /> SQL runner not configured
         </p>
@@ -170,7 +170,7 @@ export function SqlConsole({
             <button
               key={s.label}
               onClick={() => { setQuery(s.sql); setResult(null); setNote(null); }}
-              className="rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1 text-xs font-medium text-[#4b443b] hover:border-[#bf502b]"
+              className="rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1 text-xs font-medium text-[#4b443b] hover:border-[#21577d]"
             >
               {s.label}
             </button>
@@ -207,7 +207,7 @@ export function SqlConsole({
           <button
             onClick={saveCurrent}
             disabled={!query.trim()}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3 py-2 text-sm font-semibold text-[#4b443b] hover:border-[#bf502b] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-3 py-2 text-sm font-semibold text-[#4b443b] hover:border-[#21577d] disabled:opacity-50"
           >
             <Bookmark className="size-4" /> Save
           </button>
@@ -234,14 +234,14 @@ export function SqlConsole({
                     <button
                       onClick={() => fill(s.sql)}
                       title={s.sql}
-                      className="flex-1 truncate rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-left text-xs font-medium text-[#4b443b] hover:border-[#bf502b]"
+                      className="flex-1 truncate rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-left text-xs font-medium text-[#4b443b] hover:border-[#21577d]"
                     >
                       {s.name}
                     </button>
                     <button
                       onClick={() => removeSaved(s.name)}
                       title="Delete saved query"
-                      className="shrink-0 rounded-lg p-1.5 text-[#8a8073] hover:bg-[#f2e6da] hover:text-[#9a3412]"
+                      className="shrink-0 rounded-lg p-1.5 text-[#8a8073] hover:bg-[#f2e6da] hover:text-[#21577d]"
                     >
                       <Trash2 className="size-3.5" />
                     </button>
@@ -265,7 +265,7 @@ export function SqlConsole({
                     <button
                       onClick={() => fill(h.sql)}
                       title={h.sql}
-                      className="block w-full truncate rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-left font-mono text-[11px] text-[#6b6157] hover:border-[#bf502b]"
+                      className="block w-full truncate rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-left font-mono text-[11px] text-[#6b6157] hover:border-[#21577d]"
                     >
                       {h.sql.replace(/\s+/g, " ").trim()}
                     </button>
@@ -284,7 +284,7 @@ export function SqlConsole({
       )}
 
       {result && !result.ok && (
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">
           {result.error}
         </div>
       )}

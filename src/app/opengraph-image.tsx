@@ -17,8 +17,8 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          background: "linear-gradient(135deg, #f7f2e9 0%, #f0e2cf 100%)",
-          color: "#2b2019",
+          background: "linear-gradient(135deg, #f3f8fc 0%, #d6e8f4 100%)",
+          color: "#183040",
           fontFamily: "sans-serif",
         }}
       >
@@ -31,7 +31,7 @@ export default function OpengraphImage() {
               borderRadius: 28,
               alignItems: "center",
               justifyContent: "center",
-              background: "linear-gradient(135deg, #E0864F, #9A3412)",
+              background: "linear-gradient(135deg, #1976a8, #21577d)",
             }}
           >
             <svg
@@ -52,7 +52,7 @@ export default function OpengraphImage() {
             </svg>
           </div>
           <div style={{ display: "flex", fontSize: 52, fontWeight: 700 }}>
-            <span style={{ color: "#bf502b" }}>Daily</span>
+            <span style={{ color: "#1976a8" }}>Daily</span>
             <span>OS</span>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function OpengraphImage() {
           }}
         >
           <div style={{ display: "flex" }}>Your life admin,</div>
-          <div style={{ display: "flex", color: "#bf502b" }}>
+          <div style={{ display: "flex", color: "#1976a8" }}>
             finally handled.
           </div>
         </div>

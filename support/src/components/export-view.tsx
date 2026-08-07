@@ -4,7 +4,7 @@ import * as React from "react";
 import { Download, Copy, Check } from "lucide-react";
 import type { Feedback } from "@/lib/feedback";
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 
 /** Escape a single CSV field per RFC 4180 (quote when it contains
  *  comma, quote, or newline; double up embedded quotes). */
@@ -150,7 +150,7 @@ export function ExportView({ items }: { items: Feedback[] }) {
           readOnly
           value={digest}
           rows={Math.min(16, digest.split("\n").length + 1)}
-          className="mt-3 w-full resize-y rounded-xl border border-[#e6ded2] bg-[#faf6ef] p-3 font-mono text-xs text-[#4b443b] outline-none focus:border-[#bf502b]"
+          className="mt-3 w-full resize-y rounded-xl border border-[#e6ded2] bg-[#faf6ef] p-3 font-mono text-xs text-[#4b443b] outline-none focus:border-[#21577d]"
         />
       </div>
     </div>

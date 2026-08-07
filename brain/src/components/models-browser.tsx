@@ -58,7 +58,7 @@ export function ModelsBrowser({ config }: { config: AIConfig }) {
               key={m}
               type="button"
               onClick={() => setSelected(m)}
-              className={`${chipCls} ${m === selected ? "ring-1 ring-[#bf502b]" : ""}`}
+              className={`${chipCls} ${m === selected ? "ring-1 ring-[#21577d]" : ""}`}
             >
               {m === selected && <Check className="mr-1 inline size-3" />}{m}
             </button>

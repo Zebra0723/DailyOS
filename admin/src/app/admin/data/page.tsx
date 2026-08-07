@@ -47,7 +47,7 @@ export default async function DataPage({
       <Warning>Deleting a row permanently removes real user content — it can&apos;t be recovered.</Warning>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
         {DATA_TABLES.map((t) => (
-          <a key={t} href={`/admin/data?table=${t}`} style={{ fontSize: 13, padding: "5px 10px", borderRadius: 999, textDecoration: "none", border: "1px solid #e6ded2", background: t === table ? "#bf502b" : "#fffdf9", color: t === table ? "#fff" : "#1c1a17" }}>
+          <a key={t} href={`/admin/data?table=${t}`} style={{ fontSize: 13, padding: "5px 10px", borderRadius: 999, textDecoration: "none", border: "1px solid #e6ded2", background: t === table ? "#21577d" : "#fffdf9", color: t === table ? "#fff" : "#1c1a17" }}>
             {t}
           </a>
         ))}
@@ -75,7 +75,7 @@ export default async function DataPage({
                   <td style={{ ...cell, wordBreak: "break-word" }}>{summarize(r)}</td>
                   <td style={{ ...cell, whiteSpace: "nowrap" }}>
                     {uid ? (
-                      <Link href={`/admin/users/${uid}`} style={{ color: "#bf502b", textDecoration: "none" }}>{email}</Link>
+                      <Link href={`/admin/users/${uid}`} style={{ color: "#21577d", textDecoration: "none" }}>{email}</Link>
                     ) : "—"}
                   </td>
                   <td style={{ ...cell, whiteSpace: "nowrap", color: "#6b6157" }}>

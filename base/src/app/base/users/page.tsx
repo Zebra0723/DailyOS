@@ -15,7 +15,7 @@ export default async function UsersPage() {
           <h1 className="text-2xl font-bold">Users</h1>
           <p className="text-sm text-[#6b6157]">Auth users manager.</p>
         </div>
-        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#9a3412]">
+        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#21577d]">
           Service role not configured. Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
           <code>SUPABASE_SERVICE_ROLE_KEY</code> to manage auth users.
         </div>
@@ -50,7 +50,7 @@ export default async function UsersPage() {
         </p>
       </div>
       {error ? (
-        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#9a3412]">{error}</div>
+        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#21577d]">{error}</div>
       ) : (
         <UsersManager users={users} />
       )}

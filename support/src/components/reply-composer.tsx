@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
 import { createReply } from "@/app/support/actions";
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 
 /**
  * Small reply box shown on each feedback item. The server action decides what
@@ -51,7 +51,7 @@ export function ReplyComposer({
         onChange={(e) => setBody(e.target.value)}
         placeholder="Write a reply…"
         rows={2}
-        className="w-full resize-y rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-sm text-[#4b443b] outline-none focus:border-[#bf502b]"
+        className="w-full resize-y rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-sm text-[#4b443b] outline-none focus:border-[#21577d]"
       />
       <div className="mt-1.5 flex flex-wrap items-center gap-2">
         <button
@@ -67,7 +67,7 @@ export function ReplyComposer({
         <span className="text-xs text-[#8a8073]">{hint}</span>
       </div>
       {msg && (
-        <p className={`mt-1.5 text-xs font-medium ${msg.ok ? "text-[#5b7a3a]" : "text-[#9a3412]"}`}>
+        <p className={`mt-1.5 text-xs font-medium ${msg.ok ? "text-[#5b7a3a]" : "text-[#21577d]"}`}>
           {msg.text}
         </p>
       )}

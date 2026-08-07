@@ -16,7 +16,7 @@ const BTN: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   gap: 6,
-  background: "#bf502b",
+  background: "#21577d",
   color: "#fff",
   border: 0,
   borderRadius: 8,

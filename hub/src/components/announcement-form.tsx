@@ -58,7 +58,7 @@ export function AnnouncementForm({ current }: { current: string }) {
             type="button"
             onClick={save}
             disabled={pending || !dirty}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#bf502b] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#a7431f] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#21577d] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#a7431f] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pending ? "Saving…" : "Save announcement"}
           </button>

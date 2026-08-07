@@ -97,7 +97,7 @@ export function CommsThread({
                 </div>
                 <div
                   style={{
-                    background: mine ? "#bf502b" : "#f2e6da",
+                    background: mine ? "#21577d" : "#f2e6da",
                     color: mine ? "#fff" : "#1c1a17",
                     borderRadius: 14,
                     borderTopRightRadius: mine ? 4 : 14,
@@ -162,7 +162,7 @@ export function CommsThread({
             height: 44,
             borderRadius: 12,
             border: 0,
-            background: "#bf502b",
+            background: "#21577d",
             color: "#fff",
             fontWeight: 600,
             padding: "0 20px",

@@ -5,7 +5,7 @@ import { Sparkles, Loader2, Mail, MessageSquareQuote } from "lucide-react";
 import { MULTIPLE_CHOICE, OPEN_ENDED, type SurveyResponse } from "@/lib/survey";
 import { summarizeQuestion } from "@/app/support/survey/actions";
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 const TRACK = "#f2e6da";
 
 /** Relative "time ago" from a timestamp, deferred to after mount. */
@@ -153,7 +153,7 @@ function OpenEnded({
       </div>
 
       {error && (
-        <div className="mt-3 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-xs text-[#9a3412]">
+        <div className="mt-3 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-xs text-[#21577d]">
           {error}
         </div>
       )}

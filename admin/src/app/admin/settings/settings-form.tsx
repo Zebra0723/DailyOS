@@ -41,7 +41,7 @@ export function SettingsForm({
           {maintenance ? "On — app is in maintenance" : "Off — app is live"}
         </label>
       </div>
-      <button onClick={save} disabled={busy} style={{ background: "#bf502b", color: "#fff", border: 0, borderRadius: 10, padding: "10px 18px", fontWeight: 700, cursor: "pointer", opacity: busy ? 0.6 : 1 }}>
+      <button onClick={save} disabled={busy} style={{ background: "#21577d", color: "#fff", border: 0, borderRadius: 10, padding: "10px 18px", fontWeight: 700, cursor: "pointer", opacity: busy ? 0.6 : 1 }}>
         {busy ? "Saving…" : "Save settings"}
       </button>
       {status && <p style={{ fontSize: 13, color: "#1c1a17", marginTop: 10 }}>{status}</p>}

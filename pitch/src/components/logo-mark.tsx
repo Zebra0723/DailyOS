@@ -5,8 +5,8 @@ export function LogoMark({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="pitch-mark" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#E0864F" />
-          <stop offset="1" stopColor="#9A3412" />
+          <stop offset="0" stopColor="#1976a8" />
+          <stop offset="1" stopColor="#21577d" />
         </linearGradient>
       </defs>
       <g

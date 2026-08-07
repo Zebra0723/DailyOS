@@ -13,7 +13,7 @@ function Pills({ latencyMs, usage }: { latencyMs?: number; usage?: ChatUsage }) 
   return (
     <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs">
       {typeof latencyMs === "number" && (
-        <span className="inline-flex items-center gap-1 rounded-full border border-[#e6ded2] bg-[#fffdf9] px-2 py-0.5 font-medium text-[#bf502b]"><Clock className="size-3" /> {latencyMs} ms</span>
+        <span className="inline-flex items-center gap-1 rounded-full border border-[#e6ded2] bg-[#fffdf9] px-2 py-0.5 font-medium text-[#21577d]"><Clock className="size-3" /> {latencyMs} ms</span>
       )}
       {usage?.prompt_tokens != null && <span className="rounded-full border border-[#e6ded2] bg-[#fffdf9] px-2 py-0.5 font-medium text-[#4b443b]">prompt {usage.prompt_tokens}</span>}
       {usage?.completion_tokens != null && <span className="rounded-full border border-[#e6ded2] bg-[#fffdf9] px-2 py-0.5 font-medium text-[#4b443b]">completion {usage.completion_tokens}</span>}
@@ -104,7 +104,7 @@ export function Playground({ defaultTemperature, override }: { defaultTemperatur
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm">
           <span className="font-medium text-[#4b443b]">Temp</span>
-          <input type="number" min={0} max={2} step={0.1} value={temperature} onChange={(e) => setTemperature(e.target.value)} className="w-24 rounded-lg border border-[#d9d2c6] bg-white p-2 text-sm outline-none focus:border-[#bf502b]" />
+          <input type="number" min={0} max={2} step={0.1} value={temperature} onChange={(e) => setTemperature(e.target.value)} className="w-24 rounded-lg border border-[#d9d2c6] bg-white p-2 text-sm outline-none focus:border-[#21577d]" />
         </label>
         <button onClick={send} disabled={running || !input.trim()} className="inline-flex items-center gap-2" style={{ ...btnStyle, opacity: running || !input.trim() ? 0.6 : 1 }}>
           {running ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />} Send

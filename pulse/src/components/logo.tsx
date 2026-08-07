@@ -6,8 +6,8 @@ export function Logo({ withText = true }: { withText?: boolean }) {
       <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" style={{ flexShrink: 0 }}>
         <defs>
           <linearGradient id="dos-mark" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#E0864F" />
-            <stop offset="1" stopColor="#9A3412" />
+            <stop offset="0" stopColor="#1976a8" />
+            <stop offset="1" stopColor="#21577d" />
           </linearGradient>
         </defs>
         <g fill="none" stroke="url(#dos-mark)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -20,7 +20,7 @@ export function Logo({ withText = true }: { withText?: boolean }) {
       </svg>
       {withText && (
         <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em" }}>
-          <span style={{ color: "#bf502b" }}>Daily</span>
+          <span style={{ color: "#21577d" }}>Daily</span>
           <span style={{ color: "#1c1a17" }}>OS</span>
           <span style={{ color: "#8a7d6d", fontWeight: 600 }}>&nbsp;Pulse</span>
         </span>

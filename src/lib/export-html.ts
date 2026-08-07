@@ -160,8 +160,8 @@ export function buildExportHtml(data: ExportData): string {
 <title>DailyOS export · ${esc(exportedOn)}</title>
 <style>
   :root {
-    --bg: #f7f2e9; --card: #fffdf9; --ink: #1c1917; --muted: #78716c;
-    --primary: #bf502b; --accent: #f0e6d6; --line: #e7ddcc;
+    --bg: #f3f8fc; --card: #fafcfe; --ink: #183040; --muted: #5c7080;
+    --primary: #1976a8; --accent: #e4f0f8; --line: #c8dce8;
   }
   * { box-sizing: border-box; }
   body {
@@ -174,7 +174,7 @@ export function buildExportHtml(data: ExportData): string {
   .brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; }
   .brand .dot {
     width: 26px; height: 26px; border-radius: 8px;
-    background: linear-gradient(135deg, #E0864F, #9A3412);
+    background: linear-gradient(135deg, #1976a8, #21577d);
     display: inline-block;
   }
   header {

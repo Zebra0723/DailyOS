@@ -38,7 +38,7 @@ export function ReminderList({ initial }: { initial: Reminder[] }) {
     <div>
       <form onSubmit={add} style={{ display: "flex", gap: 8, marginBottom: 18 }}>
         <input style={field} placeholder="Add a reminder for you and Leo…" value={text} onChange={(e) => setText(e.target.value)} />
-        <button type="submit" disabled={pending} style={{ height: 42, borderRadius: 10, border: 0, background: "#bf502b", color: "#fff", fontWeight: 600, padding: "0 16px", cursor: "pointer" }}>
+        <button type="submit" disabled={pending} style={{ height: 42, borderRadius: 10, border: 0, background: "#21577d", color: "#fff", fontWeight: 600, padding: "0 16px", cursor: "pointer" }}>
           Add
         </button>
       </form>

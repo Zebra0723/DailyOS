@@ -18,7 +18,7 @@ export type AuthUserRow = {
   metadata: Record<string, unknown>;
 };
 
-const teal = "#bf502b";
+const teal = "#21577d";
 
 function fmt(d: string | null): string {
   if (!d) return "—";
@@ -78,12 +78,12 @@ function EditUser({
               <input
                 value={vals[k]}
                 onChange={(e) => setVals((v) => ({ ...v, [k]: e.target.value }))}
-                className="h-9 w-full rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#bf502b]"
+                className="h-9 w-full rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#21577d]"
               />
             </div>
           ))}
         </div>
-        {error && <div className="mt-3 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">{error}</div>}
+        {error && <div className="mt-3 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">{error}</div>}
         <div className="mt-4 flex justify-end gap-2">
           <button onClick={onClose} className="rounded-lg bg-[#eae3d7] px-4 py-2 text-sm font-semibold text-[#1c1a17]">Cancel</button>
           <button onClick={save} disabled={busy} style={{ background: teal, opacity: busy ? 0.6 : 1 }} className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white">
@@ -127,7 +127,7 @@ function CreateUser({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
               <button
                 key={m}
                 onClick={() => setMode(m)}
-                className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold ${mode === m ? "bg-[#bf502b] text-white" : "border border-[#e6ded2] text-[#4b443b]"}`}
+                className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold ${mode === m ? "bg-[#21577d] text-white" : "border border-[#e6ded2] text-[#4b443b]"}`}
               >
                 {m === "invite" ? "Send invite email" : "Create directly"}
               </button>
@@ -137,7 +137,7 @@ function CreateUser({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="email@example.com"
-            className="h-9 w-full rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#bf502b]"
+            className="h-9 w-full rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#21577d]"
           />
           {mode === "create" && (
             <input
@@ -145,11 +145,11 @@ function CreateUser({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
               onChange={(e) => setPassword(e.target.value)}
               placeholder="password (optional, min 6 chars)"
               type="text"
-              className="h-9 w-full rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#bf502b]"
+              className="h-9 w-full rounded-lg border border-[#d9d2c6] bg-white px-2.5 text-sm outline-none focus:border-[#21577d]"
             />
           )}
         </div>
-        {error && <div className="mt-3 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">{error}</div>}
+        {error && <div className="mt-3 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">{error}</div>}
         <div className="mt-4 flex justify-end gap-2">
           <button onClick={onClose} className="rounded-lg bg-[#eae3d7] px-4 py-2 text-sm font-semibold text-[#1c1a17]">Cancel</button>
           <button onClick={submit} disabled={busy || !email.trim()} style={{ background: teal, opacity: busy || !email.trim() ? 0.6 : 1 }} className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white">
@@ -189,7 +189,7 @@ export function UsersManager({ users }: { users: AuthUserRow[] }) {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={`Search ${filtered.length} user${filtered.length === 1 ? "" : "s"}…`}
-          className="h-10 flex-1 rounded-lg border border-[#d9d2c6] bg-white px-3 text-sm outline-none focus:border-[#bf502b]"
+          className="h-10 flex-1 rounded-lg border border-[#d9d2c6] bg-white px-3 text-sm outline-none focus:border-[#21577d]"
         />
         <button onClick={() => setCreating(true)} style={{ background: teal }} className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-white">
           <UserPlus className="size-4" /> New user
@@ -228,7 +228,7 @@ export function UsersManager({ users }: { users: AuthUserRow[] }) {
                       <button onClick={() => setEditing(u)} className="rounded-lg border border-[#a7d8d3] bg-[#e0f2f1] px-2.5 py-1 text-xs font-semibold" style={{ color: "#a5401f" }}>Edit</button>
                       <ConfirmButton
                         label={<Trash2 className="size-3.5" />}
-                        style={{ display: "inline-flex", alignItems: "center", background: "#fbe9e7", color: "#9a3412", border: "1px solid #f0c4bd", borderRadius: 8, padding: "5px 8px", cursor: "pointer" }}
+                        style={{ display: "inline-flex", alignItems: "center", background: "#fbe9e7", color: "#21577d", border: "1px solid #f0c4bd", borderRadius: 8, padding: "5px 8px", cursor: "pointer" }}
                         title="Delete this user?"
                         message={`Permanently deletes ${u.email || u.id} from auth.`}
                         warn="This can't be undone."

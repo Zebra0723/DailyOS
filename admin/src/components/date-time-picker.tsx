@@ -31,7 +31,7 @@ function label(p: Parts): string {
   });
 }
 
-const BRAND = "#bf502b";
+const BRAND = "#21577d";
 
 export function DateTimePicker({
   value,

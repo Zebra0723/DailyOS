@@ -6,7 +6,7 @@ import { LayoutDashboard, Rocket, FolderGit2, KeyRound, Globe, ExternalLink, Log
 import { signOutAdmin } from "@/app/verify/actions";
 import { Logo } from "@/components/logo";
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 const NAV = [
   { href: "/deploy", label: "Overview", icon: LayoutDashboard },
   { href: "/deploy/deployments", label: "Deployments", icon: Rocket },

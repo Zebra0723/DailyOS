@@ -23,7 +23,7 @@ const DARK_BTN: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   gap: 6,
-  background: "#bf502b",
+  background: "#21577d",
   color: "#fff",
   border: 0,
   borderRadius: 8,
@@ -50,7 +50,7 @@ function TargetPills({
             type="button"
             onClick={() => onToggle(t)}
             className="rounded-md px-2 py-1 text-[11px] font-semibold"
-            style={on ? { background: "#bf502b", color: "#fff" } : { background: "#e5e7eb", color: "#374151" }}
+            style={on ? { background: "#21577d", color: "#fff" } : { background: "#e5e7eb", color: "#374151" }}
           >
             {t}
           </button>
@@ -106,7 +106,7 @@ function AddForm({ onDone }: { onDone: () => void }) {
           <Plus className="size-4" /> {busy ? "Adding…" : "Add"}
         </button>
       </div>
-      {msg && <p className="text-sm text-[#9a3412]">{msg}</p>}
+      {msg && <p className="text-sm text-[#21577d]">{msg}</p>}
     </div>
   );
 }
@@ -149,7 +149,7 @@ function Row({ env, onChanged }: { env: EnvVar; onChanged: () => void }) {
         <>
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             {env.target.map((t) => (
-              <span key={t} className="rounded-md bg-[#bf502b] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+              <span key={t} className="rounded-md bg-[#21577d] px-1.5 py-0.5 text-[10px] font-semibold text-white">
                 {t}
               </span>
             ))}
@@ -193,7 +193,7 @@ function Row({ env, onChanged }: { env: EnvVar; onChanged: () => void }) {
               <X className="size-3.5" /> Cancel
             </button>
           </div>
-          {msg && <p className="text-sm text-[#9a3412]">{msg}</p>}
+          {msg && <p className="text-sm text-[#21577d]">{msg}</p>}
         </div>
       )}
     </div>

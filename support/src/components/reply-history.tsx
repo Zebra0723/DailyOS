@@ -2,7 +2,7 @@ import type { Reply } from "@/lib/replies";
 
 const STYLES: Record<Reply["status"], { label: string; bg: string; color: string }> = {
   approved: { label: "Sent", bg: "#e7f0dc", color: "#4d6b2b" },
-  pending: { label: "Pending approval", bg: "#f7ece4", color: "#bf502b" },
+  pending: { label: "Pending approval", bg: "#f7ece4", color: "#21577d" },
   declined: { label: "Declined", bg: "#f2e6da", color: "#8a8073" },
 };
 
@@ -37,7 +37,7 @@ export function ReplyHistory({ replies }: { replies: Reply[] }) {
           </div>
           <p className="mt-1 whitespace-pre-wrap text-sm text-[#4b443b]">{r.body}</p>
           {r.send_error && (
-            <p className="mt-1 text-[11px] font-medium text-[#9a3412]">Send error: {r.send_error}</p>
+            <p className="mt-1 text-[11px] font-medium text-[#21577d]">Send error: {r.send_error}</p>
           )}
         </div>
       ))}

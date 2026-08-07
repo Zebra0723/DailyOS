@@ -23,7 +23,7 @@ export function AnnouncementBanner({ text }: { text: string }) {
     <div
       className="relative overflow-hidden"
       style={{
-        background: "linear-gradient(135deg, #E0864F 0%, #9A3412 60%, #7C2D12 100%)",
+        background: "linear-gradient(135deg, #1976a8 0%, #21577d 60%, #153d5e 100%)",
       }}
     >
       {/* Decorative circles */}

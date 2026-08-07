@@ -9,7 +9,7 @@ export default async function PlaygroundPage() {
   return (
     <div className="grid gap-5">
       <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold"><MessagesSquare className="size-6 text-[#bf502b]" /> Playground</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><MessagesSquare className="size-6 text-[#21577d]" /> Playground</h1>
         <p className="text-sm text-[#6b6157]">Hold a real multi-turn conversation with the assistant to test tone, latency, and token usage.</p>
       </div>
       <Playground defaultTemperature={config.temperature} override={config.systemPromptOverride} />

@@ -37,7 +37,7 @@ export function BirthdayBanner() {
       className="relative overflow-hidden"
       style={{
         backgroundImage:
-          "linear-gradient(90deg,#bf502b,#e0864f,#f2b705,#e0864f,#bf502b)",
+          "linear-gradient(90deg,#21577d,#1976a8,#9adbdc,#1976a8,#21577d)",
       }}
     >
       <div className="relative flex items-center justify-center gap-2 px-10 py-3.5 text-center sm:gap-4 sm:py-4">

@@ -30,9 +30,9 @@ export default async function ActivityPage() {
       {/* Activity timeline (24h histogram) */}
       <section className={card}>
         <div className="flex items-center gap-2">
-          <BarChart3 className="size-4" style={{ color: "#bf502b" }} />
+          <BarChart3 className="size-4" style={{ color: "#21577d" }} />
           <h2 className="text-base font-bold">Push activity (24h)</h2>
-          <span className="ml-auto rounded-full bg-[#f2e6da] px-2 py-0.5 text-xs font-bold" style={{ color: "#bf502b" }}>
+          <span className="ml-auto rounded-full bg-[#f2e6da] px-2 py-0.5 text-xs font-bold" style={{ color: "#21577d" }}>
             {histTotal ?? "—"}
           </span>
         </div>
@@ -49,7 +49,7 @@ export default async function ActivityPage() {
                     className="w-full rounded-t-sm transition-colors"
                     style={{
                       height: `${Math.max(b.count > 0 ? 6 : 2, Math.round((b.count / peakBar) * 100))}%`,
-                      background: b.count > 0 ? "#bf502b" : "#efe7db",
+                      background: b.count > 0 ? "#21577d" : "#efe7db",
                     }}
                   />
                 </div>
@@ -67,7 +67,7 @@ export default async function ActivityPage() {
       {/* Recent activity */}
       <section className={card}>
         <div className="flex items-center gap-2">
-          <Activity className="size-4" style={{ color: "#bf502b" }} />
+          <Activity className="size-4" style={{ color: "#21577d" }} />
           <h2 className="text-base font-bold">Recent push activity</h2>
         </div>
         {activity === null ? (

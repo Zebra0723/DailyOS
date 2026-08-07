@@ -42,7 +42,7 @@ export function Sidebar({ email, apps }: { email: string; apps: AppNav[] }) {
             <Link
               key={n.href}
               href={n.href}
-              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#bf502b] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
+              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#21577d] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
             >
               <Icon className="size-4 shrink-0" /> {n.label}
             </Link>

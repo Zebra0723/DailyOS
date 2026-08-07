@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ClipboardCopy, Check } from "lucide-react";
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 
 /** Copies a pre-assembled plain-text status summary to the clipboard,
  *  with a transient "Copied" confirmation. Degrades to a textarea-select

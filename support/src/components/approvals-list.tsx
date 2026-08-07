@@ -7,7 +7,7 @@ import { ConfirmButton } from "@/components/confirm-button";
 import { approveReply, declineReply, editAndApproveReply } from "@/app/support/approvals/actions";
 import type { PendingReplyView } from "@/lib/replies";
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 
 function mailtoHref(to: string, body: string): string {
   const subject = "Re: your DailyOS feedback";
@@ -42,7 +42,7 @@ function OwnerActions({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           rows={4}
-          className="w-full resize-y rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-sm text-[#4b443b] outline-none focus:border-[#bf502b]"
+          className="w-full resize-y rounded-lg border border-[#e6ded2] bg-[#fffdf9] px-2.5 py-1.5 text-sm text-[#4b443b] outline-none focus:border-[#21577d]"
         />
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -108,7 +108,7 @@ function OwnerActions({
         style={{
           display: "inline-flex",
           background: "#fbe9e7",
-          color: "#9a3412",
+          color: "#21577d",
           border: "1px solid #f0c4bd",
           borderRadius: 10,
           padding: "5px 10px",
@@ -160,7 +160,7 @@ export function ApprovalsList({
     <div className="grid gap-3">
       {!isOwner && (
         <div className="flex items-center gap-2 rounded-xl border border-[#e6ded2] bg-[#f7ece4] px-3 py-2 text-sm text-[#6b6157]">
-          <Lock className="size-4 shrink-0 text-[#bf502b]" />
+          <Lock className="size-4 shrink-0 text-[#21577d]" />
           Only the owner can approve replies. You can see what&apos;s queued below.
         </div>
       )}
@@ -184,7 +184,7 @@ export function ApprovalsList({
             </div>
 
             <div className="mt-2 rounded-lg border border-[#e6c9bd] bg-[#f7ece4] px-2.5 py-2">
-              <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#bf502b]">
+              <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#21577d]">
                 <span className="font-semibold uppercase tracking-wide">Drafted reply</span>
                 <span className="text-[#8a8073]">by {reply.author_email}</span>
                 <span className="ml-auto inline-flex items-center gap-1 text-[#a39a8c]">
@@ -207,7 +207,7 @@ export function ApprovalsList({
 
             {msg && (
               <p
-                className={`mt-2 text-xs font-medium ${msg.ok ? "text-[#5b7a3a]" : "text-[#9a3412]"}`}
+                className={`mt-2 text-xs font-medium ${msg.ok ? "text-[#5b7a3a]" : "text-[#21577d]"}`}
               >
                 {msg.text}
               </p>

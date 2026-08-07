@@ -20,15 +20,15 @@ export default async function LogsPage({ params }: { params: { id: string } }) {
       </div>
 
       {!vercelConfigured() ? (
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">
           Set <code>VC_TOKEN</code> in this project&apos;s environment to view logs.
         </div>
       ) : !res.ok ? (
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">{res.error}</div>
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">{res.error}</div>
       ) : (res.lines ?? []).length === 0 ? (
         <p className="text-sm text-[#8a8073]">No log events available for this deployment.</p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-[#e6ded2] bg-[#bf502b] p-4">
+        <div className="overflow-x-auto rounded-xl border border-[#e6ded2] bg-[#21577d] p-4">
           <pre className="text-xs leading-relaxed text-[#e5e7eb]" style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
             {res.lines!.map((l, i) => (
               <div key={i} className="whitespace-pre-wrap break-words">

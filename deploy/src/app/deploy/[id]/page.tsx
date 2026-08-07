@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 const STATE_STYLE: Record<string, { bg: string; fg: string }> = {
   READY: { bg: "#dcfce7", fg: "#166534" },
-  ERROR: { bg: "#fbe9e7", fg: "#9a3412" },
+  ERROR: { bg: "#fbe9e7", fg: "#21577d" },
   BUILDING: { bg: "#fef3c7", fg: "#92400e" },
   QUEUED: { bg: "#e5e7eb", fg: "#374151" },
   CANCELED: { bg: "#e5e7eb", fg: "#6b7280" },
@@ -48,7 +48,7 @@ export default async function DeploymentDetailPage({ params }: { params: { id: s
     return (
       <div className="grid gap-5">
         <BackLink />
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">
           Set <code>VC_TOKEN</code> in this project&apos;s environment to view deployment details.
         </div>
       </div>
@@ -64,7 +64,7 @@ export default async function DeploymentDetailPage({ params }: { params: { id: s
     return (
       <div className="grid gap-5">
         <BackLink />
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">
           {detail.error ?? "Deployment not found."}
         </div>
       </div>
@@ -86,7 +86,7 @@ export default async function DeploymentDetailPage({ params }: { params: { id: s
             {d.state}
           </span>
           {isProd && (
-            <span className="rounded-md bg-[#bf502b] px-2 py-0.5 text-[11px] font-bold text-white">PROD</span>
+            <span className="rounded-md bg-[#21577d] px-2 py-0.5 text-[11px] font-bold text-white">PROD</span>
           )}
         </div>
         <p className="mt-1 break-all text-sm text-[#6b6157]">Deployment {d.uid}</p>
@@ -135,7 +135,7 @@ export default async function DeploymentDetailPage({ params }: { params: { id: s
                 href={`https://${d.url}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 text-[#bf502b] hover:underline"
+                className="inline-flex items-center gap-1 text-[#21577d] hover:underline"
               >
                 <ExternalLink className="size-3.5" /> {d.url}
               </a>
@@ -152,7 +152,7 @@ export default async function DeploymentDetailPage({ params }: { params: { id: s
                     href={`https://${a}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-[#bf502b] hover:underline"
+                    className="inline-flex items-center gap-1 text-[#21577d] hover:underline"
                   >
                     <ExternalLink className="size-3.5" /> {a}
                   </a>
@@ -167,7 +167,7 @@ export default async function DeploymentDetailPage({ params }: { params: { id: s
 
       <div className="rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4">
         <div className="flex items-start gap-2">
-          <History className="mt-0.5 size-4 shrink-0 text-[#bf502b]" />
+          <History className="mt-0.5 size-4 shrink-0 text-[#21577d]" />
           <div>
             <h2 className="text-sm font-bold">Rollback</h2>
             <p className="mt-0.5 text-sm text-[#6b6157]">
@@ -182,16 +182,16 @@ export default async function DeploymentDetailPage({ params }: { params: { id: s
       <div>
         <div className="mb-2 flex items-center justify-between">
           <h2 className="inline-flex items-center gap-1.5 text-sm font-bold">
-            <ScrollText className="size-4 text-[#bf502b]" /> Build log tail
+            <ScrollText className="size-4 text-[#21577d]" /> Build log tail
           </h2>
-          <Link href={`/deploy/logs/${d.uid}`} className="text-xs font-semibold text-[#bf502b] hover:underline">
+          <Link href={`/deploy/logs/${d.uid}`} className="text-xs font-semibold text-[#21577d] hover:underline">
             View full logs
           </Link>
         </div>
         {tail.length === 0 ? (
           <p className="text-sm text-[#8a8073]">No log events available for this deployment.</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-[#e6ded2] bg-[#bf502b] p-4">
+          <div className="overflow-x-auto rounded-xl border border-[#e6ded2] bg-[#21577d] p-4">
             <pre
               className="text-xs leading-relaxed text-[#e5e7eb]"
               style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}

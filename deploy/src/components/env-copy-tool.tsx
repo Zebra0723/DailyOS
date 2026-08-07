@@ -20,7 +20,7 @@ const COPY_BTN: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   gap: 6,
-  background: "#bf502b",
+  background: "#21577d",
   color: "#fff",
   border: 0,
   borderRadius: 8,
@@ -71,7 +71,7 @@ export function EnvCopyTool({ envs }: { envs: EnvVar[] }) {
   return (
     <div className="grid gap-3 rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4">
       <div className="flex items-center gap-2">
-        <Copy className="size-4 text-[#bf502b]" />
+        <Copy className="size-4 text-[#21577d]" />
         <h2 className="text-sm font-bold">Copy value between targets</h2>
       </div>
       <p className="text-sm text-[#6b6157]">
@@ -117,7 +117,7 @@ export function EnvCopyTool({ envs }: { envs: EnvVar[] }) {
 
       {(!sourceValueKnown || needsValue) && (
         <div className="grid gap-1.5 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3">
-          <p className="text-xs font-semibold text-[#9a3412]">
+          <p className="text-xs font-semibold text-[#21577d]">
             This variable is write-only on Vercel — its value can&apos;t be read back. Paste the value to copy it across.
           </p>
           <input
@@ -149,7 +149,7 @@ export function EnvCopyTool({ envs }: { envs: EnvVar[] }) {
           onConfirm={apply}
         />
         {msg && (
-          <span className={`text-xs ${msg.ok ? "text-[#166534]" : "text-[#9a3412]"}`}>{msg.text}</span>
+          <span className={`text-xs ${msg.ok ? "text-[#166534]" : "text-[#21577d]"}`}>{msg.text}</span>
         )}
       </div>
     </div>

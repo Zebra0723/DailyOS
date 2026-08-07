@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const card = "rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4";
 
 function Stat({ icon: Icon, label, value, sub, tone }: { icon: typeof Gauge; label: string; value: string; sub?: string; tone?: "ok" | "warn" }) {
-  const color = tone === "warn" ? "#c0392b" : tone === "ok" ? "#15803d" : "#bf502b";
+  const color = tone === "warn" ? "#c0392b" : tone === "ok" ? "#15803d" : "#21577d";
   return (
     <div className={card}>
       <div className="mb-1 flex items-center gap-1.5 text-[#8a8073]">
@@ -40,7 +40,7 @@ export default async function OverviewPage() {
 
       {/* Alerts */}
       {s.maintenance && (
-        <Link href="/hub/controls" className="flex items-center gap-2 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412] transition-colors hover:border-[#e39a8c]">
+        <Link href="/hub/controls" className="flex items-center gap-2 rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d] transition-colors hover:border-[#e39a8c]">
           <Wrench className="size-4 shrink-0" /> Maintenance mode is <b>ON</b> — users see the maintenance screen. <span className="ml-auto text-xs font-medium">Manage →</span>
         </Link>
       )}

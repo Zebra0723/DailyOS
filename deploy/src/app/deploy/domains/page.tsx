@@ -15,15 +15,15 @@ export default async function DomainsPage() {
       </div>
 
       {!vercelConfigured() ? (
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">
           Set <code>VC_TOKEN</code> in this project&apos;s environment.
         </div>
       ) : !projectConfigured() ? (
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">
           Set <code>VC_PROJECT_ID</code> to list a project&apos;s domains.
         </div>
       ) : !res.ok ? (
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">{res.error}</div>
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">{res.error}</div>
       ) : (res.domains ?? []).length === 0 ? (
         <p className="text-sm text-[#8a8073]">No domains found.</p>
       ) : (
@@ -35,7 +35,7 @@ export default async function DomainsPage() {
                   href={`https://${d.name}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm font-bold text-[#bf502b] hover:underline"
+                  className="text-sm font-bold text-[#21577d] hover:underline"
                 >
                   {d.name}
                 </a>

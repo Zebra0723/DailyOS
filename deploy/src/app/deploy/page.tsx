@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 const STATE_STYLE: Record<string, { bg: string; fg: string }> = {
   READY: { bg: "#dcfce7", fg: "#166534" },
-  ERROR: { bg: "#fbe9e7", fg: "#9a3412" },
+  ERROR: { bg: "#fbe9e7", fg: "#21577d" },
   BUILDING: { bg: "#fef3c7", fg: "#92400e" },
   QUEUED: { bg: "#e5e7eb", fg: "#374151" },
   CANCELED: { bg: "#e5e7eb", fg: "#6b7280" },
@@ -56,17 +56,17 @@ export default async function OverviewPage() {
       </div>
 
       {!configured ? (
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">
           Set <code>VC_TOKEN</code> (and optionally <code>VC_PROJECT_ID</code> / <code>VC_TEAM_ID</code>) in this project&apos;s environment to see production status.
         </div>
       ) : !res.ok ? (
-        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#9a3412]">{res.error}</div>
+        <div className="rounded-xl border border-[#f0c4bd] bg-[#fbe9e7] p-3 text-sm text-[#21577d]">{res.error}</div>
       ) : (
         <>
           {/* Current production deployment */}
           <section className="rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-5">
             <div className="mb-3 flex items-center gap-2">
-              <span className="rounded-md bg-[#bf502b] px-2 py-0.5 text-[11px] font-bold text-white">PRODUCTION</span>
+              <span className="rounded-md bg-[#21577d] px-2 py-0.5 text-[11px] font-bold text-white">PRODUCTION</span>
               {prod && (() => {
                 const ps = STATE_STYLE[prod.state] ?? { bg: "#e5e7eb", fg: "#374151" };
                 return (
@@ -108,7 +108,7 @@ export default async function OverviewPage() {
                     href={`https://${prod.url}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#bf502b] hover:underline"
+                    className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#21577d] hover:underline"
                   >
                     <ExternalLink className="size-4" /> {prod.url}
                   </a>
@@ -130,10 +130,10 @@ export default async function OverviewPage() {
               <p className="mt-1 text-2xl font-bold text-[#166534]">{succeeded}</p>
             </div>
             <div className="rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4">
-              <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#9a3412]">
+              <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#21577d]">
                 <XCircle className="size-3.5" /> Failed
               </p>
-              <p className="mt-1 text-2xl font-bold text-[#9a3412]">{failed}</p>
+              <p className="mt-1 text-2xl font-bold text-[#21577d]">{failed}</p>
             </div>
           </section>
 
@@ -141,7 +141,7 @@ export default async function OverviewPage() {
           <section className="rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-bold">Recent outcomes</h2>
-              <Link href="/deploy/deployments" className="text-xs font-semibold text-[#bf502b] hover:underline">
+              <Link href="/deploy/deployments" className="text-xs font-semibold text-[#21577d] hover:underline">
                 View all
               </Link>
             </div>

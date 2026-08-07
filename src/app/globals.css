@@ -4,72 +4,69 @@
 
 @layer base {
   :root {
-    /* Almanac: warm paper, ink, burnt-clay accent, generous corners.
-       An editorial broadsheet aesthetic. */
-    --background: 39 38% 97%;
-    --foreground: 24 22% 14%;
+    /* Ocean Blue — DailyOS brand palette. */
+    --background: 210 44% 97%;
+    --foreground: 210 28% 13%;
 
-    --card: 40 46% 99%;
-    --card-foreground: 24 22% 14%;
+    --card: 210 42% 99%;
+    --card-foreground: 210 28% 13%;
 
-    --popover: 40 46% 99%;
-    --popover-foreground: 24 22% 14%;
+    --popover: 210 42% 99%;
+    --popover-foreground: 210 28% 13%;
 
-    /* Burnt clay / terracotta primary */
-    --primary: 15 63% 46%;
-    --primary-foreground: 40 40% 98%;
+    --primary: 205 76% 41%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 36 30% 92%;
-    --secondary-foreground: 24 24% 18%;
+    --secondary: 210 27% 91%;
+    --secondary-foreground: 210 29% 17%;
 
-    --muted: 36 28% 93%;
-    --muted-foreground: 28 12% 40%;
+    --muted: 210 24% 93%;
+    --muted-foreground: 210 13% 39%;
 
-    --accent: 30 54% 91%;
-    --accent-foreground: 15 58% 38%;
+    --accent: 188 45% 89%;
+    --accent-foreground: 205 58% 31%;
 
     --destructive: 4 66% 47%;
-    --destructive-foreground: 40 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 34 22% 85%;
-    --input: 34 22% 82%;
-    --ring: 15 63% 46%;
+    --border: 210 23% 83%;
+    --input: 210 23% 79%;
+    --ring: 205 76% 41%;
 
-    /* Keep the original brand gradient unless Dev UI is previewing a palette. */
-    --logo-start: #e0864f;
-    --logo-end: #9a3412;
+    --logo-start: #1976a8;
+    --logo-end: #21577d;
 
     --radius: 0.875rem;
   }
 
   .dark {
-    --background: 26 16% 9%;
-    --foreground: 38 30% 92%;
+    --background: 210 20% 8%;
+    --foreground: 210 22% 93%;
 
-    --card: 26 15% 12%;
-    --card-foreground: 38 30% 92%;
+    --card: 210 18% 12%;
+    --card-foreground: 210 22% 93%;
 
-    --popover: 26 15% 12%;
-    --popover-foreground: 38 30% 92%;
+    --popover: 210 18% 12%;
+    --popover-foreground: 210 22% 93%;
 
-    --primary: 17 74% 56%;
-    --primary-foreground: 26 30% 8%;
+    --primary: 205 76% 63%;
+    --primary-foreground: 210 28% 8%;
 
-    --secondary: 26 12% 18%;
-    --secondary-foreground: 38 30% 92%;
+    --secondary: 210 15% 18%;
+    --secondary-foreground: 210 22% 93%;
 
-    --muted: 26 12% 18%;
-    --muted-foreground: 34 14% 64%;
+    --muted: 210 15% 18%;
+    --muted-foreground: 210 14% 65%;
 
-    --accent: 20 30% 22%;
-    --accent-foreground: 24 74% 78%;
+    --accent: 188 31% 22%;
+    --accent-foreground: 188 60% 80%;
 
     --destructive: 4 60% 46%;
-    --destructive-foreground: 38 30% 92%;
+    --destructive-foreground: 210 22% 93%;
 
-    --border: 28 14% 22%;
-    --input: 28 14% 23%;
-    --ring: 17 74% 56%;
+    --border: 210 15% 23%;
+    --input: 210 15% 25%;
+    --ring: 205 76% 63%;
   }
 
   /* Temporary Dev UI palette previews. These only override the shared colour

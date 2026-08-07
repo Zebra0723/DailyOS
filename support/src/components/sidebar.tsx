@@ -46,13 +46,13 @@ export function Sidebar({
             <Link
               key={n.href}
               href={n.href}
-              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#bf502b] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
+              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${A ? "bg-[#21577d] text-white" : "text-[#4b443b] hover:bg-[#f2e6da]"}`}
             >
               <Icon className="size-4 shrink-0" /> {n.label}
               {n.href === "/support/approvals" && pendingApprovals > 0 && (
                 <span
                   className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold"
-                  style={A ? { background: "#fff", color: "#bf502b" } : { background: "#bf502b", color: "#fff" }}
+                  style={A ? { background: "#fff", color: "#21577d" } : { background: "#21577d", color: "#fff" }}
                 >
                   {pendingApprovals}
                 </span>
@@ -60,7 +60,7 @@ export function Sidebar({
               {n.href === "/support/bugs" && openBugs > 0 && (
                 <span
                   className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold"
-                  style={A ? { background: "#fff", color: "#bf502b" } : { background: "#bf502b", color: "#fff" }}
+                  style={A ? { background: "#fff", color: "#21577d" } : { background: "#21577d", color: "#fff" }}
                 >
                   {openBugs}
                 </span>

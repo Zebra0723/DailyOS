@@ -59,7 +59,7 @@ export default async function CodesPage() {
                   <td style={{ ...cell, fontWeight: 600 }}>{String(c.code)}</td>
                   <td style={{ ...cell, whiteSpace: "nowrap" }}>
                     {who ? (
-                      <Link href={`/admin/users/${who.id}`} style={{ color: "#bf502b", textDecoration: "none" }}>{who.email}</Link>
+                      <Link href={`/admin/users/${who.id}`} style={{ color: "#21577d", textDecoration: "none" }}>{who.email}</Link>
                     ) : "—"}
                   </td>
                   <td style={cell}>{String(c.kind ?? c.plan_tier ?? "—")}</td>

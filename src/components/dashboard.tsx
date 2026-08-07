@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { Plus, GripVertical, X, LayoutGrid, Sparkles } from "lucide-react";
-import { loadRemote, saveRemote } from "@/lib/sync";
+import { saveRemote } from "@/lib/sync";
+import { createClient } from "@/lib/supabase/client";
 import { getWidget, WIDGETS, type PlanTier, type WidgetDef } from "@/lib/widgets";
 import { usePlan, tierMeets } from "@/lib/use-pro";
 import { Button } from "@/components/ui/button";
@@ -105,10 +106,26 @@ export function Dashboard({ userId }: { userId?: string }) {
 
   React.useEffect(() => {
     (async () => {
-      const remote = await loadRemote<DashboardState>(DASHBOARD_KEY);
-      if (remote?.widgets?.length) {
-        setWidgets(remote.widgets);
-      } else if (localKey) {
+      if (userId) {
+        try {
+          const supabase = createClient();
+          const { data } = await supabase
+            .from("user_state")
+            .select("value")
+            .eq("user_id", userId)
+            .eq("key", DASHBOARD_KEY)
+            .maybeSingle();
+          const remote = data?.value as DashboardState | null;
+          if (remote?.widgets?.length) {
+            setWidgets(remote.widgets);
+            setLoaded(true);
+            return;
+          }
+        } catch {
+          /* fall through to localStorage */
+        }
+      }
+      if (localKey) {
         const local = localStorage.getItem(localKey);
         if (local) {
           try {
@@ -122,7 +139,7 @@ export function Dashboard({ userId }: { userId?: string }) {
       }
       setLoaded(true);
     })();
-  }, [localKey]);
+  }, [userId, localKey]);
 
   const persist = React.useCallback(
     (next: string[]) => {

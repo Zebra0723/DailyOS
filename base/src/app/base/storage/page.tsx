@@ -15,7 +15,7 @@ export default async function StoragePage({ searchParams }: { searchParams: { b?
           <h1 className="text-2xl font-bold">Storage</h1>
           <p className="text-sm text-[#6b6157]">Buckets and objects.</p>
         </div>
-        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#9a3412]">
+        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#21577d]">
           Service role not configured. Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
           <code>SUPABASE_SERVICE_ROLE_KEY</code> to browse storage.
         </div>
@@ -63,7 +63,7 @@ export default async function StoragePage({ searchParams }: { searchParams: { b?
         <p className="text-sm text-[#6b6157]">Buckets and objects.</p>
       </div>
       {error ? (
-        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#9a3412]">{error}</div>
+        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#21577d]">{error}</div>
       ) : buckets.length === 0 ? (
         <div className="rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4 text-sm text-[#6b6157]">
           No storage buckets exist yet. Create one from the Supabase dashboard.

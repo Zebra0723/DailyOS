@@ -75,7 +75,7 @@ export function UserActions({
           <select value={compDays} disabled={pending} onChange={(e) => setCompDays(e.target.value)} style={{ ...field, width: "auto" }}>
             <option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option><option value="365">1 year</option><option value="0">Lifetime</option>
           </select>
-          <button disabled={pending} onClick={() => { setCompStatus(""); start(async () => { await grantTimedPlan(id, compTier, Number(compDays)); setPlan(compTier); setCompStatus("Applied."); }); }} style={btn("#bf502b")}>Apply</button>
+          <button disabled={pending} onClick={() => { setCompStatus(""); start(async () => { await grantTimedPlan(id, compTier, Number(compDays)); setPlan(compTier); setCompStatus("Applied."); }); }} style={btn("#21577d")}>Apply</button>
           {compStatus && <span style={{ fontSize: 13, color: "#2f8f5f" }}>{compStatus}</span>}
         </div>
       </div>
@@ -86,7 +86,7 @@ export function UserActions({
           <input style={field} placeholder="Title" value={pTitle} onChange={(e) => setPTitle(e.target.value)} />
           <textarea style={{ ...field, minHeight: 70, resize: "vertical" }} placeholder="Message" value={pBody} onChange={(e) => setPBody(e.target.value)} />
           <div>
-            <button onClick={push} disabled={sending} style={btn("#bf502b")}>{sending ? "Sending…" : "Send"}</button>
+            <button onClick={push} disabled={sending} style={btn("#21577d")}>{sending ? "Sending…" : "Send"}</button>
             {pStatus && <span style={{ marginLeft: 10, fontSize: 13, color: "#6b6157" }}>{pStatus}</span>}
           </div>
         </div>

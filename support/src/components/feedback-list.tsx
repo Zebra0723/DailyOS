@@ -17,7 +17,7 @@ import type { Reply as FeedbackReply } from "@/lib/replies";
 
 export type { Feedback };
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 
 /** Human "3h ago" style age from an ISO timestamp. */
 function relativeTime(iso: string, now: number): string {
@@ -176,7 +176,7 @@ export function FeedbackList({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search message or email…"
-          className="w-full rounded-lg border border-[#e6ded2] bg-[#fffdf9] py-1.5 pl-8 pr-2.5 text-xs text-[#4b443b] outline-none focus:border-[#bf502b]"
+          className="w-full rounded-lg border border-[#e6ded2] bg-[#fffdf9] py-1.5 pl-8 pr-2.5 text-xs text-[#4b443b] outline-none focus:border-[#21577d]"
         />
       </div>
 
@@ -191,7 +191,7 @@ export function FeedbackList({
                 if (el) el.indeterminate = selectedVisible.length > 0 && !allVisibleSelected;
               }}
               onChange={toggleAllVisible}
-              className="size-4 accent-[#bf502b]"
+              className="size-4 accent-[#21577d]"
             />
             Select all visible
           </label>
@@ -227,7 +227,7 @@ export function FeedbackList({
                   style={{
                     display: "inline-flex",
                     background: "#fbe9e7",
-                    color: "#9a3412",
+                    color: "#21577d",
                     border: "1px solid #f0c4bd",
                     borderRadius: 10,
                     padding: "5px 10px",
@@ -281,7 +281,7 @@ export function FeedbackList({
                   type="checkbox"
                   checked={selected.has(f.id)}
                   onChange={() => toggleOne(f.id)}
-                  className="size-4 shrink-0 accent-[#bf502b]"
+                  className="size-4 shrink-0 accent-[#21577d]"
                   aria-label="Select feedback"
                 />
                 {f.email && (
@@ -339,7 +339,7 @@ export function FeedbackList({
                   style={{
                     display: "inline-flex",
                     background: "#fbe9e7",
-                    color: "#9a3412",
+                    color: "#21577d",
                     border: "1px solid #f0c4bd",
                     borderRadius: 10,
                     padding: "5px 10px",

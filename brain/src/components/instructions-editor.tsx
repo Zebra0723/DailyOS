@@ -70,7 +70,7 @@ export function InstructionsEditor({ initialOverride, initialPresets }: { initia
         <div className="text-xs font-bold uppercase tracking-wide text-[#8a7f70]">Saved presets</div>
         <p className="mt-1 text-sm text-[#6b6157]">Save the instruction above under a name, then re-apply or delete it later.</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <input value={presetName} onChange={(e) => setPresetName(e.target.value)} placeholder="Preset name…" className="w-48 rounded-lg border border-[#d9d2c6] bg-white p-2 text-sm outline-none focus:border-[#bf502b]" />
+          <input value={presetName} onChange={(e) => setPresetName(e.target.value)} placeholder="Preset name…" className="w-48 rounded-lg border border-[#d9d2c6] bg-white p-2 text-sm outline-none focus:border-[#21577d]" />
           <button onClick={savePreset} disabled={presetBusy} className={ghostBtn} style={{ opacity: presetBusy ? 0.6 : 1 }}>
             {presetBusy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} Save as preset
           </button>
@@ -79,11 +79,11 @@ export function InstructionsEditor({ initialOverride, initialPresets }: { initia
         {presets.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-2">
             {presets.map((p) => (
-              <span key={p.name} className="inline-flex items-center gap-1 rounded-full border border-[#e6ded2] bg-[#faf7f1] py-0.5 pl-3 pr-1 text-xs font-semibold text-[#bf502b]">
+              <span key={p.name} className="inline-flex items-center gap-1 rounded-full border border-[#e6ded2] bg-[#faf7f1] py-0.5 pl-3 pr-1 text-xs font-semibold text-[#21577d]">
                 <button type="button" onClick={() => { setOverride(p.text); setPresetMsg(`Applied “${p.name}”.`); }} className="transition hover:underline" title="Apply this preset">
                   {p.name}
                 </button>
-                <button type="button" onClick={() => deletePreset(p.name)} disabled={presetBusy} className="ml-0.5 grid size-4 place-items-center rounded-full text-[#8a8073] transition hover:bg-[#f2e6da] hover:text-[#bf502b]" title="Delete preset" aria-label={`Delete ${p.name}`}>
+                <button type="button" onClick={() => deletePreset(p.name)} disabled={presetBusy} className="ml-0.5 grid size-4 place-items-center rounded-full text-[#8a8073] transition hover:bg-[#f2e6da] hover:text-[#21577d]" title="Delete preset" aria-label={`Delete ${p.name}`}>
                   <X className="size-3" />
                 </button>
               </span>

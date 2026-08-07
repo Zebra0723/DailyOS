@@ -35,7 +35,7 @@ export function UserRow({
   return (
     <tr style={{ opacity: pending ? 0.5 : 1 }}>
       <td style={{ ...cell, whiteSpace: "normal" }}>
-        <Link href={`/admin/users/${id}`} style={{ color: "#bf502b", textDecoration: "none" }}>{email}</Link>
+        <Link href={`/admin/users/${id}`} style={{ color: "#21577d", textDecoration: "none" }}>{email}</Link>
       </td>
       <td style={cell}>
         <span style={{ fontSize: 12, fontWeight: 600, color: banned ? "#b23b2b" : "#2f8f5f" }}>

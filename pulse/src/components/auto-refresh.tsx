@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 
 /** Small client control that periodically calls router.refresh() to re-pull
  *  server data. Off by default. Shows a "last updated" relative time. */

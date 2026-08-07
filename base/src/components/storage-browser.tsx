@@ -48,7 +48,7 @@ function CopyUrlButton({ bucket, path, isPublic }: { bucket: string; path: strin
       disabled={state === "busy"}
       title={isPublic ? "Copy public URL" : "Copy 1-hour signed URL"}
       className="inline-flex items-center gap-1 rounded-lg border border-[#a7d8d3] bg-[#e0f2f1] px-2.5 py-1 text-xs font-semibold"
-      style={{ color: state === "err" ? "#9a3412" : "#a5401f" }}
+      style={{ color: state === "err" ? "#21577d" : "#a5401f" }}
     >
       {state === "busy" ? <Loader2 className="size-3.5 animate-spin" /> : state === "done" ? <Check className="size-3.5" /> : <Link2 className="size-3.5" />}
       {state === "done" ? "Copied" : state === "err" ? "Failed" : "URL"}
@@ -77,7 +77,7 @@ export function StorageBrowser({
             key={b.id}
             onClick={() => router.push(`/base/storage?b=${encodeURIComponent(b.name)}`)}
             className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
-              b.name === current.name ? "bg-[#bf502b] text-white" : "border border-[#e6ded2] bg-[#fffdf9] text-[#4b443b] hover:border-[#bf502b]"
+              b.name === current.name ? "bg-[#21577d] text-white" : "border border-[#e6ded2] bg-[#fffdf9] text-[#4b443b] hover:border-[#21577d]"
             }`}
           >
             {b.name}
@@ -89,7 +89,7 @@ export function StorageBrowser({
       </div>
 
       {objError ? (
-        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#9a3412]">{objError}</div>
+        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#21577d]">{objError}</div>
       ) : objects.length === 0 ? (
         <div className="rounded-2xl border border-[#e6ded2] bg-[#fffdf9] p-4 text-sm text-[#6b6157]">
           No objects at the root of <span className="font-semibold">{current.name}</span>.
@@ -124,7 +124,7 @@ export function StorageBrowser({
                         <CopyUrlButton bucket={current.name} path={o.name} isPublic={current.isPublic} />
                         <ConfirmButton
                           label={<Trash2 className="size-3.5" />}
-                          style={{ display: "inline-flex", alignItems: "center", background: "#fbe9e7", color: "#9a3412", border: "1px solid #f0c4bd", borderRadius: 8, padding: "5px 8px", cursor: "pointer" }}
+                          style={{ display: "inline-flex", alignItems: "center", background: "#fbe9e7", color: "#21577d", border: "1px solid #f0c4bd", borderRadius: 8, padding: "5px 8px", cursor: "pointer" }}
                           title="Delete this object?"
                           message={`Permanently deletes ${o.name} from ${current.name}.`}
                           warn="This can't be undone."

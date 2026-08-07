@@ -43,7 +43,7 @@ export function AutoRefresh({ renderedAt }: { renderedAt: number }) {
         aria-pressed={on}
         className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition-colors ${
           on
-            ? "border-[#bf502b] bg-[#bf502b] text-white"
+            ? "border-[#21577d] bg-[#21577d] text-white"
             : "border-[#e6ded2] bg-[#fffdf9] text-[#6b6157] hover:bg-[#f2e6da]"
         }`}
       >

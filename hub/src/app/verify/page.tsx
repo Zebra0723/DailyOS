@@ -37,9 +37,9 @@ export default function VerifyPage() {
             style={{ width: "100%", padding: "11px 12px", fontSize: 15, border: "1px solid #e0d6c8", borderRadius: 10, background: "#fffdf9", color: "#1c1a17" }}
           />
           {error && (
-            <div style={{ background: "#fbe9e7", border: "1px solid #f0c4bd", color: "#9a3412", borderRadius: 10, padding: "9px 12px", fontSize: 13 }}>{error}</div>
+            <div style={{ background: "#fbe9e7", border: "1px solid #f0c4bd", color: "#21577d", borderRadius: 10, padding: "9px 12px", fontSize: 13 }}>{error}</div>
           )}
-          <button type="submit" disabled={loading} style={{ width: "100%", padding: "11px 12px", fontSize: 15, fontWeight: 600, background: "#bf502b", color: "#fff", border: "none", borderRadius: 10, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
+          <button type="submit" disabled={loading} style={{ width: "100%", padding: "11px 12px", fontSize: 15, fontWeight: 600, background: "#21577d", color: "#fff", border: "none", borderRadius: 10, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
             {loading ? "Checking…" : "Sign in"}
           </button>
         </form>

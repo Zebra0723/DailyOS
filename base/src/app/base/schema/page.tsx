@@ -22,7 +22,7 @@ export default async function SchemaPage({ searchParams }: { searchParams: { t?:
           <h1 className="text-2xl font-bold">Schema</h1>
           <p className="text-sm text-[#6b6157]">Columns and RLS policies per table.</p>
         </div>
-        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#9a3412]">
+        <div className="rounded-2xl border border-[#f0c4bd] bg-[#fbe9e7] p-4 text-sm text-[#21577d]">
           Set <code>SUPABASE_PROJECT_REF</code> and <code>SUPABASE_ACCESS_TOKEN</code> to inspect schema.
         </div>
       </div>
@@ -61,7 +61,7 @@ export default async function SchemaPage({ searchParams }: { searchParams: { t?:
             key={t}
             href={`/base/schema?t=${t}`}
             className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
-              t === table ? "bg-[#bf502b] text-white" : "border border-[#e6ded2] bg-[#fffdf9] text-[#4b443b] hover:border-[#bf502b]"
+              t === table ? "bg-[#21577d] text-white" : "border border-[#e6ded2] bg-[#fffdf9] text-[#4b443b] hover:border-[#21577d]"
             }`}
           >
             {t}
@@ -73,7 +73,7 @@ export default async function SchemaPage({ searchParams }: { searchParams: { t?:
       <section className={card}>
         <h2 className="mb-3 text-base font-bold">Columns · {table}</h2>
         {!colsRes.ok ? (
-          <p className="text-sm text-[#9a3412]">{colsRes.error}</p>
+          <p className="text-sm text-[#21577d]">{colsRes.error}</p>
         ) : cols.length === 0 ? (
           <p className="text-sm text-[#8a8073]">No columns found — table may not exist yet.</p>
         ) : (
@@ -106,7 +106,7 @@ export default async function SchemaPage({ searchParams }: { searchParams: { t?:
       <section className={card}>
         <h2 className="mb-3 text-base font-bold">RLS policies · {table}</h2>
         {!polRes.ok ? (
-          <p className="text-sm text-[#9a3412]">{polRes.error}</p>
+          <p className="text-sm text-[#21577d]">{polRes.error}</p>
         ) : pols.length === 0 ? (
           <p className="text-sm text-[#8a8073]">No policies. If RLS is enabled, this table currently denies all non-service access.</p>
         ) : (

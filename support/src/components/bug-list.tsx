@@ -7,7 +7,7 @@ import { setBugStatus, deleteBug } from "@/app/support/bugs/actions";
 import { ConfirmButton } from "@/components/confirm-button";
 import type { BugReport } from "@/lib/bugs";
 
-const ACCENT = "#bf502b";
+const ACCENT = "#21577d";
 
 type Filter = "open" | "resolved" | "all";
 
@@ -107,7 +107,7 @@ export function BugList({ items }: { items: BugReport[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search description or email…"
-            className="w-full rounded-lg border border-[#e6ded2] bg-[#fffdf9] py-1.5 pl-8 pr-2.5 text-xs text-[#4b443b] outline-none focus:border-[#bf502b]"
+            className="w-full rounded-lg border border-[#e6ded2] bg-[#fffdf9] py-1.5 pl-8 pr-2.5 text-xs text-[#4b443b] outline-none focus:border-[#21577d]"
           />
         </div>
       </div>
@@ -166,7 +166,7 @@ export function BugList({ items }: { items: BugReport[] }) {
                       target="_blank"
                       rel="noreferrer"
                       title={b.page_url}
-                      className="inline-flex max-w-full items-center gap-1 truncate font-medium text-[#bf502b] underline-offset-2 hover:underline"
+                      className="inline-flex max-w-full items-center gap-1 truncate font-medium text-[#21577d] underline-offset-2 hover:underline"
                     >
                       <Link2 className="size-3 shrink-0" /> {shortUrl(b.page_url)}
                     </a>
@@ -212,7 +212,7 @@ export function BugList({ items }: { items: BugReport[] }) {
                     style={{
                       display: "inline-flex",
                       background: "#fbe9e7",
-                      color: "#9a3412",
+                      color: "#21577d",
                       border: "1px solid #f0c4bd",
                       borderRadius: 10,
                       padding: "5px 10px",

@@ -74,8 +74,8 @@ export const viewport: Viewport = {
   // indicator ourselves with env(safe-area-inset-*) so nothing is obscured.
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f2e9" },
-    { media: "(prefers-color-scheme: dark)", color: "#17130f" },
+    { media: "(prefers-color-scheme: light)", color: "#f3f8fc" },
+    { media: "(prefers-color-scheme: dark)", color: "#121d26" },
   ],
 };
 

@@ -49,7 +49,7 @@ export function ConfirmButton({
             <h3 style={{ fontSize: 20, fontWeight: 700, margin: "12px 0 6px" }}>{title}</h3>
             <p style={{ fontSize: 14, color: "#4b443b", margin: "0 0 12px", lineHeight: 1.5 }}>{message}</p>
             {warn && (
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#9a3412", background: "#fbe9e7", border: "1px solid #f0c4bd", borderRadius: 10, padding: "10px 12px", marginBottom: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#21577d", background: "#fbe9e7", border: "1px solid #f0c4bd", borderRadius: 10, padding: "10px 12px", marginBottom: 16 }}>
                 {warn}
               </div>
             )}
