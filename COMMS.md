@@ -78,7 +78,7 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current release: **v261** (Ocean Blue rebrand + preloaded fix). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-07.
+Current release: **v262** (widget store + initials + banner font). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-08.
 
 If you get a push rejection, `git pull origin main --rebase` first — Arjun runs multiple agents (Codex CLI, etc.) that push concurrently.
 
@@ -384,6 +384,8 @@ All secrets are env vars on Vercel (Arjun manages these):
 
 | Version | What changed |
 |---------|-------------|
+| v262 | Fix widget store (overlay reads ref dynamically, save uses userId prop), nav initials from username, banner font-display |
+| v261 | Ocean Blue rebrand across 115 files + dashboard preload fix (userId prop) |
 | v257 | Agent 2: AI Feature Builder — plain English in, a real working widget out (Pro) |
 | v255 | Customise button in nav bar + full-page widget store with preview mockups |
 | v254 | Fix dashboard cross-account localStorage leak (scoped key to userId) |
