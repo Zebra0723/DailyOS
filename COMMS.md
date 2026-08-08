@@ -27,6 +27,8 @@ receiving agent must:
 | R-003 | Agent 3 | **Six built-in widgets still use unscoped localStorage keys** — `widget-habits`, `widget-goals`, `widget-mood`, `widget-water`, `widget-countdown`, `widget-quick-notes`. | Open | Same class of bug Agent 4 fixed for the dashboard in v254 (`dailyos-dashboard` → `dailyos-dashboard:${userId}`). Two accounts sharing one browser see each other's habits, goals and notes on first paint, because the local mirror isn't per-user. The `user_state` side is fine (RLS scopes it) — it's only the localStorage cache. Fix is one line each: append `:${userId}`. Found by Agent 2 while building the AI Feature Builder; the AI widgets already scope their keys. See Common Pitfalls #6. |
 | R-004 | **ALL AGENTS** | **New accounts start with all widgets preloaded instead of empty.** | **FIXED v261** | Root cause: `loadRemote("dashboard")` used `session.user.id` from the Supabase client auth, which could be stale after signup and return another user's data. Fix: dashboard.tsx now queries `user_state` directly using the server-provided `userId` prop instead of `loadRemote`. |
 
+| R-005 | Agent 2 (done) → **Agent 4 to note** | Arjun reported three dashboard bugs directly to Agent 2: new accounts preloaded, plan widget limits not enforced, and "Add widget" doing nothing. | **FIXED v262** | These are Agent 4's lane. Agent 2 fixed them at Arjun's direct request rather than routing, so Agent 4 should **not** duplicate the work — but please review, since it changes `dashboard.tsx`, `widget-store.tsx` and `(app)/layout.tsx`. Details in "Dashboard state" below. |
+
 ### Active Tasks
 
 **MAJOR: Full customisation overhaul (all agents)**
@@ -78,7 +80,7 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current release: **v262** (widget store + initials + banner font). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-08.
+Current release: **v263** (widget add + plan limits fix). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-08.
 
 If you get a push rejection, `git pull origin main --rebase` first — Arjun runs multiple agents (Codex CLI, etc.) that push concurrently.
 
@@ -380,10 +382,50 @@ All secrets are env vars on Vercel (Arjun manages these):
 
 ---
 
+## Dashboard state — one source of truth (v262)
+
+`DashboardProvider` (`src/lib/widgets/dashboard-store.tsx`) owns the widget list.
+It's mounted in `(app)/layout.tsx` **above** `WidgetStoreProvider`, so the
+dashboard and the widget store read and write the same state. Use
+`useDashboard()` — don't add a second copy.
+
+It replaced a ref-based handshake (`_registerDashboard`) that caused three bugs:
+
+1. **"Add widget" did nothing.** The button called `setStoreOpen(true)`, but
+   `<WidgetStore open={storeOpen}>` was only rendered in the *empty-dashboard*
+   branch. On a populated dashboard nothing rendered it, so the click was inert.
+   There were two store implementations; only one was wired up. The unused
+   inline one is now deleted — please don't reintroduce a second.
+2. **"Added" was always stale.** The store read `activeWidgets` from a ref, and
+   refs don't re-render. It also opened from pages where `<Dashboard>` isn't
+   mounted, leaving the ref null or pointing at an unmounted component.
+3. **New accounts preloaded.** The read was fixed in v261 to use the server
+   `userId`, but the *write* still went through `saveRemote`, which uses the
+   client session's `getSession()` — that can still be the previous account
+   right after signup. Both sides now use the same explicit `userId`. An
+   explicitly empty `{widgets: []}` is also honoured now; previously
+   `remote?.widgets?.length` treated it as "no data" and fell through to the
+   local mirror.
+
+**Note:** accounts created *during* the buggy window may still hold a polluted
+`user_state` row. v262 stops new ones, but an existing bad row has to be cleared
+by removing the widgets once (or deleting that `user_state` row).
+
+### Plan widget limits
+
+`WIDGET_LIMITS` in `src/lib/widgets.ts`: **free 5, plus 12, pro unlimited**.
+This is the *count* limit; the per-widget `tier` field still controls *which*
+widgets a plan may use. Enforced in `addWidget()`, so it can't be bypassed by
+opening the store from a different page. The store shows "N of M used", disables
+Add at the cap, and offers the upgrade. Unknown/blank tiers fall back to free.
+
+---
+
 ## Version History (recent)
 
 | Version | What changed |
 |---------|-------------|
+| v263 | Agent 2: fix "Add widget" doing nothing, stale "Added" state, and per-plan widget limits |
 | v262 | Fix widget store (overlay reads ref dynamically, save uses userId prop), nav initials from username, banner font-display |
 | v261 | Ocean Blue rebrand across 115 files + dashboard preload fix (userId prop) |
 | v257 | Agent 2: AI Feature Builder — plain English in, a real working widget out (Pro) |

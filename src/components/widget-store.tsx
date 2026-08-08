@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useDashboard, type AddResult } from "@/lib/widgets/dashboard-store";
 
 function tierAllows(userTier: string, required: PlanTier): boolean {
   if (userTier === "pro") return true;
@@ -55,11 +56,6 @@ const CAT_BG: Record<WidgetCategory, string> = {
 
 interface WidgetStoreContextValue {
   openWidgetStore: () => void;
-  _registerDashboard: (config: {
-    addWidget: (id: string) => void;
-    activeWidgets: string[];
-    userTier: string;
-  }) => void;
 }
 
 const WidgetStoreContext = React.createContext<WidgetStoreContextValue | null>(
@@ -68,11 +64,15 @@ const WidgetStoreContext = React.createContext<WidgetStoreContextValue | null>(
 
 export function useWidgetStore(): WidgetStoreContextValue {
   const ctx = React.useContext(WidgetStoreContext);
-  if (!ctx)
-    return { openWidgetStore: () => {}, _registerDashboard: () => {} };
+  if (!ctx) return { openWidgetStore: () => {} };
   return ctx;
 }
 
+/**
+ * Must be mounted inside <DashboardProvider>: the store reads and writes the
+ * same live widget list the dashboard renders, so "Added" is always accurate
+ * and adding works from any page — not just the one showing the dashboard.
+ */
 export function WidgetStoreProvider({
   children,
 }: {
@@ -80,33 +80,13 @@ export function WidgetStoreProvider({
 }) {
   const [open, setOpen] = React.useState(false);
   const openWidgetStore = React.useCallback(() => setOpen(true), []);
-  const dashRef = React.useRef<{
-    addWidget: (id: string) => void;
-    activeWidgets: string[];
-    userTier: string;
-  } | null>(null);
 
-  const _registerDashboard = React.useCallback(
-    (config: { addWidget: (id: string) => void; activeWidgets: string[]; userTier: string }) => {
-      dashRef.current = config;
-    },
-    [],
-  );
-
-  const stableAddWidget = React.useCallback((id: string) => {
-    dashRef.current?.addWidget(id);
-  }, []);
+  const value = React.useMemo(() => ({ openWidgetStore }), [openWidgetStore]);
 
   return (
-    <WidgetStoreContext.Provider value={{ openWidgetStore, _registerDashboard }}>
+    <WidgetStoreContext.Provider value={value}>
       {children}
-      {open && (
-        <WidgetStoreOverlay
-          onClose={() => setOpen(false)}
-          addWidget={stableAddWidget}
-          dashRef={dashRef}
-        />
-      )}
+      {open && <WidgetStoreOverlay onClose={() => setOpen(false)} />}
     </WidgetStoreContext.Provider>
   );
 }
@@ -115,30 +95,25 @@ export function WidgetStoreProvider({
 // Full-screen overlay (Notion-style template picker)
 // ---------------------------------------------------------------------------
 
-function WidgetStoreOverlay({
-  onClose,
-  addWidget,
-  dashRef,
-}: {
-  onClose: () => void;
-  addWidget: (id: string) => void;
-  dashRef: React.RefObject<{
-    addWidget: (id: string) => void;
-    activeWidgets: string[];
-    userTier: string;
-  } | null>;
-}) {
+function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
+  // Live dashboard state — not a snapshot — so "Added" reflects reality even
+  // after adding, removing, or reopening the store.
+  const {
+    widgets: activeWidgets,
+    tier: userTier,
+    limit,
+    atLimit,
+    addWidget,
+  } = useDashboard();
+
   const [search, setSearch] = React.useState("");
   const [category, setCategory] = React.useState<string>("all");
-  const [localAdded, setLocalAdded] = React.useState<string[]>([]);
-
-  const activeWidgets = dashRef.current?.activeWidgets ?? [];
-  const userTier = dashRef.current?.userTier ?? "free";
+  const [limitHit, setLimitHit] = React.useState<AddResult | null>(null);
 
   const handleAdd = React.useCallback(
     (id: string) => {
-      addWidget(id);
-      setLocalAdded((prev) => [...prev, id]);
+      const result = addWidget(id);
+      setLimitHit(result.ok || result.reason !== "limit" ? null : result);
     },
     [addWidget],
   );
@@ -154,10 +129,7 @@ function WidgetStoreOverlay({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const allActive = React.useMemo(
-    () => [...activeWidgets, ...localAdded],
-    [activeWidgets, localAdded],
-  );
+  const allActive = activeWidgets;
 
   const filtered = WIDGETS.filter((w) => {
     if (category !== "all" && w.category !== category) return false;
@@ -187,7 +159,17 @@ function WidgetStoreOverlay({
               Add to your dashboard
             </h1>
             <p className="text-sm text-muted-foreground">
-              Pick what matters to you — start small, add more any time.
+              {Number.isFinite(limit) ? (
+                <>
+                  Pick what matters to you —{" "}
+                  <span className={cn("font-medium", atLimit && "text-amber-600 dark:text-amber-400")}>
+                    {activeWidgets.length} of {limit} used
+                  </span>{" "}
+                  on your plan.
+                </>
+              ) : (
+                <>Pick what matters to you — unlimited widgets on Pro.</>
+              )}
             </p>
           </div>
           <div className="relative hidden sm:block sm:w-64">
@@ -236,6 +218,27 @@ function WidgetStoreOverlay({
         </div>
       </div>
 
+      {/* Plan limit reached */}
+      {limitHit && !limitHit.ok && limitHit.reason === "limit" && (
+        <div className="border-b bg-amber-500/5">
+          <div className="container mx-auto flex max-w-5xl items-center gap-3 px-6 py-3">
+            <Lock className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+              You&apos;ve used all {limitHit.limit} widgets on your plan. Remove one
+              to swap it out
+              {limitHit.upgradeTo ? `, or upgrade for more.` : "."}
+            </p>
+            {limitHit.upgradeTo && (
+              <Button size="sm" variant="outline" asChild>
+                <a href="/subscriptions">
+                  Upgrade to {limitHit.upgradeTo === "pro" ? "Pro" : "Plus"}
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Grid */}
       <div className="flex-1 overflow-y-auto">
         <div className="container mx-auto max-w-5xl px-6 py-6">
@@ -254,6 +257,7 @@ function WidgetStoreOverlay({
                     widget={w}
                     active={active}
                     allowed={allowed}
+                    atLimit={atLimit && !active}
                     onAdd={() => handleAdd(w.id)}
                   />
                 );
@@ -274,11 +278,14 @@ function PreviewCard({
   widget,
   active,
   allowed,
+  atLimit,
   onAdd,
 }: {
   widget: WidgetDef;
   active?: boolean;
   allowed?: boolean;
+  /** Plan's widget count is used up, so this one can't be added right now. */
+  atLimit?: boolean;
   onAdd?: () => void;
 }) {
   const Icon = widget.icon;
@@ -344,6 +351,10 @@ function PreviewCard({
               <a href="/subscriptions">
                 <Lock className="size-3.5" /> Upgrade to {widget.tier === "pro" ? "Pro" : "Plus"}
               </a>
+            </Button>
+          ) : atLimit ? (
+            <Button variant="outline" size="sm" className="w-full" disabled>
+              <Lock className="size-3.5" /> Plan limit reached
             </Button>
           ) : (
             <Button size="sm" className="w-full" onClick={onAdd}>
@@ -719,159 +730,6 @@ function WidgetMockup({ id }: { id: string }) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Inline widget store (used inside dashboard.tsx for add-widget actions)
-// ---------------------------------------------------------------------------
-
-export function WidgetStore({
-  open,
-  onClose,
-  activeWidgets,
-  userTier,
-  onAdd,
-}: {
-  open: boolean;
-  onClose: () => void;
-  activeWidgets: string[];
-  userTier: string;
-  onAdd: (id: string) => void;
-}) {
-  const [search, setSearch] = React.useState("");
-  const [category, setCategory] = React.useState<string>("all");
-
-  if (!open) return null;
-
-  const filtered = WIDGETS.filter((w) => {
-    if (category !== "all" && w.category !== category) return false;
-    if (
-      search &&
-      !w.name.toLowerCase().includes(search.toLowerCase()) &&
-      !w.description.toLowerCase().includes(search.toLowerCase())
-    )
-      return false;
-    return true;
-  });
-
-  return (
-    <div className="fixed inset-0 z-[90] flex items-end justify-center sm:items-center">
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
-        onClick={onClose}
-      />
-      <div className="relative mx-4 mb-4 flex max-h-[80vh] w-full max-w-lg animate-fade-in flex-col rounded-2xl border bg-card shadow-elevated sm:mb-0">
-        <div className="flex items-center justify-between border-b px-5 py-4">
-          <h2 className="text-lg font-bold tracking-tight">Widget Store</h2>
-          <button
-            onClick={onClose}
-            className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-
-        <div className="space-y-3 border-b px-5 py-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search widgets..."
-              className="pl-9"
-            />
-          </div>
-          <div className="flex gap-1.5 overflow-x-auto pb-1">
-            <FilterChip
-              active={category === "all"}
-              onClick={() => setCategory("all")}
-            >
-              All
-            </FilterChip>
-            {WIDGET_CATEGORIES.map((c) => (
-              <FilterChip
-                key={c.key}
-                active={category === c.key}
-                onClick={() => setCategory(c.key)}
-              >
-                {c.label}
-              </FilterChip>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
-          {filtered.length === 0 && (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              No widgets match your search.
-            </p>
-          )}
-          {filtered.map((w) => {
-            const active = activeWidgets.includes(w.id);
-            const allowed = tierAllows(userTier, w.tier);
-            return (
-              <WidgetCard
-                key={w.id}
-                widget={w}
-                active={active}
-                allowed={allowed}
-                onAdd={() => onAdd(w.id)}
-              />
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function WidgetCard({
-  widget,
-  active,
-  allowed,
-  onAdd,
-}: {
-  widget: WidgetDef;
-  active: boolean;
-  allowed: boolean;
-  onAdd: () => void;
-}) {
-  const Icon = widget.icon;
-  return (
-    <div className="flex items-center gap-3 rounded-xl border p-3 transition-colors hover:bg-accent/30">
-      <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-        <Icon className="size-5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="text-sm font-medium">{widget.name}</p>
-          {widget.tier !== "free" && (
-            <span
-              className={cn(
-                "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
-                TIER_COLOR[widget.tier],
-              )}
-            >
-              {TIER_LABEL[widget.tier]}
-            </span>
-          )}
-        </div>
-        <p className="text-xs text-muted-foreground">{widget.description}</p>
-      </div>
-      {active ? (
-        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-          <Check className="size-4" />
-        </span>
-      ) : !allowed ? (
-        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
-          <Lock className="size-4" />
-        </span>
-      ) : (
-        <Button size="sm" variant="outline" onClick={onAdd} className="shrink-0">
-          Add
-        </Button>
-      )}
-    </div>
-  );
-}
 
 function FilterChip({
   active,

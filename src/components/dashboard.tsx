@@ -2,12 +2,11 @@
 
 import * as React from "react";
 import { Plus, GripVertical, X, LayoutGrid, Sparkles } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { getWidget, WIDGETS, type PlanTier, type WidgetDef } from "@/lib/widgets";
-import { usePlan, tierMeets } from "@/lib/use-pro";
+import { getWidget, type PlanTier, type WidgetDef } from "@/lib/widgets";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { WidgetStore, useWidgetStore } from "@/components/widget-store";
+import { useWidgetStore } from "@/components/widget-store";
+import { useDashboard } from "@/lib/widgets/dashboard-store";
 
 import { TasksDueWidget } from "@/components/widgets/tasks-due";
 import { UpcomingEventsWidget } from "@/components/widgets/upcoming-events";
@@ -77,12 +76,6 @@ const COMPONENT_MAP: Record<string, React.ComponentType> = {
   "ai-builder": AIBuilderWidget,
 };
 
-const DASHBOARD_KEY = "dashboard";
-
-interface DashboardState {
-  widgets: string[];
-}
-
 const DEFAULT_WIDGETS = ["stats-overview", "tasks-due", "upcoming-events", "quick-add"];
 
 function tierAllows(userTier: PlanTier | string, required: PlanTier): boolean {
@@ -93,102 +86,14 @@ function tierAllows(userTier: PlanTier | string, required: PlanTier): boolean {
 }
 
 export function Dashboard({ userId }: { userId?: string }) {
-  const { tier } = usePlan(userId);
-  const { openWidgetStore, _registerDashboard } = useWidgetStore();
-  const [widgets, setWidgets] = React.useState<string[]>([]);
-  const [loaded, setLoaded] = React.useState(false);
+  // Widget state lives in DashboardProvider so the store (which can be opened
+  // from any page, including ones that don't render the dashboard) reads and
+  // writes exactly the same list.
+  const { widgets, loaded, tier, limit, addWidget, removeWidget, moveWidget, setWidgets } =
+    useDashboard();
+  const { openWidgetStore } = useWidgetStore();
   const [editing, setEditing] = React.useState(false);
-  const [storeOpen, setStoreOpen] = React.useState(false);
   const [dragIdx, setDragIdx] = React.useState<number | null>(null);
-
-  const localKey = userId ? `dailyos-dashboard:${userId}` : null;
-
-  React.useEffect(() => {
-    (async () => {
-      if (userId) {
-        try {
-          const supabase = createClient();
-          const { data } = await supabase
-            .from("user_state")
-            .select("value")
-            .eq("user_id", userId)
-            .eq("key", DASHBOARD_KEY)
-            .maybeSingle();
-          const remote = data?.value as DashboardState | null;
-          if (remote && Array.isArray(remote.widgets)) {
-            setWidgets(remote.widgets);
-            setLoaded(true);
-            return;
-          }
-        } catch {
-          /* fall through to localStorage */
-        }
-      }
-      if (localKey) {
-        const local = localStorage.getItem(localKey);
-        if (local) {
-          try {
-            const parsed = JSON.parse(local);
-            if (Array.isArray(parsed.widgets)) setWidgets(parsed.widgets);
-            else setWidgets([]);
-          } catch {
-            setWidgets([]);
-          }
-        }
-      }
-      setLoaded(true);
-    })();
-  }, [userId, localKey]);
-
-  const saveDashboard = React.useCallback(
-    (next: string[]) => {
-      const state: DashboardState = { widgets: next };
-      if (localKey) localStorage.setItem(localKey, JSON.stringify(state));
-      if (userId) {
-        const supabase = createClient();
-        supabase
-          .from("user_state")
-          .upsert(
-            { user_id: userId, key: DASHBOARD_KEY, value: state },
-            { onConflict: "user_id,key" },
-          )
-          .then(() => {});
-      }
-    },
-    [localKey, userId],
-  );
-
-  const persist = React.useCallback(
-    (next: string[]) => {
-      setWidgets(next);
-      saveDashboard(next);
-    },
-    [saveDashboard],
-  );
-
-  function addWidget(id: string) {
-    setWidgets((prev) => {
-      if (prev.includes(id)) return prev;
-      const next = [...prev, id];
-      saveDashboard(next);
-      return next;
-    });
-  }
-
-  function removeWidget(id: string) {
-    persist(widgets.filter((w) => w !== id));
-  }
-
-  function moveWidget(from: number, to: number) {
-    const next = [...widgets];
-    const [item] = next.splice(from, 1);
-    next.splice(to, 0, item);
-    persist(next);
-  }
-
-  React.useEffect(() => {
-    _registerDashboard({ addWidget, activeWidgets: widgets, userTier: tier });
-  });
 
   if (!loaded) {
     return (
@@ -218,19 +123,14 @@ export function Dashboard({ userId }: { userId?: string }) {
             </Button>
             <Button
               variant="outline"
-              onClick={() => persist(DEFAULT_WIDGETS)}
+              // Trim to the plan's allowance so the starter pack can't push a
+              // free account straight past its limit.
+              onClick={() => setWidgets(DEFAULT_WIDGETS.slice(0, limit))}
             >
               Use starter pack
             </Button>
           </div>
         </div>
-        <WidgetStore
-          open={storeOpen}
-          onClose={() => setStoreOpen(false)}
-          activeWidgets={widgets}
-          userTier={tier}
-          onAdd={addWidget}
-        />
       </>
     );
   }
@@ -246,7 +146,7 @@ export function Dashboard({ userId }: { userId?: string }) {
           <LayoutGrid className="size-4" />
           {editing ? "Done" : "Customise"}
         </Button>
-        <Button variant="outline" size="sm" onClick={() => setStoreOpen(true)}>
+        <Button variant="outline" size="sm" onClick={openWidgetStore}>
           <Plus className="size-4" /> Add widget
         </Button>
       </div>
@@ -316,13 +216,6 @@ export function Dashboard({ userId }: { userId?: string }) {
         })}
       </div>
 
-      <WidgetStore
-        open={storeOpen}
-        onClose={() => setStoreOpen(false)}
-        activeWidgets={widgets}
-        userTier={tier}
-        onAdd={addWidget}
-      />
     </>
   );
 }

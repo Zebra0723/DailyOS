@@ -264,3 +264,26 @@ export const WIDGETS: WidgetDef[] = [
 export function getWidget(id: string): WidgetDef | undefined {
   return WIDGETS.find((w) => w.id === id);
 }
+
+/**
+ * How many widgets a plan may keep on the dashboard at once. This is the count
+ * limit — which widgets a plan may use at all is the per-widget `tier` above.
+ * Pro is deliberately uncapped.
+ */
+export const WIDGET_LIMITS: Record<PlanTier, number> = {
+  free: 5,
+  plus: 12,
+  pro: Infinity,
+};
+
+export function widgetLimitFor(tier: PlanTier | string): number {
+  if (tier === "pro") return WIDGET_LIMITS.pro;
+  if (tier === "plus") return WIDGET_LIMITS.plus;
+  return WIDGET_LIMITS.free;
+}
+
+/** The plan a user must be on to exceed `tier`'s limit, or null at the top. */
+export function nextTierAfter(tier: PlanTier | string): "plus" | "pro" | null {
+  if (tier === "pro") return null;
+  return tier === "plus" ? "pro" : "plus";
+}
