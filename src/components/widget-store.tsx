@@ -104,8 +104,7 @@ export function WidgetStoreProvider({
         <WidgetStoreOverlay
           onClose={() => setOpen(false)}
           addWidget={stableAddWidget}
-          activeWidgets={dashRef.current?.activeWidgets ?? []}
-          userTier={dashRef.current?.userTier ?? "free"}
+          dashRef={dashRef}
         />
       )}
     </WidgetStoreContext.Provider>
@@ -119,17 +118,22 @@ export function WidgetStoreProvider({
 function WidgetStoreOverlay({
   onClose,
   addWidget,
-  activeWidgets,
-  userTier,
+  dashRef,
 }: {
   onClose: () => void;
   addWidget: (id: string) => void;
-  activeWidgets: string[];
-  userTier: string;
+  dashRef: React.RefObject<{
+    addWidget: (id: string) => void;
+    activeWidgets: string[];
+    userTier: string;
+  } | null>;
 }) {
   const [search, setSearch] = React.useState("");
   const [category, setCategory] = React.useState<string>("all");
   const [localAdded, setLocalAdded] = React.useState<string[]>([]);
+
+  const activeWidgets = dashRef.current?.activeWidgets ?? [];
+  const userTier = dashRef.current?.userTier ?? "free";
 
   const handleAdd = React.useCallback(
     (id: string) => {

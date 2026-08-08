@@ -44,7 +44,7 @@ export function BirthdayBanner() {
         <span className="animate-bounce text-2xl sm:text-3xl" aria-hidden="true">
           🎉🎂🎈
         </span>
-        <p className="text-sm font-extrabold uppercase tracking-wide text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.25)] sm:text-base md:text-lg">
+        <p className="font-display text-sm font-extrabold uppercase tracking-wide text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.25)] sm:text-base md:text-lg">
           Co-founder, Arjun Jain, is celebrating his birthday today!
         </p>
         <span className="hidden animate-bounce text-2xl sm:inline sm:text-3xl" aria-hidden="true">

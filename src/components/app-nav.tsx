@@ -121,7 +121,7 @@ function activeCategory(pathname: string) {
   return best;
 }
 
-export function TopNav({ email, userId }: { email: string; userId?: string }) {
+export function TopNav({ email, userId, username }: { email: string; userId?: string; username?: string }) {
   const pathname = usePathname();
   const { openSurvey } = useSurvey();
   const { openBugReport } = useBugReport();
@@ -242,9 +242,9 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
           <div className="h-6 w-px bg-border" />
           <div
             className="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary"
-            title={email}
+            title={username ?? email}
           >
-            {initials(email)}
+            {initials(username ?? email)}
           </div>
           <button
             onClick={signOut}
@@ -299,7 +299,7 @@ export function TopNav({ email, userId }: { email: string; userId?: string }) {
   );
 }
 
-export function MobileNav({ email, userId }: { email?: string; userId?: string }) {
+export function MobileNav({ email, userId, username }: { email?: string; userId?: string; username?: string }) {
   const pathname = usePathname();
   const { openSurvey } = useSurvey();
   const { openBugReport } = useBugReport();
@@ -495,7 +495,7 @@ export function MobileNav({ email, userId }: { email?: string; userId?: string }
             <div className="border-t px-4 py-3">
               <div className="flex items-center gap-3">
                 <div className="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                  {initials(email ?? "")}
+                  {initials(username ?? email ?? "")}
                 </div>
                 <p className="min-w-0 flex-1 truncate text-sm">{email}</p>
                 <button

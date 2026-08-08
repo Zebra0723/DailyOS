@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Plus, GripVertical, X, LayoutGrid, Sparkles } from "lucide-react";
-import { saveRemote } from "@/lib/sync";
 import { createClient } from "@/lib/supabase/client";
 import { getWidget, WIDGETS, type PlanTier, type WidgetDef } from "@/lib/widgets";
 import { usePlan, tierMeets } from "@/lib/use-pro";
@@ -116,7 +115,7 @@ export function Dashboard({ userId }: { userId?: string }) {
             .eq("key", DASHBOARD_KEY)
             .maybeSingle();
           const remote = data?.value as DashboardState | null;
-          if (remote?.widgets?.length) {
+          if (remote && Array.isArray(remote.widgets)) {
             setWidgets(remote.widgets);
             setLoaded(true);
             return;
@@ -141,23 +140,37 @@ export function Dashboard({ userId }: { userId?: string }) {
     })();
   }, [userId, localKey]);
 
+  const saveDashboard = React.useCallback(
+    (next: string[]) => {
+      const state: DashboardState = { widgets: next };
+      if (localKey) localStorage.setItem(localKey, JSON.stringify(state));
+      if (userId) {
+        const supabase = createClient();
+        supabase
+          .from("user_state")
+          .upsert(
+            { user_id: userId, key: DASHBOARD_KEY, value: state },
+            { onConflict: "user_id,key" },
+          )
+          .then(() => {});
+      }
+    },
+    [localKey, userId],
+  );
+
   const persist = React.useCallback(
     (next: string[]) => {
       setWidgets(next);
-      const state: DashboardState = { widgets: next };
-      if (localKey) localStorage.setItem(localKey, JSON.stringify(state));
-      saveRemote(DASHBOARD_KEY, state);
+      saveDashboard(next);
     },
-    [localKey],
+    [saveDashboard],
   );
 
   function addWidget(id: string) {
     setWidgets((prev) => {
       if (prev.includes(id)) return prev;
       const next = [...prev, id];
-      const state: DashboardState = { widgets: next };
-      if (localKey) localStorage.setItem(localKey, JSON.stringify(state));
-      saveRemote(DASHBOARD_KEY, state);
+      saveDashboard(next);
       return next;
     });
   }

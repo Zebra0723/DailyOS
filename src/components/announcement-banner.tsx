@@ -57,10 +57,10 @@ export function AnnouncementBanner({ text }: { text: string }) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-white/70">
+          <p className="font-display text-[11px] font-semibold uppercase tracking-widest text-white/70">
             DailyOS
           </p>
-          <p className="mt-0.5 text-base font-bold leading-snug text-white sm:text-lg">
+          <p className="font-display mt-0.5 text-base font-bold leading-snug text-white sm:text-lg">
             {text}
           </p>
         </div>
