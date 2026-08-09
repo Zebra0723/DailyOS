@@ -158,7 +158,7 @@ export function InterestsManager({ userId }: { userId: string }) {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && add()}
-              placeholder="e.g. watches, tennis, jazz piano…"
+              placeholder="e.g. cooking, running, photography…"
             />
             <Button onClick={add} disabled={!draft.trim()}>
               <Plus className="size-4" /> Add
