@@ -31,6 +31,7 @@ import { BugReportProvider } from "@/components/bug/bug-report-provider";
 import { WidgetStoreProvider } from "@/components/widget-store";
 import { DashboardProvider } from "@/lib/widgets/dashboard-store";
 import { GuidedTour } from "@/components/guided-tour";
+import { DiscoverySurvey } from "@/components/discovery-survey";
 
 export default async function AppLayout({
   children,
@@ -102,6 +103,7 @@ export default async function AppLayout({
           <TimezoneSync />
           <DeviceBackup />
           <GuidedTour />
+          <DiscoverySurvey userId={user.id} />
         </div>
         </WidgetStoreProvider>
         </DashboardProvider>

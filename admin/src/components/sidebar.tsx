@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Users, Database, Ticket, Bell, CheckSquare, Settings, ScrollText, MessagesSquare, LogOut,
+  LayoutDashboard, Users, Database, Ticket, Bell, CheckSquare, Settings, ScrollText, MessagesSquare, LogOut, Compass,
 } from "lucide-react";
 import { signOutAdmin } from "@/app/verify/actions";
 import { Logo } from "@/components/logo";
@@ -16,6 +16,7 @@ const NAV = [
   { href: "/admin/reminders", label: "Reminders", icon: CheckSquare },
   { href: "/admin/comms", label: "Comms", icon: MessagesSquare },
   { href: "/admin/push", label: "Push", icon: Bell },
+  { href: "/admin/discovery", label: "Discovery", icon: Compass },
   { href: "/admin/audit", label: "Audit", icon: ScrollText },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
