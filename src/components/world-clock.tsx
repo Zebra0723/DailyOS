@@ -90,7 +90,8 @@ function timeParts(zone: string, now: Date) {
   });
   const parts = fmt.formatToParts(now);
   const get = (t: string) => parseInt(parts.find((p) => p.type === t)?.value ?? "0", 10);
-  return { h: get("hour") % 24, m: get("minute"), s: get("second") };
+  const ms = now.getMilliseconds();
+  return { h: get("hour") % 24, m: get("minute"), s: get("second") + ms / 1000 };
 }
 
 function dateLabel(zone: string, now: Date) {
@@ -156,10 +157,15 @@ export function WorldClock({ userId }: { userId: string }) {
     };
   }, [key]);
 
-  // Tick every second.
+  // Smooth sweep — requestAnimationFrame for mechanical-movement hands.
   React.useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 1000);
-    return () => clearInterval(id);
+    let raf: number;
+    const loop = () => {
+      setTick((t) => t + 1);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   function persist(next: Zone[]) {
@@ -259,7 +265,7 @@ export function WorldClock({ userId }: { userId: string }) {
                   <p className="text-base font-semibold">{c.city}</p>
                   <p className="font-mono text-sm text-muted-foreground">
                     {String(h).padStart(2, "0")}:{String(m).padStart(2, "0")}:
-                    {String(s).padStart(2, "0")}
+                    {String(Math.floor(s)).padStart(2, "0")}
                   </p>
                   <p className="text-xs text-muted-foreground/70">
                     {dateLabel(c.zone, now)}
