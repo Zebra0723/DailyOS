@@ -157,7 +157,7 @@ function localIdeas(interestRaw: string): InterestIdeas {
       `Go deeper: read the docs or a paper behind the tool you use most`,
       `Level up: rebuild something you like from scratch to learn how it works`,
       `Community: join a ${i} community and share what you built for feedback`,
-      `Spend wisely: put money toward a course or component that unblocks you, not gadgets`,
+      `Spend wisely: put money towards a course or component that unblocks you, not gadgets`,
     ],
     language: [
       `Today: learn 10 high-frequency words in ${i} and use them in three sentences`,
@@ -171,7 +171,7 @@ function localIdeas(interestRaw: string): InterestIdeas {
       `Today: plan a specific ${i} outing with a real date, spot and kit list`,
       `This week: do a short, achievable version close to home to build the habit`,
       `Go deeper: learn one safety/skill essential (navigation, tides, knots, weather)`,
-      `Level up: pick a "named" goal — a route, peak, or trip — and train toward it`,
+      `Level up: pick a "named" goal — a route, peak, or trip — and train towards it`,
       `Community: join a local ${i} group so you've got people and know-how`,
       `Spend wisely: invest in the safety and comfort items, rent the rest first`,
     ],
@@ -189,7 +189,7 @@ function localIdeas(interestRaw: string): InterestIdeas {
       `Go deeper: pick one sub-skill of ${i} and learn it properly this month`,
       `Level up: set a concrete, dated goal for ${i} you can actually hit`,
       `Community: find a club, class or online group for ${i} and introduce yourself`,
-      `Spend wisely: put money toward the one thing that removes your biggest blocker`,
+      `Spend wisely: put money towards the one thing that removes your biggest blocker`,
     ],
   };
 

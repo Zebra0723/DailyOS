@@ -41,11 +41,11 @@ export const metadata: Metadata = {
   keywords: [
     "life admin",
     "personal assistant",
-    "AI organizer",
+    "AI organiser",
     "receipts to tasks",
     "calendar",
     "reminders",
-    "family organizer",
+    "family organiser",
   ],
   openGraph: {
     title: "DailyOS — Your life admin, finally handled.",

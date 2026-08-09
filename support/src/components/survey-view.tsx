@@ -148,7 +148,7 @@ function OpenEnded({
           ) : (
             <Sparkles className="size-3.5" />
           )}
-          {loading ? "Summarizing…" : "Summarize with AI"}
+          {loading ? "Summarising…" : "Summarise with AI"}
         </button>
       </div>
 

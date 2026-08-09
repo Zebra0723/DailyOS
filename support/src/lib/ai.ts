@@ -75,7 +75,7 @@ export async function summarizeAnswers(
 ): Promise<ChatResult> {
   const cleaned = answers.map((a) => a.trim()).filter(Boolean);
   if (cleaned.length === 0) {
-    return { ok: false, error: "No answers to summarize yet." };
+    return { ok: false, error: "No answers to summarise yet." };
   }
   if (!aiInfo().keyPresent) {
     return {

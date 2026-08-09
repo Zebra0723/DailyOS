@@ -8,7 +8,7 @@ export default function DevUiPage() {
     <div>
       <PageHeader
         title="Dev UI"
-        description="Try ten temporary color directions across the whole DailyOS website. Your current colors are preserved as the default."
+        description="Try ten temporary colour directions across the whole DailyOS website. Your current colours are preserved as the default."
       />
       <DevUiPalettePicker />
     </div>

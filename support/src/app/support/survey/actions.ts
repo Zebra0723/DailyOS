@@ -22,12 +22,12 @@ export async function summarizeQuestion(questionKey: string): Promise<SummaryRes
       .select(`${spec.key},created_at`)
       .order("created_at", { ascending: false })
       .limit(2000);
-    if (res.error) return { ok: false, error: "Couldn't load answers to summarize." };
+    if (res.error) return { ok: false, error: "Couldn't load answers to summarise." };
     answers = (res.data ?? [])
       .map((r) => (r as Record<string, unknown>)[spec.key])
       .filter((v): v is string => typeof v === "string" && v.trim().length > 0);
   } catch {
-    return { ok: false, error: "Couldn't load answers to summarize." };
+    return { ok: false, error: "Couldn't load answers to summarise." };
   }
 
   const out = await summarizeAnswers(spec.label, answers);
