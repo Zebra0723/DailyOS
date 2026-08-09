@@ -240,7 +240,7 @@ export function WorldClock({ userId }: { userId: string }) {
         <Card>
           <CardContent className="flex flex-col items-center gap-2 py-12 text-center text-sm text-muted-foreground">
             <Clock className="size-6 text-primary" />
-            Add a city above to see its time on a Patek-style watch.
+            Add a city above to see its time on a luxury analogue watch.
           </CardContent>
         </Card>
       ) : (
@@ -260,7 +260,7 @@ export function WorldClock({ userId }: { userId: string }) {
                 >
                   <X className="size-4 sm:size-3.5" />
                 </button>
-                <PatekWatch h={h} m={m} s={s} city={c.city} dateNum={dayNum} />
+                <AnalogueWatch h={h} m={m} s={s} city={c.city} dateNum={dayNum} />
                 <div className="text-center">
                   <p className="text-base font-semibold">{c.city}</p>
                   <p className="font-mono text-sm text-muted-foreground">
@@ -280,7 +280,7 @@ export function WorldClock({ userId }: { userId: string }) {
   );
 }
 
-/** An Aquanaut-inspired analogue watch (embossed grid dial, applied numerals). */
+/** Meeting time planner across zones. */
 function MeetingPlanner({ cities }: { cities: Zone[] }) {
   const [open, setOpen] = React.useState(false);
   const localTz = React.useMemo(() => {
@@ -372,7 +372,7 @@ function MeetingPlanner({ cities }: { cities: Zone[] }) {
   );
 }
 
-function PatekWatch({
+function AnalogueWatch({
   h,
   m,
   s,
@@ -390,7 +390,7 @@ function PatekWatch({
   const hourAngle = (h % 12) * 30 + m * 0.5;
 
   const cx = 100, cy = 100;
-  // Rounded cushion-octagon case (the Aquanaut silhouette).
+  // Rounded cushion-octagon case.
   const w = 76, hh = 78, c = 18;
   const octPts = (sx: number) => {
     const W = w * sx, H = hh * sx, C = c * sx;
@@ -442,7 +442,7 @@ function PatekWatch({
       {/* Dial */}
       <circle cx="100" cy="100" r="59" fill="url(#dial)" />
 
-      {/* Embossed grid texture (Aquanaut "tropical" pattern) */}
+      {/* Embossed grid texture */}
       <g clipPath="url(#dialClip)">
         <g stroke="#0c2143" strokeWidth="1.3" opacity="0.55">
           {grid.map((p) => (

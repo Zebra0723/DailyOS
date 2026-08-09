@@ -92,7 +92,7 @@ export function WidgetStoreProvider({
 }
 
 // ---------------------------------------------------------------------------
-// Full-screen overlay (Notion-style template picker)
+// Full-screen overlay template picker
 // ---------------------------------------------------------------------------
 
 function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
