@@ -15,6 +15,7 @@ import { UsernameForm } from "@/components/username-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { initials } from "@/lib/utils";
 import { VersionTap } from "@/components/version-tap";
+import { RetroTrigger } from "@/components/retro-trigger";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -232,6 +233,7 @@ export default async function SettingsPage() {
         </Card>
 
         <VersionTap />
+        <RetroTrigger />
       </div>
     </div>
   );

@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.08.11 · v266 (one line a day journal)";
+export const APP_VERSION = "2026.08.11 · v267 (journal + time machine)";

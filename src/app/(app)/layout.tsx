@@ -32,6 +32,7 @@ import { WidgetStoreProvider } from "@/components/widget-store";
 import { DashboardProvider } from "@/lib/widgets/dashboard-store";
 import { GuidedTour } from "@/components/guided-tour";
 import { DiscoverySurvey } from "@/components/discovery-survey";
+import { RetroModeProvider } from "@/components/retro-mode";
 
 export default async function AppLayout({
   children,
@@ -80,6 +81,7 @@ export default async function AppLayout({
 
   return (
     <PwaGate>
+      <RetroModeProvider>
       <SurveyProvider>
         <BugReportProvider>
         <DashboardProvider userId={user.id}>
@@ -109,6 +111,7 @@ export default async function AppLayout({
         </DashboardProvider>
         </BugReportProvider>
       </SurveyProvider>
+      </RetroModeProvider>
     </PwaGate>
   );
 }
