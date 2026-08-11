@@ -33,6 +33,7 @@ import { HomeRoomsWidget } from "@/components/widgets/home-rooms";
 import { HomeAlertsWidget } from "@/components/widgets/home-alerts";
 import { HomeCalendarWidget } from "@/components/widgets/home-calendar";
 import { HomeVaultWidget } from "@/components/widgets/home-vault";
+import { MicroJournalWidget } from "@/components/widgets/micro-journal";
 import { AIBuilderWidget } from "@/components/widgets/ai-builder";
 import { AIWidgetHost } from "@/components/widgets/ai-widget-host";
 import { isAIWidgetId, widgetIdFromDashboardId } from "@/lib/widgets/ai-store";
@@ -73,6 +74,7 @@ const COMPONENT_MAP: Record<string, React.ComponentType> = {
   "home-alerts": HomeAlertsWidget,
   "home-calendar": HomeCalendarWidget,
   "home-vault": HomeVaultWidget,
+  "micro-journal": MicroJournalWidget,
   "ai-builder": AIBuilderWidget,
 };
 

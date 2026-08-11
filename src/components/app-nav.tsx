@@ -32,6 +32,7 @@ import {
   Mail,
   SwatchBook,
   LayoutGrid,
+  BookOpen,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { useSurvey } from "@/components/survey/survey-provider";
@@ -67,6 +68,7 @@ const CATEGORIES: {
       { href: "/build-day", label: "Build My Day", icon: CalendarClock },
       { href: "/interests", label: "Interests", icon: Heart },
       { href: "/world-clock", label: "World Clock", icon: Globe },
+      { href: "/journal", label: "Journal", icon: BookOpen },
       { href: "/notes", label: "Notes", icon: StickyNote },
       { href: "/calendar", label: "Calendar", icon: Calendar },
       { href: "/tasks", label: "Tasks", icon: CheckSquare },

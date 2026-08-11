@@ -26,6 +26,7 @@ import {
   BellRing,
   CalendarRange,
   FolderLock,
+  BookOpen,
 } from "lucide-react";
 
 export type WidgetCategory = "lifeos" | "homeos" | "productivity" | "wellness" | "ai";
@@ -250,6 +251,14 @@ export const WIDGETS: WidgetDef[] = [
     icon: Hourglass,
     category: "productivity",
     tier: "plus",
+  },
+  {
+    id: "micro-journal",
+    name: "One Line a Day",
+    description: "Write one sentence each day. Build a streak. Revisit your past self.",
+    icon: BookOpen,
+    category: "wellness",
+    tier: "free",
   },
   {
     id: "ai-builder",
