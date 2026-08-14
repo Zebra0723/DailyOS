@@ -11,10 +11,17 @@ export const metadata = { title: "The Drop · DailyOS" };
 
 export default async function InboxPage() {
   const supabase = createClient();
-  const { data } = await supabase
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in — please reload the page.");
+
+  const { data, error } = await supabase
     .from("inbox_items")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (error) throw new Error(`Couldn't load the Drop: ${error.message}`);
 
   const items = (data ?? []) as InboxItem[];
 

@@ -10,10 +10,11 @@ export default async function CalendarPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("calendar_events")
     .select("*")
     .order("start_time", { ascending: true });
+  if (error) throw new Error(`Couldn't load calendar: ${error.message}`);
 
   return (
     <div>

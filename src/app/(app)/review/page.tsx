@@ -131,6 +131,10 @@ export default async function ReviewPage() {
       .lt("created_at", weekEndTs),
   ]);
 
+  const firstError = [completedRes, openTasksRes, overdueRes, weekEventsRes, aheadEventsRes, inboxRes, notesRes]
+    .find((r) => r.error);
+  if (firstError?.error) throw new Error(`Couldn't load review: ${firstError.error.message}`);
+
   const completed = (completedRes.data ?? []) as ExtractedTask[];
   const openCount = (openTasksRes.data ?? []).length;
   const overdue = (overdueRes.data ?? []) as ExtractedTask[];

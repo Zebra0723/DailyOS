@@ -10,10 +10,11 @@ export default async function VaultPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("vault_items")
     .select("*, inbox_items(input_type, file_name)")
     .order("created_at", { ascending: false });
+  if (error) throw new Error(`Couldn't load vault: ${error.message}`);
 
   return (
     <div>

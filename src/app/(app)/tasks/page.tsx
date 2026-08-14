@@ -7,12 +7,13 @@ export const metadata = { title: "Tasks · DailyOS" };
 
 export default async function TasksPage() {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("extracted_tasks")
     .select("*")
     .order("status", { ascending: true })
     .order("due_date", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
+  if (error) throw new Error(`Couldn't load tasks: ${error.message}`);
 
   return (
     <div>

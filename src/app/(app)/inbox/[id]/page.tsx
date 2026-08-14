@@ -15,7 +15,7 @@ export default async function InboxItemPage({
   const supabase = createClient();
 
   // Item and its logs are independent — fetch together.
-  const [{ data: item }, { data: logs }] = await Promise.all([
+  const [itemRes, logsRes] = await Promise.all([
     supabase.from("inbox_items").select("*").eq("id", params.id).single<InboxItem>(),
     supabase
       .from("processing_logs")
@@ -23,6 +23,12 @@ export default async function InboxItemPage({
       .eq("inbox_item_id", params.id)
       .order("created_at", { ascending: false }),
   ]);
+
+  if (itemRes.error && itemRes.error.code !== "PGRST116") {
+    throw new Error(`Couldn't load item: ${itemRes.error.message}`);
+  }
+  const item = itemRes.data;
+  const logs = logsRes.data;
 
   if (!item) notFound();
 

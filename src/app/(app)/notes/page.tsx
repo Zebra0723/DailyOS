@@ -7,10 +7,12 @@ export const metadata = { title: "Notes · DailyOS" };
 
 export default async function NotesPage() {
   const supabase = createClient();
-  const [{ data }, { data: auth }] = await Promise.all([
+  const [notesRes, { data: auth }] = await Promise.all([
     supabase.from("notes").select("*").order("created_at", { ascending: false }),
     supabase.auth.getUser(),
   ]);
+  if (notesRes.error) throw new Error(`Couldn't load notes: ${notesRes.error.message}`);
+  const data = notesRes.data;
 
   return (
     <div>
