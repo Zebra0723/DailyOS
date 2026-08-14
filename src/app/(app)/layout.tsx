@@ -1,18 +1,6 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/admin-user";
-
-// Admin accounts get the green home-screen icon; everyone else keeps the red
-// default. Server-rendered into the <head>, so iOS reads it on Add to Home Screen.
-export async function generateMetadata(): Promise<Metadata> {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!isAdminUser(user)) return {};
-  return { icons: { apple: "/admin-app-icon.png" } };
-}
 import { TopNav, MobileNav, MobileHeader } from "@/components/app-nav";
 import { FreePlanBanner } from "@/components/free-plan-banner";
 import { CommandPalette } from "@/components/command-palette";
@@ -40,29 +28,19 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [{ data: { user } }, cfgResult] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.from("app_config").select("value").eq("key", "global").maybeSingle().then(
+      (r) => r.data,
+      () => null,
+    ),
+  ]);
 
-  // Middleware already guards these routes, but double-check on the server.
   if (!user) redirect("/login");
 
-  // App-wide config set from the admin backend (announcement + maintenance).
-  // Degrades to nothing if the app_config table isn't set up.
-  let announcement = "";
-  let maintenance = false;
-  try {
-    const { data: cfg } = await supabase
-      .from("app_config")
-      .select("value")
-      .eq("key", "global")
-      .maybeSingle();
-    const v = (cfg?.value ?? {}) as { announcement?: string; maintenance?: boolean };
-    announcement = v.announcement ?? "";
-    maintenance = Boolean(v.maintenance);
-  } catch {
-    /* ignore */
-  }
+  const cfg = (cfgResult?.value ?? {}) as { announcement?: string; maintenance?: boolean };
+  const announcement = cfg.announcement ?? "";
+  const maintenance = Boolean(cfg.maintenance);
   const isAdmin = isAdminUser(user);
 
   if (maintenance && !isAdmin) {

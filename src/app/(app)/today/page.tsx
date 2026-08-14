@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { LiveClock } from "@/components/live-clock";
 import { LanguagePicker } from "@/components/language-picker";
