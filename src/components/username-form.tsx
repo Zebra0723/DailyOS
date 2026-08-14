@@ -27,14 +27,18 @@ export function UsernameForm({ initialUsername }: { initialUsername: string }) {
     setError(null);
     setSaving(true);
     // Stored on the auth user's metadata — no extra table needed.
-    const { error } = await supabase.auth.updateUser({
+    const { error: updateError } = await supabase.auth.updateUser({
       data: { username: value },
     });
-    setSaving(false);
-    if (error) {
-      setError(error.message);
+    if (updateError) {
+      setSaving(false);
+      setError(updateError.message);
       return;
     }
+    // Force-refresh the session so the updated JWT (with new metadata)
+    // gets written back into cookies before the server component re-renders.
+    await supabase.auth.refreshSession();
+    setSaving(false);
     toast({ variant: "success", title: "Username updated" });
     router.refresh();
   }
