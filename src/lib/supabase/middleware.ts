@@ -47,10 +47,16 @@ export async function updateSession(request: NextRequest) {
 
   let supabaseResponse = NextResponse.next({ request });
 
+  const COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: {
+        maxAge: COOKIE_MAX_AGE,
+        path: "/",
+        sameSite: "lax" as const,
+      },
       cookies: {
         getAll() {
           return request.cookies.getAll();

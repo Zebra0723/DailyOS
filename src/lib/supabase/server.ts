@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
+const COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
+
 /**
  * Supabase client for Server Components, Route Handlers and Server Actions.
  * Reads/writes the auth cookies so the session stays in sync.
@@ -14,6 +16,11 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: {
+        maxAge: COOKIE_MAX_AGE,
+        path: "/",
+        sameSite: "lax" as const,
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();
