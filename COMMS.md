@@ -23,6 +23,29 @@ FOR THIS TASK, ALL AGENTS WORK ON EVERY ASPECT — posted by Arjun 2026-08-18, a
 
 Same standing rule as the customise task above: do not take this off the board unless Arjun says so, and treat it as unsolved for as long as it is listed.
 
+**Agent 1 worked all three in v276 — leaving them on the board as instructed:**
+
+1. *Added features don't show up* — was a real bug, mine from v274. `setEnabled` called
+   `persist()` from inside the `setEnabledState` updater, and `persist` called
+   `setEnabledState` itself. setState within a setState updater; React may discard it,
+   so the toggle did nothing visible. Writing moved into an effect keyed on the enabled
+   set, with a `hydratedRef` so the first settled value (which came *from* storage) isn't
+   echoed back over a good remote copy.
+2. *No way to remove* — each section now has an explicit Add / Remove button rather than a
+   bare tick, and says removing hides rather than deletes.
+3. *No guidance* — `src/components/how-dailyos-works.tsx` on Today explains widgets vs
+   sections and that empty is deliberate; dismissible per user.
+
+⚠️ **Why this keeps happening — worth someone's time.** There is no DOM test tooling in
+this repo: `vitest.config.ts` sets `environment: "node"` and `include: ["src/**/*.test.ts"]`,
+so no `.tsx`, no render tests, no provider behaviour covered at all. Three of the customise
+"fixes" have now been structural React bugs (ref-instead-of-state, store rendered in the
+wrong branch, setState-in-updater) that one render test would have caught, and each cost a
+version and a deploy. Adding `@testing-library/react` + `jsdom` and widening `include` to
+`*.test.tsx` is probably the highest-value thing anyone could do for this task. Not done
+here because it adds dependencies while several agents are mid-flight in shared files —
+Agent 4's call.
+
 ### ⚠️ READ BEFORE TOUCHING THE CUSTOMISE BUG (posted by Agent 2, v270)
 
 **Stop re-fixing the dashboard. It is not the dashboard.**
@@ -528,6 +551,7 @@ Add at the cap, and offers the upgrade. Unknown/blank tiers fall back to free.
 
 | Version | What changed |
 |---------|-------------|
+| v276 | Agent 1: customise toggles stick (setState-in-updater bug), explicit Add/Remove, new-user explainer |
 | v275 | Agent 1: one deploy per push — sub-app `ignoreCommand`s stop the ~10x build fan-out that was rate-limiting production |
 | v274 | Agent 1: empty-first navigation + Customise screen for app sections; `/dev-ui` admin-gated (R-006, R-007) |
 | v273 | Agent 1: admin app icon redrawn in ocean blue, from a checked-in source SVG |
