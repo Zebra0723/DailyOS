@@ -3,6 +3,7 @@ import { LiveClock } from "@/components/live-clock";
 import { LanguagePicker } from "@/components/language-picker";
 import { PushNudge } from "@/components/push-nudge";
 import { Dashboard } from "@/components/dashboard";
+import { HowDailyOSWorks } from "@/components/how-dailyos-works";
 
 export const metadata = { title: "Today · DailyOS" };
 
@@ -48,6 +49,9 @@ export default async function TodayPage() {
       </header>
 
       <PushNudge />
+
+      <HowDailyOSWorks userId={user?.id} />
+
 
       <Dashboard userId={user?.id} />
     </div>

@@ -126,9 +126,9 @@ export function FeaturesProvider({
     };
   }, [userId, accountCreatedAt, localKey]);
 
+  /** Write the enabled set to storage. State is moved by setEnabled, not here. */
   const persist = React.useCallback(
     (next: Set<string>) => {
-      setEnabledState(next);
       const list = normaliseFeatureKeys(Array.from(next));
 
       if (localKey) {
@@ -157,27 +157,32 @@ export function FeaturesProvider({
     [localKey, userId],
   );
 
-  const setEnabled = React.useCallback(
-    (key: string, on: boolean) => {
-      setEnabledState((prev) => {
-        const next = new Set(prev);
-        if (on) next.add(key);
-        else next.delete(key);
-        // Persist from the same derived value the state is moving to, so two
-        // quick toggles can't race and write a stale set.
-        persistRef.current(next);
-        return next;
-      });
-    },
-    [],
-  );
+  // Toggling only moves state. The updater has to stay pure — an earlier version
+  // called persist() from inside it, and persist calls setEnabledState itself,
+  // so this was setState-within-a-setState-updater. React is free to discard
+  // that, which is exactly why switching a section on left no visible trace.
+  const setEnabled = React.useCallback((key: string, on: boolean) => {
+    setEnabledState((prev) => {
+      if (prev.has(key) === on) return prev; // no-op keeps the reference stable
+      const next = new Set(prev);
+      if (on) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }, []);
 
-  // persist changes identity with userId; keep a ref so setEnabled stays stable
-  // and the updater above always calls the current one.
-  const persistRef = React.useRef(persist);
+  // Writing is a side effect, so it belongs in an effect. hydratedRef skips the
+  // first settled value — that one came *from* storage, and echoing it back
+  // would overwrite a good remote copy with whatever this device fell back to.
+  const hydratedRef = React.useRef(false);
   React.useEffect(() => {
-    persistRef.current = persist;
-  }, [persist]);
+    if (!loaded) return;
+    if (!hydratedRef.current) {
+      hydratedRef.current = true;
+      return;
+    }
+    persist(enabled);
+  }, [enabled, loaded, persist]);
 
   const value = React.useMemo<FeaturesContextValue>(() => {
     const isEnabled = (key: string) => {
