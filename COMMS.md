@@ -2,6 +2,8 @@
 
 Everything an agent needs to work on this codebase. Read this first, keep it updated when you ship.
 
+if I type c then that means check comms
+
 ---
 
 ## Task Board
