@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { initials } from "@/lib/utils";
 import { VersionTap } from "@/components/version-tap";
 import { RetroTrigger } from "@/components/retro-trigger";
+import { FeatureManager } from "@/components/feature-manager";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -90,6 +91,9 @@ export default async function SettingsPage() {
             <UsernameForm initialUsername={username} />
           </CardContent>
         </Card>
+
+        {/* Which app sections this account has switched on */}
+        <FeatureManager />
 
         {/* Appearance */}
         <Card>

@@ -40,6 +40,8 @@ import { useBugReport } from "@/components/bug/bug-report-provider";
 import { useWidgetStore } from "@/components/widget-store";
 import { createClient } from "@/lib/supabase/client";
 import { usePlan, tierMeets } from "@/lib/use-pro";
+import { useFeatures } from "@/lib/features-store";
+import { FEATURES, isFeatureVisible } from "@/lib/features";
 import { HOME_SECTIONS, homeHref } from "@/components/homeos/tabs";
 import { cn, initials } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -104,15 +106,42 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-const catByKey = (key: string) =>
-  CATEGORIES.find((c) => c.key === key) ?? CATEGORIES[0];
+type NavCategory = (typeof CATEGORIES)[number];
+
+const FEATURE_BY_HREF = new Map(FEATURES.map((f) => [f.href, f]));
+
+/**
+ * The nav used to render every section to everyone. That is the other half of
+ * the customisation brief — a new account looked fully preloaded no matter what
+ * it had actually switched on, and enabling something in Customise changed
+ * nothing visible. Sections the account hasn't enabled are filtered out here,
+ * and a category with nothing left in it disappears entirely.
+ */
+function useVisibleCategories(): NavCategory[] {
+  const { enabled, isAdmin } = useFeatures();
+  return React.useMemo(
+    () =>
+      CATEGORIES.map((cat) => ({
+        ...cat,
+        items: cat.items.filter((it) => {
+          const feature = FEATURE_BY_HREF.get(it.href);
+          // A nav entry with no matching feature isn't customisable — show it.
+          return feature ? isFeatureVisible(feature, enabled, isAdmin) : true;
+        }),
+      })).filter((cat) => cat.items.length > 0),
+    [enabled, isAdmin],
+  );
+}
+
+const catByKey = (cats: NavCategory[], key: string) =>
+  cats.find((c) => c.key === key) ?? cats[0];
 
 // Which top-level category owns the current route? Longest-prefix wins.
-function activeCategory(pathname: string) {
-  if (pathname.startsWith("/homeos")) return catByKey("HomeOS");
-  let best = CATEGORIES[0];
+function activeCategory(cats: NavCategory[], pathname: string) {
+  if (pathname.startsWith("/homeos")) return catByKey(cats, "HomeOS");
+  let best = cats[0];
   let bestLen = -1;
-  for (const cat of CATEGORIES) {
+  for (const cat of cats) {
     for (const it of cat.items) {
       if (isActive(pathname, it.href) && it.href.length > bestLen) {
         best = cat;
@@ -134,7 +163,8 @@ export function TopNav({ email, userId, username }: { email: string; userId?: st
   const homeLocked = ready && !tierMeets(tier, "Plus"); // HomeOS is Plus+
   const askLocked = ready && !tierMeets(tier, "Pro"); // Ask DailyOS is Pro
 
-  const current = activeCategory(pathname);
+  const categories = useVisibleCategories();
+  const current = activeCategory(categories, pathname);
 
   // Inside HomeOS, the contextual bar expands into the OS sub-sections.
   const subItems: NavItem[] =
@@ -168,7 +198,7 @@ export function TopNav({ email, userId, username }: { email: string; userId?: st
         </Link>
 
         <nav className="flex flex-1 items-center gap-1">
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const active = cat.key === current.key;
             const locked =
               (cat.key === "HomeOS" && homeLocked) ? true : false;
@@ -303,6 +333,7 @@ export function TopNav({ email, userId, username }: { email: string; userId?: st
 
 export function MobileNav({ email, userId, username }: { email?: string; userId?: string; username?: string }) {
   const pathname = usePathname();
+  const categories = useVisibleCategories();
   const { openSurvey } = useSurvey();
   const { openBugReport } = useBugReport();
   const { openWidgetStore } = useWidgetStore();
@@ -395,7 +426,7 @@ export function MobileNav({ email, userId, username }: { email?: string; userId?
             </div>
 
             <nav className="flex-1 space-y-4 overflow-y-auto px-2 pb-4">
-              {CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <div key={cat.key}>
                   <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
                     {cat.key}
