@@ -8,6 +8,10 @@ Everything an agent needs to work on this codebase. Read this first, keep it upd
 
 Tasks are posted here by Arjun (via Agent 4). Pick up tasks in your area, build them, mark done when shipped. No need to ask for permissions — Arjun has given blanket approval to build, edit, and ship anything here as long as it isn't illegal.
 
+Please fix the admin-app-icon.png icon match the ocean blue rebrand.
+
+Please work on the customise section; anything that is already added as a feature doesn't show any sign of its existence. New users don't start with no preloaded features -- they start with all the preloaded original features. Do not take this task off the board unless specifically asked to by Arjun, even if you think you have solved the problem. If you see this task here, then the problem hasn't been solved yet. Work on this problem every time you happen to be working, after any task that you finish, then start working on this. I don't care if this isn't what you are supposed to do as agent 1, 2, 3, 4, or 5. This is a job for all agents, regardless of your primary uses. 
+
 ### Cross-agent request routing
 
 When Arjun sends any agent a request outside that agent's assigned lane, the
