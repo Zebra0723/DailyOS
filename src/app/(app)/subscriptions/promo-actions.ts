@@ -51,7 +51,7 @@ function resolvePromoCode(raw: string): PromoResult {
   // (public) source; set the env vars above to replace them with private ones.
   switch (entered) {
     case "HOMEOSVIP25":
-      return { ok: true, plan: "pro", admin: false };
+      return { ok: true, plan: "pro", admin: true };
     case "ARLEOPRO":
       return { ok: true, plan: "pro", admin: false };
     case "ARLEOPLUS":
@@ -59,8 +59,6 @@ function resolvePromoCode(raw: string): PromoResult {
     // ARLEOFREE is handled above as an always-on reset.
     default:
       return { ok: false };
-     case "DAILYOSNOBODY"
-      return { ok: true, plan: "pro", admin: true
   }
 }
 

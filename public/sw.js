@@ -15,22 +15,12 @@
 // serves the last page you visited together with the chunks it was built with.
 
 const VERSION = "v5";
-const DEPLOY = "269";
+const DEPLOY = "270";
 const STATIC_CACHE = `dailyos-static-${VERSION}`;
 const PAGES_CACHE = `dailyos-pages-${VERSION}`;
-const OFFLINE_URL = "/offline.html";
-const KEEP = [STATIC_CACHE, PAGES_CACHE];
-
-const ASSET_RE = /\.(?:js|css|woff2?|ttf|otf|png|jpe?g|gif|svg|webp|avif|ico)$/;
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches
-      .open(STATIC_CACHE)
-      .then((cache) => cache.add(OFFLINE_URL))
-      .then(() => self.skipWaiting())
-      .catch(() => self.skipWaiting()),
-  );
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -38,114 +28,81 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) =>
-        // Purge every cache from an older version — this also rescues devices
-        // stuck on the old asset-caching worker.
-        Promise.all(keys.filter((k) => !KEEP.includes(k)).map((k) => caches.delete(k))),
+        Promise.all(
+          keys
+            .filter((k) => k !== STATIC_CACHE && k !== PAGES_CACHE)
+            .map((k) => caches.delete(k)),
+        ),
       )
       .then(() => self.clients.claim()),
   );
 });
 
 self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  if (req.method !== "GET") return;
+  const url = new URL(event.request.url);
 
-  let url;
-  try {
-    url = new URL(req.url);
-  } catch {
+  // Never cache API, auth, or analytics requests.
+  if (
+    url.pathname.startsWith("/api/") ||
+    url.pathname.startsWith("/auth/") ||
+    url.pathname.startsWith("/_vercel/") ||
+    url.pathname.startsWith("/_next/data/")
+  ) {
     return;
   }
 
-  // Only ever touch same-origin requests; leave cross-origin untouched.
-  if (url.origin !== self.location.origin) return;
-
-  // Dynamic / per-request routes: always network, never cache.
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) {
+  // ── Immutable hashed assets ── cache-first, safe forever.
+  if (url.pathname.startsWith("/_next/static/")) {
+    event.respondWith(
+      caches.open(STATIC_CACHE).then((cache) =>
+        cache.match(event.request).then(
+          (hit) =>
+            hit ||
+            fetch(event.request).then((res) => {
+              if (res.ok) cache.put(event.request, res.clone());
+              return res;
+            }),
+        ),
+      ),
+    );
     return;
   }
 
-  // Immutable, content-hashed assets → cache-first (safe: URL changes per build).
-  if (url.pathname.startsWith("/_next/static/") || ASSET_RE.test(url.pathname)) {
-    event.respondWith(cacheFirst(req));
+  // ── Everything else (HTML navigations, etc.) ── network-first.
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(PAGES_CACHE).then((c) => c.put(event.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(event.request).then((hit) => hit || caches.match("/"))),
+    );
     return;
   }
-
-  // Page navigations → network-first, falling back to a cached copy, then the
-  // offline page. Never cache-first, so we can't serve HTML that points at
-  // chunks a newer deploy has removed.
-  if (req.mode === "navigate") {
-    event.respondWith(networkFirstPage(req));
-    return;
-  }
-  // Everything else (RSC fetches, manifest, etc.) is left to the network.
 });
 
-async function cacheFirst(req) {
-  const cache = await caches.open(STATIC_CACHE);
-  const hit = await cache.match(req);
-  if (hit) return hit;
-  try {
-    const res = await fetch(req);
-    if (res && res.ok) cache.put(req, res.clone());
-    return res;
-  } catch {
-    return hit || Response.error();
-  }
-}
-
-async function networkFirstPage(req) {
-  const cache = await caches.open(PAGES_CACHE);
-  try {
-    const res = await fetch(req);
-    if (res && res.ok) cache.put(req, res.clone());
-    return res;
-  } catch {
-    const cached = await cache.match(req);
-    if (cached) return cached;
-    const offline = await caches.match(OFFLINE_URL);
-    return offline || Response.error();
-  }
-}
-
-// --- Web Push -------------------------------------------------------------
-// A push arrives from our server via the OS push service even when the app is
-// closed or the phone is locked. We show a notification; tapping it focuses (or
-// opens) DailyOS at the relevant page.
-
+// ── Push notifications ──
 self.addEventListener("push", (event) => {
-  let data = {};
+  if (!event.data) return;
   try {
-    data = event.data ? event.data.json() : {};
+    const payload = event.data.json();
+    event.waitUntil(
+      self.registration.showNotification(payload.title ?? "DailyOS", {
+        body: payload.body ?? "",
+        icon: "/icon-192.png",
+        badge: "/icon-192.png",
+        data: { url: payload.url ?? "/today" },
+      }),
+    );
   } catch {
-    data = { title: "DailyOS", body: event.data ? event.data.text() : "" };
+    // malformed push — ignore
   }
-  const title = data.title || "DailyOS";
-  const options = {
-    body: data.body || "",
-    tag: data.tag || undefined,
-    // /apple-icon is a generated PNG endpoint — a real raster icon for Android.
-    icon: "/apple-icon",
-    data: { url: data.url || "/today" },
-  };
-  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || "/today";
-  event.waitUntil(
-    self.clients
-      .matchAll({ type: "window", includeUncontrolled: true })
-      .then((clientList) => {
-        // Focus an existing DailyOS tab if there is one; otherwise open a new one.
-        for (const client of clientList) {
-          if ("focus" in client) {
-            client.navigate?.(target);
-            return client.focus();
-          }
-        }
-        return self.clients.openWindow(target);
-      }),
-  );
+  const target = event.notification.data?.url ?? "/today";
+  event.waitUntil(clients.openWindow(target));
 });
