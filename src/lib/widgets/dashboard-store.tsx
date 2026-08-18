@@ -17,7 +17,8 @@
 import * as React from "react";
 import { createClient } from "@/lib/supabase/client";
 import { usePlan } from "@/lib/use-pro";
-import { widgetLimitFor, nextTierAfter, type PlanTier } from "@/lib/widgets";
+import { widgetLimitFor, type PlanTier } from "@/lib/widgets";
+import { decideAdd, type AddResult } from "./add-decision";
 
 const DASHBOARD_KEY = "dashboard";
 
@@ -25,10 +26,7 @@ interface DashboardState {
   widgets: string[];
 }
 
-export type AddResult =
-  | { ok: true }
-  | { ok: false; reason: "duplicate" }
-  | { ok: false; reason: "limit"; limit: number; upgradeTo: "plus" | "pro" | null };
+export type { AddResult };
 
 interface DashboardContextValue {
   widgets: string[];
@@ -68,7 +66,7 @@ export function DashboardProvider({
   userId?: string;
   children: React.ReactNode;
 }) {
-  const { tier } = usePlan(userId);
+  const { tier, admin, resolved: planResolved } = usePlan(userId);
   const [widgets, setWidgetsState] = React.useState<string[]>([]);
   const [loaded, setLoaded] = React.useState(false);
 
@@ -157,36 +155,37 @@ export function DashboardProvider({
     [localKey, userId],
   );
 
-  const limit = widgetLimitFor(tier);
+  // Until usePlan resolves it reports "free", which would cap a Pro user at the
+  // free allowance and silently reject their adds. Don't enforce a limit we
+  // aren't sure about yet, and never limit admins.
+  const limitKnown = planResolved && !admin;
+  const limit = limitKnown ? widgetLimitFor(tier) : Infinity;
+
+  // Adds decided in this tick but not yet flushed to state, so two fast clicks
+  // can't both pass the limit check against the same list.
+  const pendingRef = React.useRef<string[]>([]);
 
   const addWidget = React.useCallback(
     (id: string): AddResult => {
-      // Read through a functional update so two quick clicks can't both pass
-      // the limit check against the same stale list.
-      let result: AddResult = { ok: true };
-      setWidgetsState((prev) => {
-        if (prev.includes(id)) {
-          result = { ok: false, reason: "duplicate" };
-          return prev;
-        }
-        if (prev.length >= limit) {
-          result = {
-            ok: false,
-            reason: "limit",
-            limit,
-            upgradeTo: nextTierAfter(tier),
-          };
-          return prev;
-        }
-        const next = [...prev, id];
-        // persist() also calls setWidgetsState, which is a no-op re-entrancy
-        // here; scheduling it keeps the reducer pure.
-        queueMicrotask(() => persist(next));
-        return next;
+      // Decide synchronously and return the real answer. This used to run
+      // inside a setState updater, which React defers to the next render — so
+      // the caller always got back "ok" and a rejected add produced no message
+      // at all. That is what made adding look like it silently did nothing.
+      const current = [...widgets, ...pendingRef.current];
+
+      const decision = decideAdd({ current, id, limit, tier });
+      if (!decision.ok) return decision;
+
+      pendingRef.current = [...pendingRef.current, id];
+      // Clear the pending entry once the state that contains it has landed.
+      queueMicrotask(() => {
+        pendingRef.current = pendingRef.current.filter((p) => p !== id);
       });
-      return result;
+
+      persist([...current, id]);
+      return { ok: true };
     },
-    [limit, tier, persist],
+    [widgets, limit, tier, persist],
   );
 
   const removeWidget = React.useCallback(

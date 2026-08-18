@@ -113,11 +113,17 @@ export function Dashboard({ userId }: { userId?: string }) {
             <LayoutGrid className="size-8" />
           </div>
           <h2 className="mt-4 text-xl font-bold tracking-tight">
-            Your dashboard, your way
+            Your dashboard starts empty — on purpose
           </h2>
-          <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-            Start empty and add exactly what you need — tasks, calendar, habits,
-            goals, or anything else. Make DailyOS yours.
+          <p className="mt-2 max-w-md text-sm text-muted-foreground">
+            Everything in DailyOS is a <strong className="text-foreground">widget</strong>:
+            a small panel that lives here on Today. Tasks, calendar, habits,
+            goals, your home — you choose which ones appear, in what order, and
+            you can take any of them off again whenever you like.
+          </p>
+          <p className="mt-2 max-w-md text-xs text-muted-foreground">
+            Not sure where to start? The starter pack adds four of the most
+            useful ones — you can change them straight away.
           </p>
           <div className="mt-6 flex gap-2">
             <Button onClick={openWidgetStore}>

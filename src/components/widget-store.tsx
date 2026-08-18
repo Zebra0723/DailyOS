@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { X, Check, Lock, Search, Plus } from "lucide-react";
+import { X, Check, Lock, Search, Plus, Trash2, LayoutGrid, Info } from "lucide-react";
 import {
   WIDGETS,
   WIDGET_CATEGORIES,
@@ -104,16 +104,22 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
     limit,
     atLimit,
     addWidget,
+    removeWidget,
   } = useDashboard();
 
   const [search, setSearch] = React.useState("");
   const [category, setCategory] = React.useState<string>("all");
   const [limitHit, setLimitHit] = React.useState<AddResult | null>(null);
+  const [justAdded, setJustAdded] = React.useState<string | null>(null);
 
   const handleAdd = React.useCallback(
     (id: string) => {
       const result = addWidget(id);
       setLimitHit(result.ok || result.reason !== "limit" ? null : result);
+      // The store opens over any page, so adding from (say) Tasks changed
+      // nothing the user could see. Confirm it explicitly, with a way through
+      // to the dashboard it landed on.
+      if (result.ok) setJustAdded(WIDGETS.find((w) => w.id === id)?.name ?? "Widget");
     },
     [addWidget],
   );
@@ -218,6 +224,44 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
+      {/* What this place is. Shown while the dashboard is still empty, because
+          nothing else in the app explains the model. */}
+      {activeWidgets.length === 0 && (
+        <div className="border-b bg-primary/[0.04]">
+          <div className="container mx-auto flex max-w-5xl items-start gap-3 px-6 py-4">
+            <Info className="mt-0.5 size-4 shrink-0 text-primary" />
+            <div className="min-w-0 text-sm">
+              <p className="font-medium">Your dashboard starts empty — that&apos;s on purpose.</p>
+              <p className="mt-1 text-muted-foreground">
+                Everything in DailyOS is a <strong>widget</strong>: a small panel
+                that lives on your Today page. Pick the ones you actually want
+                below and they appear there straight away. Nothing is forced on
+                you, and you can take any of them back off from this same screen
+                at any time.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation that an add actually landed */}
+      {justAdded && (
+        <div className="border-b bg-emerald-500/5">
+          <div className="container mx-auto flex max-w-5xl items-center gap-3 px-6 py-3">
+            <Check className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{justAdded}</span> is
+              now on your dashboard.
+            </p>
+            <Button size="sm" variant="outline" asChild>
+              <a href="/today">
+                <LayoutGrid className="size-3.5" /> View dashboard
+              </a>
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Plan limit reached */}
       {limitHit && !limitHit.ok && limitHit.reason === "limit" && (
         <div className="border-b bg-amber-500/5">
@@ -259,6 +303,7 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
                     allowed={allowed}
                     atLimit={atLimit && !active}
                     onAdd={() => handleAdd(w.id)}
+                    onRemove={() => removeWidget(w.id)}
                   />
                 );
               })}
@@ -280,6 +325,7 @@ function PreviewCard({
   allowed,
   atLimit,
   onAdd,
+  onRemove,
 }: {
   widget: WidgetDef;
   active?: boolean;
@@ -287,6 +333,7 @@ function PreviewCard({
   /** Plan's widget count is used up, so this one can't be added right now. */
   atLimit?: boolean;
   onAdd?: () => void;
+  onRemove?: () => void;
 }) {
   const Icon = widget.icon;
   const catLabel =
@@ -343,8 +390,18 @@ function PreviewCard({
       {onAdd && (
         <div className="px-4 pb-4">
           {active ? (
-            <Button variant="outline" size="sm" className="w-full" disabled>
-              <Check className="size-3.5" /> Added
+            // Two-way: adding used to be one-way, with no way back out except
+            // finding the dashboard's edit mode. The card that added it removes it.
+            <Button
+              variant="outline"
+              size="sm"
+              className="group/rm w-full border-primary/40 text-primary hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
+              onClick={onRemove}
+            >
+              <Check className="size-3.5 group-hover/rm:hidden" />
+              <Trash2 className="hidden size-3.5 group-hover/rm:block" />
+              <span className="group-hover/rm:hidden">On your dashboard</span>
+              <span className="hidden group-hover/rm:inline">Remove</span>
             </Button>
           ) : allowed === false ? (
             <Button variant="outline" size="sm" className="w-full" asChild>

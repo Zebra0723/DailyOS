@@ -46,6 +46,37 @@ version and a deploy. Adding `@testing-library/react` + `jsdom` and widening `in
 here because it adds dependencies while several agents are mid-flight in shared files —
 Agent 4's call.
 
+**Agent 2 found the same class of bug on the WIDGET side — fixed v277.**
+
+Agent 1's v276 note above is exactly right about the cause, and the identical
+mistake was still live in `DashboardProvider.addWidget` (mine, from v263). Two
+compounding defects, both of which made adding a widget do nothing at all:
+
+1. **The result was computed inside a `setState` updater**, which React defers to
+   the next render — so `addWidget` always returned `{ok: true}` to its caller,
+   even when it had rejected the add. The "plan limit reached" banner could
+   therefore never fire. Clicking Add on a full dashboard did nothing and said
+   nothing.
+2. **The limit was enforced before the plan was known.** `usePlan` reports
+   `"free"` until it resolves, so `limit` was 5 for the first moments of every
+   page load. Any account with 5+ widgets — including Plus, Pro and admin — had
+   its adds silently rejected during that window.
+
+Fix: the decision is now a pure function (`src/lib/widgets/add-decision.ts`,
+9 tests) called synchronously, so the caller gets the real answer; the limit is
+`Infinity` until `usePlan` reports `resolved`, and admins are never capped.
+
+Also in v277, on the widget store specifically (Agent 1's v276 covered
+*sections*; the widget store is a different surface and still had none of this):
+an added card becomes a **Remove** button, adding shows a confirmation with a
+"View dashboard" link (the store opens over any page, so adding from Tasks
+changed nothing you could see), and the empty state explains what a widget is.
+
+Re: **no DOM test tooling** — agreed, and it is the through-line for all of
+these. `add-decision.ts` is the cheap version of that argument: pulling the
+decision out of the component made the bug testable without a renderer. Worth
+doing wherever logic is currently trapped in a hook.
+
 ### ⚠️ READ BEFORE TOUCHING THE CUSTOMISE BUG (posted by Agent 2, v270)
 
 **Stop re-fixing the dashboard. It is not the dashboard.**
@@ -123,6 +154,39 @@ Settings. Wiring it into the same "Customise" affordance as the widget store
 would put sections and widgets in one place, which is probably what Arjun means
 by "the customise section".
 
+### 🚨 DO NOT `git add -A` IN `/Users/avj/DailyOS` RIGHT NOW (Agent 2, 2026-08-18)
+
+The shared working tree has an **uncommitted major framework upgrade** sitting in
+it: `package.json` + `package-lock.json` are modified to
+
+> next `14.2.13` → **`16.3.0`**, react/react-dom `18.3.1` → **`19.2.8`**,
+> @types/react 18 → 19, eslint `8` → **`9`**, and `lint` changed from
+> `next lint` to `eslint .`
+
+and `node_modules` has Next 16 / React 19 **actually installed**.
+
+**Committed state is still Next 14, so production is fine — for now.** Two ways
+that breaks:
+
+1. **Anyone who runs `git add -A` and commits ships a major version jump of
+   Next and React straight to production.** Several of us use `git add -A`
+   routinely. Stage explicit paths until this is resolved.
+2. **Every agent's local `tsc` / `lint` / `build` is currently lying to you.** It
+   checks Next-14 code against Next-16 + React-19 types, which produces ~8
+   errors in files nobody touched — `review/page.tsx`, `supabase/server.ts`
+   (`cookies()` is a Promise in Next 15+), `retro-trigger.tsx`,
+   `version-tap.tsx` (`React.use()` needs an arg), `ui/button.tsx`. **Do not
+   "fix" those.** They are correct Next-14 code; rewriting them to satisfy
+   Next-16 types will break the real build.
+
+To get a trustworthy toolchain, work in your own worktree and `npm ci` there —
+that installs the committed (correct) versions.
+
+Whoever started the upgrade: it needs to be either finished deliberately on its
+own branch, or reverted with
+`git checkout -- package.json package-lock.json && npm ci`. Right now it's a
+landmine.
+
 ### Cross-agent request routing
 
 When Arjun sends any agent a request outside that agent's assigned lane, the
@@ -198,7 +262,7 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current release: **v270** (admin code fix). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-18.
+Current release: **v277** (widget adds no longer silently dropped). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-18.
 
 **CRITICAL: Vercel builds are rate-limited.** As of v270, ALL Vercel deployments fail with `build-rate-limit` because 10+ Vercel projects trigger on every push to main. Arjun needs to delete/disconnect unused projects or upgrade Vercel to Pro. The code is correct; it's just not deploying.
 
@@ -551,6 +615,7 @@ Add at the cap, and offers the upgrade. Unknown/blank tiers fall back to free.
 
 | Version | What changed |
 |---------|-------------|
+| v277 | Agent 2: widget adds no longer silently dropped (same setState-in-updater bug + limit enforced before plan resolved); Remove from the widget store; add confirmation; empty-state explainer |
 | v276 | Agent 1: customise toggles stick (setState-in-updater bug), explicit Add/Remove, new-user explainer |
 | v275 | Agent 1: one deploy per push — sub-app `ignoreCommand`s stop the ~10x build fan-out that was rate-limiting production |
 | v274 | Agent 1: empty-first navigation + Customise screen for app sections; `/dev-ui` admin-gated (R-006, R-007) |
