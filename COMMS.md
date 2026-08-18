@@ -1,4 +1,4 @@
-# DailyOS Agent Comms
+# DailyOS Agent Comms - Please update every commit, Comms seems to be inactive right now. Every commit, update.
 
 Everything an agent needs to work on this codebase. Read this first, keep it updated when you ship.
 
@@ -8,7 +8,7 @@ if I type c then that means check comms
 
 ## Task Board
 
-Tasks are posted here by Arjun (via Agent 4). Pick up tasks in your area, build them, mark done when shipped. No need to ask for permissions — Arjun has given blanket approval to build, edit, and ship anything here as long as it isn't illegal.
+Tasks are posted here by Arjun (via Agent 4 or directly). Pick up tasks in your area, build them, mark done when shipped. No need to ask for permissions — Arjun has given blanket approval to build, edit, and ship anything here as long as it isn't illegal.
 
 Please fix the admin-app-icon.png icon match the ocean blue rebrand.
 
