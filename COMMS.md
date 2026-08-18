@@ -59,6 +59,39 @@ always visible. The migration matters — existing accounts must keep everything
 they already use, so gate the empty default on account creation date rather than
 hiding features from live users.
 
+### Feature enablement — the empty-first navigation (Agent 1, v274)
+
+R-006's diagnosis was right, and this is the build against it. The nav now
+renders only the sections an account has switched on.
+
+| File | Role |
+|------|------|
+| `src/lib/features.ts` | Catalogue of sections + pure defaulting/migration rules. 18 unit tests. |
+| `src/lib/features-store.tsx` | `FeaturesProvider` / `useFeatures()` — persistence in `user_state` key `features`, live state. |
+| `src/components/feature-manager.tsx` | The Customise UI. Currently on `/settings`. |
+| `src/components/app-nav.tsx` | `useVisibleCategories()` filters both render sites. |
+
+Things to know before you touch it:
+
+- **A new account starts with only `today`, `subscriptions`, `settings`** — the
+  three `core` sections. Nothing toggleable is preloaded; a test pins this so it
+  can't drift back.
+- **Accounts created before `FEATURE_CHOICE_LAUNCH_ISO` keep everything**, keyed
+  off `user.created_at`. Do not "simplify" this away — hiding sections from
+  someone already using them reads as data loss, not customisation.
+- **`core` sections can't be switched off** and `normaliseFeatureKeys` forces
+  them back on, so an account can never strand itself with no way to Settings.
+- Same two rules as `DashboardProvider`: read/write with the **server-provided
+  `userId`** (the client session can still be the previous account right after
+  signup), and scope the local mirror `dailyos-features:${userId}` (pitfall 6).
+- Adding a nav entry with no matching feature key leaves it always-visible by
+  design — add it to `FEATURES` if it should be toggleable.
+
+Not done yet, for whoever picks this up next: the Customise UI lives only in
+Settings. Wiring it into the same "Customise" affordance as the widget store
+would put sections and widgets in one place, which is probably what Arjun means
+by "the customise section".
+
 ### Cross-agent request routing
 
 When Arjun sends any agent a request outside that agent's assigned lane, the
@@ -80,8 +113,8 @@ receiving agent must:
 
 | R-005 | Agent 2 (done) → **Agent 4 to note** | Arjun reported three dashboard bugs directly to Agent 2: new accounts preloaded, plan widget limits not enforced, and "Add widget" doing nothing. | **FIXED v262** | These are Agent 4's lane. Agent 2 fixed them at Arjun's direct request rather than routing, so Agent 4 should **not** duplicate the work — but please review, since it changes `dashboard.tsx`, `widget-store.tsx` and `(app)/layout.tsx`. Details in "Dashboard state" below. |
 
-| R-006 | **ALL AGENTS** | **The customise bug is the NAVIGATION, not the dashboard.** `CATEGORIES` in `app-nav.tsx` is a static list of 16 features shown to every user regardless of what they've enabled. | Open — diagnosis posted | Full evidence in the "READ BEFORE TOUCHING THE CUSTOMISE BUG" section above. Three dashboard fixes (v261/v262/v263) were all real bugs and all still intact — they just weren't this one. Do not spend another version on `dashboard.tsx`. |
-| R-007 | Agent 4 | **`/dev-ui` appears in the nav for every user**, with no admin check. | Open | `app-nav.tsx` `CATEGORIES` → Account → `{ href: "/dev-ui", label: "Dev UI" }`, rendered unconditionally at both call sites (desktop line ~171, mobile ~398). `isAdminUser()` already exists and is used elsewhere. Found by Agent 2 while diagnosing R-006. |
+| R-006 | **ALL AGENTS** | **The customise bug is the NAVIGATION, not the dashboard.** `CATEGORIES` in `app-nav.tsx` is a static list of 16 features shown to every user regardless of what they've enabled. | **Implemented v274 by Agent 1 — task stays on the board** | Agent 1 independently re-verified Agent 2's diagnosis (16 static entries, filtered by nothing) and built the missing half. See "Feature enablement (v274)" below. Per Arjun's standing order the customise task is NOT removed from the Task Board — only Arjun takes it off. If it is still on the board, treat it as unsolved and keep going. |
+| R-007 | ~~Agent 4~~ → done | **`/dev-ui` appeared in the nav for every user**, with no admin check. | **FIXED v274** | `dev-ui` is now `adminOnly` in the feature catalogue and filtered at both nav render sites. Stored data cannot grant it either — `normaliseFeatureKeys` strips admin-only keys on the way in. Tests cover admin-yes, non-admin-no, and non-admin-with-`dev-ui`-stored-no. |
 
 ### Active Tasks
 
@@ -487,6 +520,10 @@ Add at the cap, and offers the upgrade. Unknown/blank tiers fall back to free.
 
 | Version | What changed |
 |---------|-------------|
+| v274 | Agent 1: empty-first navigation + Customise screen for app sections; `/dev-ui` admin-gated (R-006, R-007) |
+| v273 | Agent 1: admin app icon redrawn in ocean blue, from a checked-in source SVG |
+| v272 | In-app admin panel — dashboard, users, settings, push |
+| v271 | COMMS.md brought up to date through v270 |
 | v270 | Fix HOMEOSVIP25 promo code to grant admin access (was pro-only) |
 | v269 | Session cookie fix version bump (verify deploy) |
 | v268 | Error handling on all data pages + username update fix + page load speedup |
