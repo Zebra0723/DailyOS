@@ -28,7 +28,7 @@ receiving agent must:
 
 | ID | Assigned agent | Request | Status | Notes |
 |----|----------------|---------|--------|-------|
-| R-001 | Agent 4 | Restore production to the latest release; `dailyos.uk` is still serving v247 despite newer commits. | Blocked by Vercel rate limit | Live `/api/version` returns v247 and live `sw.js` has `DEPLOY = "247"`. Latest `main` Vercel check says “Deployment rate limited — retry in 24 hours.” After cooldown/quota resolution, make one compliant versioned deploy to both branches and verify both endpoints plus the live app. Agent 1 re-checked after pushing v253: still v247, so R-001 is unchanged. |
+| R-001 | Agent 4 | Restore production to the latest release; `dailyos.uk` is still serving old code despite newer commits. | **Blocked — Vercel build-rate-limit** | Root cause found v270: 10+ Vercel projects (daily-os-pulse, daily-os-brain, daily-os-support, daily-os-hub, daily-os-deploy, etc.) ALL trigger on every push to main, exhausting the free-tier build quota instantly. Every deploy status on GitHub shows `failure` with `upgradeToPro=build-rate-limit`. **Fix:** Arjun must either (a) delete/disconnect unused Vercel projects, or (b) upgrade Vercel to Pro. Then trigger a manual redeploy. |
 | R-002 | Agent 5 | **Five LifeOS commits exist only on the local `main` branch and have never been pushed.** `aeeab71`, `4209f8e`, `3b7f27a`, `9d44c26`, `d312abf` (widget overhaul coordination + LifeOS widget modules). | Needs reconciling | We all share one working tree at `/Users/avj/DailyOS`. Local `main` sits at `dae0bf5` and holds those five commits; `origin/main` is at `214dc71` (v253) and does not. Agent 1 shipped v253 from branch `agent1-homeos` (= `origin/main` + 2 commits) precisely to avoid rebasing another agent's unpushed work — an earlier `pull --rebase` stopped on a COMMS.md conflict inside `aeeab71`, which isn't Agent 1's to resolve. Whoever owns those commits should rebase them onto `origin/main` and push. The tree is currently left on `agent1-homeos`, which matches `origin/main`. |
 
 | R-003 | Agent 3 | **Six built-in widgets still use unscoped localStorage keys** — `widget-habits`, `widget-goals`, `widget-mood`, `widget-water`, `widget-countdown`, `widget-quick-notes`. | Open | Same class of bug Agent 4 fixed for the dashboard in v254 (`dailyos-dashboard` → `dailyos-dashboard:${userId}`). Two accounts sharing one browser see each other's habits, goals and notes on first paint, because the local mirror isn't per-user. The `user_state` side is fine (RLS scopes it) — it's only the localStorage cache. Fix is one line each: append `:${userId}`. Found by Agent 2 while building the AI Feature Builder; the AI widgets already scope their keys. See Common Pitfalls #6. |
@@ -87,7 +87,9 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current release: **v263** (widget add + plan limits fix). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-08.
+Current release: **v270** (admin code fix). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-18.
+
+**CRITICAL: Vercel builds are rate-limited.** As of v270, ALL Vercel deployments fail with `build-rate-limit` because 10+ Vercel projects trigger on every push to main. Arjun needs to delete/disconnect unused projects or upgrade Vercel to Pro. The code is correct; it's just not deploying.
 
 If you get a push rejection, `git pull origin main --rebase` first — Arjun runs multiple agents (Codex CLI, etc.) that push concurrently.
 
@@ -164,7 +166,8 @@ Arjun runs multiple agents simultaneously. Expect push conflicts. Always:
 - **`user_state` table** — composite PK `(user_id, key)`, JSONB `value`, used for client preferences and data sync
 - **`sync.ts`** — `loadRemote<T>(key)` / `saveRemote(key, value)` for key-value persistence. Prefs stored under key `"prefs"`.
 - **Admin app** — separate Next.js app at `/admin/` directory, uses service-role Supabase client. All admin-only features live there, NOT in the user app.
-- **Middleware** (`src/lib/supabase/middleware.ts`) — auth guard, session management, `Cache-Control: no-store` on all HTML responses
+- **Middleware** (`src/lib/supabase/middleware.ts`) — auth guard, session management, session deadline cookies, `Cache-Control: no-store` on all HTML responses
+- **Session cookies** — all three Supabase client entry points (browser, server, middleware) set `cookieOptions: { maxAge: 365*24*60*60 }` so auth cookies persist across browser/tab closes (fixed v264)
 
 ---
 
@@ -198,6 +201,7 @@ Arjun runs multiple agents simultaneously. Expect push conflicts. Always:
 | `/interests` | Interest tracker |
 | `/subscriptions` | Personal subscriptions |
 | `/build-day` | Day planner |
+| `/journal` | One Line a Day micro-journal with calendar heatmap and streak tracking |
 | `/world-clock` | World clock |
 | `/dev-ui` | Dev palette picker (Codex CLI added this) |
 
@@ -258,9 +262,9 @@ The Today page is now a fully customisable dashboard. Users start empty and add 
 3. Import and add to `COMPONENT_MAP` in `src/components/dashboard.tsx`
 4. Done — it appears in the Widget Store automatically
 
-### Current widgets (18)
+### Current widgets (19)
 
-**Free:** Stats Overview, Tasks Due, Upcoming Events, Quick Add, Recent Inbox, Quick Notes, Habit Tracker, Pomodoro, Water Intake, Daily Quote
+**Free:** Stats Overview, Tasks Due, Upcoming Events, Quick Add, Recent Inbox, Quick Notes, Habit Tracker, Pomodoro, Water Intake, Daily Quote, One Line a Day (micro-journal)
 **Plus:** Needs Review, Bookmarks, Tomorrow Preview, HomeOS Summary, Goals, Mood Tracker, Countdown
 **Pro:** AI Feature Builder
 
@@ -385,6 +389,10 @@ All secrets are env vars on Vercel (Arjun manages these):
 | `src/lib/push-server.ts` | Server-side push notification sending |
 | `src/lib/dates-tz.ts` | Timezone-aware date utilities |
 | `src/lib/types.ts` | Shared TypeScript types |
+| `src/components/retro-mode.tsx` | RetroModeProvider — terminal-green CSS theme, floating exit button |
+| `src/components/retro-trigger.tsx` | Easter egg: 5-tap clock icon in Settings activates retro mode |
+| `src/components/widgets/micro-journal.tsx` | Dashboard widget for One Line a Day journal |
+| `src/components/journal.tsx` | Full journal page — entries, calendar heatmap, streaks, On This Day |
 | `src/components/ui/` | shadcn/ui primitives (button, dialog, input, etc.) |
 
 ---
@@ -432,6 +440,13 @@ Add at the cap, and offers the upgrade. Unknown/blank tiers fall back to free.
 
 | Version | What changed |
 |---------|-------------|
+| v270 | Fix HOMEOSVIP25 promo code to grant admin access (was pro-only) |
+| v269 | Session cookie fix version bump (verify deploy) |
+| v268 | Error handling on all data pages + username update fix + page load speedup |
+| v267 | Retro mode easter egg — 5-tap clock icon in Settings for terminal-green theme |
+| v266 | "One Line a Day" micro-journal: dashboard widget, /journal page, calendar heatmap, streaks, On This Day lookback |
+| v265 | Version bump |
+| v264 | Session cookie persistence — auth cookies now have maxAge so login survives tab close |
 | v263 | Agent 2: fix "Add widget" doing nothing, stale "Added" state, and per-plan widget limits |
 | v262 | Fix widget store (overlay reads ref dynamically, save uses userId prop), nav initials from username, banner font-display |
 | v261 | Ocean Blue rebrand across 115 files + dashboard preload fix (userId prop) |
