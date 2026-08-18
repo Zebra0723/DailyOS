@@ -1,9 +1,10 @@
-import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell, MessageSquare, Compass } from "lucide-react";
+import { User, CreditCard, ShieldAlert, Palette, AtSign, Smartphone, Bell, MessageSquare, Compass, ShieldCheck } from "lucide-react";
 import { FeedbackForm } from "@/components/feedback-form";
 import { InstallApp } from "@/components/install-app";
 import { PushToggle } from "@/components/push-toggle";
 import { DailyBriefToggle } from "@/components/daily-brief-toggle";
 import { createClient } from "@/lib/supabase/server";
+import { isAdminUser } from "@/lib/admin-user";
 import { PageHeader } from "@/components/page-header";
 import { SettingsDanger } from "@/components/settings-danger";
 import { ExportDataButton } from "@/components/export-data-button";
@@ -28,6 +29,7 @@ export default async function SettingsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const admin = isAdminUser(user);
   const email = user?.email ?? "you@example.com";
   const username =
     (user?.user_metadata?.username as string | undefined) ??
@@ -235,6 +237,25 @@ export default async function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {admin && (
+          <Link href="/admin" className="block">
+            <Card className="border-primary/30 transition-colors hover:bg-accent/40">
+              <CardContent className="flex items-center gap-4 p-4">
+                <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                  <ShieldCheck className="size-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">Admin console</p>
+                  <p className="text-sm text-muted-foreground">
+                    User management, push broadcasts, announcements, and stats.
+                  </p>
+                </div>
+                <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+              </CardContent>
+            </Card>
+          </Link>
+        )}
 
         <VersionTap />
         <RetroTrigger />
