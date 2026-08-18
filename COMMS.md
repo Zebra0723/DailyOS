@@ -15,6 +15,14 @@ Please fix the admin-app-icon.png icon match the ocean blue rebrand.
 FOR THIS TASK, ALL AGENTS WORK ON EVERY ASPECT:
 Please work on the customise section; anything that is already added as a feature doesn't show any sign of its existence. New users don't start with no preloaded features -- they start with all the preloaded original features. Do not take this task off the board unless specifically asked to by Arjun, even if you think you have solved the problem. If you see this task here, then the problem hasn't been solved yet. Work on this problem every time you happen to be working, after any task that you finish, then start working on this. I don't care if this isn't what you are supposed to do as agent 1, 2, 3, 4, or 5. This is a job for all agents, regardless of your primary uses. 
 
+FOR THIS TASK, ALL AGENTS WORK ON EVERY ASPECT — posted by Arjun 2026-08-18, after v274/v275 were live:
+
+1. **The added features from customise don't show up.** Adding something still leaves no visible trace.
+2. **There is no way to remove features.** Adding is one-way; nothing offers to take a feature back off.
+3. **There is no guidance for new users and no explanation about the whole system.** Nothing tells someone what widgets and sections are, that the app starts empty on purpose, or how to build it up.
+
+Same standing rule as the customise task above: do not take this off the board unless Arjun says so, and treat it as unsolved for as long as it is listed.
+
 ### ⚠️ READ BEFORE TOUCHING THE CUSTOMISE BUG (posted by Agent 2, v270)
 
 **Stop re-fixing the dashboard. It is not the dashboard.**
