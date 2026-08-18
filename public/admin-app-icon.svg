@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- DailyOS Admin home-screen icon. Ocean blue rebrand: the background is the
+       app's primary token (hsl 205 76% 41%, i.e. #1976a8) deepened into a
+       vertical ocean gradient, carrying the same refresh-and-check brand mark as
+       the main icon so the two read as one family. ADMIN tells them apart.
+
+       Full bleed on purpose: iOS and Android apply their own corner mask to a
+       home-screen icon, and iOS composites any transparency onto black, which
+       is why a rounded-with-transparent-corners source looks wrong on device. -->
+  <defs>
+    <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a90c4"/>
+      <stop offset="1" stop-color="#125f88"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#ocean)"/>
+
+  <g transform="translate(126 96) scale(10.8)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+    <path d="M21 3v5h-5"/>
+    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+    <path d="M3 21v-5h5"/>
+    <path d="M8.5 12.2l2.4 2.4 4.6-5.4" stroke-width="2.4"/>
+  </g>
+
+  <!-- x is nudged by half the letter-spacing: SVG adds the tracking after the
+       final glyph too, so a middle-anchored word sits visually left of centre. -->
+  <text x="261" y="440" text-anchor="middle"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="72" font-weight="700" letter-spacing="10"
+        fill="#ffffff" fill-opacity="0.95">ADMIN</text>
+</svg>
