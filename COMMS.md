@@ -15,6 +15,50 @@ Please fix the admin-app-icon.png icon match the ocean blue rebrand.
 FOR THIS TASK, ALL AGENTS WORK ON EVERY ASPECT:
 Please work on the customise section; anything that is already added as a feature doesn't show any sign of its existence. New users don't start with no preloaded features -- they start with all the preloaded original features. Do not take this task off the board unless specifically asked to by Arjun, even if you think you have solved the problem. If you see this task here, then the problem hasn't been solved yet. Work on this problem every time you happen to be working, after any task that you finish, then start working on this. I don't care if this isn't what you are supposed to do as agent 1, 2, 3, 4, or 5. This is a job for all agents, regardless of your primary uses. 
 
+### ⚠️ READ BEFORE TOUCHING THE CUSTOMISE BUG (posted by Agent 2, v270)
+
+**Stop re-fixing the dashboard. It is not the dashboard.**
+
+This task has now been "fixed" three times — v261 (Agent 4), v262 (Agent 4),
+v263 (Agent 2) — and Arjun still reports it. When three independent fixes don't
+move a symptom, the diagnosis is wrong, not the patch.
+
+Agent 2 re-verified every previous fix against current `origin/main`. All of it
+is intact and correct:
+
+- `DashboardProvider` exists and is still mounted in `(app)/layout.tsx` above
+  `WidgetStoreProvider`; `dashboard.tsx` and `widget-store.tsx` both consume
+  `useDashboard()`. No agent has reverted it.
+- Widget registry ↔ `COMPONENT_MAP`: **27 vs 27, exactly matched**, so no saved
+  widget id can silently render nothing.
+- **No DB seeding.** No signup trigger, and nothing in any migration writes
+  `user_state`. Checked all 12 migrations + `schema.sql`.
+- Nothing writes the `dashboard` key except `DashboardProvider`.
+  `DEFAULT_WIDGETS` is reachable only from the explicit "Use starter pack"
+  button.
+
+**The unaddressed half is the NAVIGATION.** `CATEGORIES` in
+`src/components/app-nav.tsx` is a hardcoded list of 16 features rendered
+wholesale to every user, filtered by nothing — not by what they've enabled, not
+by plan tier, not even by admin:
+
+> Today · Ask DailyOS · The Drop · Build My Day · Interests · World Clock ·
+> Journal · Notes · Calendar · Tasks · Review · Vault · HomeOS · Subscription ·
+> Settings · **Dev UI**
+
+That is literally "new users start with all the preloaded original features",
+and it's why adding something in Customise "shows no sign of its existence" —
+the nav looks identical before and after. The overhaul brief says *"empty-first
+… no fixed layout"*; the dashboard grid became empty-first, the nav never did.
+
+Side finding: **`/dev-ui` is in the nav for every user**, not just admins.
+
+Whoever picks this up: the fix is a feature-enablement concept (which app
+sections a user has switched on) driving `CATEGORIES`, with Today + Account
+always visible. The migration matters — existing accounts must keep everything
+they already use, so gate the empty default on account creation date rather than
+hiding features from live users.
+
 ### Cross-agent request routing
 
 When Arjun sends any agent a request outside that agent's assigned lane, the
@@ -35,6 +79,9 @@ receiving agent must:
 | R-004 | **ALL AGENTS** | **New accounts start with all widgets preloaded instead of empty.** | **FIXED v261** | Root cause: `loadRemote("dashboard")` used `session.user.id` from the Supabase client auth, which could be stale after signup and return another user's data. Fix: dashboard.tsx now queries `user_state` directly using the server-provided `userId` prop instead of `loadRemote`. |
 
 | R-005 | Agent 2 (done) → **Agent 4 to note** | Arjun reported three dashboard bugs directly to Agent 2: new accounts preloaded, plan widget limits not enforced, and "Add widget" doing nothing. | **FIXED v262** | These are Agent 4's lane. Agent 2 fixed them at Arjun's direct request rather than routing, so Agent 4 should **not** duplicate the work — but please review, since it changes `dashboard.tsx`, `widget-store.tsx` and `(app)/layout.tsx`. Details in "Dashboard state" below. |
+
+| R-006 | **ALL AGENTS** | **The customise bug is the NAVIGATION, not the dashboard.** `CATEGORIES` in `app-nav.tsx` is a static list of 16 features shown to every user regardless of what they've enabled. | Open — diagnosis posted | Full evidence in the "READ BEFORE TOUCHING THE CUSTOMISE BUG" section above. Three dashboard fixes (v261/v262/v263) were all real bugs and all still intact — they just weren't this one. Do not spend another version on `dashboard.tsx`. |
+| R-007 | Agent 4 | **`/dev-ui` appears in the nav for every user**, with no admin check. | Open | `app-nav.tsx` `CATEGORIES` → Account → `{ href: "/dev-ui", label: "Dev UI" }`, rendered unconditionally at both call sites (desktop line ~171, mobile ~398). `isAdminUser()` already exists and is used elsewhere. Found by Agent 2 while diagnosing R-006. |
 
 ### Active Tasks
 
