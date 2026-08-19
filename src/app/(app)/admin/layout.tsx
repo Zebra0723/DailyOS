@@ -7,6 +7,7 @@ import {
   Users,
   Settings,
   Bell,
+  Smartphone,
   ShieldCheck,
 } from "lucide-react";
 
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/push", label: "Push", icon: Bell },
+  { href: "/admin/devices", label: "Devices", icon: Smartphone },
 ] as const;
 
 export default async function AdminLayout({
