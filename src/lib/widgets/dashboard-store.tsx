@@ -79,35 +79,7 @@ export function DashboardProvider({
   React.useEffect(() => {
     let active = true;
 
-    (async () => {
-      if (!userId) {
-        if (active) setLoaded(true);
-        return;
-      }
-
-      try {
-        const supabase = createClient();
-        const { data } = await supabase
-          .from("user_state")
-          .select("value")
-          .eq("user_id", userId)
-          .eq("key", DASHBOARD_KEY)
-          .maybeSingle();
-        if (!active) return;
-
-        const remote = data?.value as DashboardState | null;
-        if (Array.isArray(remote?.widgets)) {
-          // An explicitly empty list is a real answer — a new account starts
-          // blank and must stay blank.
-          setWidgetsState(remote.widgets);
-          setLoaded(true);
-          return;
-        }
-      } catch {
-        /* fall through to the local mirror */
-      }
-
-      if (!active) return;
+    const loadLocal = () => {
       if (localKey) {
         try {
           const raw = localStorage.getItem(localKey);
@@ -118,10 +90,48 @@ export function DashboardProvider({
         }
       }
       setLoaded(true);
+    };
+
+    if (!userId) {
+      if (active) setLoaded(true);
+      return () => { active = false; };
+    }
+
+    const timeout = setTimeout(() => {
+      if (!active) return;
+      loadLocal();
+    }, 4000);
+
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("user_state")
+          .select("value")
+          .eq("user_id", userId)
+          .eq("key", DASHBOARD_KEY)
+          .maybeSingle();
+        if (!active) return;
+
+        clearTimeout(timeout);
+        const remote = data?.value as DashboardState | null;
+        if (Array.isArray(remote?.widgets)) {
+          setWidgetsState(remote.widgets);
+          setLoaded(true);
+          return;
+        }
+      } catch {
+        if (!active) return;
+        clearTimeout(timeout);
+      }
+
+      if (!active) return;
+      loadLocal();
     })();
 
     return () => {
       active = false;
+      clearTimeout(timeout);
     };
   }, [userId, localKey]);
 

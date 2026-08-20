@@ -12,6 +12,7 @@ export function createClient() {
         maxAge: COOKIE_MAX_AGE,
         path: "/",
         sameSite: "lax" as const,
+        secure: true,
       },
     },
   );
