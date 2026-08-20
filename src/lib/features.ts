@@ -143,14 +143,6 @@ export const FEATURES: FeatureDef[] = [
     category: "Account",
     core: true,
   },
-  {
-    key: "dev-ui",
-    href: "/dev-ui",
-    label: "Dev UI",
-    description: "Palette picker. Admins only.",
-    category: "Account",
-    adminOnly: true,
-  },
 ];
 
 export const FEATURE_KEYS = FEATURES.map((f) => f.key);

@@ -30,7 +30,6 @@ import {
   Info,
   LifeBuoy,
   Mail,
-  SwatchBook,
   LayoutGrid,
   BookOpen,
 } from "lucide-react";
@@ -89,17 +88,21 @@ const CATEGORIES: {
     items: [
       { href: "/subscriptions", label: "Subscription", icon: CreditCard },
       { href: "/settings", label: "Settings", icon: Settings },
-      { href: "/dev-ui", label: "Dev UI", icon: SwatchBook },
     ],
   },
 ];
 
-// Bottom bar (mobile): four key destinations + a "More" menu for everything.
-const BOTTOM = [
-  { href: "/today", label: "Today", icon: Sun },
+// Bottom bar (mobile): Today is always shown, then up to 3 enabled sections,
+// plus "More". The old hardcoded list ignored the features store entirely,
+// showing Ask / Drop / Calendar even when the user hadn't added them.
+const BOTTOM_CANDIDATES: NavItem[] = [
   { href: "/assistant", label: "Ask", icon: Sparkles },
   { href: "/inbox", label: "Drop", icon: Inbox },
   { href: "/calendar", label: "Calendar", icon: Calendar },
+  { href: "/tasks", label: "Tasks", icon: CheckSquare },
+  { href: "/notes", label: "Notes", icon: StickyNote },
+  { href: "/vault", label: "Vault", icon: Archive },
+  { href: "/journal", label: "Journal", icon: BookOpen },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -334,6 +337,7 @@ export function TopNav({ email, userId, username }: { email: string; userId?: st
 export function MobileNav({ email, userId, username }: { email?: string; userId?: string; username?: string }) {
   const pathname = usePathname();
   const categories = useVisibleCategories();
+  const { enabled } = useFeatures();
   const { openSurvey } = useSurvey();
   const { openBugReport } = useBugReport();
   const { openWidgetStore } = useWidgetStore();
@@ -343,6 +347,15 @@ export function MobileNav({ email, userId, username }: { email?: string; userId?
   const homeLocked = ready && !tierMeets(tier, "Plus");
   const askLocked = ready && !tierMeets(tier, "Pro");
   const [menuOpen, setMenuOpen] = React.useState(false);
+
+  const bottomItems = React.useMemo(() => {
+    const today: NavItem = { href: "/today", label: "Today", icon: Sun };
+    const visible = BOTTOM_CANDIDATES.filter((c) => {
+      const feature = FEATURE_BY_HREF.get(c.href);
+      return feature ? enabled.has(feature.key) : true;
+    });
+    return [today, ...visible.slice(0, 3)];
+  }, [enabled]);
 
   React.useEffect(() => {
     setMenuOpen(false); // close the drawer whenever the route changes
@@ -360,8 +373,8 @@ export function MobileNav({ email, userId, username }: { email?: string; userId?
   return (
     <>
       {/* Bottom bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 pb-safe backdrop-blur md:hidden">
-        {BOTTOM.map((l) => (
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid border-t bg-card/95 pb-safe backdrop-blur md:hidden" style={{ gridTemplateColumns: `repeat(${bottomItems.length + 1}, minmax(0, 1fr))` }}>
+        {bottomItems.map((l) => (
           <Link
             key={l.href}
             href={l.href}

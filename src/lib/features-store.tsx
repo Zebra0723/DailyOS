@@ -73,15 +73,36 @@ export function FeaturesProvider({
   React.useEffect(() => {
     let active = true;
 
-    (async () => {
-      if (!userId) {
-        if (active) {
-          setEnabledState(new Set(defaultFeatureKeys(accountCreatedAt)));
-          setLoaded(true);
-        }
-        return;
-      }
+    const applyDefaults = () => {
+      if (!active) return;
+      setEnabledState(new Set(defaultFeatureKeys(accountCreatedAt)));
+      setLoaded(true);
+    };
 
+    if (!userId) {
+      applyDefaults();
+      return () => { active = false; };
+    }
+
+    // Safety: if the Supabase fetch hangs (network, cold start, etc.) the
+    // spinner must not spin forever. Fall through to defaults after 4s.
+    const timeout = setTimeout(() => {
+      if (!active) return;
+      if (localKey) {
+        try {
+          const raw = localStorage.getItem(localKey);
+          const parsed = raw ? (JSON.parse(raw) as { enabled?: unknown }) : null;
+          if (Array.isArray(parsed?.enabled)) {
+            setEnabledState(new Set(normaliseFeatureKeys(parsed.enabled)));
+            setLoaded(true);
+            return;
+          }
+        } catch { /* ignore */ }
+      }
+      applyDefaults();
+    }, 4000);
+
+    (async () => {
       try {
         const supabase = createClient();
         const { data } = await supabase
@@ -92,16 +113,16 @@ export function FeaturesProvider({
           .maybeSingle();
         if (!active) return;
 
+        clearTimeout(timeout);
         const stored = (data?.value as { enabled?: unknown } | null)?.enabled;
         if (Array.isArray(stored)) {
-          // A stored list is a real answer even when short — someone who
-          // switched everything off must stay switched off.
           setEnabledState(new Set(normaliseFeatureKeys(stored)));
           setLoaded(true);
           return;
         }
       } catch {
-        /* fall through to the local mirror, then to defaults */
+        if (!active) return;
+        clearTimeout(timeout);
       }
 
       if (!active) return;
@@ -120,12 +141,12 @@ export function FeaturesProvider({
         }
       }
 
-      setEnabledState(new Set(defaultFeatureKeys(accountCreatedAt)));
-      setLoaded(true);
+      applyDefaults();
     })();
 
     return () => {
       active = false;
+      clearTimeout(timeout);
     };
   }, [userId, accountCreatedAt, localKey]);
 

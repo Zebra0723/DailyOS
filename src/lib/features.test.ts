@@ -70,9 +70,11 @@ describe("defaults and migration", () => {
     expect(Number.isFinite(Date.parse(FEATURE_CHOICE_LAUNCH_ISO))).toBe(true);
   });
 
-  it("the starter set never includes an admin-only section", () => {
-    expect(starterFeatureKeys()).not.toContain("dev-ui");
-    expect(allFeatureKeys()).not.toContain("dev-ui");
+  it("the starter set includes only core sections", () => {
+    const starter = starterFeatureKeys();
+    for (const key of starter) {
+      expect(getFeature(key)?.core).toBe(true);
+    }
   });
 });
 
@@ -91,8 +93,8 @@ describe("normaliseFeatureKeys", () => {
     expect(keys).toContain("subscriptions");
   });
 
-  it("cannot grant an admin-only section from stored data", () => {
-    expect(normaliseFeatureKeys(["dev-ui"])).not.toContain("dev-ui");
+  it("drops unknown keys silently", () => {
+    expect(normaliseFeatureKeys(["nonexistent-key"])).not.toContain("nonexistent-key");
   });
 
   it("survives junk input", () => {
@@ -117,8 +119,6 @@ describe("normaliseFeatureKeys", () => {
 describe("isFeatureVisible", () => {
   const today = getFeature("today")!;
   const vault = getFeature("vault")!;
-  const devUi = getFeature("dev-ui")!;
-
   it("shows core sections even when nothing is enabled", () => {
     expect(isFeatureVisible(today, [], false)).toBe(true);
   });
@@ -126,12 +126,6 @@ describe("isFeatureVisible", () => {
   it("shows an enabled section and hides a disabled one", () => {
     expect(isFeatureVisible(vault, ["vault"], false)).toBe(true);
     expect(isFeatureVisible(vault, [], false)).toBe(false);
-  });
-
-  it("shows Dev UI only to admins, and never via the enabled set", () => {
-    expect(isFeatureVisible(devUi, [], true)).toBe(true);
-    expect(isFeatureVisible(devUi, [], false)).toBe(false);
-    expect(isFeatureVisible(devUi, ["dev-ui"], false)).toBe(false);
   });
 });
 
