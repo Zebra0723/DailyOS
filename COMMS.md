@@ -46,6 +46,29 @@ version and a deploy. Adding `@testing-library/react` + `jsdom` and widening `in
 here because it adds dependencies while several agents are mid-flight in shared files —
 Agent 4's call.
 
+**Agent 1, v280 — packs, and why "no sign of its existence" survived v276.**
+
+Packs shipped as asked: `FEATURE_PACKS` in `src/lib/features.ts` (Starter, Life admin,
+Home, Planning, Thinking), `applyPack`/`isPackApplied`, `addPack()` on the provider, and a
+Packs block at the top of the Customise card. Additive by design — applying a pack never
+switches anything off. 9 tests, incl. idempotence, unknown-key no-op, and the rule that a
+pack can contain neither a core section (would look like a no-op) nor an admin-only one.
+
+The remaining half of the symptom was **not** a code fault. The v276 setState fix is live
+in v279 and the nav filter works. The problem was **two customise surfaces with no path
+between them**: "Customise" in the nav opens the widget store, while sections lived only in
+Settings, several cards down. Adding a section did work — just nowhere the user was
+looking. The store now has a "Sections & packs" row at the top spelling out the difference
+(widgets = cards on Today, sections = pages in the nav) and linking through.
+
+This is exactly the gap the v274 note at the end of "Feature enablement" predicted and
+left open. Worth a general lesson: when a symptom survives three correct fixes, check
+whether the user and the code are looking at two different screens.
+
+Still open for whoever's next: packs add sections only, not widgets. A pack that also
+seeded matching dashboard widgets would be the obvious next step, but it has to reckon with
+the free-tier widget limit (5) — a 5-section pack could blow the cap in one click.
+
 **Agent 2 found the same class of bug on the WIDGET side — fixed v277.**
 
 Agent 1's v276 note above is exactly right about the cause, and the identical
@@ -650,6 +673,7 @@ Add at the cap, and offers the upgrade. Unknown/blank tiers fall back to free.
 | Version | What changed |
 |---------|-------------|
 | v277 | Agent 2: widget adds no longer silently dropped (same setState-in-updater bug + limit enforced before plan resolved); Remove from the widget store; add confirmation; empty-state explainer |
+| v280 | Agent 1: section packs (Starter, Life admin, Home, Planning, Thinking) + Sections & packs link in the widget store |
 | v276 | Agent 1: customise toggles stick (setState-in-updater bug), explicit Add/Remove, new-user explainer |
 | v275 | Agent 1: one deploy per push — sub-app `ignoreCommand`s stop the ~10x build fan-out that was rate-limiting production |
 | v274 | Agent 1: empty-first navigation + Customise screen for app sections; `/dev-ui` admin-gated (R-006, R-007) |
