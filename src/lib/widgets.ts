@@ -216,6 +216,14 @@ export const WIDGETS: WidgetDef[] = [
     tier: "free",
   },
   {
+    id: "ask-dailyos",
+    name: "Ask DailyOS",
+    description: "Your AI chief of staff — ask about your day, tasks, or events.",
+    icon: Sparkles,
+    category: "ai",
+    tier: "pro",
+  },
+  {
     id: "ai-builder",
     name: "AI Feature Builder",
     description: "Describe a feature in plain English and DailyOS builds it for you.",

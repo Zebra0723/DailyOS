@@ -10,7 +10,6 @@ import {
   CheckSquare,
   Archive,
   Settings,
-  Plus,
   LogOut,
   StickyNote,
   Lock,
@@ -268,12 +267,6 @@ export function TopNav({ email, userId, username }: { email: string; userId?: st
             <Bug className="size-4" />
             <span className="hidden lg:inline">Report Bug</span>
           </button>
-          <Button asChild size="sm" className="shadow-elevated">
-            <Link href="/inbox/new">
-              <Plus className="size-4" />
-              Add
-            </Link>
-          </Button>
           <div className="h-6 w-px bg-border" />
           <div
             className="grid size-9 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary"
@@ -420,15 +413,10 @@ export function MobileNav({ email, userId, username }: { email?: string; userId?
               </button>
             </div>
 
-            <div className="flex gap-2 px-4 py-3">
-              <Button asChild className="flex-1 justify-start">
-                <Link href="/inbox/new" onClick={() => setMenuOpen(false)}>
-                  <Plus className="size-4" /> Add to the Drop
-                </Link>
-              </Button>
+            <div className="px-4 py-3">
               <Button
                 variant="outline"
-                className="shrink-0"
+                className="w-full justify-start"
                 onClick={() => {
                   setMenuOpen(false);
                   openWidgetStore();
@@ -574,12 +562,6 @@ export function MobileHeader() {
         >
           <Search className="size-5" />
         </button>
-        <Button size="sm" asChild>
-          <Link href="/inbox/new">
-            <Plus className="size-4" />
-            Add
-          </Link>
-        </Button>
       </div>
     </header>
   );

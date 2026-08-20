@@ -927,6 +927,16 @@ function WidgetMockup({ id }: { id: string }) {
         </div>
       );
 
+    case "ask-dailyos":
+      return (
+        <div className="space-y-2">
+          <p className="text-[11px] text-muted-foreground/60">Ask anything about your day...</p>
+          <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2">
+            <span className="text-[10px] font-medium text-primary">Ask DailyOS</span>
+          </div>
+        </div>
+      );
+
     case "ai-builder":
       return (
         <div className="space-y-2">
