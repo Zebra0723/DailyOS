@@ -16,9 +16,15 @@ export async function saveOpsConfig(
 ): Promise<{ ok: boolean; error?: string }> {
   await requireAdminUser();
   const admin = createServiceClient();
+  const { data } = await admin
+    .from("app_config")
+    .select("value")
+    .eq("key", "global")
+    .maybeSingle();
+  const existing = (data?.value ?? {}) as Record<string, unknown>;
   const { error } = await admin
     .from("app_config")
-    .upsert({ key: "global", value: { announcement: announcement.trim(), maintenance } });
+    .upsert({ key: "global", value: { ...existing, announcement: announcement.trim(), maintenance } });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
 }

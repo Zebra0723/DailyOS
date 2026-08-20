@@ -23,12 +23,14 @@ export default async function AdminSettingsPage() {
   const cfg = (data?.value ?? {}) as {
     announcement?: string;
     maintenance?: boolean;
+    hiddenBanners?: string[];
   };
 
   return (
     <SettingsForm
       announcement={cfg.announcement ?? ""}
       maintenance={Boolean(cfg.maintenance)}
+      hiddenBanners={cfg.hiddenBanners ?? []}
     />
   );
 }

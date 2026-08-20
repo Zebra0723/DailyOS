@@ -7,6 +7,7 @@ import { isAdminUser } from "@/lib/admin-user";
 export async function saveConfig(
   announcement: string,
   maintenance: boolean,
+  hiddenBanners?: string[],
 ): Promise<{ ok: boolean; error?: string }> {
   // Admin guard
   const supabase = createClient();
@@ -20,7 +21,11 @@ export async function saveConfig(
   const admin = createServiceClient();
   const { error } = await admin.from("app_config").upsert({
     key: "global",
-    value: { announcement: announcement.trim(), maintenance },
+    value: {
+      announcement: announcement.trim(),
+      maintenance,
+      ...(hiddenBanners ? { hiddenBanners } : {}),
+    },
   });
 
   if (error) return { ok: false, error: error.message };
