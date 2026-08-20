@@ -97,17 +97,21 @@ export function CaptureForm({ userId }: { userId: string }) {
         setStage("Reading your photo… 0%");
         try {
           const { recognize } = await import("tesseract.js");
-          const { data } = await recognize(f, "eng", {
+          const ocrPromise = recognize(f, "eng", {
             logger: (m: { status: string; progress: number }) => {
               if (m.status === "recognizing text") {
                 setStage(`Reading your photo… ${Math.round(m.progress * 100)}%`);
               }
             },
           });
+          const timeout = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("OCR timed out")), 30_000),
+          );
+          const { data } = await Promise.race([ocrPromise, timeout]);
           const ocr = (data.text ?? "").replace(/\n{3,}/g, "\n\n").trim();
           if (ocr) extractedText = [ocr, extractedText].filter(Boolean).join("\n\n");
         } catch {
-          // OCR failed — still save the file; the user can paste text on review.
+          // OCR failed or timed out — still save the file; the user can paste text on review.
         }
       }
 
@@ -126,6 +130,7 @@ export function CaptureForm({ userId }: { userId: string }) {
       router.push(`/inbox/${res.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
       setSubmitting(false);
       setStage("");
     }
