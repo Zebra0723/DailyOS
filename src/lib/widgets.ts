@@ -216,6 +216,14 @@ export const WIDGETS: WidgetDef[] = [
     tier: "free",
   },
   {
+    id: "today-schedule",
+    name: "Today's Schedule",
+    description: "Your Build My Day plan for today — vanishes at midnight.",
+    icon: CalendarClock,
+    category: "lifeos",
+    tier: "plus",
+  },
+  {
     id: "ask-dailyos",
     name: "Ask DailyOS",
     description: "Your AI chief of staff — ask about your day, tasks, or events.",

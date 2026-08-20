@@ -927,6 +927,23 @@ function WidgetMockup({ id }: { id: string }) {
         </div>
       );
 
+    case "today-schedule":
+      return (
+        <div className="space-y-1">
+          {[
+            { t: "08:00", n: "Morning run", c: "bg-emerald-500" },
+            { t: "09:30", n: "Deep work", c: "bg-primary" },
+            { t: "12:00", n: "Lunch", c: "bg-orange-400" },
+          ].map((b) => (
+            <div key={b.t} className="flex items-center gap-2 py-0.5">
+              <span className="w-8 text-[10px] font-medium text-muted-foreground">{b.t}</span>
+              <div className={cn("size-1.5 rounded-full", b.c)} />
+              <span className="text-[11px] text-muted-foreground">{b.n}</span>
+            </div>
+          ))}
+        </div>
+      );
+
     case "ask-dailyos":
       return (
         <div className="space-y-2">

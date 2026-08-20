@@ -30,8 +30,22 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { saveRemote, debounce } from "@/lib/sync";
 
 type FixedRow = { start: string; end: string; label: string };
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+const debouncedSave = debounce((plan: DayPlan) => {
+  void saveRemote("day-plan", {
+    date: todayStr(),
+    blocks: plan.blocks,
+    summary: plan.summary,
+  });
+}, 500);
 
 // --- Plan intelligence: computed insights, no AI key required ----------------
 function blockMins(b: { start: string; end: string }): number {
@@ -108,7 +122,12 @@ export function BuildMyDay() {
 
   // --- Editing the generated plan (the auto-plan is a starting point) --------
   function setBlocks(next: DayBlock[]) {
-    setPlan((p) => (p ? { ...p, blocks: next } : p));
+    setPlan((p) => {
+      if (!p) return p;
+      const updated = { ...p, blocks: next };
+      debouncedSave(updated);
+      return updated;
+    });
   }
   function moveBlock(i: number, dir: -1 | 1) {
     setPlan((p) => {
@@ -181,6 +200,7 @@ export function BuildMyDay() {
         return;
       }
       setPlan(res.plan);
+      debouncedSave(res.plan);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
