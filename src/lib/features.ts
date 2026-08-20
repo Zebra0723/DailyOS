@@ -217,6 +217,16 @@ export interface FeaturePack {
   tagline: string;
   /** Feature keys the pack switches on. */
   features: string[];
+  /**
+   * Widget ids the pack puts on the dashboard, best-first — when a plan's
+   * allowance runs out mid-pack the most useful ones are the ones that land.
+   *
+   * A pack that only switched on nav sections left the dashboard empty, which
+   * read as "the pack did nothing". Sections are where things live; widgets are
+   * what you actually see. See lib/widgets/packs.ts for the apply logic, which
+   * is tier- and allowance-aware.
+   */
+  widgets: string[];
 }
 
 export const FEATURE_PACKS: FeaturePack[] = [
@@ -225,30 +235,40 @@ export const FEATURE_PACKS: FeaturePack[] = [
     name: "Starter",
     tagline: "The essentials. A good first pick if you're not sure.",
     features: ["tasks", "calendar", "inbox"],
+    widgets: ["stats-overview", "tasks-due", "upcoming-events", "quick-add"],
   },
   {
     key: "life-admin",
     name: "Life admin",
     tagline: "Handle the paperwork — capture it, file it, act on it.",
     features: ["inbox", "vault", "tasks", "calendar", "review"],
+    widgets: ["recent-inbox", "needs-review", "tasks-due", "home-subscriptions"],
   },
   {
     key: "home",
     name: "Home",
     tagline: "Run the household — subscriptions, deliveries, rooms, devices.",
     features: ["homeos", "tasks", "calendar"],
+    widgets: [
+      "homeos-summary",
+      "home-subscriptions",
+      "home-deliveries",
+      "home-alerts",
+    ],
   },
   {
     key: "planning",
     name: "Planning",
     tagline: "Shape your time and look back on it.",
     features: ["build-day", "tasks", "calendar", "review"],
+    widgets: ["tomorrow-preview", "tasks-due", "upcoming-events", "goals", "pomodoro"],
   },
   {
     key: "thinking",
     name: "Thinking",
     tagline: "Somewhere to write things down and follow what interests you.",
     features: ["notes", "journal", "interests"],
+    widgets: ["quick-notes", "micro-journal", "daily-quote", "bookmarks"],
   },
 ];
 

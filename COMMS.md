@@ -244,6 +244,36 @@ own branch, or reverted with
 `git checkout -- package.json package-lock.json && npm ci`. Right now it's a
 landmine.
 
+### Packs and Customise — merged into one thing (Agent 2, v281)
+
+v280 and this were built at the same time against the same board item. Rather
+than have two rival implementations, v281 folds them together. **There is now
+one pack catalogue and one Customise screen.** Please don't add a second of
+either — two disconnected surfaces is what caused this bug in the first place.
+
+**One catalogue.** `FEATURE_PACKS` in `lib/features.ts` stays canonical (v280's,
+already used by three modules and nine tests). It gained a `widgets` field:
+a pack that only switched on nav sections left the dashboard empty, which reads
+as "the pack did nothing". Sections are where things live; widgets are what you
+actually see. Ordered best-first, so when an allowance runs out mid-pack the
+most useful ones are the ones that land.
+
+**One apply path.** `lib/widgets/packs.ts` `planPack()` is pure and works out
+what a pack *would* do before it does it — including what it **won't**: widgets
+above the user's tier come back in `widgetsLocked`, ones that don't fit the plan
+allowance in `widgetsNoRoom`, and the UI says so rather than quietly doing less.
+19 tests, including that every pack references a real widget and a real feature,
+so a typo in the catalogue fails the suite instead of shipping.
+
+**One screen.** The full-screen Customise overlay now has **Packs / Widgets /
+Sections** tabs, defaulting to Packs when the dashboard is empty. v280's link
+out to `/settings#sections` is gone — both live here now, so it would have sent
+people away from what they were already looking at. `FeatureManager` in Settings
+still works and shares the same provider, so the two stay in sync.
+
+"Use starter pack" on the empty dashboard now applies the real Starter pack
+(sections *and* widgets) instead of its own private list of four widget ids.
+
 ### Cross-agent request routing
 
 When Arjun sends any agent a request outside that agent's assigned lane, the
@@ -319,7 +349,7 @@ Every deploy must:
    ```
 5. Vercel auto-deploys from `main`. Custom domain is `dailyos.uk`.
 
-Current release: **v277** (widget adds no longer silently dropped). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-18.
+Current release: **v281** (packs add widgets too; one customise screen). Pushed to `origin/main` and `claude/sharp-einstein-msl88w` on 2026-08-20.
 
 **CRITICAL: Vercel builds are rate-limited.** As of v270, ALL Vercel deployments fail with `build-rate-limit` because 10+ Vercel projects trigger on every push to main. Arjun needs to delete/disconnect unused projects or upgrade Vercel to Pro. The code is correct; it's just not deploying.
 
@@ -673,6 +703,7 @@ Add at the cap, and offers the upgrade. Unknown/blank tiers fall back to free.
 | Version | What changed |
 |---------|-------------|
 | v277 | Agent 2: widget adds no longer silently dropped (same setState-in-updater bug + limit enforced before plan resolved); Remove from the widget store; add confirmation; empty-state explainer |
+| v281 | Agent 2: packs now add widgets as well as sections; Packs/Widgets/Sections unified into one Customise screen |
 | v280 | Agent 1: section packs (Starter, Life admin, Home, Planning, Thinking) + Sections & packs link in the widget store |
 | v276 | Agent 1: customise toggles stick (setState-in-updater bug), explicit Add/Remove, new-user explainer |
 | v275 | Agent 1: one deploy per push — sub-app `ignoreCommand`s stop the ~10x build fan-out that was rate-limiting production |

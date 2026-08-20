@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useWidgetStore } from "@/components/widget-store";
 import { useDashboard } from "@/lib/widgets/dashboard-store";
+import { useFeatures } from "@/lib/features-store";
+import { getPack } from "@/lib/features";
+import { planPack } from "@/lib/widgets/packs";
 
 import { TasksDueWidget } from "@/components/widgets/tasks-due";
 import { UpcomingEventsWidget } from "@/components/widgets/upcoming-events";
@@ -78,8 +81,6 @@ const COMPONENT_MAP: Record<string, React.ComponentType> = {
   "ai-builder": AIBuilderWidget,
 };
 
-const DEFAULT_WIDGETS = ["stats-overview", "tasks-due", "upcoming-events", "quick-add"];
-
 function tierAllows(userTier: PlanTier | string, required: PlanTier): boolean {
   if (userTier === "pro") return true;
   if (required === "plus" && (userTier === "plus" || userTier === "pro")) return true;
@@ -94,8 +95,25 @@ export function Dashboard({ userId }: { userId?: string }) {
   const { widgets, loaded, tier, limit, addWidget, removeWidget, moveWidget, setWidgets } =
     useDashboard();
   const { openWidgetStore } = useWidgetStore();
+  const { enabled, setEnabled } = useFeatures();
   const [editing, setEditing] = React.useState(false);
   const [dragIdx, setDragIdx] = React.useState<number | null>(null);
+
+  // One definition of "starter", shared with the Packs tab — it switches on the
+  // sections those widgets rely on, not just the widgets.
+  const applyStarterPack = React.useCallback(() => {
+    const pack = getPack("starter");
+    if (!pack) return;
+    const plan = planPack({
+      pack,
+      currentWidgets: widgets,
+      enabledFeatures: enabled,
+      tier,
+      limit,
+    });
+    for (const key of plan.featuresToEnable) setEnabled(key, true);
+    setWidgets([...widgets, ...plan.widgetsToAdd]);
+  }, [widgets, enabled, tier, limit, setEnabled, setWidgets]);
 
   if (!loaded) {
     return (
@@ -122,19 +140,15 @@ export function Dashboard({ userId }: { userId?: string }) {
             you can take any of them off again whenever you like.
           </p>
           <p className="mt-2 max-w-md text-xs text-muted-foreground">
-            Not sure where to start? The starter pack adds four of the most
-            useful ones — you can change them straight away.
+            Not sure where to start? The starter pack sets you up with the
+            essentials — or browse the packs for a ready-made setup. You can
+            change any of it straight away.
           </p>
           <div className="mt-6 flex gap-2">
             <Button onClick={openWidgetStore}>
               <Plus className="size-4" /> Add your first widget
             </Button>
-            <Button
-              variant="outline"
-              // Trim to the plan's allowance so the starter pack can't push a
-              // free account straight past its limit.
-              onClick={() => setWidgets(DEFAULT_WIDGETS.slice(0, limit))}
-            >
+            <Button variant="outline" onClick={applyStarterPack}>
               Use starter pack
             </Button>
           </div>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { X, Check, Lock, Search, Plus, Trash2, LayoutGrid, Info, Compass, ArrowRight } from "lucide-react";
+import { X, Check, Lock, Search, Plus, Trash2, LayoutGrid, Info, Compass, ArrowRight, Rocket, Receipt, Home, CalendarRange, Lightbulb, type LucideIcon } from "lucide-react";
 import {
   WIDGETS,
   WIDGET_CATEGORIES,
@@ -14,6 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useDashboard, type AddResult } from "@/lib/widgets/dashboard-store";
+import { useFeatures } from "@/lib/features-store";
+import { TOGGLEABLE_FEATURES, getFeature, FEATURE_PACKS } from "@/lib/features";
+import { planPack, packIsFullyApplied } from "@/lib/widgets/packs";
+import { getWidget } from "@/lib/widgets";
 
 function tierAllows(userTier: string, required: PlanTier): boolean {
   if (userTier === "pro") return true;
@@ -112,6 +116,10 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
   const [category, setCategory] = React.useState<string>("all");
   const [limitHit, setLimitHit] = React.useState<AddResult | null>(null);
   const [justAdded, setJustAdded] = React.useState<string | null>(null);
+  // Packs first: an empty dashboard is a hard place to start from.
+  const [tab, setTab] = React.useState<"packs" | "widgets" | "sections">(
+    activeWidgets.length === 0 ? "packs" : "widgets",
+  );
 
   const handleAdd = React.useCallback(
     (id: string) => {
@@ -179,73 +187,95 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
               )}
             </p>
           </div>
-          <div className="relative hidden sm:block sm:w-64">
+          {tab === "widgets" && (
+            <div className="relative hidden sm:block sm:w-64">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search..."
+                className="pl-9"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* v280 put a link here pointing at Settings for sections and packs.
+          Both are now tabs on this screen, so the link would send people away
+          from the thing they're already looking at. */}
+
+      {/* Mobile search */}
+      {tab === "widgets" && (
+        <div className="border-b px-6 py-3 sm:hidden">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search..."
+              placeholder="Search widgets..."
               className="pl-9"
             />
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Widgets are only half of customising. Sections — the pages in your
-          navigation — live in Settings, and nothing here used to say so, which
-          made added sections look like they had no effect. */}
-      <div className="border-b bg-muted/30 px-6 py-3">
-        <Link
-          href="/settings#sections"
-          className="flex items-center gap-3 text-left transition-colors hover:text-foreground"
-        >
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-            <Compass className="size-4" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-sm font-medium">Sections &amp; packs</span>
-            <span className="block text-xs text-muted-foreground">
-              Widgets are the cards on Today. Sections are the pages in your
-              navigation — choose those, or add a whole pack, in Settings.
-            </span>
-          </span>
-          <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
-        </Link>
-      </div>
-
-      {/* Mobile search */}
-      <div className="border-b px-6 py-3 sm:hidden">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search widgets..."
-            className="pl-9"
-          />
-        </div>
-      </div>
-
-      {/* Category filter chips */}
+      {/* Top-level tabs. Sections used to be managed in Settings and widgets
+          here, so a section you'd enabled showed no sign of existing in
+          Customise. One screen now covers both, plus packs. */}
       <div className="border-b">
-        <div className="container mx-auto flex max-w-5xl gap-1.5 overflow-x-auto px-6 py-3">
-          <FilterChip
-            active={category === "all"}
-            onClick={() => setCategory("all")}
-          >
-            All
-          </FilterChip>
-          {WIDGET_CATEGORIES.map((c) => (
-            <FilterChip
-              key={c.key}
-              active={category === c.key}
-              onClick={() => setCategory(c.key)}
+        <div className="container mx-auto flex max-w-5xl gap-1 px-6">
+          {(
+            [
+              { key: "packs", label: "Packs" },
+              { key: "widgets", label: "Widgets" },
+              { key: "sections", label: "Sections" },
+            ] as const
+          ).map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={cn(
+                "-mb-px border-b-2 px-4 py-3 text-sm font-medium transition-colors",
+                tab === t.key
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+              aria-current={tab === t.key ? "page" : undefined}
             >
-              {c.label}
-            </FilterChip>
+              {t.label}
+              {t.key === "widgets" && activeWidgets.length > 0 && (
+                <span className="ml-1.5 text-xs text-muted-foreground">
+                  {activeWidgets.length}
+                </span>
+              )}
+            </button>
           ))}
         </div>
       </div>
+
+      {/* Category filter chips — widgets only */}
+      {tab === "widgets" && (
+        <div className="border-b">
+          <div className="container mx-auto flex max-w-5xl gap-1.5 overflow-x-auto px-6 py-3">
+            <FilterChip
+              active={category === "all"}
+              onClick={() => setCategory("all")}
+            >
+              All
+            </FilterChip>
+            {WIDGET_CATEGORIES.map((c) => (
+              <FilterChip
+                key={c.key}
+                active={category === c.key}
+                onClick={() => setCategory(c.key)}
+              >
+                {c.label}
+              </FilterChip>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* What this place is. Shown while the dashboard is still empty, because
           nothing else in the app explains the model. */}
@@ -306,33 +336,206 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
-      {/* Grid */}
       <div className="flex-1 overflow-y-auto">
         <div className="container mx-auto max-w-5xl px-6 py-6">
-          {filtered.length === 0 ? (
-            <p className="py-16 text-center text-sm text-muted-foreground">
-              No widgets match your search.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {filtered.map((w) => {
-                const active = allActive.includes(w.id);
-                const allowed = tierAllows(userTier, w.tier);
-                return (
-                  <PreviewCard
-                    key={w.id}
-                    widget={w}
-                    active={active}
-                    allowed={allowed}
-                    atLimit={atLimit && !active}
-                    onAdd={() => handleAdd(w.id)}
-                    onRemove={() => removeWidget(w.id)}
-                  />
-                );
-              })}
-            </div>
-          )}
+          {tab === "packs" && <PacksPanel onApplied={setJustAdded} />}
+
+          {tab === "sections" && <SectionsPanel />}
+
+          {tab === "widgets" &&
+            (filtered.length === 0 ? (
+              <p className="py-16 text-center text-sm text-muted-foreground">
+                No widgets match your search.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {filtered.map((w) => {
+                  const active = allActive.includes(w.id);
+                  const allowed = tierAllows(userTier, w.tier);
+                  return (
+                    <PreviewCard
+                      key={w.id}
+                      widget={w}
+                      active={active}
+                      allowed={allowed}
+                      atLimit={atLimit && !active}
+                      onAdd={() => handleAdd(w.id)}
+                      onRemove={() => removeWidget(w.id)}
+                    />
+                  );
+                })}
+              </div>
+            ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Packs — one click sets the app up for a particular job
+// ---------------------------------------------------------------------------
+
+/** Kept here rather than on FeaturePack so lib/features.ts stays free of UI. */
+const PACK_ICONS: Record<string, LucideIcon> = {
+  starter: Rocket,
+  "life-admin": Receipt,
+  home: Home,
+  planning: CalendarRange,
+  thinking: Lightbulb,
+};
+
+function PacksPanel({ onApplied }: { onApplied: (label: string) => void }) {
+  const { widgets, tier, limit, addWidget } = useDashboard();
+  const { enabled, setEnabled } = useFeatures();
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-start gap-3 rounded-xl border border-dashed bg-primary/[0.03] p-4">
+        <Info className="mt-0.5 size-4 shrink-0 text-primary" />
+        <p className="text-sm text-muted-foreground">
+          A pack sets DailyOS up for one job in a single tap — it switches on the
+          right <strong className="text-foreground">sections</strong> and drops the
+          matching <strong className="text-foreground">widgets</strong> onto your
+          dashboard. Nothing is locked in: everything a pack adds can be removed
+          afterwards, one by one.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {FEATURE_PACKS.map((pack) => {
+          const plan = planPack({
+            pack,
+            currentWidgets: widgets,
+            enabledFeatures: enabled,
+            tier,
+            limit,
+          });
+          const done = packIsFullyApplied(plan);
+          const Icon = PACK_ICONS[pack.key] ?? Compass;
+
+          const apply = () => {
+            for (const key of plan.featuresToEnable) setEnabled(key, true);
+            for (const id of plan.widgetsToAdd) addWidget(id);
+            onApplied(pack.name);
+          };
+
+          return (
+            <div key={pack.key} className="flex flex-col rounded-2xl border p-5">
+              <div className="flex items-start gap-3">
+                <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <Icon className="size-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-semibold tracking-tight">{pack.name}</h3>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {pack.tagline}
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-3 flex-1 text-xs text-muted-foreground">
+                {pack.features.length > 0 && (
+                  <>
+                    <span className="font-medium text-foreground">Sections:</span>{" "}
+                    {pack.features
+                      .map((k) => getFeature(k)?.label ?? k)
+                      .join(", ")}
+                    <br />
+                  </>
+                )}
+                <span className="font-medium text-foreground">Widgets:</span>{" "}
+                {pack.widgets.map((id) => getWidget(id)?.name ?? id).join(", ")}
+              </p>
+
+              {/* Say what won't happen, rather than quietly doing less. */}
+              {(plan.widgetsNoRoom.length > 0 || plan.widgetsLocked.length > 0) && !done && (
+                <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                  {plan.widgetsNoRoom.length > 0 &&
+                    `${plan.widgetsNoRoom.length} won't fit in your plan's allowance. `}
+                  {plan.widgetsLocked.length > 0 &&
+                    `${plan.widgetsLocked.length} need a higher plan.`}
+                </p>
+              )}
+
+              <Button
+                className="mt-4 w-full"
+                variant={done ? "outline" : "default"}
+                disabled={done}
+                onClick={apply}
+              >
+                {done ? (
+                  <>
+                    <Check className="size-3.5" /> Already set up
+                  </>
+                ) : (
+                  <>
+                    <Plus className="size-3.5" /> Add this pack
+                  </>
+                )}
+              </Button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Sections — the nav entries, previously only reachable from Settings
+// ---------------------------------------------------------------------------
+
+function SectionsPanel() {
+  const { enabled, isAdmin, setEnabled } = useFeatures();
+
+  const toggleable = TOGGLEABLE_FEATURES.filter((f) => !f.adminOnly || isAdmin);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-start gap-3 rounded-xl border border-dashed bg-primary/[0.03] p-4">
+        <Info className="mt-0.5 size-4 shrink-0 text-primary" />
+        <p className="text-sm text-muted-foreground">
+          Sections are the pages in your navigation. Switch off anything you
+          don&apos;t use and it disappears from the menu —{" "}
+          <strong className="text-foreground">nothing is deleted</strong>, and you
+          can switch it back on here whenever you like.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {toggleable.map((f) => {
+          const on = enabled.has(f.key);
+          return (
+            <div
+              key={f.key}
+              className="flex items-start justify-between gap-3 rounded-xl border p-4"
+            >
+              <div className="min-w-0">
+                <p className="font-medium">{f.label}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {f.description}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant={on ? "outline" : "default"}
+                className={cn("shrink-0", on && "border-primary/40 text-primary")}
+                onClick={() => setEnabled(f.key, !on)}
+              >
+                {on ? (
+                  <>
+                    <Check className="size-3.5" /> On
+                  </>
+                ) : (
+                  <>
+                    <Plus className="size-3.5" /> Add
+                  </>
+                )}
+              </Button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
