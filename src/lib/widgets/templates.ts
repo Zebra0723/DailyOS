@@ -57,19 +57,6 @@ const TEMPLATES: Template[] = [
     }),
   },
   {
-    keywords: ["water", "hydration", "drink"],
-    build: (d) => ({
-      title: titleFrom(d, "Water Intake"),
-      description: "Glasses of water, reset every morning.",
-      icon: "leaf",
-      accent: "sky",
-      blocks: [
-        { kind: "counter", id: "glasses", label: "Glasses today", step: 1, target: 8, unit: "glasses", resetDaily: true },
-        { kind: "progress", id: "daily", label: "Daily goal", source: "glasses" },
-      ],
-    }),
-  },
-  {
     keywords: ["budget", "expense", "spend", "money", "cost", "saving", "finance"],
     build: (d) => ({
       title: titleFrom(d, "Spending Tracker"),
@@ -80,19 +67,6 @@ const TEMPLATES: Template[] = [
         { kind: "counter", id: "spent", label: "Spent this month", step: 5, target: 400, unit: "£", resetDaily: false },
         { kind: "progress", id: "budget", label: "Against budget", source: "spent" },
         { kind: "notes", id: "log", label: "What on?", placeholder: "Groceries, travel…" },
-      ],
-    }),
-  },
-  {
-    keywords: ["mood", "feel", "wellbeing", "mental", "gratitude", "journal"],
-    build: (d) => ({
-      title: titleFrom(d, "Mood Journal"),
-      description: "How today went, in a tap and a line.",
-      icon: "smile",
-      accent: "violet",
-      blocks: [
-        { kind: "rating", id: "mood", label: "How are you today?", scale: 5, icon: "heart" },
-        { kind: "notes", id: "why", label: "Anything worth noting?", placeholder: "One line is plenty." },
       ],
     }),
   },
@@ -123,7 +97,7 @@ const TEMPLATES: Template[] = [
     }),
   },
   {
-    keywords: ["study", "revision", "focus", "pomodoro", "deep work", "learn"],
+    keywords: ["study", "revision", "focus", "deep work", "learn"],
     build: (d) => ({
       title: titleFrom(d, "Study Sessions"),
       description: "Focused blocks and what you covered.",
@@ -150,23 +124,6 @@ const TEMPLATES: Template[] = [
       ],
     }),
   },
-  {
-    keywords: ["countdown", "days until", "until", "deadline"],
-    build: (d) => {
-      // 30 days out — a sensible placeholder the user can change.
-      const target = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
-      return {
-        title: titleFrom(d, "Countdown"),
-        description: "Days remaining until the date that matters.",
-        icon: "calendar",
-        accent: "primary",
-        blocks: [
-          { kind: "countdown", id: "until", label: "Counting down to", targetDate: target },
-          { kind: "checklist", id: "prep", label: "Before then", items: [], resetDaily: false },
-        ],
-      };
-    },
-  },
 ];
 
 /** A general tracker for anything that doesn't match a template. */
@@ -186,7 +143,7 @@ function genericTemplate(description: string): GeneratedWidget {
 
 /**
  * Pick the closest template for a description. Scores by how many of a
- * template's keywords appear, so "track my gym workouts and water" lands on
+ * template's keywords appear, so "track my gym workouts and sleep" lands on
  * fitness rather than whichever template happens to be listed first.
  */
 export function templateFor(description: string): GeneratedWidget {

@@ -165,7 +165,7 @@ function CounterBlock({ block, state, accent, update, readOnly }: BlockProps) {
   const bump = (delta: number) =>
     update((s) => ({
       ...s,
-      // Never below zero — a negative count of glasses of water is nonsense.
+      // Never below zero.
       counters: { ...s.counters, [block.id]: Math.max(0, (s.counters[block.id] ?? 0) + delta) },
     }));
 

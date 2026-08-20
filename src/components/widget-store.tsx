@@ -748,46 +748,6 @@ function WidgetMockup({ id }: { id: string }) {
         </div>
       );
 
-    case "pomodoro":
-      return (
-        <div className="flex flex-col items-center gap-1.5">
-          <div className="relative size-14">
-            <svg viewBox="0 0 36 36" className="size-14 -rotate-90">
-              <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted/50" />
-              <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="75,100" className="text-primary" />
-            </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">18:42</span>
-          </div>
-          <span className="text-[9px] text-muted-foreground">Focus session</span>
-        </div>
-      );
-
-    case "water-intake":
-      return (
-        <div className="flex items-center gap-3">
-          <div className="relative size-12">
-            <svg viewBox="0 0 36 36" className="size-12 -rotate-90">
-              <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-muted/50" />
-              <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="62,100" className="text-blue-500" />
-            </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold">5/8</span>
-          </div>
-          <div>
-            <p className="text-[11px] font-medium">5 glasses</p>
-            <p className="text-[9px] text-muted-foreground">3 to go</p>
-          </div>
-        </div>
-      );
-
-    case "daily-quote":
-      return (
-        <div className="rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 p-3">
-          <p className="text-[11px] italic leading-relaxed text-muted-foreground">
-            &ldquo;The secret of getting ahead is getting started.&rdquo;
-          </p>
-          <p className="mt-1 text-[9px] text-muted-foreground/60">— Mark Twain</p>
-        </div>
-      );
 
     case "needs-review":
       return (
@@ -851,31 +811,6 @@ function WidgetMockup({ id }: { id: string }) {
         </div>
       );
 
-    case "mood-tracker":
-      return (
-        <div className="flex items-center justify-between">
-          {["😫", "😕", "😐", "🙂", "😊"].map((m, i) => (
-            <button key={m} className={cn("rounded-full p-1.5 text-sm", i === 3 && "bg-primary/10 ring-1 ring-primary/30")}>
-              {m}
-            </button>
-          ))}
-        </div>
-      );
-
-    case "countdown":
-      return (
-        <div className="space-y-1.5">
-          {[
-            { n: "Holiday", d: "14 days" },
-            { n: "Birthday", d: "42 days" },
-          ].map((c) => (
-            <div key={c.n} className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground">{c.n}</span>
-              <span className="text-[10px] font-medium text-primary">{c.d}</span>
-            </div>
-          ))}
-        </div>
-      );
 
     case "homeos-summary":
       return (

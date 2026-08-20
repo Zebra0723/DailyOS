@@ -58,14 +58,14 @@ Block kinds:
    A free-text box.
 
 6. { "kind": "rating", "id": "...", "label": "...", "scale": 3-10, "icon": "star"|"heart"|"circle" }
-   A 1-to-N rating the user taps. Good for mood, energy, sleep quality.
+   A 1-to-N rating the user taps. Good for energy, effort, sleep quality.
 
 7. { "kind": "countdown", "id": "...", "label": "...", "targetDate": "YYYY-MM-DD" }
    Days remaining until a date. Pick a sensible near-future date if the user
    didn't name one — they can change it.
 
 8. { "kind": "timer", "id": "...", "label": "...", "minutes": 1-180 }
-   A countdown timer the user starts. Good for focus/pomodoro/meditation.
+   A countdown timer the user starts. Good for focus sessions and meditation.
 
 Rules:
 - Build what the user actually asked for. Read their words closely.

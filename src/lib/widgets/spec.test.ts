@@ -153,8 +153,8 @@ describe("templateFor", () => {
   });
 
   it("prefers the template matching the most keywords", () => {
-    // "water" appears once, gym/workout twice — fitness should win.
-    expect(templateFor("gym workout tracker, also water").icon).toBe("dumbbell");
+    // "sleep" appears once, gym/workout twice — fitness should win.
+    expect(templateFor("gym workout tracker, also sleep").icon).toBe("dumbbell");
   });
 
   it("falls back to a generic tracker for an unmatched description", () => {
@@ -166,14 +166,11 @@ describe("templateFor", () => {
     const prompts = [
       "gym tracker",
       "reading list",
-      "water intake",
       "monthly budget",
-      "mood journal",
       "meal planner",
       "sleep log",
       "study sessions",
       "daily habits",
-      "countdown to my holiday",
       "completely unmatched request",
     ];
     for (const p of prompts) {

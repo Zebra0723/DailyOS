@@ -24,9 +24,9 @@ function spec(blocks: unknown[]): WidgetSpec {
 
 const habitSpec = spec([
   { kind: "checklist", id: "habits", label: "Habits", items: ["Walk", "Read"], resetDaily: true },
-  { kind: "counter", id: "water", label: "Water", step: 1, target: 8, unit: "glasses", resetDaily: true },
+  { kind: "counter", id: "steps", label: "Steps", step: 1, target: 8, unit: "units", resetDaily: true },
   { kind: "counter", id: "books", label: "Books", step: 1, target: 12, unit: "books", resetDaily: false },
-  { kind: "rating", id: "mood", label: "Mood", scale: 5, icon: "star" },
+  { kind: "rating", id: "energy", label: "Energy", scale: 5, icon: "star" },
 ]);
 
 describe("emptyState", () => {
@@ -44,31 +44,31 @@ describe("emptyState", () => {
 
   it("zeroes counters and ratings", () => {
     const s = emptyState(habitSpec);
-    expect(s.counters.water).toBe(0);
-    expect(s.ratings.mood).toBe(0);
+    expect(s.counters.steps).toBe(0);
+    expect(s.ratings.energy).toBe(0);
   });
 });
 
 describe("applyDailyReset", () => {
   it("does nothing on the same day", () => {
     const s = emptyState(habitSpec, new Date(2026, 7, 6));
-    s.counters.water = 3;
+    s.counters.steps = 3;
     const next = applyDailyReset(habitSpec, s, new Date(2026, 7, 6));
     expect(next).toBe(s);
-    expect(next.counters.water).toBe(3);
+    expect(next.counters.steps).toBe(3);
   });
 
   it("clears resetDaily blocks when the day rolls over", () => {
     const s = emptyState(habitSpec, new Date(2026, 7, 6));
-    s.counters.water = 5;
+    s.counters.steps = 5;
     s.counters.books = 4;
     s.checklists.habits[0].done = true;
-    s.ratings.mood = 4;
+    s.ratings.energy = 4;
 
     const next = applyDailyReset(habitSpec, s, new Date(2026, 7, 7));
-    expect(next.counters.water).toBe(0);
+    expect(next.counters.steps).toBe(0);
     expect(next.checklists.habits.every((i) => !i.done)).toBe(true);
-    expect(next.ratings.mood).toBe(0);
+    expect(next.ratings.energy).toBe(0);
     expect(next.day).toBe("2026-08-07");
   });
 
@@ -88,27 +88,27 @@ describe("applyDailyReset", () => {
 
   it("does not mutate the state it was given", () => {
     const s = emptyState(habitSpec, new Date(2026, 7, 6));
-    s.counters.water = 5;
+    s.counters.steps = 5;
     applyDailyReset(habitSpec, s, new Date(2026, 7, 7));
-    expect(s.counters.water).toBe(5);
+    expect(s.counters.steps).toBe(5);
   });
 });
 
 describe("reconcileState", () => {
   it("seeds blocks added since the state was written", () => {
-    const s = reconcileState(habitSpec, { counters: { water: 2 }, day: "2026-08-06" });
-    expect(s.counters.water).toBe(2);
-    expect(s.ratings.mood).toBe(0);
+    const s = reconcileState(habitSpec, { counters: { steps: 2 }, day: "2026-08-06" });
+    expect(s.counters.steps).toBe(2);
+    expect(s.ratings.energy).toBe(0);
     expect(s.checklists.habits).toHaveLength(2);
   });
 
   it("returns a full empty state for null", () => {
     const s = reconcileState(habitSpec, null);
-    expect(s.counters.water).toBe(0);
+    expect(s.counters.steps).toBe(0);
   });
 
   it("keeps data for a block no longer in the spec", () => {
-    const s = reconcileState(habitSpec, { counters: { water: 2, removed: 9 }, day: "2026-08-06" });
+    const s = reconcileState(habitSpec, { counters: { steps: 2, removed: 9 }, day: "2026-08-06" });
     expect(s.counters.removed).toBe(9);
   });
 });
@@ -122,14 +122,14 @@ describe("progressFor", () => {
 
   it("measures a counter against its target", () => {
     const s = emptyState(habitSpec);
-    s.counters.water = 2;
-    expect(progressFor(habitSpec, s, "water")).toEqual({ value: 2, max: 8, pct: 25 });
+    s.counters.steps = 2;
+    expect(progressFor(habitSpec, s, "steps")).toEqual({ value: 2, max: 8, pct: 25 });
   });
 
   it("clamps past 100% when the user overshoots the target", () => {
     const s = emptyState(habitSpec);
-    s.counters.water = 20;
-    expect(progressFor(habitSpec, s, "water")?.pct).toBe(100);
+    s.counters.steps = 20;
+    expect(progressFor(habitSpec, s, "steps")?.pct).toBe(100);
   });
 
   it("reports 0% for an empty checklist rather than dividing by zero", () => {

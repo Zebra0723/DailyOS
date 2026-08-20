@@ -85,7 +85,7 @@ describe("planPack", () => {
   });
 
   it("counts widgets already on the dashboard against the allowance", () => {
-    const p = plan({ currentWidgets: ["countdown", "goals"], limit: 3 });
+    const p = plan({ currentWidgets: ["bookmarks", "goals"], limit: 3 });
     expect(p.widgetsToAdd).toHaveLength(1);
   });
 

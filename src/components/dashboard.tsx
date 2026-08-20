@@ -20,13 +20,8 @@ import { NeedsReviewWidget } from "@/components/widgets/needs-review";
 import { BookmarksWidget } from "@/components/widgets/bookmarks";
 import { TomorrowPreviewWidget } from "@/components/widgets/tomorrow-preview";
 import { HabitTrackerWidget } from "@/components/widgets/habit-tracker";
-import { PomodoroWidget } from "@/components/widgets/pomodoro";
 import { QuickNotesWidget } from "@/components/widgets/quick-notes";
 import { GoalsWidget } from "@/components/widgets/goals";
-import { WaterIntakeWidget } from "@/components/widgets/water-intake";
-import { MoodTrackerWidget } from "@/components/widgets/mood-tracker";
-import { DailyQuoteWidget } from "@/components/widgets/daily-quote";
-import { CountdownWidget } from "@/components/widgets/countdown";
 import { HomeOSSummaryWidget } from "@/components/widgets/homeos-summary";
 import { HomeControlScoreWidget } from "@/components/widgets/home-control-score";
 import { HomeSubscriptionsWidget } from "@/components/widgets/home-subscriptions";
@@ -61,13 +56,8 @@ const COMPONENT_MAP: Record<string, React.ComponentType> = {
   bookmarks: BookmarksWidget,
   "tomorrow-preview": TomorrowPreviewWidget,
   "habit-tracker": HabitTrackerWidget,
-  pomodoro: PomodoroWidget,
   "quick-notes": QuickNotesWidget,
   goals: GoalsWidget,
-  "water-intake": WaterIntakeWidget,
-  "mood-tracker": MoodTrackerWidget,
-  "daily-quote": DailyQuoteWidget,
-  countdown: CountdownWidget,
   "homeos-summary": HomeOSSummaryWidget,
   "home-control-score": HomeControlScoreWidget,
   "home-subscriptions": HomeSubscriptionsWidget,

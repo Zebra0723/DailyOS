@@ -25,8 +25,7 @@ export const PLANS: Plan[] = [
     features: [
       "Customisable dashboard with core widgets",
       "Tasks, Calendar, Inbox & Quick Add",
-      "Habit Tracker, Pomodoro, Water Intake",
-      "Quick Notes & Daily Quote",
+      "Habit Tracker & Quick Notes",
       "15 life-admin updates / month",
       "Cross-device sync",
     ],
@@ -41,7 +40,7 @@ export const PLANS: Plan[] = [
     cta: "Start Plus",
     features: [
       "Everything in Free, plus:",
-      "Goals, Mood Tracker & Countdown widgets",
+      "Goals widget",
       "HomeOS — subscriptions, deliveries, rooms & devices",
       "Bookmarks & Tomorrow Preview widgets",
       "Needs Review widget with smart alerts",

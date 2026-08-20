@@ -253,14 +253,14 @@ export const FEATURE_PACKS: FeaturePack[] = [
     name: "Planning",
     tagline: "Shape your time and look back on it.",
     features: ["build-day", "tasks", "calendar", "review"],
-    widgets: ["tomorrow-preview", "tasks-due", "upcoming-events", "goals", "pomodoro"],
+    widgets: ["tomorrow-preview", "tasks-due", "upcoming-events", "goals"],
   },
   {
     key: "thinking",
     name: "Thinking",
     tagline: "Somewhere to write things down and follow what interests you.",
     features: ["notes", "journal", "interests"],
-    widgets: ["quick-notes", "micro-journal", "daily-quote", "bookmarks"],
+    widgets: ["quick-notes", "micro-journal", "bookmarks"],
   },
 ];
 
