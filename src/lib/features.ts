@@ -204,6 +204,74 @@ export function normaliseFeatureKeys(stored: unknown): string[] {
   ).map((f) => f.key);
 }
 
+// ---- Packs -----------------------------------------------------------------
+// A pack is a named bundle of sections for one job, so someone starting from
+// empty doesn't have to reason about fifteen individual toggles. Adding a pack
+// is additive by design — it never switches anything off, so trying one can't
+// cost you a section you already wanted.
+
+export interface FeaturePack {
+  key: string;
+  name: string;
+  /** The one thing this pack is for. */
+  tagline: string;
+  /** Feature keys the pack switches on. */
+  features: string[];
+}
+
+export const FEATURE_PACKS: FeaturePack[] = [
+  {
+    key: "starter",
+    name: "Starter",
+    tagline: "The essentials. A good first pick if you're not sure.",
+    features: ["tasks", "calendar", "inbox"],
+  },
+  {
+    key: "life-admin",
+    name: "Life admin",
+    tagline: "Handle the paperwork — capture it, file it, act on it.",
+    features: ["inbox", "vault", "tasks", "calendar", "review"],
+  },
+  {
+    key: "home",
+    name: "Home",
+    tagline: "Run the household — subscriptions, deliveries, rooms, devices.",
+    features: ["homeos", "tasks", "calendar"],
+  },
+  {
+    key: "planning",
+    name: "Planning",
+    tagline: "Shape your time and look back on it.",
+    features: ["build-day", "tasks", "calendar", "review"],
+  },
+  {
+    key: "thinking",
+    name: "Thinking",
+    tagline: "Somewhere to write things down and follow what interests you.",
+    features: ["notes", "journal", "interests"],
+  },
+];
+
+export function getPack(key: string): FeaturePack | undefined {
+  return FEATURE_PACKS.find((p) => p.key === key);
+}
+
+/** The enabled set after adding a pack. Additive — never removes a section. */
+export function applyPack(enabled: Iterable<string>, packKey: string): string[] {
+  const pack = getPack(packKey);
+  const next = new Set(enabled);
+  if (pack) for (const k of pack.features) next.add(k);
+  return normaliseFeatureKeys(Array.from(next));
+}
+
+/** True once every section in the pack is already on. */
+export function isPackApplied(enabled: Iterable<string>, packKey: string): boolean {
+  const pack = getPack(packKey);
+  if (!pack) return false;
+  const on = new Set(enabled);
+  return pack.features.every((k) => on.has(k));
+}
+
 /** Is this section visible, given the enabled set and whether the user is an admin? */
 export function isFeatureVisible(
   feature: FeatureDef,

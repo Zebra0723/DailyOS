@@ -9,14 +9,19 @@ import * as React from "react";
 import Link from "next/link";
 import { Check, Loader2, Plus, X, LayoutGrid, Compass } from "lucide-react";
 import { useFeatures } from "@/lib/features-store";
-import { TOGGLEABLE_FEATURES, type FeatureCategory } from "@/lib/features";
+import {
+  TOGGLEABLE_FEATURES,
+  FEATURE_PACKS,
+  isPackApplied,
+  type FeatureCategory,
+} from "@/lib/features";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const GROUP_ORDER: FeatureCategory[] = ["LifeOS", "HomeOS", "Account"];
 
 export function FeatureManager() {
-  const { enabled, loaded, setEnabled } = useFeatures();
+  const { enabled, loaded, setEnabled, addPack } = useFeatures();
 
   const groups = React.useMemo(
     () =>
@@ -57,6 +62,70 @@ export function FeatureManager() {
               </Link>
               , Subscription and Settings are always available.
             </p>
+
+            {/* Packs first: picking a purpose beats reasoning about a dozen
+                individual toggles when you're starting from empty. */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                Packs
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Switch on a set of sections for one job. Packs only ever add —
+                they never remove something you&apos;ve already chosen.
+              </p>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {FEATURE_PACKS.map((pack) => {
+                  const applied = isPackApplied(enabled, pack.key);
+                  return (
+                    <div
+                      key={pack.key}
+                      className={cn(
+                        "flex flex-col gap-2 rounded-xl border p-3",
+                        applied ? "border-primary/40 bg-primary/5" : "bg-card",
+                      )}
+                    >
+                      <div>
+                        <p className="flex items-center gap-2 text-sm font-medium">
+                          {pack.name}
+                          {applied && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                              <Check className="size-3" /> Added
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{pack.tagline}</p>
+                        <p className="mt-1 text-[11px] text-muted-foreground/80">
+                          {pack.features
+                            .map((k) => TOGGLEABLE_FEATURES.find((f) => f.key === k)?.label ?? k)
+                            .join(" · ")}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={applied}
+                        onClick={() => addPack(pack.key)}
+                        className={cn(
+                          "inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+                          applied
+                            ? "cursor-default border-input text-muted-foreground"
+                            : "border-primary/40 bg-primary text-primary-foreground hover:bg-primary/90",
+                        )}
+                      >
+                        {applied ? (
+                          <>
+                            <Check className="size-3.5" /> Already added
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="size-3.5" /> Add {pack.name}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
             {groups.map((group) => (
               <div key={group.category} className="space-y-2">

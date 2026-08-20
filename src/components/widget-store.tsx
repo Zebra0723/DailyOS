@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { X, Check, Lock, Search, Plus, Trash2, LayoutGrid, Info } from "lucide-react";
+import Link from "next/link";
+import { X, Check, Lock, Search, Plus, Trash2, LayoutGrid, Info, Compass, ArrowRight } from "lucide-react";
 import {
   WIDGETS,
   WIDGET_CATEGORIES,
@@ -188,6 +189,28 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
             />
           </div>
         </div>
+      </div>
+
+      {/* Widgets are only half of customising. Sections — the pages in your
+          navigation — live in Settings, and nothing here used to say so, which
+          made added sections look like they had no effect. */}
+      <div className="border-b bg-muted/30 px-6 py-3">
+        <Link
+          href="/settings#sections"
+          className="flex items-center gap-3 text-left transition-colors hover:text-foreground"
+        >
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+            <Compass className="size-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-medium">Sections &amp; packs</span>
+            <span className="block text-xs text-muted-foreground">
+              Widgets are the cards on Today. Sections are the pages in your
+              navigation — choose those, or add a whole pack, in Settings.
+            </span>
+          </span>
+          <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+        </Link>
       </div>
 
       {/* Mobile search */}

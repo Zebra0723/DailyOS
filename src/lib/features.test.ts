@@ -9,6 +9,10 @@ import {
   isFeatureVisible,
   getFeature,
   FEATURE_CHOICE_LAUNCH_ISO,
+  FEATURE_PACKS,
+  getPack,
+  applyPack,
+  isPackApplied,
 } from "./features";
 
 const before = "2026-01-01T00:00:00.000Z"; // predates feature choice
@@ -128,5 +132,65 @@ describe("isFeatureVisible", () => {
     expect(isFeatureVisible(devUi, [], true)).toBe(true);
     expect(isFeatureVisible(devUi, [], false)).toBe(false);
     expect(isFeatureVisible(devUi, ["dev-ui"], false)).toBe(false);
+  });
+});
+
+describe("feature packs", () => {
+  it("every pack references real, toggleable sections", () => {
+    for (const pack of FEATURE_PACKS) {
+      expect(pack.features.length).toBeGreaterThan(0);
+      for (const key of pack.features) {
+        const def = getFeature(key);
+        expect(def, `${pack.key} references unknown feature ${key}`).toBeDefined();
+        // A pack that "adds" a core section would look like it did nothing, and
+        // one that granted an admin section would be a privilege hole.
+        expect(def!.core, `${pack.key} includes core ${key}`).toBeFalsy();
+        expect(def!.adminOnly, `${pack.key} includes admin-only ${key}`).toBeFalsy();
+      }
+    }
+  });
+
+  it("pack keys and names are unique", () => {
+    expect(new Set(FEATURE_PACKS.map((p) => p.key)).size).toBe(FEATURE_PACKS.length);
+    expect(new Set(FEATURE_PACKS.map((p) => p.name)).size).toBe(FEATURE_PACKS.length);
+  });
+
+  it("there is a starter pack", () => {
+    expect(getPack("starter")).toBeDefined();
+  });
+
+  it("applying a pack switches its sections on", () => {
+    const next = applyPack([], "starter");
+    for (const key of getPack("starter")!.features) expect(next).toContain(key);
+  });
+
+  it("applying a pack is additive and never removes a section", () => {
+    // Trying a pack must not cost you something you already chose.
+    const before = applyPack([], "home");
+    const after = applyPack(before, "thinking");
+    for (const key of before) expect(after).toContain(key);
+  });
+
+  it("applying a pack keeps core sections and never grants admin ones", () => {
+    const next = applyPack([], "life-admin");
+    expect(next).toContain("today");
+    expect(next).toContain("settings");
+    expect(next).not.toContain("dev-ui");
+  });
+
+  it("applying twice is idempotent", () => {
+    const once = applyPack([], "planning");
+    expect(applyPack(once, "planning")).toEqual(once);
+  });
+
+  it("an unknown pack key is a no-op rather than a throw", () => {
+    expect(applyPack(["tasks"], "does-not-exist")).toEqual(normaliseFeatureKeys(["tasks"]));
+  });
+
+  it("isPackApplied only once every section in it is on", () => {
+    expect(isPackApplied([], "starter")).toBe(false);
+    const partial = getPack("starter")!.features.slice(0, 1);
+    expect(isPackApplied(partial, "starter")).toBe(false);
+    expect(isPackApplied(applyPack([], "starter"), "starter")).toBe(true);
   });
 });

@@ -17,6 +17,7 @@ import {
   normaliseFeatureKeys,
   FEATURES,
   isFeatureVisible,
+  applyPack,
   type FeatureDef,
 } from "@/lib/features";
 
@@ -33,6 +34,8 @@ interface FeaturesContextValue {
   isEnabled: (key: string) => boolean;
   setEnabled: (key: string, on: boolean) => void;
   toggle: (key: string) => void;
+  /** Switch on every section in a pack. Additive — never removes one. */
+  addPack: (packKey: string) => void;
   /** Sections to render, in catalogue order, already filtered for this user. */
   visibleFeatures: FeatureDef[];
 }
@@ -171,6 +174,10 @@ export function FeaturesProvider({
     });
   }, []);
 
+  const addPack = React.useCallback((packKey: string) => {
+    setEnabledState((prev) => new Set(applyPack(prev, packKey)));
+  }, []);
+
   // Writing is a side effect, so it belongs in an effect. hydratedRef skips the
   // first settled value — that one came *from* storage, and echoing it back
   // would overwrite a good remote copy with whatever this device fell back to.
@@ -196,9 +203,10 @@ export function FeaturesProvider({
       isEnabled,
       setEnabled,
       toggle: (key: string) => setEnabled(key, !enabled.has(key)),
+      addPack,
       visibleFeatures: FEATURES.filter((f) => isFeatureVisible(f, enabled, isAdmin)),
     };
-  }, [enabled, loaded, isAdmin, setEnabled]);
+  }, [enabled, loaded, isAdmin, setEnabled, addPack]);
 
   return (
     <FeaturesContext.Provider value={value}>{children}</FeaturesContext.Provider>
