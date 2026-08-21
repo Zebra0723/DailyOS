@@ -103,8 +103,19 @@ export function DashboardProvider({
       return () => { active = false; };
     }
 
+    // Instant paint: the mirror from this device's last visit renders NOW
+    // instead of waiting out the Supabase round-trip. The remote copy
+    // reconciles below when it arrives.
+    const painted = readLocal();
+    if (painted) {
+      setWidgetsState(painted.widgets);
+      setLoaded(true);
+    }
+
+    // Safety net for a device with nothing local, so the loading state
+    // can't hang forever on a stalled fetch.
     const timeout = setTimeout(() => {
-      if (!active) return;
+      if (!active || painted) return;
       loadLocal();
     }, 4000);
 

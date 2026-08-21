@@ -100,16 +100,19 @@ export function FeaturesProvider({
       return () => { active = false; };
     }
 
-    // Safety: if the Supabase fetch hangs (network, cold start, etc.) the
-    // spinner must not spin forever. Fall through to defaults after 4s.
+    // Instant paint: the mirror from this device's last visit renders NOW —
+    // waiting on the Supabase round-trip is why sections took seconds to
+    // appear on open. The remote copy reconciles below when it arrives.
+    const painted = readLocal();
+    if (painted) {
+      setEnabledState(new Set(painted.keys));
+      setLoaded(true);
+    }
+
+    // Safety net for a device with nothing local: if the Supabase fetch
+    // hangs (network, cold start, etc.) fall through to defaults after 4s.
     const timeout = setTimeout(() => {
-      if (!active) return;
-      const local = readLocal();
-      if (local) {
-        setEnabledState(new Set(local.keys));
-        setLoaded(true);
-        return;
-      }
+      if (!active || painted) return;
       applyDefaults();
     }, 4000);
 
