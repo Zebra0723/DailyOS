@@ -54,6 +54,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/components/ui/confirm";
@@ -884,6 +885,15 @@ function SubscriptionDrawer({
                   </option>
                 ))}
               </Select>
+            </Field>
+
+            <Field label="Renewal date">
+              <DatePicker
+                value={sub.renewalDate ?? ""}
+                onChange={(v) =>
+                  updateSubscription(sub.id, { renewalDate: v || undefined })
+                }
+              />
             </Field>
           </div>
         </div>

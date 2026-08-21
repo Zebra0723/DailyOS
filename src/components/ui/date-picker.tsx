@@ -371,6 +371,13 @@ export function DatePicker({
 }) {
   const [open, setOpen] = React.useState(false);
   const parsed = parseDate(value);
+  const [draft, setDraft] = React.useState<YMD | null>(parsed);
+
+  const openPicker = () => {
+    setDraft(parseDate(value));
+    setOpen(true);
+  };
+
   return (
     <>
       <TriggerField
@@ -379,7 +386,7 @@ export function DatePicker({
         text={parsed ? displayDate(parsed) : placeholder}
         empty={!parsed}
         className={className}
-        onClick={() => setOpen(true)}
+        onClick={openPicker}
       />
       {open && (
         <PickerModal
@@ -401,33 +408,37 @@ export function DatePicker({
               ) : (
                 <span />
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  const n = new Date();
-                  onChange(
-                    fmtDate({
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const n = new Date();
+                    setDraft({
                       y: n.getFullYear(),
                       m: n.getMonth() + 1,
                       d: n.getDate(),
-                    }),
-                  );
-                  setOpen(false);
-                }}
-              >
-                Today
-              </Button>
+                    });
+                  }}
+                >
+                  Today
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={!draft}
+                  onClick={() => {
+                    if (!draft) return;
+                    onChange(fmtDate(draft));
+                    setOpen(false);
+                  }}
+                >
+                  Save
+                </Button>
+              </div>
             </>
           }
         >
-          <Calendar
-            selected={parsed}
-            onPick={(p) => {
-              onChange(fmtDate(p));
-              setOpen(false);
-            }}
-          />
+          <Calendar selected={draft} onPick={setDraft} />
         </PickerModal>
       )}
     </>
