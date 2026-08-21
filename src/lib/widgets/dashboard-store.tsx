@@ -24,6 +24,8 @@ const DASHBOARD_KEY = "dashboard";
 
 interface DashboardState {
   widgets: string[];
+  /** ms epoch of the write that produced this copy — newer copy wins on load. */
+  updatedAt?: number;
 }
 
 export type { AddResult };
@@ -79,16 +81,20 @@ export function DashboardProvider({
   React.useEffect(() => {
     let active = true;
 
-    const loadLocal = () => {
-      if (localKey) {
-        try {
-          const raw = localStorage.getItem(localKey);
-          const parsed = raw ? JSON.parse(raw) : null;
-          if (Array.isArray(parsed?.widgets)) setWidgetsState(parsed.widgets);
-        } catch {
-          /* ignore malformed cache */
-        }
+    const readLocal = (): DashboardState | null => {
+      if (!localKey) return null;
+      try {
+        const raw = localStorage.getItem(localKey);
+        const parsed = raw ? (JSON.parse(raw) as DashboardState) : null;
+        return parsed && Array.isArray(parsed.widgets) ? parsed : null;
+      } catch {
+        return null; /* malformed cache */
       }
+    };
+
+    const loadLocal = () => {
+      const local = readLocal();
+      if (local) setWidgetsState(local.widgets);
       setLoaded(true);
     };
 
@@ -116,6 +122,25 @@ export function DashboardProvider({
         clearTimeout(timeout);
         const remote = data?.value as DashboardState | null;
         if (Array.isArray(remote?.widgets)) {
+          // The local mirror is written synchronously on every change; the
+          // remote copy is async and best-effort, so after a failed or raced
+          // upsert it can be stale. Whichever copy was written last wins —
+          // taking the remote unconditionally is how widgets added just
+          // before a reload used to vanish.
+          const local = readLocal();
+          if (local && (local.updatedAt ?? 0) > (remote.updatedAt ?? 0)) {
+            setWidgetsState(local.widgets);
+            setLoaded(true);
+            void supabase
+              .from("user_state")
+              .upsert(
+                { user_id: userId, key: DASHBOARD_KEY, value: local },
+                { onConflict: "user_id,key" },
+              );
+            return;
+          }
+          // An explicitly empty list is a real answer — a new account starts
+          // blank and must stay blank.
           setWidgetsState(remote.widgets);
           setLoaded(true);
           return;
@@ -140,9 +165,10 @@ export function DashboardProvider({
   const persist = React.useCallback(
     (next: string[]) => {
       setWidgetsState(next);
+      const stamped: DashboardState = { widgets: next, updatedAt: Date.now() };
       if (localKey) {
         try {
-          localStorage.setItem(localKey, JSON.stringify({ widgets: next }));
+          localStorage.setItem(localKey, JSON.stringify(stamped));
         } catch {
           /* quota — the remote copy is authoritative */
         }
@@ -154,7 +180,7 @@ export function DashboardProvider({
           await supabase
             .from("user_state")
             .upsert(
-              { user_id: userId, key: DASHBOARD_KEY, value: { widgets: next } },
+              { user_id: userId, key: DASHBOARD_KEY, value: stamped },
               { onConflict: "user_id,key" },
             );
         } catch {

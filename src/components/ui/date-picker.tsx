@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import {
   Calendar as CalendarIcon,
   Clock,
@@ -120,7 +121,11 @@ function PickerModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  return (
+  // Rendered in a portal: the pickers often live inside a <label> (form Field),
+  // and a click anywhere inside a label re-dispatches onto its first button —
+  // the picker's own trigger — which instantly re-opened the modal after Save
+  // or the close cross. Outside the label, clicks land only where they should.
+  return createPortal(
     <div
       className="fixed inset-0 z-[120] grid place-items-center bg-black/50 p-4 backdrop-blur-[1px] animate-fade-in"
       role="dialog"
@@ -150,7 +155,8 @@ function PickerModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

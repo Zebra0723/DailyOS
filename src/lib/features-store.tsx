@@ -79,6 +79,22 @@ export function FeaturesProvider({
       setLoaded(true);
     };
 
+    type StoredFeatures = { enabled?: unknown; updatedAt?: number };
+    const readLocal = (): { keys: string[]; updatedAt: number } | null => {
+      if (!localKey) return null;
+      try {
+        const raw = localStorage.getItem(localKey);
+        const parsed = raw ? (JSON.parse(raw) as StoredFeatures) : null;
+        if (!Array.isArray(parsed?.enabled)) return null;
+        return {
+          keys: normaliseFeatureKeys(parsed.enabled),
+          updatedAt: parsed.updatedAt ?? 0,
+        };
+      } catch {
+        return null; /* malformed cache */
+      }
+    };
+
     if (!userId) {
       applyDefaults();
       return () => { active = false; };
@@ -88,16 +104,11 @@ export function FeaturesProvider({
     // spinner must not spin forever. Fall through to defaults after 4s.
     const timeout = setTimeout(() => {
       if (!active) return;
-      if (localKey) {
-        try {
-          const raw = localStorage.getItem(localKey);
-          const parsed = raw ? (JSON.parse(raw) as { enabled?: unknown }) : null;
-          if (Array.isArray(parsed?.enabled)) {
-            setEnabledState(new Set(normaliseFeatureKeys(parsed.enabled)));
-            setLoaded(true);
-            return;
-          }
-        } catch { /* ignore */ }
+      const local = readLocal();
+      if (local) {
+        setEnabledState(new Set(local.keys));
+        setLoaded(true);
+        return;
       }
       applyDefaults();
     }, 4000);
@@ -114,9 +125,28 @@ export function FeaturesProvider({
         if (!active) return;
 
         clearTimeout(timeout);
-        const stored = (data?.value as { enabled?: unknown } | null)?.enabled;
-        if (Array.isArray(stored)) {
-          setEnabledState(new Set(normaliseFeatureKeys(stored)));
+        const remote = data?.value as StoredFeatures | null;
+        if (Array.isArray(remote?.enabled)) {
+          // Newest write wins: the local mirror lands synchronously, the
+          // remote copy async — after a failed upsert the remote is stale
+          // and used to silently override what the user just changed.
+          const local = readLocal();
+          if (local && local.updatedAt > (remote.updatedAt ?? 0)) {
+            setEnabledState(new Set(local.keys));
+            setLoaded(true);
+            void supabase
+              .from("user_state")
+              .upsert(
+                {
+                  user_id: userId,
+                  key: FEATURES_KEY,
+                  value: { enabled: local.keys, updatedAt: local.updatedAt },
+                },
+                { onConflict: "user_id,key" },
+              );
+            return;
+          }
+          setEnabledState(new Set(normaliseFeatureKeys(remote.enabled)));
           setLoaded(true);
           return;
         }
@@ -127,18 +157,11 @@ export function FeaturesProvider({
 
       if (!active) return;
 
-      if (localKey) {
-        try {
-          const raw = localStorage.getItem(localKey);
-          const parsed = raw ? (JSON.parse(raw) as { enabled?: unknown }) : null;
-          if (Array.isArray(parsed?.enabled)) {
-            setEnabledState(new Set(normaliseFeatureKeys(parsed.enabled)));
-            setLoaded(true);
-            return;
-          }
-        } catch {
-          /* ignore a malformed cache */
-        }
+      const local = readLocal();
+      if (local) {
+        setEnabledState(new Set(local.keys));
+        setLoaded(true);
+        return;
       }
 
       applyDefaults();
@@ -154,10 +177,11 @@ export function FeaturesProvider({
   const persist = React.useCallback(
     (next: Set<string>) => {
       const list = normaliseFeatureKeys(Array.from(next));
+      const stamped = { enabled: list, updatedAt: Date.now() };
 
       if (localKey) {
         try {
-          localStorage.setItem(localKey, JSON.stringify({ enabled: list }));
+          localStorage.setItem(localKey, JSON.stringify(stamped));
         } catch {
           /* quota — the stored copy is authoritative anyway */
         }
@@ -170,7 +194,7 @@ export function FeaturesProvider({
           await supabase
             .from("user_state")
             .upsert(
-              { user_id: userId, key: FEATURES_KEY, value: { enabled: list } },
+              { user_id: userId, key: FEATURES_KEY, value: stamped },
               { onConflict: "user_id,key" },
             );
         } catch {

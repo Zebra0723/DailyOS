@@ -64,24 +64,35 @@ export function CalendarView({
   const [selectedDay, setSelectedDay] = React.useState<string | null>(null);
   const [homeEvents, setHomeEvents] = React.useState<Disp[]>([]);
 
-  // Pull in HomeOS dates client-side so the calendar shows both.
+  // Pull in HomeOS dates client-side so the calendar shows both. Re-read on
+  // focus / cross-tab storage writes so a renewal date added moments ago in
+  // HomeOS shows up here without a hard reload.
   React.useEffect(() => {
-    const data = readHomeOSData(userId);
-    if (!data) return;
-    try {
-      setHomeEvents(
-        getCalendarEvents(data).map((e) => ({
-          id: `home-${e.id}`,
-          title: e.title,
-          dayKey: e.date.slice(0, 10),
-          ts: new Date(e.date).getTime(),
-          source: "home" as const,
-          kind: e.kind,
-        })),
-      );
-    } catch {
-      /* ignore */
-    }
+    const refresh = () => {
+      const data = readHomeOSData(userId);
+      if (!data) return;
+      try {
+        setHomeEvents(
+          getCalendarEvents(data).map((e) => ({
+            id: `home-${e.id}`,
+            title: e.title,
+            dayKey: e.date.slice(0, 10),
+            ts: new Date(e.date).getTime(),
+            source: "home" as const,
+            kind: e.kind,
+          })),
+        );
+      } catch {
+        /* ignore */
+      }
+    };
+    refresh();
+    window.addEventListener("focus", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("storage", refresh);
+    };
   }, [userId]);
 
   const all = React.useMemo<Disp[]>(() => {

@@ -307,9 +307,9 @@ function WidgetStoreOverlay({ onClose }: { onClose: () => void }) {
               now on your dashboard.
             </p>
             <Button size="sm" variant="outline" asChild>
-              <a href="/today">
+              <Link href="/today">
                 <LayoutGrid className="size-3.5" /> View dashboard
-              </a>
+              </Link>
             </Button>
           </div>
         </div>
@@ -386,7 +386,7 @@ const PACK_ICONS: Record<string, LucideIcon> = {
 };
 
 function PacksPanel({ onApplied }: { onApplied: (label: string) => void }) {
-  const { widgets, tier, limit, addWidget } = useDashboard();
+  const { widgets, tier, limit, setWidgets } = useDashboard();
   const { enabled, setEnabled } = useFeatures();
 
   return (
@@ -416,7 +416,12 @@ function PacksPanel({ onApplied }: { onApplied: (label: string) => void }) {
 
           const apply = () => {
             for (const key of plan.featuresToEnable) setEnabled(key, true);
-            for (const id of plan.widgetsToAdd) addWidget(id);
+            // One write with the whole list. Looping addWidget fired one
+            // Supabase upsert per widget; they could land out of order and
+            // leave a partial list stored — widgets that vanished on reload.
+            if (plan.widgetsToAdd.length > 0) {
+              setWidgets([...widgets, ...plan.widgetsToAdd]);
+            }
             onApplied(pack.name);
           };
 

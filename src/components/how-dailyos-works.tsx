@@ -6,7 +6,6 @@
 // dismissed, and always available from Settings.
 
 import * as React from "react";
-import Link from "next/link";
 import { LayoutGrid, Compass, Sparkles, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -100,10 +99,8 @@ export function HowDailyOSWorks({ userId }: { userId?: string }) {
           <Button size="sm" onClick={openWidgetStore}>
             <LayoutGrid className="size-4" /> Add your first widget
           </Button>
-          <Button size="sm" variant="outline" asChild>
-            <Link href="/settings#sections">
-              <Compass className="size-4" /> Choose your sections
-            </Link>
+          <Button size="sm" variant="outline" onClick={openWidgetStore}>
+            <Compass className="size-4" /> Choose your sections
           </Button>
           <Button size="sm" variant="ghost" onClick={dismiss}>
             Got it
