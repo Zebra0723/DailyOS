@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------
 // DailyOS pricing plans. Display/UI only — no payment processing yet.
-// Annual = ~2 months free (a slight discount vs paying monthly).
+// Annual = 12 × monthly less 9%, rounded to the nearest .99.
 // ----------------------------------------------------------------------------
 
 export interface Plan {
@@ -34,8 +34,8 @@ export const PLANS: Plan[] = [
     key: "plus",
     name: "Plus",
     tagline: "For a busy life, sorted.",
-    monthly: 4,
-    annual: 40,
+    monthly: 3.99,
+    annual: 43.99,
     highlight: true,
     cta: "Start Plus",
     features: [
@@ -53,8 +53,8 @@ export const PLANS: Plan[] = [
     key: "pro",
     name: "Pro",
     tagline: "Your full chief of staff.",
-    monthly: 8,
-    annual: 80,
+    monthly: 8.99,
+    annual: 97.99,
     cta: "Go Pro",
     features: [
       "Everything in Plus, plus:",
