@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.08.21 · v292 (new pricing: Plus £3.99, Pro £8.99)";
+export const APP_VERSION = "2026.08.21 · v293 (admin API token endpoint)";
