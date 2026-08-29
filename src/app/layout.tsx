@@ -87,6 +87,15 @@ export default function RootLayout({
   // Apply light/dark before first paint to avoid a flash.
   const themeScript = `(function(){try{var m=localStorage.getItem('dailyos-mode')||'system';var dark=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',dark);var p=sessionStorage.getItem('dailyos-dev-palette');if(p)document.documentElement.setAttribute('data-dev-palette',p);}catch(e){}})();`;
 
+  // Warm up the Supabase connection (DNS + TLS) before the first auth/data
+  // fetch fires — shaves a round-trip or two off every cold page load.
+  let supabaseOrigin: string | null = null;
+  try {
+    supabaseOrigin = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").origin;
+  } catch {
+    /* env not set (build/preview without secrets) — skip the hint */
+  }
+
   return (
     <html
       lang="en"
@@ -95,6 +104,12 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {supabaseOrigin && (
+          <>
+            <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href={supabaseOrigin} />
+          </>
+        )}
       </head>
       <body>
         <ToastProvider>
