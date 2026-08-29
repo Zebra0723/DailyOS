@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import crypto from "node:crypto";
 import { createServiceClient } from "@/lib/supabase/server";
+import { adminApiAuthorized } from "@/lib/admin-api-auth";
 import { APP_VERSION } from "@/lib/version";
 
 // Token-authenticated admin API for external integrations (e.g. a Cloudflare
@@ -20,19 +20,8 @@ const TABLES = [
   "push_subscriptions",
 ] as const;
 
-function authorized(req: Request): boolean {
-  const token = process.env.ADMIN_API_TOKEN;
-  // Unlike the cron route, an admin API with no token configured stays CLOSED.
-  if (!token) return false;
-  const header = req.headers.get("authorization") ?? "";
-  const presented = header.startsWith("Bearer ") ? header.slice(7) : "";
-  const a = Buffer.from(presented);
-  const b = Buffer.from(token);
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
 export async function GET(req: Request) {
-  if (!authorized(req)) {
+  if (!adminApiAuthorized(req)) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
