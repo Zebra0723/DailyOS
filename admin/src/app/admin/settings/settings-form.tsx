@@ -6,19 +6,23 @@ import { saveConfig } from "./actions";
 export function SettingsForm({
   announcement: initial,
   maintenance: initialM,
+  maintenanceAllowlist: initialAllow,
 }: {
   announcement: string;
   maintenance: boolean;
+  maintenanceAllowlist: string[];
 }) {
   const [announcement, setAnnouncement] = useState(initial);
   const [maintenance, setMaintenance] = useState(initialM);
+  const [allowlist, setAllowlist] = useState(initialAllow.join("\n"));
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function save() {
     setBusy(true); setStatus("");
     try {
-      const res = await saveConfig(announcement, maintenance);
+      const allowEmails = allowlist.split(/[\n,]/).map((e) => e.trim()).filter(Boolean);
+      const res = await saveConfig(announcement, maintenance, allowEmails);
       setStatus(res.ok ? "Saved — live for all users." : res.error ?? "Failed. Is app_config set up?");
     } finally { setBusy(false); }
   }
@@ -40,6 +44,11 @@ export function SettingsForm({
           <input type="checkbox" checked={maintenance} onChange={(e) => setMaintenance(e.target.checked)} style={{ width: 18, height: 18 }} />
           {maintenance ? "On — app is in maintenance" : "Off — app is live"}
         </label>
+      </div>
+      <div style={card}>
+        <h2 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 6px" }}>Maintenance allowlist</h2>
+        <p style={{ fontSize: 13, color: "#6b6157", margin: "0 0 10px" }}>While maintenance is on, only these accounts can still sign in and use the app — everyone else sees the &ldquo;back soon&rdquo; screen. One email per line. Admins always have access.</p>
+        <textarea style={{ ...field, minHeight: 90, resize: "vertical", fontFamily: "ui-monospace, monospace" }} placeholder={"you@dailyos.uk\nteammate@dailyos.uk"} value={allowlist} onChange={(e) => setAllowlist(e.target.value)} spellCheck={false} autoCapitalize="none" />
       </div>
       <button onClick={save} disabled={busy} style={{ background: "#21577d", color: "#fff", border: 0, borderRadius: 10, padding: "10px 18px", fontWeight: 700, cursor: "pointer", opacity: busy ? 0.6 : 1 }}>
         {busy ? "Saving…" : "Save settings"}
