@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { isAdminUser } from "@/lib/admin-user";
 import { TopNav, MobileNav, MobileHeader } from "@/components/app-nav";
 import { FreePlanBanner } from "@/components/free-plan-banner";
@@ -23,15 +23,25 @@ import { GuidedTour } from "@/components/guided-tour";
 import { DiscoverySurvey } from "@/components/discovery-survey";
 import { RetroModeProvider } from "@/components/retro-mode";
 
+// Gate on live config: this layout decides maintenance mode from app_config on
+// every request, so it must never be statically cached or serve a stale read.
+export const dynamic = "force-dynamic";
+
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const supabase = createClient();
+  // Read app_config with the SERVICE client, not the user's client. app_config
+  // has RLS that doesn't grant normal users SELECT, so the user-scoped read
+  // always came back null — which is why maintenance mode never showed for
+  // anyone (it silently read as "off"). The service client bypasses RLS, the
+  // same way the admin app and the settings page already read this row.
+  const admin = createServiceClient();
   const [{ data: { user } }, cfgResult] = await Promise.all([
     supabase.auth.getUser(),
-    supabase.from("app_config").select("value").eq("key", "global").maybeSingle().then(
+    admin.from("app_config").select("value").eq("key", "global").maybeSingle().then(
       (r) => r.data,
       () => null,
     ),
