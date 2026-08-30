@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { markSessionStart } from "@/lib/session-expiry";
+import { maintenanceBlocksCurrentUser } from "@/app/(auth)/maintenance-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -133,6 +134,16 @@ export function AuthForm({
         }
       }
 
+      // Login only "works" for allowlisted accounts while the app is in
+      // maintenance: authentication may succeed, but if they aren't allowed
+      // through we revoke the session right here so they never get in.
+      if (await maintenanceBlocksCurrentUser()) {
+        await supabase.auth.signOut();
+        throw new Error(
+          "DailyOS is under maintenance right now. Only authorised accounts can sign in.",
+        );
+      }
+
       // Stamp how long this session lasts, honouring the "Remember me" tick on
       // both login and signup (ticked → 4 weeks, unticked → 3 days).
       markSessionStart(remember);
@@ -165,6 +176,14 @@ export function AuthForm({
         type: "email",
       });
       if (error) throw error;
+      // Same maintenance gate as the password path — a valid OTP still must not
+      // let a non-allowlisted account in while the app is down.
+      if (await maintenanceBlocksCurrentUser()) {
+        await supabase.auth.signOut();
+        throw new Error(
+          "DailyOS is under maintenance right now. Only authorised accounts can sign in.",
+        );
+      }
       markSessionStart(remember);
       toast({ variant: "success", title: "Welcome to DailyOS" });
       window.location.assign(redirect);
