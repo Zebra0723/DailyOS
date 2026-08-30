@@ -113,22 +113,31 @@ export async function updateSession(request: NextRequest) {
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
   const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
 
-  // Maintenance mode: hold everyone at /maintenance except admins and the
-  // owner-picked allowlist. This runs before the auth redirects so even a
-  // logged-out visitor sees the maintenance screen instead of the login/
-  // marketing pages — the old check lived in the app layout, which logged-out
-  // visitors never reached.
+  // Maintenance mode: the app is closed to every SIGNED-IN account except
+  // admins and the owner-picked allowlist — those users are held at
+  // /maintenance. Logged-out visitors are deliberately left alone so the public
+  // site stays live; they just get a prominent notice (see MaintenanceNotice).
   const cfg = (cfgRes?.value ?? {}) as {
     maintenance?: boolean;
     maintenanceAllowlist?: string[];
   };
-  if (cfg.maintenance) {
+
+  // Stamp the live maintenance state into a (non-HttpOnly) cookie the client
+  // banner reads. Refreshed every request, so it works on static pages too and
+  // clears the moment maintenance is switched off.
+  supabaseResponse.cookies.set("dailyos-maint", cfg.maintenance ? "1" : "0", {
+    path: "/",
+    httpOnly: false,
+    sameSite: "lax",
+    maxAge: 3600,
+  });
+
+  if (cfg.maintenance && user) {
     const allow = new Set(
       (cfg.maintenanceAllowlist ?? []).map((e) => e.toLowerCase()),
     );
     const exempt =
-      Boolean(user) &&
-      (isAdminUser(user) || allow.has((user!.email ?? "").toLowerCase()));
+      isAdminUser(user) || allow.has((user.email ?? "").toLowerCase());
     const open = MAINTENANCE_OPEN_PREFIXES.some((p) => pathname.startsWith(p));
     if (!exempt && !open) {
       const url = request.nextUrl.clone();

@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmProvider } from "@/components/ui/confirm";
 import { PwaRegister } from "@/components/pwa-register";
 import { VersionGuard } from "@/components/version-guard";
+import { MaintenanceNotice } from "@/components/maintenance-notice";
 import { SITE_URL } from "@/lib/site";
 
 // Fraunces: a warm "old-style" serif — the editorial voice of the Almanac UI.
@@ -112,6 +113,7 @@ export default function RootLayout({
         )}
       </head>
       <body>
+        <MaintenanceNotice />
         <ToastProvider>
           <ConfirmProvider>{children}</ConfirmProvider>
         </ToastProvider>
