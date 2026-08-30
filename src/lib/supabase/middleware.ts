@@ -6,8 +6,24 @@ import {
   deadlineFromNow,
   sessionMaxAgeSeconds,
 } from "@/lib/session-expiry";
+import { isAdminUser } from "@/lib/admin-user";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
+
+// While maintenance mode is on, non-exempt visitors (logged out OR logged in)
+// are sent to /maintenance. These paths stay open so an authorised account can
+// still sign in, and so the maintenance/login pages can load their assets.
+const MAINTENANCE_OPEN_PREFIXES = [
+  "/maintenance",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/auth/",
+  "/api/",
+  "/_next/",
+  "/manifest",
+];
 
 const PROTECTED_PREFIXES = [
   "/onboarding",
@@ -74,13 +90,53 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Fetch the session and the global app config together — one round-trip.
+  const [
+    {
+      data: { user },
+    },
+    cfgRes,
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("app_config")
+      .select("value")
+      .eq("key", "global")
+      .maybeSingle()
+      .then(
+        (r) => r.data,
+        () => null,
+      ),
+  ]);
 
   const { pathname } = request.nextUrl;
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
   const isAuthRoute = AUTH_ROUTES.some((p) => pathname.startsWith(p));
+
+  // Maintenance mode: hold everyone at /maintenance except admins and the
+  // owner-picked allowlist. This runs before the auth redirects so even a
+  // logged-out visitor sees the maintenance screen instead of the login/
+  // marketing pages — the old check lived in the app layout, which logged-out
+  // visitors never reached.
+  const cfg = (cfgRes?.value ?? {}) as {
+    maintenance?: boolean;
+    maintenanceAllowlist?: string[];
+  };
+  if (cfg.maintenance) {
+    const allow = new Set(
+      (cfg.maintenanceAllowlist ?? []).map((e) => e.toLowerCase()),
+    );
+    const exempt =
+      Boolean(user) &&
+      (isAdminUser(user) || allow.has((user!.email ?? "").toLowerCase()));
+    const open = MAINTENANCE_OPEN_PREFIXES.some((p) => pathname.startsWith(p));
+    if (!exempt && !open) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/maintenance";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+  }
 
   // A logged-in session that has outlived its window gets signed out. Only sign
   // out when the deadline cookie is PRESENT and in the past — a *missing* cookie
