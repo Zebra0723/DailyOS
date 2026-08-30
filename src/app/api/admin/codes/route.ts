@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
-import { randomUUID } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { createServiceClient } from "@/lib/supabase/server";
 import { adminApiAuthorized } from "@/lib/admin-api-auth";
 import { describeReward, type Reward } from "@/lib/referral-rewards";
+
+// No 0/O, 1/I/L — these are typed by hand off a promo, so drop the lookalikes.
+const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+
+function codeBody(): string {
+  const bytes = randomBytes(8);
+  let out = "";
+  for (const b of bytes) out += CODE_ALPHABET[b % CODE_ALPHABET.length];
+  return out;
+}
 
 // POST /api/admin/codes — create promo codes (token-authenticated, for the
 // Cloudflare Worker). Codes are reward_codes rows with no recipient, so the
@@ -71,7 +81,7 @@ export async function POST(req: Request) {
   for (let n = 0; n < count; n++) {
     let inserted = false;
     for (let attempt = 0; attempt < 3 && !inserted; attempt++) {
-      const code = `${prefix}-${randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+      const code = `${prefix}-${codeBody()}`;
       const { error } = await admin.from("reward_codes").insert({
         code,
         recipient_id: null, // no owner — redeemable by any account, once

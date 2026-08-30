@@ -29,35 +29,46 @@ const CONTENT_TABLES = [
 
 type FoundUser = { id: string; email: string | null; isAdmin: boolean };
 
+// "found" is exactly one user; "ambiguous" is >1 email match — deleting by
+// email without confirming a single match is how the wrong account gets wiped.
+type LookupResult =
+  | { kind: "found"; user: FoundUser }
+  | { kind: "none" }
+  | { kind: "ambiguous" };
+
 async function findUser(
   admin: ReturnType<typeof createServiceClient>,
   userId: string | null,
   email: string | null,
-): Promise<FoundUser | null> {
+): Promise<LookupResult> {
   if (userId) {
     const { data } = await admin.auth.admin.getUserById(userId);
     const u = data?.user;
-    if (!u) return null;
-    return { id: u.id, email: u.email ?? null, isAdmin: u.app_metadata?.admin === true };
+    if (!u) return { kind: "none" };
+    return {
+      kind: "found",
+      user: { id: u.id, email: u.email ?? null, isAdmin: u.app_metadata?.admin === true },
+    };
   }
   if (email) {
     const want = email.trim().toLowerCase();
+    const matches: FoundUser[] = [];
     for (let page = 1; page <= 100; page++) {
       const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
       const batch = data?.users ?? [];
       if (error || batch.length === 0) break;
-      const hit = batch.find((u) => (u.email ?? "").toLowerCase() === want);
-      if (hit) {
-        return {
-          id: hit.id,
-          email: hit.email ?? null,
-          isAdmin: hit.app_metadata?.admin === true,
-        };
+      for (const u of batch) {
+        if ((u.email ?? "").toLowerCase() === want) {
+          matches.push({ id: u.id, email: u.email ?? null, isAdmin: u.app_metadata?.admin === true });
+        }
       }
       if (batch.length < 1000) break;
     }
+    if (matches.length === 0) return { kind: "none" };
+    if (matches.length > 1) return { kind: "ambiguous" };
+    return { kind: "found", user: matches[0] };
   }
-  return null;
+  return { kind: "none" };
 }
 
 export async function POST(req: Request) {
@@ -83,10 +94,17 @@ export async function POST(req: Request) {
   }
 
   const admin = createServiceClient();
-  const target = await findUser(admin, userId, email);
-  if (!target) {
+  const lookup = await findUser(admin, userId, email);
+  if (lookup.kind === "none") {
     return NextResponse.json({ ok: false, error: "user-not-found" }, { status: 404 });
   }
+  if (lookup.kind === "ambiguous") {
+    return NextResponse.json(
+      { ok: false, error: "ambiguous-email-refusing" },
+      { status: 409 },
+    );
+  }
+  const target = lookup.user;
   if (target.isAdmin) {
     return NextResponse.json(
       { ok: false, error: "refused-admin-account" },
