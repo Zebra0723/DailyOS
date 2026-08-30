@@ -39,13 +39,26 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
-  const cfg = (cfgResult?.value ?? {}) as { announcement?: string; maintenance?: boolean; hiddenBanners?: string[] };
+  const cfg = (cfgResult?.value ?? {}) as {
+    announcement?: string;
+    maintenance?: boolean;
+    hiddenBanners?: string[];
+    maintenanceAllowlist?: string[];
+  };
   const announcement = cfg.announcement ?? "";
   const maintenance = Boolean(cfg.maintenance);
   const hidden = new Set(cfg.hiddenBanners ?? []);
   const isAdmin = isAdminUser(user);
 
-  if (maintenance && !isAdmin) {
+  // Admins and any account on the owner-picked allowlist keep full access
+  // during maintenance; everyone else is held at the "back soon" screen.
+  const allowlist = new Set(
+    (cfg.maintenanceAllowlist ?? []).map((e) => e.toLowerCase()),
+  );
+  const maintenanceExempt =
+    isAdmin || allowlist.has((user.email ?? "").toLowerCase());
+
+  if (maintenance && !maintenanceExempt) {
     return (
       <div className="grid min-h-screen place-items-center bg-background px-6 text-center">
         <div className="max-w-sm">
@@ -54,6 +67,14 @@ export default async function AppLayout({
             DailyOS is down for a quick bit of maintenance. Your data is safe —
             please check back in a little while.
           </p>
+          {/* Team access: sign out and sign back in with an authorised
+              account. A non-allowlisted login simply lands back here. */}
+          <a
+            href="/auth/signout"
+            className="mt-6 inline-flex items-center justify-center rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Log in to a different account
+          </a>
         </div>
       </div>
     );

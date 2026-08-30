@@ -24,6 +24,7 @@ export default async function AdminSettingsPage() {
     announcement?: string;
     maintenance?: boolean;
     hiddenBanners?: string[];
+    maintenanceAllowlist?: string[];
   };
 
   return (
@@ -31,6 +32,7 @@ export default async function AdminSettingsPage() {
       announcement={cfg.announcement ?? ""}
       maintenance={Boolean(cfg.maintenance)}
       hiddenBanners={cfg.hiddenBanners ?? []}
+      maintenanceAllowlist={cfg.maintenanceAllowlist ?? []}
     />
   );
 }

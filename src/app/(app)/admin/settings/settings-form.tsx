@@ -11,7 +11,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Megaphone, Wrench, EyeOff } from "lucide-react";
+import { Megaphone, Wrench, EyeOff, UserCheck } from "lucide-react";
 import { saveConfig } from "./actions";
 
 const BANNER_OPTIONS = [
@@ -24,14 +24,17 @@ export function SettingsForm({
   announcement: initial,
   maintenance: initialM,
   hiddenBanners: initialHidden,
+  maintenanceAllowlist: initialAllow,
 }: {
   announcement: string;
   maintenance: boolean;
   hiddenBanners: string[];
+  maintenanceAllowlist: string[];
 }) {
   const [announcement, setAnnouncement] = useState(initial);
   const [maintenance, setMaintenance] = useState(initialM);
   const [hiddenBanners, setHiddenBanners] = useState<Set<string>>(new Set(initialHidden));
+  const [allowlist, setAllowlist] = useState(initialAllow.join("\n"));
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -48,7 +51,16 @@ export function SettingsForm({
     setBusy(true);
     setStatus("");
     try {
-      const res = await saveConfig(announcement, maintenance, [...hiddenBanners]);
+      const allowEmails = allowlist
+        .split(/[\n,]/)
+        .map((e) => e.trim())
+        .filter(Boolean);
+      const res = await saveConfig(
+        announcement,
+        maintenance,
+        [...hiddenBanners],
+        allowEmails,
+      );
       setStatus(
         res.ok
           ? "Saved -- live for all users."
@@ -106,6 +118,30 @@ export function SettingsForm({
                 : "Off -- app is live"}
             </span>
           </Label>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <UserCheck className="h-4 w-4" />
+            Maintenance allowlist
+          </CardTitle>
+          <CardDescription>
+            While maintenance is on, only these accounts can still sign in and
+            use the app — everyone else sees the &ldquo;back soon&rdquo; screen.
+            One email per line. Admins always have access.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Textarea
+            placeholder={"you@dailyos.uk\nteammate@dailyos.uk"}
+            value={allowlist}
+            onChange={(e) => setAllowlist(e.target.value)}
+            rows={4}
+            spellCheck={false}
+            autoCapitalize="none"
+          />
         </CardContent>
       </Card>
 
