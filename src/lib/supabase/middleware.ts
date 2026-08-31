@@ -90,24 +90,25 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Fetch the session and the global app config together — one round-trip.
-  const [
-    {
-      data: { user },
-    },
-    cfgRes,
-  ] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase
-      .from("app_config")
-      .select("value")
-      .eq("key", "global")
-      .maybeSingle()
-      .then(
-        (r) => r.data,
-        () => null,
-      ),
-  ]);
+  // getUser() MUST run first, and alone. It may rotate the refresh token and
+  // write new auth cookies via setAll; running another query alongside it (an
+  // earlier version used Promise.all here) races that refresh and drops the new
+  // cookies — which logged people out in a new tab and made auth hang. Await it
+  // fully before touching anything else on this client.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Then read the global config (public-read table) for maintenance mode.
+  const cfgRes = await supabase
+    .from("app_config")
+    .select("value")
+    .eq("key", "global")
+    .maybeSingle()
+    .then(
+      (r) => r.data,
+      () => null,
+    );
 
   const { pathname } = request.nextUrl;
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
