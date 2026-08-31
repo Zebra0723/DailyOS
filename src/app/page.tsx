@@ -315,6 +315,9 @@ export default function LandingPage() {
         <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Logo />
           <div className="flex items-center gap-5 text-sm text-muted-foreground">
+            <Link href="/tools" className="hover:text-foreground">
+              Free tools
+            </Link>
             <Link href="/privacy" className="hover:text-foreground">
               Privacy
             </Link>
