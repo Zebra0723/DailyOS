@@ -113,9 +113,9 @@ export default function LandingPage() {
         />
         <div className="container relative grid gap-12 py-24 md:py-32">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mx-auto mb-7 inline-flex items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-sm font-medium text-muted-foreground shadow-card">
-              <Sparkles className="size-4 text-primary" />
-              Chaos into clarity — your personal chief of staff
+            <div className="mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3.5 py-1.5 text-sm font-medium text-primary shadow-card">
+              <Sparkles className="size-4" />
+              Now open — become a founding member
             </div>
             <h1 className="text-balance text-5xl font-extrabold leading-[1.05] tracking-tight sm:text-7xl">
               Your life admin,
@@ -147,6 +147,15 @@ export default function LandingPage() {
             </div>
             <p className="mt-5 text-sm text-muted-foreground">
               Free to start · No card required · Private by design
+            </p>
+            <p className="mt-4 text-sm">
+              <Link
+                href="/tools/subscription-tracker"
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
+                Or try our free Subscription Cost Tracker — no sign-up
+                <ArrowRight className="ml-1 inline size-3.5" />
+              </Link>
             </p>
           </div>
         </div>
@@ -292,6 +301,10 @@ export default function LandingPage() {
             </div>
             <p className="mt-5 text-sm text-muted-foreground">
               Free to start · Works on your phone · Add it to your home screen
+            </p>
+            <p className="mt-3 text-sm font-medium text-primary">
+              Invite friends and earn rewards — from money off to free months of
+              Plus, all the way to lifetime access.
             </p>
           </div>
         </div>

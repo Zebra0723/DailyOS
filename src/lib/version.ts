@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.08.21 · v302 (fix random logout / hang: await getUser before other queries)";
+export const APP_VERSION = "2026.08.21 · v303 (free Subscription Tracker SEO tool + founding/referral landing)";
