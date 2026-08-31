@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Trash2, ArrowRight, Sparkles } from "lucide-react";
+import { Plus, Trash2, ArrowRight, Sparkles, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -102,6 +102,29 @@ export function SubscriptionTracker() {
   const monthlyTotal = subs.reduce((sum, s) => sum + monthlyOf(s), 0);
   const annualTotal = monthlyTotal * 12;
   const dearest = [...subs].sort((a, b) => monthlyOf(b) - monthlyOf(a))[0];
+
+  const [shared, setShared] = React.useState(false);
+  async function share() {
+    // The shocking yearly number is the shareable hook — every share is a new
+    // visitor to the tool, who sees their own number, who shares again.
+    const url = "https://www.dailyos.uk/tools/subscription-tracker";
+    const text = `I just worked out I spend ${gbp0(annualTotal)} a year on subscriptions 😳 Check yours (free, no sign-up):`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Subscription Cost Tracker", text, url });
+        return;
+      }
+    } catch {
+      /* user cancelled the share sheet — fall through to copy */
+    }
+    try {
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      setShared(true);
+      setTimeout(() => setShared(false), 2500);
+    } catch {
+      /* clipboard blocked — nothing more we can do */
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -234,12 +257,30 @@ export function SubscriptionTracker() {
             each renewal, and flags the ones you could cancel — alongside the
             rest of your life admin.
           </p>
-          <Button size="lg" asChild className="mt-5 h-12 px-7 text-base shadow-elevated">
-            <Link href="/signup?ref=subtracker">
-              Track these free in DailyOS
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
+          <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button size="lg" asChild className="h-12 px-7 text-base shadow-elevated">
+              <Link href="/signup?ref=subtracker">
+                Track these free in DailyOS
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={share}
+              className="h-12 px-7 text-base"
+            >
+              {shared ? (
+                <>
+                  <Check className="size-4" /> Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 className="size-4" /> Share your total
+                </>
+              )}
+            </Button>
+          </div>
           <p className="mt-3 text-xs text-muted-foreground">
             Free to start · No card required
           </p>
