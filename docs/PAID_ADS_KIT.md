@@ -98,3 +98,32 @@ Always test the demo video vs a bold static number — one usually wins clearly.
 
 > Ask me to add the Meta/Reddit pixel + a signup conversion event when you're
 > ready — that's the prerequisite for paid working at all.
+
+---
+
+## Spotify Pixel — already wired in
+
+The Spotify Pixel is installed and inert until you configure it. To turn it on:
+
+1. In **Spotify Ads Manager → Pixels**, create a pixel and copy its **Pixel ID**
+   (and check the base snippet it gives you).
+2. In **Vercel → Settings → Environment Variables**, add
+   `NEXT_PUBLIC_SPOTIFY_PIXEL_ID` = your Pixel ID, then redeploy.
+3. That's it — the pixel loads site-wide and fires a **signup conversion** when
+   someone creates an account (`src/lib/analytics.ts` → `trackSignupConversion`).
+4. Verify in Ads Manager that the pixel shows "receiving traffic", then test a
+   signup and confirm the conversion registers.
+
+Notes:
+- The loader in `src/components/spotify-pixel.tsx` uses Spotify's standard
+  `spdt` pixel. If your account's base snippet differs, paste theirs into that
+  one file (keep the conversion call pointing at `window.spdt`).
+- **For the £300 parent-targeted test:** point the ad at a tracked landing (ask
+  me to build `/parents`) AND read a spoken promo code, so you can attribute
+  signups even for listeners who don't click. Judge it on **signups per £300**.
+- **GDPR:** a marketing pixel should ideally load only after cookie consent. If
+  you add a consent banner, gate `NEXT_PUBLIC_SPOTIFY_PIXEL_ID` loading on it —
+  ask me to wire that when you set up consent.
+
+Meta (`fbq`), TikTok (`ttq`) and Google (`gtag`) pixels can be added the exact
+same way — one component + one line in `trackSignupConversion`. Ask when ready.

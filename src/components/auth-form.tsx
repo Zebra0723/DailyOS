@@ -6,6 +6,7 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { markSessionStart } from "@/lib/session-expiry";
 import { maintenanceBlocksCurrentUser } from "@/app/(auth)/maintenance-gate";
+import { trackSignupConversion } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,6 +99,9 @@ export function AuthForm({
           },
         });
         if (error) throw error;
+        // A new account was created — fire the ad-pixel signup conversion so
+        // paid campaigns can measure cost-per-signup and build audiences.
+        trackSignupConversion();
         // The signup agreement covers cookies — record the acceptance.
         try {
           localStorage.setItem("dailyos-cookie-consent", "accepted");
