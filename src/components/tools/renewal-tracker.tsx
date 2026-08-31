@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Trash2, ArrowRight, Bell } from "lucide-react";
+import { Plus, Trash2, ArrowRight, Bell, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -82,6 +82,28 @@ export function RenewalTracker() {
     return d !== null && d >= 0 && d <= 30;
   }).length;
 
+  const [shared, setShared] = React.useState(false);
+  async function share() {
+    const url = "https://www.dailyos.uk/tools/renewal-tracker";
+    const text =
+      "I found a free tool to track renewals, free-trial end dates and warranties so you never miss one:";
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Renewal & Warranty Tracker", text, url });
+        return;
+      }
+    } catch {
+      /* cancelled — fall through to copy */
+    }
+    try {
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      setShared(true);
+      setTimeout(() => setShared(false), 2500);
+    } catch {
+      /* clipboard blocked */
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border bg-card p-5 shadow-card">
@@ -159,12 +181,30 @@ export function RenewalTracker() {
               for you — then sends a notification before every renewal, trial end
               and warranty expiry, even when the app is closed.
             </p>
-            <Button size="lg" asChild className="mt-5 h-12 px-7 text-base shadow-elevated">
-              <Link href="/signup?ref=renewals">
-                Get reminders free
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+            <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button size="lg" asChild className="h-12 px-7 text-base shadow-elevated">
+                <Link href="/signup?ref=renewals">
+                  Get reminders free
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={share}
+                className="h-12 px-7 text-base"
+              >
+                {shared ? (
+                  <>
+                    <Check className="size-4" /> Copied!
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="size-4" /> Share
+                  </>
+                )}
+              </Button>
+            </div>
             <p className="mt-3 text-xs text-muted-foreground">
               Free to start · No card required
             </p>

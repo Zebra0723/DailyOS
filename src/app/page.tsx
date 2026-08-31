@@ -318,6 +318,9 @@ export default function LandingPage() {
             <Link href="/tools" className="hover:text-foreground">
               Free tools
             </Link>
+            <Link href="/blog" className="hover:text-foreground">
+              Blog
+            </Link>
             <Link href="/privacy" className="hover:text-foreground">
               Privacy
             </Link>
