@@ -116,6 +116,13 @@ export const FEATURES: FeatureDef[] = [
     description: "Time across the places you care about.",
     category: "LifeOS",
   },
+  {
+    key: "trips",
+    href: "/trips",
+    label: "Trips",
+    description: "Plan trips with an itinerary, packing list and countdown.",
+    category: "LifeOS",
+  },
 
   // ---- HomeOS -------------------------------------------------------------
   {
