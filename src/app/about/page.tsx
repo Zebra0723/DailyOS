@@ -107,6 +107,23 @@ export default function AboutPage() {
               Get in touch
             </Link>
           </div>
+
+          {/* Affiliates */}
+          <div className="mt-12 border-t pt-8">
+            <h2 className="font-display text-2xl font-bold tracking-tight">
+              Affiliates
+            </h2>
+            <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+              DailyOS is part of a small family of companies. See everyone
+              we&rsquo;re affiliated with.
+            </p>
+            <Link
+              href="/affiliates"
+              className="mt-4 inline-flex items-center rounded-xl border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              View our affiliates
+            </Link>
+          </div>
         </article>
       </main>
 
