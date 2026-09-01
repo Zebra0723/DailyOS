@@ -60,6 +60,17 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  // A middleware crash 500s EVERY page. If the Supabase env isn't present on
+  // the edge runtime, don't construct the client (it throws) — just let the
+  // request through; server components still enforce auth.
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    return NextResponse.next({ request });
+  }
+
+  try {
   let supabaseResponse = NextResponse.next({ request });
 
   const COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
@@ -203,4 +214,9 @@ export async function updateSession(request: NextRequest) {
     "no-store, no-cache, must-revalidate",
   );
   return supabaseResponse;
+  } catch {
+    // Any failure in the auth/session/config path must NOT take the site down
+    // with a 500 — let the request continue. Server components still gate auth.
+    return NextResponse.next({ request });
+  }
 }
