@@ -92,6 +92,8 @@ const SYSTEM = [
   "- Meals/food → 'meal'.",
   "Title every block as the real activity in natural language (e.g. 'Tennis', 'Finish the report', 'Call Mum') — never prefix with 'Work on'. Give each a short, specific, helpful note.",
   "Rules: keep all FIXED commitments exactly at their times; give each goal a sensibly-sized block matched to what it is;",
+  "EASE INTO THE DAY: don't put the user's most important or demanding task in the very first slot — start with a short, gentle settle-in (a brief admin/plan/coffee block, ~15-20 min) and then move into the real work. The day should feel normal, not like being thrown straight into the hardest thing.",
+  "SPREAD the tasks naturally across the whole day rather than stacking them all back-to-back in the morning; put demanding work when energy is typically higher and lighter tasks later.",
   "add a short break after long focus blocks; include lunch; include at least one short wellbeing/reset moment;",
   "never overpack — leave a little buffer; cover the day from start to end in order with no overlaps.",
   'Respond as strict JSON: {"blocks": [{"start":"HH:MM","end":"HH:MM","title":string,"type":"fixed|focus|admin|break|meal|wellbeing|buffer","note":string}], "summary": string}',
@@ -177,10 +179,28 @@ function localBuild(input: BuildDayInput): DayPlan {
   const blocks: DayBlock[] = [];
   let lunched = false;
   let reset = false;
+  let easedIn = false;
 
   function fillGap(from: number, to: number) {
     let c = from;
     while (to - c >= 25) {
+      // Ease into the day: don't drop the user straight into their most
+      // important task at the very first minute — start with a short, gentle
+      // settle-in so the day feels normal, then get into the real work.
+      if (!easedIn && c === start && to - c >= 50) {
+        const len = 20;
+        blocks.push({
+          start: fmt(c),
+          end: fmt(c + len),
+          title: "Ease into the day",
+          type: "admin",
+          note: "Coffee, glance over your plan, clear a few quick messages.",
+        });
+        c += len;
+        easedIn = true;
+        continue;
+      }
+      easedIn = true; // past the start — never ease-in again
       // Lunch around midday if it lands here.
       if (!lunched && c >= 12 * 60 && c <= 14 * 60 && to - c >= 30) {
         const len = Math.min(45, to - c);

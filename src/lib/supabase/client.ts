@@ -12,7 +12,9 @@ export function createClient() {
         maxAge: COOKIE_MAX_AGE,
         path: "/",
         sameSite: "lax" as const,
-        secure: true,
+        // HTTPS-only in production; off in local dev so http://localhost
+        // doesn't silently drop the auth cookie. Mirrors the deadline cookie.
+        secure: process.env.NODE_ENV === "production",
       },
     },
   );

@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TimePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { saveRemote, debounce } from "@/lib/sync";
@@ -114,7 +113,7 @@ export function BuildMyDay() {
   const [dayEnd, setDayEnd] = React.useState("22:00");
   const [pace, setPace] = React.useState<Pace>("balanced");
   const [fixed, setFixed] = React.useState<FixedRow[]>([{ start: "", end: "", label: "" }]);
-  const [goals, setGoals] = React.useState("");
+  const [tasks, setTasks] = React.useState<string[]>([""]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [plan, setPlan] = React.useState<DayPlan | null>(null);
@@ -185,15 +184,22 @@ export function BuildMyDay() {
     setFixed((rows) => rows.filter((_, idx) => idx !== i));
   }
 
+  function setTask(i: number, value: string) {
+    setTasks((t) => t.map((x, idx) => (idx === i ? value : x)));
+  }
+  function addTask() {
+    setTasks((t) => [...t, ""]);
+  }
+  function removeTask(i: number) {
+    setTasks((t) => (t.length === 1 ? [""] : t.filter((_, idx) => idx !== i)));
+  }
+
   async function build() {
     setError(null);
     setLoading(true);
     try {
       const cleanFixed = fixed.filter((r) => r.start && r.end && r.label.trim());
-      const goalList = goals
-        .split("\n")
-        .map((g) => g.trim())
-        .filter(Boolean);
+      const goalList = tasks.map((g) => g.trim()).filter(Boolean);
       const res = await buildDay({ dayStart, dayEnd, fixed: cleanFixed, goals: goalList, pace });
       if (!res.ok) {
         setError(res.error);
@@ -288,16 +294,39 @@ export function BuildMyDay() {
               </Button>
             </div>
 
-            {/* Goals */}
-            <div className="space-y-1.5">
-              <Label htmlFor="goals">What do you want to get done?</Label>
-              <Textarea
-                id="goals"
-                value={goals}
-                onChange={(e) => setGoals(e.target.value)}
-                placeholder={"One per line, e.g.\nFinish the report\nGym\nCall mum"}
-                rows={4}
-              />
+            {/* Tasks */}
+            <div className="space-y-2">
+              <Label>What do you want to get done?</Label>
+              <p className="text-xs text-muted-foreground">
+                Add each thing you want to do — I&apos;ll fit them naturally
+                across your day.
+              </p>
+              <div className="space-y-2">
+                {tasks.map((t, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input
+                      value={t}
+                      onChange={(e) => setTask(i, e.target.value)}
+                      placeholder={
+                        i === 0
+                          ? "e.g. Finish the report"
+                          : "Add another task"
+                      }
+                      className="flex-1"
+                    />
+                    <button
+                      onClick={() => removeTask(i)}
+                      className="grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
+                      aria-label="Remove task"
+                    >
+                      <X className="size-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <Button variant="outline" size="sm" onClick={addTask}>
+                <Plus className="size-4" /> Add a task
+              </Button>
             </div>
 
             {error && (

@@ -71,7 +71,7 @@ export async function updateSession(request: NextRequest) {
         maxAge: COOKIE_MAX_AGE,
         path: "/",
         sameSite: "lax" as const,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
       },
       cookies: {
         getAll() {
