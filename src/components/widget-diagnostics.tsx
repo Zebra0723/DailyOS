@@ -55,6 +55,24 @@ export function WidgetDiagnostics() {
 
       if (!url || !anon) return;
 
+      // 2b. RAW network probe — a plain fetch to Supabase's public health
+      // endpoint, bypassing the Supabase client entirely (no locks, no token).
+      // If THIS fails/hangs, the browser simply can't reach Supabase (an ad/
+      // content blocker, VPN, or wifi/DNS is blocking the domain) and no code
+      // change will help; if it's OK but the client calls below fail, the
+      // problem is the client library, not the network.
+      const probe = await timed(
+        () => fetch(`${url}/auth/v1/health`, { headers: { apikey: anon }, cache: "no-store" }),
+        6000,
+      );
+      push({
+        label: "Raw network to Supabase",
+        state: probe.ok ? "ok" : "fail",
+        detail: probe.ok
+          ? `reachable (HTTP ${(probe.value as Response).status}) · ${probe.t}ms`
+          : `${probe.error} · ${probe.t}ms`,
+      });
+
       let supabase: ReturnType<typeof createClient>;
       try {
         supabase = createClient();
