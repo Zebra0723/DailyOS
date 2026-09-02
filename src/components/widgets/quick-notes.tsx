@@ -7,25 +7,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const STORAGE_KEY = "widget-quick-notes";
 
-export function QuickNotesWidget() {
+export function QuickNotesWidget({ userId }: { userId?: string }) {
   const [text, setText] = React.useState("");
+
+  // Per-account local cache; the remote copy is already scoped to the account.
+  const localKey = userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
 
   React.useEffect(() => {
     (async () => {
       const remote = await loadRemote<{ text: string }>(STORAGE_KEY);
       if (remote?.text) { setText(remote.text); return; }
-      const local = localStorage.getItem(STORAGE_KEY);
+      const local = localStorage.getItem(localKey);
       if (local) setText(local);
     })();
-  }, []);
+  }, [localKey]);
 
   const save = React.useMemo(
     () =>
       debounce((val: string) => {
-        localStorage.setItem(STORAGE_KEY, val);
+        localStorage.setItem(localKey, val);
         saveRemote(STORAGE_KEY, { text: val });
       }, 800),
-    [],
+    [localKey],
   );
 
   function onChange(val: string) {

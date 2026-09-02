@@ -42,11 +42,14 @@ function onThisDay(entries: JournalEntry[], today: string): JournalEntry | null 
   );
 }
 
-export function MicroJournalWidget() {
+export function MicroJournalWidget({ userId }: { userId?: string }) {
   const today = toDateStr(new Date());
   const [entries, setEntries] = React.useState<JournalEntry[]>([]);
   const [draft, setDraft] = React.useState("");
   const [loaded, setLoaded] = React.useState(false);
+
+  // Per-account local cache; the remote copy is already scoped to the account.
+  const localKey = userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
 
   const pushRemote = React.useMemo(
     () => debounce((v: JournalEntry[]) => void saveRemote(STORAGE_KEY, v), 600),
@@ -57,7 +60,7 @@ export function MicroJournalWidget() {
     (async () => {
       let local: JournalEntry[] = [];
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(localKey);
         if (raw) local = JSON.parse(raw) as JournalEntry[];
       } catch {}
       setEntries(local);
@@ -74,7 +77,7 @@ export function MicroJournalWidget() {
       if (todayEntry) setDraft(todayEntry.text);
       setLoaded(true);
     })();
-  }, []);
+  }, [localKey]);
 
   function save() {
     const text = draft.trim();
@@ -87,7 +90,7 @@ export function MicroJournalWidget() {
       next = [{ date: today, text, ts: Date.now() }, ...entries];
     }
     setEntries(next);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+    try { localStorage.setItem(localKey, JSON.stringify(next)); } catch {}
     pushRemote(next);
   }
 

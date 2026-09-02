@@ -11,25 +11,28 @@ interface Goal { name: string; progress: number; target: number }
 interface GoalData { goals: Goal[] }
 const STORAGE_KEY = "widget-goals";
 
-export function GoalsWidget() {
+export function GoalsWidget({ userId }: { userId?: string }) {
   const [data, setData] = React.useState<GoalData>({ goals: [] });
   const [adding, setAdding] = React.useState(false);
   const [newName, setNewName] = React.useState("");
+
+  // Per-account local cache; the remote copy is already scoped to the account.
+  const localKey = userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
 
   React.useEffect(() => {
     (async () => {
       const remote = await loadRemote<GoalData>(STORAGE_KEY);
       if (remote?.goals) { setData(remote); return; }
       try {
-        const local = localStorage.getItem(STORAGE_KEY);
+        const local = localStorage.getItem(localKey);
         if (local) setData(JSON.parse(local));
       } catch {}
     })();
-  }, []);
+  }, [localKey]);
 
   function persist(next: GoalData) {
     setData(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    localStorage.setItem(localKey, JSON.stringify(next));
     saveRemote(STORAGE_KEY, next);
   }
 

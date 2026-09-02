@@ -48,7 +48,7 @@ const AI_WIDGET_DEF: WidgetDef = {
   tier: "pro",
 };
 
-const COMPONENT_MAP: Record<string, React.ComponentType> = {
+const COMPONENT_MAP: Record<string, React.ComponentType<{ userId?: string }>> = {
   "stats-overview": StatsOverviewWidget,
   "tasks-due": TasksDueWidget,
   "upcoming-events": UpcomingEventsWidget,
@@ -225,7 +225,10 @@ export function Dashboard({ userId }: { userId?: string }) {
                 // Needs the account and a way to drop what it builds onto the grid.
                 <AIBuilderWidget userId={userId} onAdded={addWidget} />
               ) : (
-                Comp && <Comp />
+                // userId lets account-tied widgets (habits, goals, notes,
+                // journal, day plan) namespace their local cache per account, so
+                // two accounts on one device never see each other's cached data.
+                Comp && <Comp userId={userId} />
               )}
             </div>
           );
