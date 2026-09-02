@@ -1,0 +1,82 @@
+# Deploy the MAIN DailyOS app to Vercel from GitHub Actions.
+#
+# Why: with Vercel's Git integration, all 9 projects in this repo can build on
+# every push, which burns through the Hobby plan's ~100 deploys/day. This runs
+# the deploy ourselves, via the Vercel CLI, so ONLY the main app deploys and
+# ONLY when we mean it. (Deployments still count against the Vercel limit — this
+# just stops the 9x multiplier and the deploy-on-every-tiny-push churn.)
+#
+# ── ONE-TIME SETUP ─────────────────────────────────────────────────────────
+# 1. Get a Vercel token: vercel.com → Account Settings → Tokens → Create.
+# 2. Get the project + org ids: run `vercel link` locally in this folder once,
+#    then open .vercel/project.json — copy "orgId" and "projectId". (Or Vercel
+#    dashboard → Project → Settings → General for the Project ID.)
+# 3. In GitHub: repo → Settings → Secrets and variables → Actions → add three
+#    repository secrets:
+#       VERCEL_TOKEN       (the token from step 1)
+#       VERCEL_ORG_ID      (orgId from step 2)
+#       VERCEL_PROJECT_ID  (projectId of the MAIN app from step 2)
+# 4. IMPORTANT — turn OFF Vercel's own auto-deploy for the main project so it
+#    doesn't ALSO build on every push (that would double every deploy):
+#    Vercel → main project → Settings → Git → set "Ignored Build Step" to
+#    `exit 0`, or disconnect the Git repo from that project. Do the same on the
+#    side-app projects you're not actively shipping.
+# ────────────────────────────────────────────────────────────────────────────
+#
+# After setup: pushes to main (that touch main-app files) deploy once, and you
+# can also deploy on demand from the Actions tab (Run workflow). If the secrets
+# aren't set yet, a run just fails harmlessly — no deploy is made.
+
+name: Deploy to Vercel
+
+on:
+  workflow_dispatch: {} # manual "Run workflow" button in the Actions tab
+  push:
+    branches: [main]
+    # Don't deploy the main app for changes that only touch the side apps/docs.
+    paths-ignore:
+      - "admin/**"
+      - "base/**"
+      - "brain/**"
+      - "deploy/**"
+      - "hub/**"
+      - "pitch/**"
+      - "pulse/**"
+      - "support/**"
+      - "docs/**"
+      - "**/*.md"
+
+# If several pushes land quickly, only deploy the newest — cancels superseded
+# runs so we don't spend deploys on commits that are already outdated.
+concurrency:
+  group: deploy-vercel-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      # Pulls the project's Production env vars + settings so the build matches
+      # a real Vercel production build (NEXT_PUBLIC_* get inlined here).
+      - name: Pull Vercel project settings (production)
+        run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Build (production)
+        run: vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+
+      # --prebuilt uploads the build we just made instead of building again on
+      # Vercel. This is the single deployment that counts.
+      - name: Deploy prebuilt to production
+        run: vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
