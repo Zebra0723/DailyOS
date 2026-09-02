@@ -5,8 +5,8 @@ import { Ticket, Copy, Check } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import type { MyRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
 
-/** Shows the reward codes issued to this account so they're usable in-app,
- *  no email required. Enter one in the promo box above to redeem it. */
+/** Shows the reward codes issued to this account so they're always to hand, no
+ *  email required. Each is a Stripe code — enter it on the checkout page. */
 export function MyRewardCodes({ codes }: { codes: MyRewardCode[] }) {
   const { toast } = useToast();
   const [copied, setCopied] = React.useState<string | null>(null);
@@ -32,11 +32,11 @@ export function MyRewardCodes({ codes }: { codes: MyRewardCode[] }) {
         <p className="mt-1 text-xs text-muted-foreground">
           Your codes show up here when you earn one — a 10% code lands when a
           friend you invited subscribes, and bigger rewards as you refer more.
-          Redeem any code in the promo box above.
+          Enter a code at checkout to use it.
         </p>
       ) : (
         <p className="mt-1 text-xs text-muted-foreground">
-          Enter one in the promo box above to redeem it. Each works once.
+          Copy a code and enter it at checkout to use it. Each works once.
         </p>
       )}
       <ul className="mt-3 space-y-2">
