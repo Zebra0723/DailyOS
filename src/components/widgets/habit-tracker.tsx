@@ -13,26 +13,30 @@ interface HabitData {
 
 const STORAGE_KEY = "widget-habits";
 
-export function HabitTrackerWidget() {
+export function HabitTrackerWidget({ userId }: { userId?: string }) {
   const [data, setData] = React.useState<HabitData>({ habits: [] });
   const [adding, setAdding] = React.useState(false);
   const [newName, setNewName] = React.useState("");
   const today = new Date().toISOString().slice(0, 10);
+
+  // Local cache is namespaced per account so two accounts on one device never
+  // share cached habits. The remote copy is already scoped to the account.
+  const localKey = userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
 
   React.useEffect(() => {
     (async () => {
       const remote = await loadRemote<HabitData>(STORAGE_KEY);
       if (remote?.habits) { setData(remote); return; }
       try {
-        const local = localStorage.getItem(STORAGE_KEY);
+        const local = localStorage.getItem(localKey);
         if (local) setData(JSON.parse(local));
       } catch {}
     })();
-  }, []);
+  }, [localKey]);
 
   function persist(next: HabitData) {
     setData(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    localStorage.setItem(localKey, JSON.stringify(next));
     saveRemote(STORAGE_KEY, next);
   }
 
