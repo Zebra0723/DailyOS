@@ -239,7 +239,7 @@ export function PricingTable({
       </div>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Prices in GBP. Payments aren&apos;t live yet — no card needed to start.
+        Prices in GBP and include VAT. Free to start — no card needed.
       </p>
     </div>
   );
