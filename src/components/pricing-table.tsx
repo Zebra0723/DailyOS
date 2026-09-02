@@ -14,6 +14,7 @@ import { recordReferralConversion } from "@/app/(app)/subscriptions/referral-act
 import { notifyAdminCodeUsed } from "@/app/(app)/subscriptions/admin-alert-actions";
 import { redeemRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
 import { redeemPromoCode, persistPlan } from "@/app/(app)/subscriptions/promo-actions";
+import { startCheckout } from "@/lib/billing-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -232,6 +233,7 @@ export function PricingTable({
             compact={compact}
             unlocked={currentTier === plan.key}
             expiresAt={currentTier === plan.key ? currentExp : null}
+            userId={userId}
           />
         ))}
       </div>
@@ -273,14 +275,33 @@ function PlanCard({
   compact,
   unlocked,
   expiresAt,
+  userId,
 }: {
   plan: Plan;
   annual: boolean;
   compact: boolean;
   unlocked: boolean;
   expiresAt?: number | null;
+  userId?: string;
 }) {
+  const { toast } = useToast();
+  const [busy, setBusy] = React.useState(false);
   const free = plan.monthly === 0;
+
+  async function upgrade() {
+    if (plan.key !== "plus" && plan.key !== "pro") return;
+    setBusy(true);
+    const url = await startCheckout(plan.key, annual ? "yearly" : "monthly");
+    if (url) {
+      window.location.href = url;
+      return; // keep the button busy while we redirect
+    }
+    setBusy(false);
+    toast({
+      variant: "error",
+      title: "Couldn't start checkout — card payments aren't switched on yet.",
+    });
+  }
   const saving = annualSavingPct(plan);
   const timeLimited = unlocked && !!expiresAt;
   const untilLabel = expiresAt
@@ -344,13 +365,24 @@ function PlanCard({
         <Button disabled className="mt-5 w-full">
           <Check className="size-4" /> Active
         </Button>
-      ) : (
+      ) : free || !userId ? (
+        // Free plan, or a logged-out visitor → sign up first.
         <Button
           asChild
           variant={plan.highlight ? "default" : "outline"}
           className="mt-5 w-full"
         >
           <Link href="/signup">{plan.cta}</Link>
+        </Button>
+      ) : (
+        // Logged-in user on a paid plan → straight to Stripe checkout.
+        <Button
+          onClick={upgrade}
+          loading={busy}
+          variant={plan.highlight ? "default" : "outline"}
+          className="mt-5 w-full"
+        >
+          {plan.cta}
         </Button>
       )}
 
