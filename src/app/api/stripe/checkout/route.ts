@@ -45,25 +45,41 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "price-not-configured" }, { status: 503 });
   }
 
+  // Managed Payments = Stripe's merchant-of-record mode: Stripe becomes the
+  // seller of record and handles tax collection/remittance and compliance for
+  // us. Opt in with STRIPE_MANAGED_PAYMENTS=true. It's off by default so the
+  // proven flow (customer reuse + promo codes) stays intact; in managed mode we
+  // keep the session minimal (Stripe owns the customer and tax), so we don't
+  // pass our own customer or promo settings that could conflict.
+  const managed = process.env.STRIPE_MANAGED_PAYMENTS === "true";
+
   try {
     // Reuse the Stripe customer we stored on a previous purchase, so a user
     // doesn't accumulate duplicate customers.
     const existingCustomer = user.user_metadata?.stripe_customer as string | undefined;
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
+    const common = {
+      mode: "subscription" as const,
       line_items: [{ price, quantity: 1 }],
       // Ties the resulting subscription back to this Supabase user in the webhook.
       client_reference_id: user.id,
       metadata: { userId: user.id, plan },
       subscription_data: { metadata: { userId: user.id, plan } },
-      ...(existingCustomer
-        ? { customer: existingCustomer }
-        : { customer_email: user.email ?? undefined }),
-      allow_promotion_codes: true,
       success_url: `${SITE_URL}/subscriptions?checkout=success`,
       cancel_url: `${SITE_URL}/subscriptions?checkout=cancelled`,
-    });
+    };
+
+    const session = await stripe.checkout.sessions.create(
+      managed
+        ? { ...common, managed_payments: { enabled: true } }
+        : {
+            ...common,
+            ...(existingCustomer
+              ? { customer: existingCustomer }
+              : { customer_email: user.email ?? undefined }),
+            allow_promotion_codes: true,
+          },
+    );
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
