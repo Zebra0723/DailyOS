@@ -6,6 +6,7 @@ import { Inbox, Loader2, ArrowRight, Sun } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
+import { useWidgetLoad, WidgetLoadError } from "@/lib/widgets/use-widget-load";
 
 interface Item {
   id: string;
@@ -17,20 +18,16 @@ interface Item {
 
 export function RecentInboxWidget() {
   const [items, setItems] = React.useState<Item[]>([]);
-  const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    (async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("inbox_items")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(5);
-      setItems((data as Item[]) ?? []);
-      setLoading(false);
-    })();
-  }, []);
+  const { loading, failed, reload } = useWidgetLoad(async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("inbox_items")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    setItems((data as Item[]) ?? []);
+  });
 
   return (
     <Card>
@@ -46,6 +43,8 @@ export function RecentInboxWidget() {
       <CardContent>
         {loading ? (
           <div className="flex justify-center py-4"><Loader2 className="size-4 animate-spin text-muted-foreground" /></div>
+        ) : failed ? (
+          <WidgetLoadError onRetry={reload} />
         ) : items.length === 0 ? (
           <EmptyState icon={Sun} title="Let's get started" description="Drop your first receipt, booking or screenshot into the Drop." actionLabel="Add your first item" actionHref="/inbox/new" />
         ) : (

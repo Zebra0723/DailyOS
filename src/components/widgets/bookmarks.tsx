@@ -5,26 +5,23 @@ import Link from "next/link";
 import { Bookmark, ArrowRight, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useWidgetLoad, WidgetLoadError } from "@/lib/widgets/use-widget-load";
 
 interface Item { id: string; title: string; summary: string | null }
 
 export function BookmarksWidget() {
   const [items, setItems] = React.useState<Item[]>([]);
-  const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    (async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("inbox_items")
-        .select("id, title, summary")
-        .eq("bookmarked", true)
-        .order("created_at", { ascending: false })
-        .limit(8);
-      setItems((data as Item[]) ?? []);
-      setLoading(false);
-    })();
-  }, []);
+  const { loading, failed, reload } = useWidgetLoad(async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("inbox_items")
+      .select("id, title, summary")
+      .eq("bookmarked", true)
+      .order("created_at", { ascending: false })
+      .limit(8);
+    setItems((data as Item[]) ?? []);
+  });
 
   return (
     <Card className="border-primary/20">
@@ -36,6 +33,8 @@ export function BookmarksWidget() {
       <CardContent>
         {loading ? (
           <div className="flex justify-center py-4"><Loader2 className="size-4 animate-spin text-muted-foreground" /></div>
+        ) : failed ? (
+          <WidgetLoadError onRetry={reload} />
         ) : items.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">No bookmarks yet. Pin items from the Drop.</p>
         ) : (

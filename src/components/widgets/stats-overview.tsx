@@ -6,31 +6,28 @@ import { CheckSquare, CalendarDays, AlertTriangle, Inbox, Loader2 } from "lucide
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useWidgetLoad, WidgetLoadError } from "@/lib/widgets/use-widget-load";
 
 export function StatsOverviewWidget() {
   const [stats, setStats] = React.useState({ due: 0, events: 0, review: 0, inbox: 0 });
-  const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    (async () => {
-      const supabase = createClient();
-      const today = new Date().toISOString().slice(0, 10);
-      const now = new Date().toISOString();
-      const [tasks, events, review, inbox] = await Promise.all([
-        supabase.from("extracted_tasks").select("id", { count: "exact", head: true }).eq("status", "pending").lte("due_date", today),
-        supabase.from("calendar_events").select("id", { count: "exact", head: true }).gte("start_time", now),
-        supabase.from("inbox_items").select("id", { count: "exact", head: true }).in("status", ["review", "failed"]),
-        supabase.from("inbox_items").select("id", { count: "exact", head: true }),
-      ]);
-      setStats({
-        due: tasks.count ?? 0,
-        events: events.count ?? 0,
-        review: review.count ?? 0,
-        inbox: inbox.count ?? 0,
-      });
-      setLoading(false);
-    })();
-  }, []);
+  const { loading, failed, reload } = useWidgetLoad(async () => {
+    const supabase = createClient();
+    const today = new Date().toISOString().slice(0, 10);
+    const now = new Date().toISOString();
+    const [tasks, events, review, inbox] = await Promise.all([
+      supabase.from("extracted_tasks").select("id", { count: "exact", head: true }).eq("status", "pending").lte("due_date", today),
+      supabase.from("calendar_events").select("id", { count: "exact", head: true }).gte("start_time", now),
+      supabase.from("inbox_items").select("id", { count: "exact", head: true }).in("status", ["review", "failed"]),
+      supabase.from("inbox_items").select("id", { count: "exact", head: true }),
+    ]);
+    setStats({
+      due: tasks.count ?? 0,
+      events: events.count ?? 0,
+      review: review.count ?? 0,
+      inbox: inbox.count ?? 0,
+    });
+  });
 
   if (loading) {
     return (
@@ -39,6 +36,12 @@ export function StatsOverviewWidget() {
           <Card key={i}><CardContent className="p-4"><Loader2 className="size-4 animate-spin text-muted-foreground" /></CardContent></Card>
         ))}
       </div>
+    );
+  }
+
+  if (failed) {
+    return (
+      <Card><CardContent className="p-2"><WidgetLoadError onRetry={reload} /></CardContent></Card>
     );
   }
 
