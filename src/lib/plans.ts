@@ -53,8 +53,8 @@ export const PLANS: Plan[] = [
     key: "pro",
     name: "Pro",
     tagline: "Your full chief of staff.",
-    monthly: 10.99,
-    annual: 125.49,
+    monthly: 8.99,
+    annual: 102.49,
     cta: "Go Pro",
     features: [
       "Everything in Plus, plus:",
