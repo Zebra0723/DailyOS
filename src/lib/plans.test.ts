@@ -22,7 +22,7 @@ describe("plans", () => {
 
   it("annualPerMonth divides the annual price over 12 months", () => {
     expect(annualPerMonth({ annual: 56.99 } as never)).toBeCloseTo(4.75, 2);
-    expect(annualPerMonth({ annual: 125.49 } as never)).toBeCloseTo(10.46, 2);
+    expect(annualPerMonth({ annual: 102.49 } as never)).toBeCloseTo(8.54, 2);
     expect(annualPerMonth({ annual: 0 } as never)).toBe(0);
   });
 
@@ -30,7 +30,7 @@ describe("plans", () => {
     expect(annualSavingPct({ monthly: 0, annual: 0 } as never)).toBe(0);
     // £4.99/mo = £59.88/yr full price; £56.99 annual → ~5% saved.
     expect(annualSavingPct({ monthly: 4.99, annual: 56.99 } as never)).toBe(5);
-    // £10.99/mo = £131.88/yr full price; £125.49 annual → ~5% saved.
-    expect(annualSavingPct({ monthly: 10.99, annual: 125.49 } as never)).toBe(5);
+    // £8.99/mo = £107.88/yr full price; £102.49 annual → ~5% saved.
+    expect(annualSavingPct({ monthly: 8.99, annual: 102.49 } as never)).toBe(5);
   });
 });
