@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.09.02 · v323 (diagnostics: raw network probe)";
+export const APP_VERSION = "2026.09.02 · v324 (deploy via GitHub Actions)";
