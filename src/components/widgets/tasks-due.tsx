@@ -6,6 +6,7 @@ import { CheckSquare, Loader2, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QuickAddTask } from "@/components/quick-add-task";
+import { useWidgetLoad, WidgetLoadError } from "@/lib/widgets/use-widget-load";
 
 interface Task {
   id: string;
@@ -17,9 +18,8 @@ interface Task {
 
 export function TasksDueWidget() {
   const [tasks, setTasks] = React.useState<Task[]>([]);
-  const [loading, setLoading] = React.useState(true);
 
-  const load = React.useCallback(async () => {
+  const { loading, failed, reload } = useWidgetLoad(async () => {
     const supabase = createClient();
     const today = new Date().toISOString().slice(0, 10);
     const { data } = await supabase
@@ -29,10 +29,7 @@ export function TasksDueWidget() {
       .lte("due_date", today)
       .order("priority", { ascending: false });
     setTasks((data as Task[]) ?? []);
-    setLoading(false);
-  }, []);
-
-  React.useEffect(() => { load(); }, [load]);
+  });
 
   async function complete(id: string) {
     setTasks((prev) => prev.filter((t) => t.id !== id));
@@ -56,6 +53,8 @@ export function TasksDueWidget() {
         <QuickAddTask dueDate={today} />
         {loading ? (
           <div className="flex justify-center py-4"><Loader2 className="size-4 animate-spin text-muted-foreground" /></div>
+        ) : failed ? (
+          <WidgetLoadError onRetry={reload} />
         ) : tasks.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">Nothing due today. Enjoy the calm.</p>
         ) : (

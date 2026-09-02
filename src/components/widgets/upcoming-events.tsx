@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CalendarDays, Clock, MapPin, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useWidgetLoad, WidgetLoadError } from "@/lib/widgets/use-widget-load";
 
 interface CalEvent {
   id: string;
@@ -15,22 +16,18 @@ interface CalEvent {
 
 export function UpcomingEventsWidget() {
   const [events, setEvents] = React.useState<CalEvent[]>([]);
-  const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    (async () => {
-      const supabase = createClient();
-      const now = new Date().toISOString();
-      const { data } = await supabase
-        .from("calendar_events")
-        .select("*")
-        .gte("start_time", now)
-        .order("start_time", { ascending: true })
-        .limit(5);
-      setEvents((data as CalEvent[]) ?? []);
-      setLoading(false);
-    })();
-  }, []);
+  const { loading, failed, reload } = useWidgetLoad(async () => {
+    const supabase = createClient();
+    const now = new Date().toISOString();
+    const { data } = await supabase
+      .from("calendar_events")
+      .select("*")
+      .gte("start_time", now)
+      .order("start_time", { ascending: true })
+      .limit(5);
+    setEvents((data as CalEvent[]) ?? []);
+  });
 
   function formatTime(iso: string) {
     try {
@@ -51,6 +48,8 @@ export function UpcomingEventsWidget() {
       <CardContent>
         {loading ? (
           <div className="flex justify-center py-4"><Loader2 className="size-4 animate-spin text-muted-foreground" /></div>
+        ) : failed ? (
+          <WidgetLoadError onRetry={reload} />
         ) : events.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">No upcoming events.</p>
         ) : (

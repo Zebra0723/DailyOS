@@ -6,27 +6,25 @@ import { AlertTriangle, ArrowRight, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useWidgetLoad, WidgetLoadError } from "@/lib/widgets/use-widget-load";
 
 interface Item { id: string; title: string; summary: string | null }
 
 export function NeedsReviewWidget() {
   const [items, setItems] = React.useState<Item[]>([]);
-  const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    (async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("inbox_items")
-        .select("id, title, summary")
-        .in("status", ["review", "failed"])
-        .order("created_at", { ascending: false });
-      setItems((data as Item[]) ?? []);
-      setLoading(false);
-    })();
-  }, []);
+  const { loading, failed, reload } = useWidgetLoad(async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("inbox_items")
+      .select("id, title, summary")
+      .in("status", ["review", "failed"])
+      .order("created_at", { ascending: false });
+    setItems((data as Item[]) ?? []);
+  });
 
   if (loading) return <Card><CardContent className="flex justify-center py-6"><Loader2 className="size-4 animate-spin text-muted-foreground" /></CardContent></Card>;
+  if (failed) return <Card><CardContent className="py-2"><WidgetLoadError onRetry={reload} /></CardContent></Card>;
   if (items.length === 0) return <Card><CardContent className="py-6 text-center text-sm text-muted-foreground">Nothing to review right now.</CardContent></Card>;
 
   return (

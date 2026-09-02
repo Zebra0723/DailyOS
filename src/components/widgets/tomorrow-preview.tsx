@@ -4,29 +4,26 @@ import * as React from "react";
 import { CalendarClock, Check, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useWidgetLoad, WidgetLoadError } from "@/lib/widgets/use-widget-load";
 
 interface Task { id: string; title: string; priority: string }
 
 export function TomorrowPreviewWidget() {
   const [tasks, setTasks] = React.useState<Task[]>([]);
-  const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    (async () => {
-      const supabase = createClient();
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tStr = tomorrow.toISOString().slice(0, 10);
-      const { data } = await supabase
-        .from("extracted_tasks")
-        .select("id, title, priority")
-        .eq("status", "pending")
-        .eq("due_date", tStr)
-        .order("priority", { ascending: false });
-      setTasks((data as Task[]) ?? []);
-      setLoading(false);
-    })();
-  }, []);
+  const { loading, failed, reload } = useWidgetLoad(async () => {
+    const supabase = createClient();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tStr = tomorrow.toISOString().slice(0, 10);
+    const { data } = await supabase
+      .from("extracted_tasks")
+      .select("id, title, priority")
+      .eq("status", "pending")
+      .eq("due_date", tStr)
+      .order("priority", { ascending: false });
+    setTasks((data as Task[]) ?? []);
+  });
 
   return (
     <Card>
@@ -38,6 +35,8 @@ export function TomorrowPreviewWidget() {
       <CardContent>
         {loading ? (
           <div className="flex justify-center py-4"><Loader2 className="size-4 animate-spin text-muted-foreground" /></div>
+        ) : failed ? (
+          <WidgetLoadError onRetry={reload} />
         ) : tasks.length === 0 ? (
           <p className="py-2 text-center text-sm text-muted-foreground">Nothing due tomorrow.</p>
         ) : (
