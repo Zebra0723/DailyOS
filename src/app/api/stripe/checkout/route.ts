@@ -47,15 +47,16 @@ export async function POST(req: Request) {
 
   // Managed Payments = Stripe's merchant-of-record mode: Stripe becomes the
   // seller of record and handles tax collection/remittance and compliance for
-  // us. Opt in with STRIPE_MANAGED_PAYMENTS=true. It's off by default so the
-  // proven flow (customer reuse + promo codes) stays intact; in managed mode we
-  // keep the session minimal (Stripe owns the customer and tax), so we don't
-  // pass our own customer or promo settings that could conflict.
-  const managed = process.env.STRIPE_MANAGED_PAYMENTS === "true";
+  // us. ON by default; set STRIPE_MANAGED_PAYMENTS=false to fall back to the
+  // plain flow (e.g. if your account isn't enabled for Managed Payments yet).
+  // Note: Managed Payments must be turned on for your Stripe account in the
+  // dashboard first, or Stripe will reject the session.
+  const managed = process.env.STRIPE_MANAGED_PAYMENTS !== "false";
 
   try {
     // Reuse the Stripe customer we stored on a previous purchase, so a user
-    // doesn't accumulate duplicate customers.
+    // doesn't accumulate duplicate customers. (Managed mode: Stripe owns the
+    // customer, so we only prefill the email rather than pin an existing id.)
     const existingCustomer = user.user_metadata?.stripe_customer as string | undefined;
 
     const common = {
@@ -65,19 +66,24 @@ export async function POST(req: Request) {
       client_reference_id: user.id,
       metadata: { userId: user.id, plan },
       subscription_data: { metadata: { userId: user.id, plan } },
+      // Lets people enter a Stripe promotion code on the checkout page.
+      allow_promotion_codes: true,
       success_url: `${SITE_URL}/subscriptions?checkout=success`,
       cancel_url: `${SITE_URL}/subscriptions?checkout=cancelled`,
     };
 
     const session = await stripe.checkout.sessions.create(
       managed
-        ? { ...common, managed_payments: { enabled: true } }
+        ? {
+            ...common,
+            managed_payments: { enabled: true },
+            ...(user.email ? { customer_email: user.email } : {}),
+          }
         : {
             ...common,
             ...(existingCustomer
               ? { customer: existingCustomer }
               : { customer_email: user.email ?? undefined }),
-            allow_promotion_codes: true,
           },
     );
 
