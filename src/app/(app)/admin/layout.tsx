@@ -8,6 +8,7 @@ import {
   Settings,
   Bell,
   Smartphone,
+  Ticket,
   ShieldCheck,
 } from "lucide-react";
 
@@ -16,6 +17,7 @@ export const dynamic = "force-dynamic";
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/codes", label: "Codes", icon: Ticket },
   { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/push", label: "Push", icon: Bell },
   { href: "/admin/devices", label: "Devices", icon: Smartphone },

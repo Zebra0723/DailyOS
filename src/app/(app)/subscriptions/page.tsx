@@ -31,7 +31,7 @@ export default async function SubscriptionsPage() {
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
           From a free start to your own AI chief of staff. Upgrade, downgrade or
-          cancel anytime — and if you&apos;ve got a code, drop it in below.
+          cancel anytime — and if you&apos;ve got a code, enter it at checkout.
         </p>
       </div>
 

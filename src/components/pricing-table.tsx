@@ -2,26 +2,17 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Check, Sparkles, Tag } from "lucide-react";
+import { Check } from "lucide-react";
 import { PLANS, annualPerMonth, annualSavingPct, type Plan } from "@/lib/plans";
-import {
-  usePlan,
-  setPlan,
-  grantPlanReward,
-  type Tier,
-} from "@/lib/use-pro";
-import { recordReferralConversion } from "@/app/(app)/subscriptions/referral-actions";
-import { notifyAdminCodeUsed } from "@/app/(app)/subscriptions/admin-alert-actions";
-import { redeemRewardCode } from "@/app/(app)/subscriptions/reward-code-actions";
-import { redeemPromoCode, persistPlan } from "@/app/(app)/subscriptions/promo-actions";
+import { usePlan, type Tier } from "@/lib/use-pro";
 import { startCheckout } from "@/lib/billing-client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
-// Promo/admin codes are validated server-side (see promo-actions.ts) so the
-// actual code strings never live in the client bundle or the public repo.
+// Codes are no longer redeemed here — every discount is a Stripe promotion
+// code, entered on the Stripe checkout page. Admins generate them in
+// Admin → Codes, and referral rewards are emailed as Stripe codes too.
 
 export function PricingTable({
   compact = false,
@@ -32,185 +23,15 @@ export function PricingTable({
 }) {
   const [annual, setAnnual] = React.useState(true);
   const { mounted, resolved, tier, planExp } = usePlan(userId);
-  const { toast } = useToast();
-  const [code, setCode] = React.useState("");
-  const [error, setError] = React.useState(false);
-  // Reflect a just-entered code instantly, without waiting on any async read.
-  const [justTier, setJustTier] = React.useState<Tier | null>(null);
-  // The expiry that goes with a just-redeemed code (ms, or null for lifetime),
-  // so a time-limited grant (e.g. 3 months of Plus) never flashes "lifetime"
-  // while the real plan expiry is still loading.
-  const [justExp, setJustExp] = React.useState<number | null>(null);
-  // Only treat someone as unlocked once their plan is CONFIRMED (resolved) or
-  // they just redeemed a code — never optimistically, so a free user is never
-  // shown "you're on Pro". Until confirmed we present as Free.
-  const confirmed = justTier !== null || (mounted && resolved);
-  const currentTier: Tier = confirmed ? (justTier ?? tier) : "free";
-  const currentExp = justTier !== null ? justExp : confirmed ? planExp : null;
-  const unlocked = currentTier !== "free";
-
-  async function applyCode() {
-    const entered = code.trim().toUpperCase();
-    if (entered === "") {
-      setError(false);
-      return;
-    }
-    setError(false);
-
-    // Check it as a promo/admin code (validated on the server against private
-    // env codes — the code strings are never in the client).
-    let promo;
-    try {
-      promo = await redeemPromoCode(entered);
-    } catch {
-      setError(true);
-      return;
-    }
-    if (!promo.ok) {
-      // Not a plan/admin code — try it as a single-use referral reward code.
-      void redeemFriendCode(entered);
-      return;
-    }
-    const { plan, admin } = promo;
-    setJustTier(plan);
-    setJustExp(null); // promo/admin codes are lifetime grants
-    toast({
-      variant: plan === "free" ? "info" : "success",
-      title: admin
-        ? "Admin access unlocked"
-        : plan === "free"
-          ? "Switched to Free"
-          : `${plan === "pro" ? "Pro" : "Plus"} unlocked`,
-    });
-    // Persist for this account (and update the gated screens via the event).
-    void setPlan(plan, userId);
-    // Authoritatively persist the plan to auth metadata SERVER-SIDE (awaited),
-    // so the subscription follows this account to any other device. The client
-    // setPlan above mirrors it too, but that write is fire-and-forget and can be
-    // dropped; this one is the reliable source of truth for cross-device sync.
-    void persistPlan({ plan, expiresAt: null });
-    if (admin) {
-      // Alert the owner (with a one-click suspend link) that the admin code was
-      // used on this account.
-      void notifyAdminCodeUsed();
-    }
-
-    // Landing on a paid plan is what "counts" a referral. Until Stripe is live,
-    // a paid code stands in for a payment. If this account was referred, the
-    // reward codes get issued and emailed. No-ops safely for non-referred users.
-    if (plan !== "free") void convertReferral();
-  }
-
-  // Redeem a single-use reward code: a discount claim, or a plan grant (which
-  // may be time-limited, e.g. 3 months of Plus). Reuse is blocked server-side.
-  async function redeemFriendCode(entered: string) {
-    try {
-      const res = await redeemRewardCode(entered);
-      if (res.ok) {
-        if (res.reward.kind === "plan") {
-          const expiresAt =
-            res.reward.days > 0
-              ? Date.now() + res.reward.days * 86_400_000
-              : null;
-          setJustTier(res.reward.tier);
-          setJustExp(expiresAt); // keep the time-limit so it doesn't show lifetime
-          // Merge so a gift never downgrades a better plan the user already has,
-          // then persist the merged result server-side so it syncs across devices.
-          const merged = await grantPlanReward(res.reward.tier, userId, expiresAt);
-          void persistPlan({ plan: merged.tier, expiresAt: merged.expiresAt });
-          toast({ variant: "success", title: `Unlocked: ${res.label} 🎉` });
-        } else {
-          toast({
-            variant: "success",
-            title: `${res.reward.percent}% off claimed — it'll apply to your next paid plan.`,
-          });
-        }
-      } else if (res.reason === "used") {
-        toast({ variant: "error", title: "That code has already been used." });
-      } else if (entered === "DAILYOSFRIEND10") {
-        toast({
-          variant: "info",
-          title: "Personal codes now — check your email for your own one-time code.",
-        });
-      } else {
-        setError(true);
-      }
-    } catch {
-      setError(true);
-    }
-  }
-
-  async function convertReferral() {
-    try {
-      const res = await recordReferralConversion();
-      if (res.ok && res.reason !== "already-converted") {
-        if (res.emailed) {
-          toast({
-            variant: "success",
-            title: "Referral counted — the reward code is on its way by email.",
-          });
-        } else if (res.reason === "email-not-configured") {
-          toast({
-            variant: "info",
-            title: "Referral counted. Email isn't wired up yet, so no code was sent.",
-          });
-        }
-      }
-    } catch {
-      /* referral tracking is best-effort — never block unlocking a plan */
-    }
-  }
+  // Only treat someone as unlocked once their plan is CONFIRMED (resolved) —
+  // never optimistically, so a free user is never shown "you're on Pro". Until
+  // confirmed we present as Free.
+  const confirmed = mounted && resolved;
+  const currentTier: Tier = confirmed ? tier : "free";
+  const currentExp = confirmed ? planExp : null;
 
   return (
     <div>
-      {/* Promo code — always available so a code can be entered even after a
-          plan is already unlocked. */}
-      <div className="mx-auto mb-8 max-w-md">
-        <p className="mb-1 text-center text-sm font-medium">Have a code?</p>
-        <p className="mb-3 text-center text-xs text-muted-foreground">
-          Enter a promo or referral reward code here — this is the page to redeem
-          them.
-        </p>
-        {unlocked && (
-          <div className="mb-3 flex items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
-            <Sparkles className="size-4" /> You&apos;re on{" "}
-            {currentTier === "pro" ? "Pro" : "Plus"} — enjoy, legend!
-          </div>
-        )}
-        <form
-          onSubmit={(e) => {
-            // Hard-stop the native submit so the page never reloads.
-            e.preventDefault();
-            e.stopPropagation();
-            applyCode();
-          }}
-          className="flex items-center gap-2"
-        >
-          <div className="relative flex-1">
-            <Tag className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={code}
-              onChange={(e) => {
-                setCode(e.target.value);
-                setError(false);
-              }}
-              placeholder={unlocked ? "Have another code?" : "Promo code"}
-              autoComplete="off"
-              autoCapitalize="characters"
-              className="pl-9 uppercase placeholder:normal-case"
-            />
-          </div>
-          <Button type="submit" variant="outline">
-            Apply
-          </Button>
-        </form>
-        {error && (
-          <p className="mt-2 text-center text-sm text-destructive">
-            That code isn&apos;t valid.
-          </p>
-        )}
-      </div>
-
       {/* Billing-cycle toggle */}
       <div className="mb-8 flex items-center justify-center gap-3">
         <Cycle active={!annual} onClick={() => setAnnual(false)}>
@@ -239,7 +60,8 @@ export function PricingTable({
       </div>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Prices in GBP and include VAT. Free to start — no card needed.
+        Prices in GBP and include VAT. Free to start — no card needed. Got a
+        code? Enter it at checkout.
       </p>
     </div>
   );

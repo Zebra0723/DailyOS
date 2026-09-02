@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe, planForPriceId } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase/server";
+import { convertReferralForUser } from "@/lib/referral-convert";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -83,6 +84,16 @@ export async function POST(req: Request) {
           plan = planFromSubscription(sub) ?? plan;
         }
         await setUserPlan(userId, plan, customer);
+        // A real payment landed — this is what "counts" a referral. Issue the
+        // Stripe reward codes to the friend and referrer. Best-effort: a failure
+        // here must never fail the webhook (which would make Stripe retry).
+        if (plan) {
+          try {
+            await convertReferralForUser(userId);
+          } catch (err) {
+            console.error("[stripe/webhook] referral conversion failed:", err);
+          }
+        }
         break;
       }
 
