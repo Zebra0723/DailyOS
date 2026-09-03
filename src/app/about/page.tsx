@@ -108,20 +108,20 @@ export default function AboutPage() {
             </Link>
           </div>
 
-          {/* Affiliates */}
+          {/* The DailyOS Family */}
           <div className="mt-12 border-t pt-8">
             <h2 className="font-display text-2xl font-bold tracking-tight">
-              Affiliates
+              The DailyOS Family
             </h2>
             <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
-              DailyOS is part of a small family of companies. See everyone
-              we&rsquo;re affiliated with.
+              DailyOS is part of a small family of companies. See everyone in
+              the family.
             </p>
             <Link
               href="/affiliates"
               className="mt-4 inline-flex items-center rounded-xl border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-accent hover:text-accent-foreground"
             >
-              View our affiliates
+              Meet the family
             </Link>
           </div>
         </article>

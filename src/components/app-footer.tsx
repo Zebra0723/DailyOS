@@ -16,7 +16,7 @@ export function AppFooter() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 text-sm sm:gap-16">
+          <div className="grid grid-cols-2 gap-10 text-sm sm:grid-cols-3 sm:gap-16">
             <div>
               <p className="mb-3 font-semibold">Support</p>
               <ul className="space-y-2 text-muted-foreground">
@@ -53,6 +53,16 @@ export function AppFooter() {
                 <li>
                   <Link href="/cookies" className="hover:text-foreground">
                     Cookie Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-3 font-semibold">The DailyOS Family</p>
+              <ul className="space-y-2 text-muted-foreground">
+                <li>
+                  <Link href="/affiliates" className="hover:text-foreground">
+                    Our companies
                   </Link>
                 </li>
               </ul>
