@@ -55,6 +55,26 @@ export function WidgetDiagnostics() {
 
       if (!url || !anon) return;
 
+      // 2a. Auth cookie presence/size. The session lives in cookies; a missing
+      // one means "logged out on this client", and a huge/chunked one can point
+      // at a corrupt session that wedges the client's init.
+      try {
+        const all = typeof document !== "undefined" && document.cookie
+          ? document.cookie.split("; ")
+          : [];
+        const authCookies = all.filter((c) => /(^|;)?\s*sb-|auth-token|supabase/i.test(c));
+        const size = authCookies.reduce((n, c) => n + c.length, 0);
+        push({
+          label: "Auth cookie",
+          state: authCookies.length ? "ok" : "warn",
+          detail: authCookies.length
+            ? `${authCookies.length} cookie(s), ${size} bytes`
+            : "none found (logged out on this device)",
+        });
+      } catch (e) {
+        push({ label: "Auth cookie", state: "warn", detail: String(e) });
+      }
+
       // 2b. RAW network probe — a plain fetch to Supabase's public health
       // endpoint, bypassing the Supabase client entirely (no locks, no token).
       // If THIS fails/hangs, the browser simply can't reach Supabase (an ad/
