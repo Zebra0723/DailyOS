@@ -82,6 +82,29 @@ export default function AffiliatesPage() {
               </p>
             </a>
           </div>
+
+          {/* Auralis — click the logo to go to the live site. */}
+          <div className="mt-16 border-t border-white/10 pt-16">
+            <a
+              href="https://auralis.dailyos.uk"
+              className="group block outline-none"
+              aria-label="Visit Auralis"
+            >
+              <div className="flex justify-center py-10 transition-opacity group-hover:opacity-80 group-focus-visible:opacity-80">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/auralis-logo.jpg"
+                  alt="Auralis"
+                  width={352}
+                  height={352}
+                  className="h-44 w-44 rounded-full sm:h-64 sm:w-64"
+                />
+              </div>
+              <p className="mt-6 text-center text-sm text-white/40">
+                Auralis · auralis.dailyos.uk
+              </p>
+            </a>
+          </div>
         </div>
       </main>
     </div>
