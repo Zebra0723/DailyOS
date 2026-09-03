@@ -7,8 +7,8 @@ import { ArrowLeft } from "lucide-react";
 const serif = Instrument_Serif({ subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
-  title: "Affiliates · DailyOS",
-  description: "The companies affiliated with DailyOS.",
+  title: "The DailyOS Family · DailyOS",
+  description: "The companies that are part of the DailyOS family.",
 };
 
 /**
@@ -54,13 +54,13 @@ export default function AffiliatesPage() {
         >
           <ArrowLeft className="size-4" /> About us
         </Link>
-        <span className="text-sm text-white/40">DailyOS affiliates</span>
+        <span className="text-sm text-white/40">The DailyOS Family</span>
       </header>
 
       <main className="px-6 pb-24 pt-10 sm:px-10">
         <div className="mx-auto max-w-5xl">
           <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-6xl">
-            Our affiliates
+            The DailyOS Family
           </h1>
           <p className="mt-4 max-w-xl text-base text-white/50 sm:text-lg">
             The companies that are part of the DailyOS family. Tap a logo to
