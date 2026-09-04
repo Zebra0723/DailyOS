@@ -108,7 +108,7 @@ export function getAIDiagnostics(): {
 } {
   const baseUrl = process.env.AI_PROVIDER_BASE_URL ?? "https://api.openai.com/v1";
   const apiKey = process.env.AI_PROVIDER_API_KEY ?? "";
-  const model = process.env.AI_MODEL ?? "gpt-4o-mini";
+  const model = process.env.AI_MODEL?.trim() || defaultModelForHost(baseUrl);
   let host = baseUrl;
   try {
     host = new URL(baseUrl).host;
@@ -124,14 +124,35 @@ export function getAIDiagnostics(): {
   };
 }
 
+/**
+ * A sensible default model for the configured host, so setting just the key +
+ * base URL works. Groq in particular rejects OpenAI model names, and its own
+ * models get retired often — this points at a current one when AI_MODEL is
+ * blank. (An explicitly-set AI_MODEL is always honoured, even if it's stale.)
+ */
+function defaultModelForHost(baseUrl: string): string {
+  let host = "";
+  try {
+    host = new URL(baseUrl).host;
+  } catch {
+    host = baseUrl;
+  }
+  if (host.includes("groq.com")) return "llama-3.3-70b-versatile";
+  if (host.includes("openrouter.ai")) return "openai/gpt-4o-mini";
+  if (host.includes("together")) return "meta-llama/Llama-3.3-70B-Instruct-Turbo";
+  return "gpt-4o-mini";
+}
+
 let cached: AIProvider | null = null;
 
 export function getAIProvider(): AIProvider {
   if (cached) return cached;
+  const baseUrl = process.env.AI_PROVIDER_BASE_URL ?? "https://api.openai.com/v1";
+  const model = process.env.AI_MODEL?.trim() || defaultModelForHost(baseUrl);
   cached = new OpenAICompatibleProvider(
-    process.env.AI_PROVIDER_BASE_URL ?? "https://api.openai.com/v1",
+    baseUrl,
     process.env.AI_PROVIDER_API_KEY ?? "",
-    process.env.AI_MODEL ?? "gpt-4o-mini",
+    model,
   );
   return cached;
 }

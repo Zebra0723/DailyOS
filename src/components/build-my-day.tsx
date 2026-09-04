@@ -19,9 +19,20 @@ import {
   Trash2,
   Check,
   ArrowDownUp,
+  MapPin,
+  Bed,
 } from "lucide-react";
-import { buildDay } from "@/app/(app)/build-day/actions";
-import type { DayPlan, DayBlock, BlockType, Pace } from "@/lib/ai/build-day";
+import { buildDay, estimateTravel } from "@/app/(app)/build-day/actions";
+import type {
+  DayPlan,
+  DayBlock,
+  BlockType,
+  Pace,
+  MealPrefs,
+  TravelPlan,
+  TravelMode,
+  EnergyPeak,
+} from "@/lib/ai/build-day";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,6 +107,7 @@ const BLOCK_STYLE: Record<BlockType, { icon: React.ComponentType<{ className?: s
   meal: { icon: Utensils, dot: "bg-orange-500", chip: "text-orange-600 dark:text-orange-400" },
   wellbeing: { icon: Wind, dot: "bg-emerald-500", chip: "text-emerald-600 dark:text-emerald-400" },
   buffer: { icon: Circle, dot: "bg-muted-foreground/40", chip: "text-muted-foreground" },
+  travel: { icon: MapPin, dot: "bg-sky-500", chip: "text-sky-600 dark:text-sky-400" },
 };
 
 const BLOCK_TYPES: BlockType[] = [
@@ -105,7 +117,21 @@ const BLOCK_TYPES: BlockType[] = [
   "meal",
   "wellbeing",
   "admin",
+  "travel",
   "buffer",
+];
+
+const MODES: { key: TravelMode; label: string }[] = [
+  { key: "walk", label: "Walk" },
+  { key: "cycle", label: "Cycle" },
+  { key: "transit", label: "Transit" },
+  { key: "drive", label: "Drive" },
+];
+
+const ENERGY: { key: EnergyPeak; label: string }[] = [
+  { key: "morning", label: "Morning" },
+  { key: "afternoon", label: "Afternoon" },
+  { key: "evening", label: "Evening" },
 ];
 
 export function BuildMyDay() {
@@ -118,6 +144,58 @@ export function BuildMyDay() {
   const [error, setError] = React.useState<string | null>(null);
   const [plan, setPlan] = React.useState<DayPlan | null>(null);
   const [editing, setEditing] = React.useState<number | null>(null);
+
+  // Optimisation questions.
+  const [energyPeak, setEnergyPeak] = React.useState<EnergyPeak>("morning");
+  const [meals, setMeals] = React.useState<MealPrefs>({
+    breakfast: false,
+    lunch: true,
+    dinner: false,
+  });
+  const [travelOn, setTravelOn] = React.useState(false);
+  const [travel, setTravel] = React.useState<TravelPlan>({
+    start: "",
+    destination: "",
+    mode: "drive",
+    arriveBy: "09:00",
+    travelMins: 30,
+    getReadyMins: 45,
+  });
+  const [estimating, setEstimating] = React.useState(false);
+  const [estimateMsg, setEstimateMsg] = React.useState<string | null>(null);
+
+  function setTravelField<K extends keyof TravelPlan>(key: K, value: TravelPlan[K]) {
+    setTravel((t) => ({ ...t, [key]: value }));
+  }
+  function toggleMeal(key: "breakfast" | "lunch" | "dinner") {
+    setMeals((m) => ({ ...m, [key]: !m[key] }));
+  }
+
+  async function estimate() {
+    if (!travel.destination.trim()) {
+      setEstimateMsg("Add where you're going first.");
+      return;
+    }
+    setEstimating(true);
+    setEstimateMsg(null);
+    try {
+      const res = await estimateTravel({
+        start: travel.start,
+        destination: travel.destination,
+        mode: travel.mode,
+      });
+      if (res.minutes && res.minutes > 0) {
+        setTravelField("travelMins", res.minutes);
+        setEstimateMsg(`Estimated ~${res.minutes} min — adjust if you know better.`);
+      } else {
+        setEstimateMsg("Couldn't estimate automatically — enter the minutes yourself.");
+      }
+    } catch {
+      setEstimateMsg("Couldn't estimate — enter the minutes yourself.");
+    } finally {
+      setEstimating(false);
+    }
+  }
 
   // --- Editing the generated plan (the auto-plan is a starting point) --------
   function setBlocks(next: DayBlock[]) {
@@ -200,7 +278,18 @@ export function BuildMyDay() {
     try {
       const cleanFixed = fixed.filter((r) => r.start && r.end && r.label.trim());
       const goalList = tasks.map((g) => g.trim()).filter(Boolean);
-      const res = await buildDay({ dayStart, dayEnd, fixed: cleanFixed, goals: goalList, pace });
+      const useTravel =
+        travelOn && travel.destination.trim() && travel.arriveBy && travel.travelMins > 0;
+      const res = await buildDay({
+        dayStart,
+        dayEnd,
+        fixed: cleanFixed,
+        goals: goalList,
+        pace,
+        meals,
+        energyPeak,
+        travel: useTravel ? travel : undefined,
+      });
       if (!res.ok) {
         setError(res.error);
         return;
@@ -329,6 +418,199 @@ export function BuildMyDay() {
               </Button>
             </div>
 
+            {/* Energy peak — helps place demanding work well */}
+            <div className="space-y-1.5">
+              <Label>When&apos;s your energy highest?</Label>
+              <p className="text-xs text-muted-foreground">
+                I&apos;ll schedule your most demanding work then.
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {ENERGY.map((e) => (
+                  <button
+                    key={e.key}
+                    type="button"
+                    onClick={() => setEnergyPeak(e.key)}
+                    className={cn(
+                      "rounded-xl border p-2.5 text-sm font-medium transition-colors",
+                      energyPeak === e.key ? "border-2 border-primary bg-accent/50" : "hover:bg-accent",
+                    )}
+                  >
+                    {e.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Meals */}
+            <div className="space-y-1.5">
+              <Label>Meals to fit in</Label>
+              <p className="text-xs text-muted-foreground">
+                I&apos;ll place these and plan the day around them.
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {(["breakfast", "lunch", "dinner"] as const).map((meal) => (
+                  <button
+                    key={meal}
+                    type="button"
+                    onClick={() => toggleMeal(meal)}
+                    className={cn(
+                      "flex items-center justify-center gap-1.5 rounded-xl border p-2.5 text-sm font-medium capitalize transition-colors",
+                      meals[meal] ? "border-2 border-primary bg-accent/50" : "hover:bg-accent",
+                    )}
+                  >
+                    <Utensils className="size-3.5" /> {meal}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {(["breakfast", "lunch", "dinner"] as const).map((meal) =>
+                  meals[meal] ? (
+                    <TimePicker
+                      key={meal}
+                      value={
+                        meal === "breakfast"
+                          ? meals.breakfastAt ?? ""
+                          : meal === "lunch"
+                            ? meals.lunchAt ?? ""
+                            : meals.dinnerAt ?? ""
+                      }
+                      onChange={(v) =>
+                        setMeals((m) => ({
+                          ...m,
+                          [`${meal}At`]: v,
+                        }))
+                      }
+                      className="w-full"
+                    />
+                  ) : (
+                    <span key={meal} />
+                  ),
+                )}
+              </div>
+            </div>
+
+            {/* Travel */}
+            <div className="space-y-2 rounded-xl border p-3">
+              <button
+                type="button"
+                onClick={() => setTravelOn((v) => !v)}
+                className="flex w-full items-center justify-between"
+              >
+                <span className="inline-flex items-center gap-2 text-sm font-medium">
+                  <MapPin className="size-4 text-sky-500" /> Getting somewhere today?
+                </span>
+                <span
+                  className={cn(
+                    "relative h-5 w-9 rounded-full transition-colors",
+                    travelOn ? "bg-primary" : "bg-muted-foreground/30",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "absolute top-0.5 size-4 rounded-full bg-white transition-all",
+                      travelOn ? "left-[18px]" : "left-0.5",
+                    )}
+                  />
+                </span>
+              </button>
+
+              {travelOn && (
+                <div className="space-y-3 pt-1">
+                  <p className="text-xs text-muted-foreground">
+                    Tell me where and by when — I&apos;ll work out when to leave
+                    and when to wake up.
+                  </p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label>From</Label>
+                      <Input
+                        value={travel.start}
+                        onChange={(e) => setTravelField("start", e.target.value)}
+                        placeholder="Home"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>To</Label>
+                      <Input
+                        value={travel.destination}
+                        onChange={(e) => setTravelField("destination", e.target.value)}
+                        placeholder="Where you're going"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>How</Label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {MODES.map((mode) => (
+                        <button
+                          key={mode.key}
+                          type="button"
+                          onClick={() => setTravelField("mode", mode.key)}
+                          className={cn(
+                            "rounded-lg border p-2 text-xs font-medium transition-colors",
+                            travel.mode === mode.key
+                              ? "border-2 border-primary bg-accent/50"
+                              : "hover:bg-accent",
+                          )}
+                        >
+                          {mode.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label>Arrive by</Label>
+                      <TimePicker
+                        value={travel.arriveBy}
+                        onChange={(v) => setTravelField("arriveBy", v)}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Time to get ready (mins)</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={travel.getReadyMins}
+                        onChange={(e) =>
+                          setTravelField("getReadyMins", Math.max(0, Number(e.target.value) || 0))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>Journey time (mins)</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min={1}
+                        value={travel.travelMins}
+                        onChange={(e) =>
+                          setTravelField("travelMins", Math.max(1, Number(e.target.value) || 1))
+                        }
+                        className="flex-1"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={estimate}
+                        disabled={estimating}
+                      >
+                        {estimating ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                        Estimate
+                      </Button>
+                    </div>
+                    {estimateMsg && (
+                      <p className="text-xs text-muted-foreground">{estimateMsg}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {error && (
               <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>
             )}
@@ -380,6 +662,34 @@ export function BuildMyDay() {
               })()}
             </CardContent>
           </Card>
+
+          {(plan.leaveBy || plan.wakeUp) && (
+            <Card className="border-sky-300 bg-sky-50/60 dark:border-sky-500/30 dark:bg-sky-500/10">
+              <CardContent className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-5">
+                {plan.wakeUp && (
+                  <div className="flex items-center gap-2">
+                    <Bed className="size-5 text-sky-600 dark:text-sky-400" />
+                    <div>
+                      <p className="text-lg font-bold tracking-tight">{plan.wakeUp}</p>
+                      <p className="text-[11px] text-muted-foreground">wake up</p>
+                    </div>
+                  </div>
+                )}
+                {plan.leaveBy && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="size-5 text-sky-600 dark:text-sky-400" />
+                    <div>
+                      <p className="text-lg font-bold tracking-tight">{plan.leaveBy}</p>
+                      <p className="text-[11px] text-muted-foreground">leave by</p>
+                    </div>
+                  </div>
+                )}
+                {plan.travelNote && (
+                  <p className="flex-1 text-sm text-muted-foreground">{plan.travelNote}</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Edit toolbar */}
           <div className="flex items-center justify-between">
