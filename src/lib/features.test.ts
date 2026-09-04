@@ -38,21 +38,17 @@ describe("feature catalogue", () => {
 });
 
 describe("defaults and migration", () => {
-  it("a new account starts on the starter set, not everything", () => {
-    const keys = defaultFeatureKeys(after);
-    expect(keys).toEqual(starterFeatureKeys());
-    expect(keys.length).toBeLessThan(allFeatureKeys().length);
+  it("every account gets all sections preloaded (customisation removed)", () => {
+    // The dashboard is no longer customisable — every account is preloaded with
+    // the full non-admin catalogue, regardless of when it was created.
+    expect(defaultFeatureKeys(after)).toEqual(allFeatureKeys());
   });
 
-  it("a new account starts with NO optional sections switched on", () => {
-    // The brief is empty-first: a brand-new account gets only the sections it
-    // cannot function without, and adds the rest itself. Nothing from the
-    // toggleable catalogue may be preloaded.
+  it("preloads all toggleable sections too, not just core", () => {
     const keys = defaultFeatureKeys(after);
     for (const f of TOGGLEABLE_FEATURES) {
-      expect(keys).not.toContain(f.key);
+      expect(keys).toContain(f.key);
     }
-    expect(keys).toEqual(FEATURES.filter((f) => f.core).map((f) => f.key));
   });
 
   it("an account created before feature choice keeps everything", () => {

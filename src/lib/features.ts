@@ -175,25 +175,20 @@ export const FEATURE_CHOICE_LAUNCH_ISO = "2026-08-18T00:00:00.000Z";
  * The enabled set for an account with nothing stored yet. New accounts start on
  * the small starter set; accounts that predate the launch keep everything.
  */
-export function defaultFeatureKeys(accountCreatedAtIso?: string | null): string[] {
-  if (!accountCreatedAtIso) return allFeatureKeys();
-  const created = Date.parse(accountCreatedAtIso);
-  if (!Number.isFinite(created)) return allFeatureKeys();
-  return created < Date.parse(FEATURE_CHOICE_LAUNCH_ISO)
-    ? allFeatureKeys()
-    : starterFeatureKeys();
+export function defaultFeatureKeys(_accountCreatedAtIso?: string | null): string[] {
+  // Every section is preloaded now — the dashboard is no longer customisable,
+  // so every account gets the full set regardless of when it was created.
+  return allFeatureKeys();
 }
 
 /**
  * Clean a stored list: drop unknown keys (a feature we removed), force core
  * sections back on, and never let a stored value grant an admin-only section.
  */
-export function normaliseFeatureKeys(stored: unknown): string[] {
-  const raw = Array.isArray(stored) ? stored.filter((k): k is string => typeof k === "string") : [];
-  const wanted = new Set(raw);
-  return FEATURES.filter(
-    (f) => !f.adminOnly && (f.core || wanted.has(f.key)),
-  ).map((f) => f.key);
+export function normaliseFeatureKeys(_stored: unknown): string[] {
+  // Sections are no longer customisable — everyone gets the full non-admin set,
+  // so a previously-stored partial selection is upgraded to all.
+  return allFeatureKeys();
 }
 
 // ---- Packs -----------------------------------------------------------------
