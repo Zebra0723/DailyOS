@@ -7,26 +7,14 @@ import {
   describeReward,
   type Reward,
 } from "@/lib/referral-rewards";
-import { createStripePromoCode, type PromoSpec } from "@/lib/stripe-promo";
+import { createStripePromoCode } from "@/lib/stripe-promo";
+import { rewardToPromoSpec } from "@/lib/reward-promo-spec";
 
 type Admin = ReturnType<typeof createServiceClient>;
 
 // Referral conversion, driven server-side. This is NOT a client-callable server
 // action on purpose: it acts on an arbitrary user id, so only trusted callers
 // (the Stripe webhook, which knows a payment really happened) may run it.
-
-/** Map a referral reward to the Stripe promo code that delivers it. Every reward
- *  is a Stripe discount now — a plan grant is 100% off for the plan's duration. */
-function rewardToPromoSpec(reward: Reward): PromoSpec {
-  if (reward.kind === "discount") {
-    return { percentOff: reward.percent, duration: { kind: "once" } };
-  }
-  if (reward.days === 0) {
-    return { percentOff: 100, duration: { kind: "forever" } };
-  }
-  const months = Math.max(1, Math.round(reward.days / 30));
-  return { percentOff: 100, duration: { kind: "repeating", months } };
-}
 
 /** Create a single-use Stripe promo code for a reward and log a tracking row so
  *  the user can see it on their Subscriptions page. Returns the code, or null if
