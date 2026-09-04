@@ -4,7 +4,6 @@ import { LanguagePicker } from "@/components/language-picker";
 import { PushNudge } from "@/components/push-nudge";
 import { Dashboard } from "@/components/dashboard";
 import { HowDailyOSWorks } from "@/components/how-dailyos-works";
-import { WidgetDiagnostics } from "@/components/widget-diagnostics";
 
 export const metadata = { title: "Today · DailyOS" };
 
@@ -50,8 +49,6 @@ export default async function TodayPage() {
       </header>
 
       <PushNudge />
-
-      <WidgetDiagnostics />
 
       <HowDailyOSWorks userId={user?.id} />
 

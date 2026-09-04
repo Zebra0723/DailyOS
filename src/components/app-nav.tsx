@@ -29,13 +29,11 @@ import {
   Info,
   LifeBuoy,
   Mail,
-  LayoutGrid,
   BookOpen,
 } from "lucide-react";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 import { useSurvey } from "@/components/survey/survey-provider";
 import { useBugReport } from "@/components/bug/bug-report-provider";
-import { useWidgetStore } from "@/components/widget-store";
 import { createClient } from "@/lib/supabase/client";
 import { usePlan, tierMeets } from "@/lib/use-pro";
 import { useFeatures } from "@/lib/features-store";
@@ -158,7 +156,6 @@ export function TopNav({ email, userId, username }: { email: string; userId?: st
   const pathname = usePathname();
   const { openSurvey } = useSurvey();
   const { openBugReport } = useBugReport();
-  const { openWidgetStore } = useWidgetStore();
   const { tier, mounted, resolved } = usePlan(userId);
   const ready = mounted && resolved;
   const vaultLocked = ready && !tierMeets(tier, "Plus"); // Vault & Build My Day (Plus+)
@@ -225,16 +222,6 @@ export function TopNav({ email, userId, username }: { email: string; userId?: st
               </Link>
             );
           })}
-          <div className="mx-1 h-5 w-px bg-border" />
-          <button
-            onClick={openWidgetStore}
-            className="group relative rounded-full px-3.5 py-1.5 text-sm font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <span className="inline-flex items-center gap-1.5">
-              <LayoutGrid className="size-3.5" />
-              Customise
-            </span>
-          </button>
         </nav>
 
         <div className="flex shrink-0 items-center gap-3">
@@ -333,7 +320,6 @@ export function MobileNav({ email, userId, username }: { email?: string; userId?
   const { enabled } = useFeatures();
   const { openSurvey } = useSurvey();
   const { openBugReport } = useBugReport();
-  const { openWidgetStore } = useWidgetStore();
   const { tier, mounted, resolved } = usePlan(userId);
   const ready = mounted && resolved;
   const vaultLocked = ready && !tierMeets(tier, "Plus");
@@ -411,19 +397,6 @@ export function MobileNav({ email, userId, username }: { email?: string; userId?
               >
                 <X className="size-5" />
               </button>
-            </div>
-
-            <div className="px-4 py-3">
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => {
-                  setMenuOpen(false);
-                  openWidgetStore();
-                }}
-              >
-                <LayoutGrid className="size-4" /> Customise
-              </Button>
             </div>
 
             <nav className="flex-1 space-y-4 overflow-y-auto px-2 pb-4">
