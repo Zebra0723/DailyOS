@@ -16,7 +16,7 @@ function fetchWithTimeout(
   init?: RequestInit,
 ): Promise<Response> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 10_000);
+  const timer = setTimeout(() => controller.abort(), 6_000);
   const callerSignal = init?.signal;
   if (callerSignal) {
     if (callerSignal.aborted) controller.abort();

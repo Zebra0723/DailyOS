@@ -93,6 +93,46 @@ export function WidgetDiagnostics() {
           : `${probe.error} · ${probe.t}ms`,
       });
 
+      // 2c. RAW REST GET — the exact endpoint shape a widget query uses, but
+      // via plain fetch (no Supabase client). Any HTTP status = reachable.
+      const rest = await timed(
+        () =>
+          fetch(`${url}/rest/v1/user_state?select=key&limit=1`, {
+            headers: { apikey: anon, Authorization: `Bearer ${anon}` },
+            cache: "no-store",
+          }),
+        6000,
+      );
+      push({
+        label: "Raw REST GET",
+        state: rest.ok ? "ok" : "fail",
+        detail: rest.ok
+          ? `HTTP ${(rest.value as Response).status} · ${rest.t}ms`
+          : `${rest.error} · ${rest.t}ms`,
+      });
+
+      // 2d. RAW auth POST — the token endpoint the client hits on load to
+      // refresh the session. A dummy refresh token should bounce back fast
+      // (HTTP 400/401). If this hangs while the GET above is fine, POSTs to the
+      // auth endpoint specifically are being blocked on this device/network.
+      const tok = await timed(
+        () =>
+          fetch(`${url}/auth/v1/token?grant_type=refresh_token`, {
+            method: "POST",
+            headers: { apikey: anon, "Content-Type": "application/json" },
+            body: JSON.stringify({ refresh_token: "diagnostic-probe" }),
+            cache: "no-store",
+          }),
+        6000,
+      );
+      push({
+        label: "Raw auth POST (token)",
+        state: tok.ok ? "ok" : "fail",
+        detail: tok.ok
+          ? `HTTP ${(tok.value as Response).status} · ${tok.t}ms`
+          : `${tok.error} · ${tok.t}ms`,
+      });
+
       let supabase: ReturnType<typeof createClient>;
       try {
         supabase = createClient();
