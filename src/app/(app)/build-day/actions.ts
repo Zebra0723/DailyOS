@@ -1,6 +1,12 @@
 "use server";
 
-import { buildDayPlan, type BuildDayInput, type DayPlan } from "@/lib/ai/build-day";
+import {
+  buildDayPlan,
+  estimateTravelMins,
+  type BuildDayInput,
+  type DayPlan,
+  type TravelMode,
+} from "@/lib/ai/build-day";
 
 export type BuildDayResponse =
   | { ok: true; plan: DayPlan }
@@ -18,5 +24,19 @@ export async function buildDay(input: BuildDayInput): Promise<BuildDayResponse> 
     return { ok: true, plan };
   } catch {
     return { ok: false, error: "Something went wrong building your day. Please try again." };
+  }
+}
+
+/** Best-effort travel-time estimate (minutes). null → the user should enter it. */
+export async function estimateTravel(input: {
+  start: string;
+  destination: string;
+  mode: TravelMode;
+}): Promise<{ minutes: number | null }> {
+  try {
+    const minutes = await estimateTravelMins(input.start, input.destination, input.mode);
+    return { minutes };
+  } catch {
+    return { minutes: null };
   }
 }
