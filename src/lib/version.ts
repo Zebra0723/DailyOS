@@ -1,3 +1,3 @@
 // Bump this on each deploy so we can confirm the live site is up to date.
 // If the version shown in Settings doesn't match, the deploy didn't land.
-export const APP_VERSION = "2026.09.02 · v334 (AI auto-selects a live model; self-heals retired ones)";
+export const APP_VERSION = "2026.09.02 · v335 (referral reward-mapping tests + dedup)";

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { adminApiAuthorized } from "@/lib/admin-api-auth";
 import { describeReward, type Reward } from "@/lib/referral-rewards";
-import { createStripePromoCode, type PromoSpec } from "@/lib/stripe-promo";
+import { createStripePromoCode } from "@/lib/stripe-promo";
+import { rewardToPromoSpec } from "@/lib/reward-promo-spec";
 
 // No 0/O, 1/I/L — these are typed by hand off a promo, so drop the lookalikes.
 const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -28,16 +29,6 @@ export const dynamic = "force-dynamic";
 
 const int = (v: unknown): number | null =>
   typeof v === "number" && Number.isInteger(v) ? v : null;
-
-/** A referral reward → the Stripe promo spec that delivers it. */
-function rewardToPromoSpec(reward: Reward): PromoSpec {
-  if (reward.kind === "discount") {
-    return { percentOff: reward.percent, duration: { kind: "once" } };
-  }
-  if (reward.days === 0) return { percentOff: 100, duration: { kind: "forever" } };
-  const months = Math.max(1, Math.round(reward.days / 30));
-  return { percentOff: 100, duration: { kind: "repeating", months } };
-}
 
 export async function POST(req: Request) {
   if (!adminApiAuthorized(req)) {
