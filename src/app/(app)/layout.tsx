@@ -16,8 +16,6 @@ import { AnnouncementBanner } from "@/components/announcement-banner";
 import { BirthdayBanner } from "@/components/birthday-banner";
 import { SurveyProvider } from "@/components/survey/survey-provider";
 import { BugReportProvider } from "@/components/bug/bug-report-provider";
-import { WidgetStoreProvider } from "@/components/widget-store";
-import { DashboardProvider } from "@/lib/widgets/dashboard-store";
 import { FeaturesProvider } from "@/lib/features-store";
 import { GuidedTour } from "@/components/guided-tour";
 import { DiscoverySurvey } from "@/components/discovery-survey";
@@ -100,8 +98,6 @@ export default async function AppLayout({
           accountCreatedAt={user.created_at}
           isAdmin={isAdmin}
         >
-        <DashboardProvider userId={user.id}>
-        <WidgetStoreProvider>
         <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-background">
           {!hidden.has("birthday") && <BirthdayBanner />}
           {!hidden.has("offline") && <OfflineBanner />}
@@ -123,8 +119,6 @@ export default async function AppLayout({
           <GuidedTour />
           <DiscoverySurvey userId={user.id} />
         </div>
-        </WidgetStoreProvider>
-        </DashboardProvider>
         </FeaturesProvider>
         </BugReportProvider>
       </SurveyProvider>
